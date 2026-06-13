@@ -13,6 +13,7 @@ import { useMusicStore, trackGradient, GENRE_COLORS } from '@/store/musicStore';
 import { usePlaylistStore } from '@/store/playlistStore';
 import { search, SearchResult } from '@/lib/search';
 import toast from 'react-hot-toast';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 
 const GREEN = 'var(--color-ss-primary, #1db954)';
 
@@ -307,6 +308,7 @@ function Section({ title, subtitle, link, linkText = 'Show all', children, style
 }
 
 export default function HomePage() {
+  const isOnline = useNetworkStatus();
   const [mounted, setMounted] = useState(false);
   const { currentTrack, isPlaying, playTrack, togglePlay } = usePlayerStore();
   const { user, toggleSavePlaylist, toggleLikeSong, setMobileDrawerOpen } = useAuthStore();
@@ -365,6 +367,31 @@ export default function HomePage() {
     };
     fetchPromos();
   }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    
+    if (isOnline) {
+      fetchTracks();
+      const fetchPromos = async () => {
+        try {
+          const res = await fetch('/api/promotions');
+          const payload = await res.json();
+          if (payload.success) {
+            setPromotions(payload.promotions || []);
+            setHomeLayoutOrder(payload.homeLayoutOrder || []);
+            setCustomSections(payload.customSections || {});
+            setActiveTheme(payload.activeTheme || null);
+            setEvents(payload.events || []);
+          }
+        } catch (e) {
+          console.error('Failed fetching homepage layout', e);
+        }
+      };
+      fetchPromos();
+      toast.success('Back online! Syncing latest music... ⚡', { id: 'online-sync' });
+    }
+  }, [isOnline, mounted]);
 
   // Auto-slider disabled — manual swipe/tap only
 
@@ -5321,6 +5348,52 @@ export default function HomePage() {
       </div>
 
       <div style={{ padding: isMobile ? '0 16px' : '0 24px' }}>
+        {/* Offline Banner Card */}
+        {!isOnline && (
+          <div style={{
+            background: 'rgba(239, 68, 68, 0.12)',
+            border: '1.5px dashed rgba(239, 68, 68, 0.3)',
+            borderRadius: 16,
+            padding: '20px',
+            marginBottom: 24,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+            gap: 12,
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+          }}>
+            <span style={{ fontSize: 32 }}>📶</span>
+            <div>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: '#ef4444' }}>You're Currently Offline</h3>
+              <p style={{ margin: '4px 0 0 0', fontSize: 13, color: '#a3a3a3', lineHeight: '1.4' }}>
+                Connect to the internet to browse and stream millions of songs.
+              </p>
+            </div>
+            <Link
+              href="/downloads"
+              style={{
+                background: '#1db954',
+                color: '#000',
+                textDecoration: 'none',
+                borderRadius: 24,
+                padding: '10px 20px',
+                fontSize: 13,
+                fontWeight: 800,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                marginTop: 4,
+                boxShadow: '0 4px 12px rgba(29, 185, 84, 0.2)',
+                transition: 'transform 0.2s'
+              }}
+            >
+              Go to Downloads to enjoy offline music 🎵
+            </Link>
+          </div>
+        )}
+
         {/* ── Uploaded Tracks Alert ── */}
         {!isMobile && approvedUploadedTracks.length > 0 && (
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
