@@ -139,10 +139,13 @@ export const useMusicStore = create<MusicStore>()(
       fetchTracks: async () => {
         try {
           // Resolve absolute URL for native/APK (static export) mode
-          const isNative = typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.();
-          const isLocalFile = typeof window !== 'undefined' && (window.location.protocol === 'file:' || window.location.protocol.startsWith('capacitor'));
+          const isLocalFile = typeof window !== 'undefined' && (
+            window.location.protocol === 'file:' || 
+            window.location.protocol.startsWith('capacitor') || 
+            (window.location.hostname === 'localhost' && window.location.port !== '3000' && window.location.port !== '3001')
+          );
           const customApiUrl = typeof window !== 'undefined' ? window.localStorage.getItem('beato_api_url') : null;
-          const apiBase = (isNative || isLocalFile || customApiUrl)
+          const apiBase = (isLocalFile || customApiUrl)
             ? (customApiUrl || 'http://192.168.1.7:3000').replace(/\/$/, '')
             : '';
           const res = await fetch(`${apiBase}/api/tracks?t=${Date.now()}`, { cache: 'no-store' });

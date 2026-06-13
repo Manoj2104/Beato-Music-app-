@@ -4,6 +4,10 @@ const config: CapacitorConfig = {
   appId: 'io.beato.app',
   appName: 'beato',
   webDir: 'out',
+  server: {
+    url: 'https://beato-music-app.vercel.app',
+    cleartext: true
+  },
   plugins: {
     StatusBar: {
       overlaysWebView: true,

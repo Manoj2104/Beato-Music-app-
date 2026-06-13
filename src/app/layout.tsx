@@ -53,12 +53,11 @@ const FETCH_PATCH_SCRIPT = `
         // Detect Capacitor native: file: scheme, capacitor: scheme,
         // or served from localhost (Capacitor's internal static server)
         // but NOT when the dev server itself is on localhost (port 3000 = dev mode)
-        var isNative = (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform())
-          || proto === 'file:'
+        var isLocalApp = proto === 'file:'
           || proto === 'capacitor:'
           || (host === 'localhost' && window.location.port !== '3000' && window.location.port !== '3001');
         var customBase = (window.localStorage && window.localStorage.getItem('beato_api_url')) || null;
-        if (isNative || customBase) {
+        if (isLocalApp || customBase) {
           var base = (customBase || 'http://192.168.1.7:3000').replace(/\\/$/, '');
           input = base + input;
           
