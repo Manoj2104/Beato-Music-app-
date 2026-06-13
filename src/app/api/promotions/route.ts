@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
+import { getDbFilePath } from '@/lib/dbPath';
+
 export const dynamic = 'force-dynamic';
 
-const DB_FILE = path.join(process.cwd(), 'data', 'beato_db.json');
+const DB_FILE = getDbFilePath();
 
 function readRawDb() {
   if (!fs.existsSync(DB_FILE)) return { promotions: [], homeLayoutOrder: [] };

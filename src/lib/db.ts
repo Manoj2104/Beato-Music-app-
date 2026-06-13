@@ -3,9 +3,10 @@ import path from 'path';
 import bcrypt from 'bcryptjs';
 import { Track, UserPreferences, UserStats } from '@/types';
 import { dbSupabase } from './dbSupabase';
+import { getDbFilePath } from './dbPath';
 
-const DB_DIR = path.join(process.cwd(), 'data');
-const DB_FILE = path.join(DB_DIR, 'beato_db.json');
+const DB_FILE = getDbFilePath();
+const DB_DIR = path.dirname(DB_FILE);
 
 export interface UserEntity {
   id: string;
@@ -612,11 +613,12 @@ interface DatabaseSchema {
 
 
 function ensureDbExists() {
-  if (!fs.existsSync(DB_DIR)) {
-    fs.mkdirSync(DB_DIR, { recursive: true });
-  }
+  try {
+    if (!fs.existsSync(DB_DIR)) {
+      fs.mkdirSync(DB_DIR, { recursive: true });
+    }
 
-  if (!fs.existsSync(DB_FILE)) {
+    if (!fs.existsSync(DB_FILE)) {
     // Seed default users
     const hashed = bcrypt.hashSync('password', 10);
     const initialData: DatabaseSchema = {
@@ -803,7 +805,10 @@ function ensureDbExists() {
       sessions: [],
       tracks: [],
     };
-    fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2), 'utf-8');
+      fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2), 'utf-8');
+    }
+  } catch (e: any) {
+    console.warn('ensureDbExists failed (falling back to memory):', e.message);
   }
 }
 
@@ -811,8 +816,17 @@ let cachedDb: DatabaseSchema | null = null;
 let lastModifiedTime: number = 0;
 
 function readDb(): DatabaseSchema {
+  if (cachedDb && (process.env.DATABASE_MODE === 'supabase' || !fs.existsSync(DB_FILE))) {
+    return cachedDb;
+  }
   ensureDbExists();
   try {
+    if (!fs.existsSync(DB_FILE)) {
+      if (!cachedDb) {
+        cachedDb = { users: [], otps: [], sessions: [], tracks: [], transactions: [], planPrices: { free: 0, student: 4.99, premium: 9.99, family: 15.99, creator: 19.99 } };
+      }
+      return cachedDb;
+    }
     const stat = fs.statSync(DB_FILE);
     const mtime = stat.mtimeMs;
     if (cachedDb && mtime === lastModifiedTime) {
@@ -1382,26 +1396,35 @@ function readDb(): DatabaseSchema {
 
     if (migrated || supportTickets.length !== originalLen) {
       parsed.supportTickets = supportTickets;
-      fs.writeFileSync(DB_FILE, JSON.stringify(parsed, null, 2), 'utf-8');
+      try {
+        fs.writeFileSync(DB_FILE, JSON.stringify(parsed, null, 2), 'utf-8');
+      } catch (err: any) {
+        console.warn('Failed to write migrated database file:', err.message);
+      }
     }
 
     cachedDb = parsed;
-    lastModifiedTime = fs.statSync(DB_FILE).mtimeMs;
+    try {
+      lastModifiedTime = fs.statSync(DB_FILE).mtimeMs;
+    } catch {}
     return parsed;
-  } catch (e) {
-    console.error('Failed to read database file, returning empty schema:', e);
-    return { users: [], otps: [], sessions: [], tracks: [], transactions: [], planPrices: { free: 0, student: 4.99, premium: 9.99, family: 15.99, creator: 19.99 } };
+  } catch (e: any) {
+    console.warn('Failed to read database file (falling back to memory):', e.message);
+    if (!cachedDb) {
+      cachedDb = { users: [], otps: [], sessions: [], tracks: [], transactions: [], planPrices: { free: 0, student: 4.99, premium: 9.99, family: 15.99, creator: 19.99 } };
+    }
+    return cachedDb;
   }
 }
 
 function writeDb(data: DatabaseSchema) {
-  ensureDbExists();
+  cachedDb = data;
   try {
+    ensureDbExists();
     fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
-    cachedDb = data;
     lastModifiedTime = fs.statSync(DB_FILE).mtimeMs;
-  } catch (e) {
-    console.error('Failed to write database file:', e);
+  } catch (e: any) {
+    console.warn('Failed to write database file (falling back to memory):', e.message);
   }
 }
 

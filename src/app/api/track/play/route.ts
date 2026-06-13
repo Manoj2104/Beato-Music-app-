@@ -11,11 +11,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Increment play count on the track in beato_db.json
-    const dbData = require('fs').existsSync(
-      require('path').join(process.cwd(), 'data', 'beato_db.json')
-    ) ? JSON.parse(require('fs').readFileSync(
-      require('path').join(process.cwd(), 'data', 'beato_db.json'), 'utf-8'
-    )) : null;
+    const dbFilePath = require('@/lib/dbPath').getDbFilePath();
+    const dbData = require('fs').existsSync(dbFilePath) ? JSON.parse(require('fs').readFileSync(dbFilePath, 'utf-8')) : null;
 
     if (dbData) {
       dbData.tracks = dbData.tracks || [];
@@ -31,10 +28,14 @@ export async function POST(req: NextRequest) {
           status: 'approved',
         });
       }
-      require('fs').writeFileSync(
-        require('path').join(process.cwd(), 'data', 'beato_db.json'),
-        JSON.stringify(dbData, null, 2), 'utf-8'
-      );
+      try {
+        require('fs').writeFileSync(
+          dbFilePath,
+          JSON.stringify(dbData, null, 2), 'utf-8'
+        );
+      } catch (err: any) {
+        console.warn('Failed to write play count in track play route (read-only filesystem):', err.message);
+      }
     }
 
     // Determine user status for royalty rates

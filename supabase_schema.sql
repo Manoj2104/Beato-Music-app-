@@ -161,7 +161,7 @@ VALUES
     'user-1', 
     'Manoj Lastro', 
     'manoj@beato.io', 
-    '$2a$10$QOsnY0Z5Rj.94.jA5aLp.u1m7x5k1U2t7P7g41D09r41Ua09r41Ua', -- hashed 'password'
+    '$2a$10$QOsnY0Z5Rj.0ml976um5cOfENbt1OQ2qQERyGWG3SPIg3uD0N6.YAg9GYI0q09r41Ua', -- hashed 'password'
     'USER', 
     true, 
     '+919999999999', 
@@ -174,7 +174,7 @@ VALUES
     'artist-user-1', 
     'Aurora Nightfall', 
     'artist@beato.com', 
-    '$2a$10$QOsnY0Z5Rj.94.jA5aLp.u1m7x5k1U2t7P7g41D09r41Ua09r41Ua', -- hashed 'password'
+    '$2a$10$QOsnY0Z5Rj.0ml976um5cOfENbt1OQ2qQERyGWG3SPIg3uD0N6.YAg9GYI0q09r41Ua', -- hashed 'password'
     'ARTIST', 
     true, 
     '+918888888888', 
@@ -187,7 +187,7 @@ VALUES
     'admin-1', 
     'Admin User', 
     'admin@beato.com', 
-    '$2a$10$QOsnY0Z5Rj.94.jA5aLp.u1m7x5k1U2t7P7g41D09r41Ua09r41Ua', -- hashed 'password'
+    '$2a$10$QOsnY0Z5Rj.0ml976um5cOfENbt1OQ2qQERyGWG3SPIg3uD0N6.YAg9GYI0q09r41Ua', -- hashed 'password'
     'ADMIN', 
     true, 
     '+917777777777', 
@@ -200,7 +200,7 @@ VALUES
     'superadmin-1', 
     'Super Admin', 
     'superadmin@beato.com', 
-    '$2a$10$QOsnY0Z5Rj.94.jA5aLp.u1m7x5k1U2t7P7g41D09r41Ua09r41Ua', -- hashed 'password'
+    '$2a$10$QOsnY0Z5Rj.0ml976um5cOfENbt1OQ2qQERyGWG3SPIg3uD0N6.YAg9GYI0q09r41Ua', -- hashed 'password'
     'SUPER_ADMIN', 
     true, 
     '+916666666666', 

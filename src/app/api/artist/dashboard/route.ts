@@ -411,11 +411,8 @@ export async function POST(request: NextRequest) {
         const { trackId, country } = payload;
         
         // 1. Increment play count on track in DB
-        const dbData = require('fs').existsSync(
-          require('path').join(process.cwd(), 'data', 'beato_db.json')
-        ) ? JSON.parse(require('fs').readFileSync(
-          require('path').join(process.cwd(), 'data', 'beato_db.json'), 'utf-8'
-        )) : null;
+        const dbFilePath = require('@/lib/dbPath').getDbFilePath();
+        const dbData = require('fs').existsSync(dbFilePath) ? JSON.parse(require('fs').readFileSync(dbFilePath, 'utf-8')) : null;
 
         if (dbData) {
           dbData.tracks = dbData.tracks || [];
@@ -423,10 +420,14 @@ export async function POST(request: NextRequest) {
           if (tIdx !== -1) {
             dbData.tracks[tIdx].plays = (dbData.tracks[tIdx].plays || 0) + 1;
           }
-          require('fs').writeFileSync(
-            require('path').join(process.cwd(), 'data', 'beato_db.json'),
-            JSON.stringify(dbData, null, 2), 'utf-8'
-          );
+          try {
+            require('fs').writeFileSync(
+              dbFilePath,
+              JSON.stringify(dbData, null, 2), 'utf-8'
+            );
+          } catch (err: any) {
+            console.warn('Failed to write play count in simulate_stream (read-only filesystem):', err.message);
+          }
         }
 
         // 2. Add Payout Stream record
