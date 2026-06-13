@@ -59,8 +59,8 @@ export async function middleware(request: NextRequest) {
       if (userRole !== 'ARTIST' && userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN') {
         return addCorsHeaders(request, NextResponse.json({ error: 'Forbidden: Insufficient privileges' }, { status: 403 }));
       }
-    }
-    return addCorsHeaders(request, NextResponse.next());
+    const response = await NextResponse.next();
+    return addCorsHeaders(request, response);
   }
 
   // Detect Mobile User Agent
