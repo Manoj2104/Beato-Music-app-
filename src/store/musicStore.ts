@@ -146,7 +146,7 @@ export const useMusicStore = create<MusicStore>()(
           );
           const customApiUrl = typeof window !== 'undefined' ? window.localStorage.getItem('beato_api_url') : null;
           const apiBase = (isLocalFile || customApiUrl)
-            ? (customApiUrl || 'http://192.168.1.7:3000').replace(/\/$/, '')
+            ? (customApiUrl || 'https://beato-music-app.vercel.app').replace(/\/$/, '')
             : '';
           const res = await fetch(`${apiBase}/api/tracks?t=${Date.now()}`, { cache: 'no-store' });
           const data = await res.json();

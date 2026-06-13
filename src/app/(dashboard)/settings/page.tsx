@@ -103,7 +103,7 @@ export default function SettingsPage() {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [serverUrl, setServerUrl] = useState('http://192.168.1.7:3000');
+  const [serverUrl, setServerUrl] = useState('https://beato-music-app.vercel.app');
 
   useEffect(() => {
     const checkMobile = () => {
@@ -112,7 +112,7 @@ export default function SettingsPage() {
     checkMobile();
     window.addEventListener('resize', checkMobile);
     if (typeof window !== 'undefined') {
-      setServerUrl(window.localStorage.getItem('beato_api_url') || 'http://192.168.1.7:3000');
+      setServerUrl(window.localStorage.getItem('beato_api_url') || 'https://beato-music-app.vercel.app');
     }
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
@@ -645,7 +645,7 @@ export default function SettingsPage() {
                 <Label>Server IP / API URL</Label>
                 <div style={{ display: 'flex', gap: 10 }}>
                   <div style={{ flex: 1 }}>
-                    <Input value={serverUrl} onChange={setServerUrl} placeholder="http://192.168.1.7:3000" />
+                    <Input value={serverUrl} onChange={setServerUrl} placeholder="https://beato-music-app.vercel.app" />
                   </div>
                   <button
                     onClick={() => {

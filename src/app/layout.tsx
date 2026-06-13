@@ -58,7 +58,7 @@ const FETCH_PATCH_SCRIPT = `
           || (host === 'localhost' && window.location.port !== '3000' && window.location.port !== '3001');
         var customBase = (window.localStorage && window.localStorage.getItem('beato_api_url')) || null;
         if (isLocalApp || customBase) {
-          var base = (customBase || 'http://192.168.1.7:3000').replace(/\\/$/, '');
+          var base = (customBase || 'https://beato-music-app.vercel.app').replace(/\/$/, '');
           input = base + input;
           
           if (base.indexOf('loca.lt') !== -1 || base.indexOf('localhost.run') !== -1) {

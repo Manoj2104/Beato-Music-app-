@@ -27,9 +27,9 @@ export default function LoginPage() {
   const [showServerSettings, setShowServerSettings] = useState(false);
   const [serverUrl, setServerUrl] = useState(() => {
     if (typeof window !== 'undefined') {
-      return window.localStorage.getItem('beato_api_url') || 'http://192.168.1.7:3000';
+      return window.localStorage.getItem('beato_api_url') || 'https://beato-music-app.vercel.app';
     }
-    return 'http://192.168.1.7:3000';
+    return 'https://beato-music-app.vercel.app';
   });
 
   const handleQuickLogin = async (mockEmail: string) => {
@@ -827,7 +827,7 @@ export default function LoginPage() {
                   type="text"
                   value={serverUrl}
                   onChange={e => setServerUrl(e.target.value)}
-                  placeholder="http://192.168.1.7:3000"
+                  placeholder="https://beato-music-app.vercel.app"
                   style={{
                     width: '100%',
                     background: '#1a1a1a',

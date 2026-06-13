@@ -27,7 +27,7 @@ modified_next = orig_next_content.replace(
 # Remove server block from capacitor config
 modified_cap = orig_cap_content.replace(
     """  server: {
-    url: 'http://192.168.1.7:3000',
+    url: 'https://beato-music-app.vercel.app',
     cleartext: true
   },""", ""
 )
