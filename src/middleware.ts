@@ -51,7 +51,6 @@ export async function middleware(request: NextRequest) {
       }
     }
 
-    // Upload & Artist API Routes
     if (pathname.startsWith('/api/upload/') || pathname === '/api/upload-song') {
       if (!isAuthenticated) {
         return addCorsHeaders(request, NextResponse.json({ error: 'Unauthorized: Authentication required' }, { status: 401 }));
@@ -59,7 +58,8 @@ export async function middleware(request: NextRequest) {
       if (userRole !== 'ARTIST' && userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN') {
         return addCorsHeaders(request, NextResponse.json({ error: 'Forbidden: Insufficient privileges' }, { status: 403 }));
       }
-    const response = await NextResponse.next();
+    }
+    const response = NextResponse.next();
     return addCorsHeaders(request, response);
   }
 
