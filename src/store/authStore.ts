@@ -73,11 +73,22 @@ export const useAuthStore = create<AuthStore>()(
               data = JSON.parse(text);
             } catch (jsonErr) {
               console.warn('Failed to parse API login response as JSON:', jsonErr);
+              const isOffline = typeof navigator !== 'undefined' && navigator.onLine === false;
+              if (isOffline) {
+                throw new Error('FALLBACK_TO_MOCK');
+              }
+              throw new Error('Invalid server response. Please try again.');
+            }
+          } catch (netErr: any) {
+            if (netErr.message === 'FALLBACK_TO_MOCK' || netErr.message === 'Invalid server response. Please try again.') {
+              throw netErr;
+            }
+            console.warn('Network error or offline during API login:', netErr);
+            const isOffline = typeof navigator !== 'undefined' && navigator.onLine === false;
+            if (isOffline) {
               throw new Error('FALLBACK_TO_MOCK');
             }
-          } catch (netErr) {
-            console.warn('Network error or offline during API login, using client fallback:', netErr);
-            throw new Error('FALLBACK_TO_MOCK');
+            throw new Error('Network error. Cannot reach API server. Please check connection.');
           }
 
           if (!isOk) {
@@ -254,10 +265,25 @@ export const useAuthStore = create<AuthStore>()(
             });
             isOk = res.ok;
             const text = await res.text();
-            data = JSON.parse(text);
-          } catch (err) {
-            console.warn('Network error or offline during sendOtp, using client fallback');
-            throw new Error('FALLBACK_TO_MOCK');
+            try {
+              data = JSON.parse(text);
+            } catch (jsonErr) {
+              const isOffline = typeof navigator !== 'undefined' && navigator.onLine === false;
+              if (isOffline) {
+                throw new Error('FALLBACK_TO_MOCK');
+              }
+              throw new Error('Invalid server response. Please try again.');
+            }
+          } catch (err: any) {
+            if (err.message === 'FALLBACK_TO_MOCK' || err.message === 'Invalid server response. Please try again.') {
+              throw err;
+            }
+            console.warn('Network error or offline during sendOtp:', err);
+            const isOffline = typeof navigator !== 'undefined' && navigator.onLine === false;
+            if (isOffline) {
+              throw new Error('FALLBACK_TO_MOCK');
+            }
+            throw new Error('Network error. Cannot reach API server. Please check connection.');
           }
 
           if (!isOk) {
@@ -290,10 +316,25 @@ export const useAuthStore = create<AuthStore>()(
             });
             isOk = res.ok;
             const text = await res.text();
-            data = JSON.parse(text);
-          } catch (err) {
-            console.warn('Network error or offline during verifyOtp, using client fallback');
-            throw new Error('FALLBACK_TO_MOCK');
+            try {
+              data = JSON.parse(text);
+            } catch (jsonErr) {
+              const isOffline = typeof navigator !== 'undefined' && navigator.onLine === false;
+              if (isOffline) {
+                throw new Error('FALLBACK_TO_MOCK');
+              }
+              throw new Error('Invalid server response. Please try again.');
+            }
+          } catch (err: any) {
+            if (err.message === 'FALLBACK_TO_MOCK' || err.message === 'Invalid server response. Please try again.') {
+              throw err;
+            }
+            console.warn('Network error or offline during verifyOtp:', err);
+            const isOffline = typeof navigator !== 'undefined' && navigator.onLine === false;
+            if (isOffline) {
+              throw new Error('FALLBACK_TO_MOCK');
+            }
+            throw new Error('Network error. Cannot reach API server. Please check connection.');
           }
 
           if (!isOk) {
