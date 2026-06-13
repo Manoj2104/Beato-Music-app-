@@ -290,7 +290,10 @@ export const dbSupabase = {
         userName: c.user_name,
         userAvatar: c.user_avatar,
         text: c.text,
-        createdAt: c.created_at
+        createdAt: c.created_at,
+        artistId: c.artist_id || '',
+        reply: c.reply || '',
+        trackTitle: c.track_title || ''
       }));
     }
     return [];
@@ -301,12 +304,15 @@ export const dbSupabase = {
       .from('comments')
       .insert({
         id: comment.id,
-        track_id: comment.trackId,
-        user_id: comment.userId,
-        user_name: comment.userName,
-        user_avatar: comment.userAvatar,
+        track_id: comment.trackId || comment.track || '',
+        user_id: comment.userId || comment.user || '',
+        user_name: comment.userName || comment.user || '',
+        user_avatar: comment.userAvatar || '',
         text: comment.text,
-        created_at: comment.createdAt || new Date().toISOString()
+        created_at: comment.createdAt || comment.time || new Date().toISOString(),
+        artist_id: comment.artistId || '',
+        reply: comment.reply || '',
+        track_title: comment.track || comment.trackTitle || ''
       })
       .select()
       .single();

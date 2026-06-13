@@ -1543,7 +1543,18 @@ export async function syncWithSupabase() {
     // 3. Fetch Comments
     const cloudComments = await dbSupabase.getComments();
     if (cloudComments && cloudComments.length > 0) {
-      data.comments = cloudComments;
+      data.comments = cloudComments.map((c: any) => {
+        const track = data.tracks?.find((t: any) => t.id === c.trackId || t.title === c.trackTitle);
+        return {
+          id: c.id,
+          artistId: c.artistId || track?.artistId || '',
+          user: c.userName || c.user || 'Unknown User',
+          text: c.text,
+          track: track?.title || c.trackTitle || c.trackId || '',
+          time: c.createdAt || c.time || new Date().toISOString(),
+          reply: c.reply || ''
+        };
+      });
     }
     
     writeDb(data);

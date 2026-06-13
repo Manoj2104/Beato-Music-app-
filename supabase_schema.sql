@@ -85,7 +85,10 @@ CREATE TABLE IF NOT EXISTS comments (
     user_name TEXT NOT NULL,
     user_avatar TEXT,
     text TEXT NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()),
+    artist_id TEXT,
+    reply TEXT DEFAULT '',
+    track_title TEXT
 );
 
 -- 5. OTPS TABLE
@@ -266,3 +269,8 @@ VALUES
     false
 )
 ON CONFLICT (id) DO NOTHING;
+
+-- Migrations/Updates for existing tables
+ALTER TABLE comments ADD COLUMN IF NOT EXISTS artist_id TEXT;
+ALTER TABLE comments ADD COLUMN IF NOT EXISTS reply TEXT DEFAULT '';
+ALTER TABLE comments ADD COLUMN IF NOT EXISTS track_title TEXT;
