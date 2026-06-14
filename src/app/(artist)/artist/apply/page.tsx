@@ -47,7 +47,7 @@ function ArtistDashboardButton({ artistName, userId }: { artistName: string; use
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        updateUser(data.user);
+        updateUser({ ...data.user, token: data.token });
         if (data.role === 'ARTIST') {
           upgradeToArtist(userId);
         }

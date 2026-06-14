@@ -11,7 +11,14 @@ import { db } from '@/lib/db';
  */
 export async function POST(request: NextRequest) {
   try {
-    const oldToken = request.cookies.get('beato-token')?.value;
+    let oldToken = request.cookies.get('beato-token')?.value;
+    if (!oldToken) {
+      const authHeader = request.headers.get('Authorization') || request.headers.get('authorization');
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        oldToken = authHeader.substring(7);
+      }
+    }
+
     if (!oldToken) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
@@ -47,12 +54,13 @@ export async function POST(request: NextRequest) {
       name: user.name,
     };
 
-    const newToken = await signJWT(payload, '1h');
-    const newRefresh = await signJWT(payload, '7d');
+    const newToken = await signJWT(payload, '365d');
+    const newRefresh = await signJWT(payload, '365d');
 
     const response = NextResponse.json({
       success: true,
       role: user.role,
+      token: newToken,
       user: {
         id: user.id,
         name: user.name,
@@ -78,7 +86,7 @@ export async function POST(request: NextRequest) {
       secure: request.nextUrl.protocol === 'https:',
       sameSite: 'lax',
       path: '/',
-      maxAge: 3600,
+      maxAge: 31536000,
     });
 
     response.cookies.set('beato-refresh-token', newRefresh, {
@@ -86,7 +94,7 @@ export async function POST(request: NextRequest) {
       secure: request.nextUrl.protocol === 'https:',
       sameSite: 'strict',
       path: '/',
-      maxAge: 604800,
+      maxAge: 31536000,
     });
 
     // Also update the readable role cookie
@@ -94,7 +102,7 @@ export async function POST(request: NextRequest) {
       secure: request.nextUrl.protocol === 'https:',
       sameSite: 'lax',
       path: '/',
-      maxAge: 604800,
+      maxAge: 31536000,
     });
 
     return response;

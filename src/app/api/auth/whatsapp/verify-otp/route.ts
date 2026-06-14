@@ -63,14 +63,14 @@ export async function POST(request: NextRequest) {
       name: user.name,
     };
 
-    const token = await signJWT(payload, '1h');
-    const refreshToken = await signJWT(payload, '7d');
+    const token = await signJWT(payload, '365d');
+    const refreshToken = await signJWT(payload, '365d');
 
     db.saveSession({
       id: `session-${Date.now()}`,
       userId: user.id,
       token,
-      expiresAt: new Date(Date.now() + 3600000).toISOString(),
+      expiresAt: new Date(Date.now() + 365 * 24 * 3600000).toISOString(),
     });
 
     // Delete OTP record on success
@@ -102,8 +102,8 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    const maxAgeAccess = 3600; // 1 hour
-    const maxAgeRefresh = 604800; // 7 days
+    const maxAgeAccess = 31536000; // 365 days
+    const maxAgeRefresh = 31536000; // 365 days
 
     response.cookies.set('beato-token', token, {
       httpOnly: true,

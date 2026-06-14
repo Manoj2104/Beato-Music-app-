@@ -254,96 +254,173 @@ export default function SearchPage() {
   const FILTERS = ['all', 'songs', 'artists', 'albums', 'playlists'] as const;
 
   return (
-    <div style={{ minHeight: '100%', background: '#0a0a0a', padding: isMobile ? '16px 16px 32px' : '20px 24px' }}>
+    <div style={{ minHeight: '100%', background: '#0a0a0a', padding: isMobile ? '0 16px 32px' : '20px 24px' }}>
       {isMobile ? (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-          {/* User Profile Avatar */}
-          <div
-            onClick={() => setMobileDrawerOpen(true)}
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: '50%',
-              background: '#1db954', // Green circle
-              color: '#fff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: 800,
-              fontSize: 14,
-              fontFamily: 'Outfit, sans-serif',
-              cursor: 'pointer'
-            }}
-          >
-            {user?.name ? user.name[0].toUpperCase() : 'M'}
+        <div style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 50,
+          background: '#0a0a0a',
+          paddingTop: 'calc(env(safe-area-inset-top, 24px) + 12px)',
+          paddingBottom: '16px',
+          marginLeft: '-16px',
+          marginRight: '-16px',
+          paddingLeft: '16px',
+          paddingRight: '16px',
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
+          marginBottom: '20px'
+        }}>
+          {/* Header Row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+            {/* User Profile Avatar */}
+            <div
+              onClick={() => setMobileDrawerOpen(true)}
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: '50%',
+                background: '#1db954', // Green circle
+                color: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 800,
+                fontSize: 14,
+                fontFamily: 'Outfit, sans-serif',
+                cursor: 'pointer'
+              }}
+            >
+              {user?.name ? user.name[0].toUpperCase() : 'M'}
+            </div>
+            <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 24, fontWeight: 900, color: '#fff', margin: 0 }}>Search</h1>
+            <Camera size={22} color="#fff" style={{ cursor: 'pointer', marginLeft: 'auto' }} />
           </div>
-          <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 24, fontWeight: 900, color: '#fff' }}>Search</h1>
-          <Camera size={22} color="#fff" style={{ cursor: 'pointer', marginLeft: 'auto' }} />
+
+          {/* Search bar inside sticky container */}
+          <div style={{ position: 'relative', maxWidth: 680, margin: '0 auto' }}>
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <Search size={18} color={'#525252'} style={{ position: 'absolute', left: 16, flexShrink: 0 }} />
+              <input
+                value={query}
+                onChange={e => { setQuery(e.target.value); setShowSuggestions(true); }}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                placeholder="What do you want to listen to?"
+                autoFocus
+                style={{
+                  width: '100%',
+                  background: '#fff',
+                  border: 'none',
+                  borderRadius: 8,
+                  padding: '12px 40px 12px 44px',
+                  color: '#000',
+                  fontSize: 14.5,
+                  outline: 'none',
+                  fontFamily: 'Inter, sans-serif',
+                }}
+              />
+              {query && (
+                <button onClick={() => { setQuery(''); setResults(null); setSuggestions([]); }}
+                  style={{ position: 'absolute', right: 16, background: 'none', border: 'none', cursor: 'pointer', color: '#737373', display: 'flex', alignItems: 'center' }}>
+                  <X size={18} />
+                </button>
+              )}
+            </div>
+
+            {/* Suggestions dropdown */}
+            <AnimatePresence>
+              {showSuggestions && suggestions.length > 0 && (
+                <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+                  style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0, background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, zIndex: 100, overflow: 'hidden', boxShadow: '0 12px 40px rgba(0,0,0,0.6)' }}>
+                  {suggestions.map(s => {
+                    const href = s.type === 'artist' ? `/artist/${s.id}` : s.type === 'album' ? `/album/${s.id}` : `/search?q=${encodeURIComponent(s.text)}`;
+                    return (
+                      <Link key={`${s.type}-${s.id}`} href={href} style={{ textDecoration: 'none' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', cursor: 'pointer', transition: 'background 0.15s' }}
+                          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
+                          onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                          <div style={{ width: 32, height: 32, borderRadius: s.type === 'artist' ? '50%' : 6, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            {s.type === 'artist' ? <User size={14} color="#a3a3a3" /> : s.type === 'album' ? <Disc size={14} color="#a3a3a3" /> : <Music size={14} color="#a3a3a3" />}
+                          </div>
+                          <div>
+                            <p style={{ color: '#fff', fontSize: 14, fontWeight: 500 }}>{s.text}</p>
+                            {s.subtitle && <p style={{ color: '#737373', fontSize: 11 }}>{s.subtitle}</p>}
+                          </div>
+                          <Search size={12} color="#525252" style={{ marginLeft: 'auto' }} />
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       ) : (
-        <TopBar />
-      )}
-      
-      {/* Search bar */}
-      <div style={{ position: 'relative', maxWidth: 680, margin: isMobile ? '0 auto 16px' : '0 auto 28px' }}>
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-          <Search size={18} color={isMobile ? '#525252' : (query ? '#fff' : '#737373')} style={{ position: 'absolute', left: 16, flexShrink: 0 }} />
-          <input
-            value={query}
-            onChange={e => { setQuery(e.target.value); setShowSuggestions(true); }}
-            onFocus={() => setShowSuggestions(true)}
-            onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-            placeholder="What do you want to listen to?"
-            autoFocus
-            style={{
-              width: '100%',
-              background: isMobile ? '#fff' : 'rgba(255,255,255,0.1)',
-              border: isMobile ? 'none' : `2px solid ${query ? G : 'transparent'}`,
-              borderRadius: isMobile ? 8 : 30,
-              padding: isMobile ? '12px 40px 12px 44px' : '14px 48px 14px 48px',
-              color: isMobile ? '#000' : '#fff',
-              fontSize: 14.5,
-              outline: 'none',
-              fontFamily: 'Inter, sans-serif',
-              transition: 'border-color 0.2s',
-            }}
-          />
-          {query && (
-            <button onClick={() => { setQuery(''); setResults(null); setSuggestions([]); }}
-              style={{ position: 'absolute', right: 16, background: 'none', border: 'none', cursor: 'pointer', color: isMobile ? '#000' : '#737373', display: 'flex', alignItems: 'center' }}>
-              <X size={18} />
-            </button>
-          )}
-        </div>
+        <>
+          <TopBar />
+          {/* Search bar */}
+          <div style={{ position: 'relative', maxWidth: 680, margin: '0 auto 28px' }}>
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <Search size={18} color={query ? '#fff' : '#737373'} style={{ position: 'absolute', left: 16, flexShrink: 0 }} />
+              <input
+                value={query}
+                onChange={e => { setQuery(e.target.value); setShowSuggestions(true); }}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                placeholder="What do you want to listen to?"
+                autoFocus
+                style={{
+                  width: '100%',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: `2px solid ${query ? G : 'transparent'}`,
+                  borderRadius: 30,
+                  padding: '14px 48px 14px 48px',
+                  color: '#fff',
+                  fontSize: 14.5,
+                  outline: 'none',
+                  fontFamily: 'Inter, sans-serif',
+                  transition: 'border-color 0.2s',
+                }}
+              />
+              {query && (
+                <button onClick={() => { setQuery(''); setResults(null); setSuggestions([]); }}
+                  style={{ position: 'absolute', right: 16, background: 'none', border: 'none', cursor: 'pointer', color: '#737373', display: 'flex', alignItems: 'center' }}>
+                  <X size={18} />
+                </button>
+              )}
+            </div>
 
-        {/* Suggestions dropdown */}
-        <AnimatePresence>
-          {showSuggestions && suggestions.length > 0 && (
-            <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-              style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0, background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, zIndex: 100, overflow: 'hidden', boxShadow: '0 12px 40px rgba(0,0,0,0.6)' }}>
-              {suggestions.map(s => {
-                const href = s.type === 'artist' ? `/artist/${s.id}` : s.type === 'album' ? `/album/${s.id}` : `/search?q=${encodeURIComponent(s.text)}`;
-                return (
-                  <Link key={`${s.type}-${s.id}`} href={href} style={{ textDecoration: 'none' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', cursor: 'pointer', transition: 'background 0.15s' }}
-                      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
-                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
-                      <div style={{ width: 32, height: 32, borderRadius: s.type === 'artist' ? '50%' : 6, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        {s.type === 'artist' ? <User size={14} color="#a3a3a3" /> : s.type === 'album' ? <Disc size={14} color="#a3a3a3" /> : <Music size={14} color="#a3a3a3" />}
-                      </div>
-                      <div>
-                        <p style={{ color: '#fff', fontSize: 14, fontWeight: 500 }}>{s.text}</p>
-                        {s.subtitle && <p style={{ color: '#737373', fontSize: 11 }}>{s.subtitle}</p>}
-                      </div>
-                      <Search size={12} color="#525252" style={{ marginLeft: 'auto' }} />
-                    </div>
-                  </Link>
-                );
-              })}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+            {/* Suggestions dropdown */}
+            <AnimatePresence>
+              {showSuggestions && suggestions.length > 0 && (
+                <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+                  style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0, background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, zIndex: 100, overflow: 'hidden', boxShadow: '0 12px 40px rgba(0,0,0,0.6)' }}>
+                  {suggestions.map(s => {
+                    const href = s.type === 'artist' ? `/artist/${s.id}` : s.type === 'album' ? `/album/${s.id}` : `/search?q=${encodeURIComponent(s.text)}`;
+                    return (
+                      <Link key={`${s.type}-${s.id}`} href={href} style={{ textDecoration: 'none' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', cursor: 'pointer', transition: 'background 0.15s' }}
+                          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
+                          onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                          <div style={{ width: 32, height: 32, borderRadius: s.type === 'artist' ? '50%' : 6, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            {s.type === 'artist' ? <User size={14} color="#a3a3a3" /> : s.type === 'album' ? <Disc size={14} color="#a3a3a3" /> : <Music size={14} color="#a3a3a3" />}
+                          </div>
+                          <div>
+                            <p style={{ color: '#fff', fontSize: 14, fontWeight: 500 }}>{s.text}</p>
+                            {s.subtitle && <p style={{ color: '#737373', fontSize: 11 }}>{s.subtitle}</p>}
+                          </div>
+                          <Search size={12} color="#525252" style={{ marginLeft: 'auto' }} />
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </>
+      )}
 
       {/* Filter tabs */}
       {results && (

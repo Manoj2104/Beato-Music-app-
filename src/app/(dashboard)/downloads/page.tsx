@@ -22,9 +22,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { formatDuration } from '@/lib/mockData';
 import TopBar from '@/components/layout/TopBar';
 import toast from 'react-hot-toast';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 
 export default function DownloadsPage() {
   const router = useRouter();
+  const isOnline = useNetworkStatus();
   const { downloadedTracks, removeDownloadedTrack } = useDownloadStore();
   const { currentTrack, isPlaying, playTrack, togglePlay } = usePlayerStore();
   const { user, setMobileDrawerOpen } = useAuthStore();
@@ -130,12 +132,57 @@ export default function DownloadsPage() {
     <div style={{ 
       minHeight: '100%', 
       background: '#0a0a0a', 
-      padding: isMobile ? '16px 16px 32px' : '0px 0px 100px',
+      padding: isMobile ? '0 16px 32px' : '0px 0px 100px',
       position: 'relative',
       overflowX: 'hidden'
     }}>
       {/* Universal TopBar component - Only rendered on Desktop */}
       {!isMobile && <TopBar />}
+
+      {isMobile && (
+        <div style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 50,
+          background: '#0a0a0a',
+          paddingTop: 'calc(env(safe-area-inset-top, 24px) + 12px)',
+          paddingBottom: '12px',
+          marginLeft: '-16px',
+          marginRight: '-16px',
+          paddingLeft: '16px',
+          paddingRight: '16px',
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          marginBottom: '16px'
+        }}>
+          {/* User Profile Avatar */}
+          <div
+            onClick={() => setMobileDrawerOpen(true)}
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: '50%',
+              background: '#1db954',
+              color: '#fff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: 800,
+              fontSize: 14,
+              fontFamily: 'Outfit, sans-serif',
+              cursor: 'pointer'
+            }}
+          >
+            {user?.name ? user.name[0].toUpperCase() : 'M'}
+          </div>
+          <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 24, fontWeight: 900, color: '#fff', margin: 0 }}>
+            Downloads
+          </h1>
+          <Camera size={22} color="#fff" style={{ cursor: 'pointer', marginLeft: 'auto' }} />
+        </div>
+      )}
 
       {/* Dynamic Keyframes Injection */}
       <style dangerouslySetInnerHTML={{ __html: `
@@ -191,34 +238,7 @@ export default function DownloadsPage() {
         )}
 
         {/* 1. Header Row (Matches Search layout on mobile, dashboard header on desktop) */}
-        {isMobile ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
-            {/* User Profile Avatar */}
-            <div
-              onClick={() => setMobileDrawerOpen(true)}
-              style={{
-                width: 32,
-                height: 32,
-                borderRadius: '50%',
-                background: '#1db954',
-                color: '#fff',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: 800,
-                fontSize: 14,
-                fontFamily: 'Outfit, sans-serif',
-                cursor: 'pointer'
-              }}
-            >
-              {user?.name ? user.name[0].toUpperCase() : 'M'}
-            </div>
-            <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 24, fontWeight: 900, color: '#fff', margin: 0 }}>
-              Downloads
-            </h1>
-            <Camera size={22} color="#fff" style={{ cursor: 'pointer', marginLeft: 'auto' }} />
-          </div>
-        ) : (
+        {!isMobile &&
           <div style={{ 
             display: 'flex', 
             alignItems: 'center', 
@@ -252,7 +272,7 @@ export default function DownloadsPage() {
               </p>
             </div>
           </div>
-        )}
+        }
 
         {/* Empty State vs Loaded Content */}
         {downloadedTracks.length === 0 ? (
@@ -300,24 +320,39 @@ export default function DownloadsPage() {
                 Add songs to your library offline by tapping the download icon on any song page or playback drawer.
               </p>
             </div>
-            <motion.button
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.96 }}
-              onClick={() => router.push('/home')}
-              style={{
-                background: '#1db954',
-                color: '#000',
-                border: 'none',
-                borderRadius: '100px',
-                padding: '12px 28px',
-                fontSize: '13.5px',
-                fontWeight: 900,
-                cursor: 'pointer',
-                transition: 'background 0.2s',
-              }}
-            >
-              Browse Premium Tracks
-            </motion.button>
+            {isOnline ? (
+              <motion.button
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
+                onClick={() => router.push('/home')}
+                style={{
+                  background: '#1db954',
+                  color: '#000',
+                  border: 'none',
+                  borderRadius: '100px',
+                  padding: '12px 28px',
+                  fontSize: '13.5px',
+                  fontWeight: 900,
+                  cursor: 'pointer',
+                  transition: 'background 0.2s',
+                }}
+              >
+                Browse Premium Tracks
+              </motion.button>
+            ) : (
+              <p style={{ 
+                margin: 0, 
+                color: '#1db954', 
+                fontSize: '13px', 
+                fontWeight: 700,
+                background: 'rgba(29, 185, 84, 0.1)',
+                padding: '8px 18px',
+                borderRadius: '20px',
+                border: '1px solid rgba(29, 185, 84, 0.2)'
+              }}>
+                📶 Connect to the internet to download tracks
+              </p>
+            )}
           </motion.div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '16px' : '20px', position: 'relative', zIndex: 2 }}>
@@ -672,74 +707,76 @@ export default function DownloadsPage() {
         )}
 
         {/* Discover something new */}
-        <div style={{ 
-          marginTop: isMobile ? '24px' : '36px', 
-          marginBottom: '20px',
-          paddingBottom: '20px'
-        }}>
-          <h2 style={{ 
-            fontFamily: 'Outfit, sans-serif', 
-            color: '#fff', 
-            fontSize: isMobile ? '18px' : '22px', 
-            fontWeight: 850, 
-            marginBottom: '16px',
-            textShadow: '0 2px 8px rgba(0,0,0,0.5)'
-          }}>
-            Discover something new
-          </h2>
+        {isOnline && (
           <div style={{ 
-            display: 'flex', 
-            gap: '12px', 
-            overflowX: 'auto', 
-            paddingBottom: '8px',
-            scrollbarWidth: 'none',
-            WebkitOverflowScrolling: 'touch'
+            marginTop: isMobile ? '24px' : '36px', 
+            marginBottom: '20px',
+            paddingBottom: '20px'
           }}>
-            {[
-              { tag: '#tamil dance', image: 'https://images.unsplash.com/photo-1519834785169-98be25ec3f84?w=200&auto=format&fit=crop&q=80' },
-              { tag: '#tamil pop', image: 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=200&auto=format&fit=crop&q=80' },
-              { tag: '#clean groove', image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=200&auto=format&fit=crop&q=80' },
-              { tag: '#acoustic vibes', image: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=200&auto=format&fit=crop&q=80' }
-            ].map(item => (
-              <motion.div 
-                key={item.tag} 
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }} 
-                onClick={() => router.push('/search?q=' + encodeURIComponent(item.tag.replace('#', '')))}
-                style={{ 
-                  width: '110px', 
-                  height: '165px', 
-                  borderRadius: '12px', 
-                  overflow: 'hidden', 
-                  position: 'relative', 
-                  flexShrink: 0, 
-                  cursor: 'pointer', 
-                  boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
-                  border: '1px solid rgba(255, 255, 255, 0.08)'
-                }}
-              >
-                <img src={item.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0) 100%)' }} />
-                <span style={{ 
-                  position: 'absolute', 
-                  bottom: '12px', 
-                  left: '10px', 
-                  right: '10px', 
-                  color: '#fff', 
-                  fontSize: '11.5px', 
-                  fontWeight: 800, 
-                  fontFamily: 'Inter, sans-serif', 
-                  textShadow: '0 1.5px 3px rgba(0,0,0,0.8)', 
-                  overflow: 'hidden', 
-                  textOverflow: 'ellipsis', 
-                  whiteSpace: 'nowrap' 
-                }}>
-                  {item.tag}
-                </span>
-              </motion.div>
-            ))}
+            <h2 style={{ 
+              fontFamily: 'Outfit, sans-serif', 
+              color: '#fff', 
+              fontSize: isMobile ? '18px' : '22px', 
+              fontWeight: 850, 
+              marginBottom: '16px',
+              textShadow: '0 2px 8px rgba(0,0,0,0.5)'
+            }}>
+              Discover something new
+            </h2>
+            <div style={{ 
+              display: 'flex', 
+              gap: '12px', 
+              overflowX: 'auto', 
+              paddingBottom: '8px',
+              scrollbarWidth: 'none',
+              WebkitOverflowScrolling: 'touch'
+            }}>
+              {[
+                { tag: '#tamil dance', image: 'https://images.unsplash.com/photo-1519834785169-98be25ec3f84?w=200&auto=format&fit=crop&q=80' },
+                { tag: '#tamil pop', image: 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=200&auto=format&fit=crop&q=80' },
+                { tag: '#clean groove', image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=200&auto=format&fit=crop&q=80' },
+                { tag: '#acoustic vibes', image: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=200&auto=format&fit=crop&q=80' }
+              ].map(item => (
+                <motion.div 
+                  key={item.tag} 
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }} 
+                  onClick={() => router.push('/search?q=' + encodeURIComponent(item.tag.replace('#', '')))}
+                  style={{ 
+                    width: '110px', 
+                    height: '165px', 
+                    borderRadius: '12px', 
+                    overflow: 'hidden', 
+                    position: 'relative', 
+                    flexShrink: 0, 
+                    cursor: 'pointer', 
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+                    border: '1px solid rgba(255, 255, 255, 0.08)'
+                  }}
+                >
+                  <img src={item.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0) 100%)' }} />
+                  <span style={{ 
+                    position: 'absolute', 
+                    bottom: '12px', 
+                    left: '10px', 
+                    right: '10px', 
+                    color: '#fff', 
+                    fontSize: '11.5px', 
+                    fontWeight: 800, 
+                    fontFamily: 'Inter, sans-serif', 
+                    textShadow: '0 1.5px 3px rgba(0,0,0,0.8)', 
+                    overflow: 'hidden', 
+                    textOverflow: 'ellipsis', 
+                    whiteSpace: 'nowrap' 
+                  }}>
+                    {item.tag}
+                  </span>
+                </motion.div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Storage & Preferences Section */}
         <div style={{ 

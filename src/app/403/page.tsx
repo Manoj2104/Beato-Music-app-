@@ -28,7 +28,7 @@ export default function AccessDeniedPage() {
         .then((res) => res.json())
         .then((data) => {
           if (data.success) {
-            updateUser(data.user);
+            updateUser({ ...data.user, token: data.token });
             upgradeToArtist(user.id);
             toast.success('Permissions successfully synced! Redirecting to Dashboard...', { id: tid });
             setTimeout(() => {

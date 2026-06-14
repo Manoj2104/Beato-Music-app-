@@ -37,60 +37,10 @@ export const metadata: Metadata = {
   },
 };
 
-// Inline script to patch fetch BEFORE any bundle runs
-// This runs synchronously in the browser, ensuring /api/* calls are always redirected
-// to the real server when running inside a Capacitor native APK (static export mode).
-const FETCH_PATCH_SCRIPT = `
-(function() {
-  if (window.__beatoFetchIntercepted) return;
-  window.__beatoFetchIntercepted = true;
-  var _origFetch = window.fetch;
-  window.fetch = function(input, init) {
-    if (typeof input === 'string' && input.startsWith('/api/')) {
-      try {
-        var proto = window.location.protocol;
-        var host = window.location.hostname;
-        // Detect Capacitor native: file: scheme, capacitor: scheme,
-        // or served from localhost (Capacitor's internal static server)
-        // but NOT when the dev server itself is on localhost (port 3000 = dev mode)
-        var isLocalApp = proto === 'file:'
-          || proto === 'capacitor:'
-          || (host === 'localhost' && window.location.port !== '3000' && window.location.port !== '3001');
-        var customBase = (window.localStorage && window.localStorage.getItem('beato_api_url')) || null;
-        if (isLocalApp || customBase) {
-          var base = (customBase || 'https://beato-music-app.vercel.app').replace(/\/$/, '');
-          input = base + input;
-          
-          if (base.indexOf('loca.lt') !== -1 || base.indexOf('localhost.run') !== -1) {
-            init = init || {};
-            var headers = init.headers;
-            if (!headers) {
-              headers = {};
-            }
-            if (typeof headers.set === 'function') {
-              headers.set('Bypass-Tunnel-Reminder', 'true');
-            } else if (Array.isArray(headers)) {
-              headers.push(['Bypass-Tunnel-Reminder', 'true']);
-            } else {
-              headers['Bypass-Tunnel-Reminder'] = 'true';
-            }
-            init.headers = headers;
-          }
-        }
-      } catch(e) {}
-    }
-    return _origFetch.call(this, input, init);
-  };
-})();
-`;
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${outfit.variable}`} suppressHydrationWarning>
-      <head>
-        {/* Patch fetch synchronously before ANY bundle loads — critical for native APK mode */}
-        <script dangerouslySetInnerHTML={{ __html: FETCH_PATCH_SCRIPT }} />
-      </head>
+      <head />
       <body className="bg-ss-bg text-white antialiased">
         <CapacitorInit />
         <OfflineBanner />

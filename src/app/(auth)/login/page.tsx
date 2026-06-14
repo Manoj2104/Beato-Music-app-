@@ -35,7 +35,7 @@ export default function LoginPage() {
   const handleQuickLogin = async (mockEmail: string) => {
     setIsLoading(true);
     try {
-      await login(mockEmail, 'password');
+      await login(mockEmail, 'password', true);
       toast.success(`Logged in! 🎵`);
       router.push('/home');
     } catch {

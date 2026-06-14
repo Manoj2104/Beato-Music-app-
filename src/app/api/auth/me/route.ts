@@ -4,7 +4,14 @@ import { db } from '@/lib/db';
 
 export async function GET(request: NextRequest) {
   try {
-    const token = request.cookies.get('beato-token')?.value;
+    let token = request.cookies.get('beato-token')?.value;
+
+    if (!token) {
+      const authHeader = request.headers.get('Authorization') || request.headers.get('authorization');
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      }
+    }
 
     if (!token) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
@@ -45,12 +52,12 @@ export async function GET(request: NextRequest) {
       verificationRequest: user.verificationRequest,
     };
 
-    const response = NextResponse.json({
-      success: true,
-      user: userPayload,
-    });
+    let newToken = token;
+    let newRefresh = null;
+    let roleChanged = false;
 
     if (user.role !== decoded.role) {
+      roleChanged = true;
       const payload = {
         userId: user.id,
         email: user.email,
@@ -58,15 +65,23 @@ export async function GET(request: NextRequest) {
         name: user.name,
       };
 
-      const newToken = await signJWT(payload, '1h');
-      const newRefresh = await signJWT(payload, '7d');
+      newToken = await signJWT(payload, '365d');
+      newRefresh = await signJWT(payload, '365d');
+    }
 
+    const response = NextResponse.json({
+      success: true,
+      user: userPayload,
+      token: newToken,
+    });
+
+    if (roleChanged && newToken && newRefresh) {
       response.cookies.set('beato-token', newToken, {
         httpOnly: true,
         secure: request.nextUrl.protocol === 'https:',
         sameSite: 'lax',
         path: '/',
-        maxAge: 3600,
+        maxAge: 31536000,
       });
 
       response.cookies.set('beato-refresh-token', newRefresh, {
@@ -74,14 +89,14 @@ export async function GET(request: NextRequest) {
         secure: request.nextUrl.protocol === 'https:',
         sameSite: 'strict',
         path: '/',
-        maxAge: 604800,
+        maxAge: 31536000,
       });
 
       response.cookies.set('beato-role', user.role, {
         secure: request.nextUrl.protocol === 'https:',
         sameSite: 'lax',
         path: '/',
-        maxAge: 604800,
+        maxAge: 31536000,
       });
     }
 

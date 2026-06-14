@@ -226,74 +226,43 @@ export default function SettingsPage() {
     <div style={{ minHeight: '100%', background: BG, display: 'flex', flexDirection: 'column', color: '#fff', position: 'relative' }}>
       
       {/* ─── Cover Header Section ─── */}
-      <div style={{
-        position: 'relative',
-        height: isMobile ? 260 : 320,
-        width: '100%',
-        overflow: 'hidden',
-        background: '#000'
-      }}>
-        {/* Banner Cover image */}
-        <img 
-          src={BANNER_IMG} 
-          alt="Settings" 
-          style={{ 
-            width: '100%', 
-            height: '100%', 
-            objectFit: 'cover',
-            opacity: 0.65
-          }} 
-        />
-        
-        {/* Linear Gradient Overlay */}
+      {isMobile ? (
         <div style={{
-          position: 'absolute',
-          inset: 0,
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.85) 100%)',
-          zIndex: 1
-        }} />
-
-        {/* Back Arrow Button (Overlaid top-left) */}
-        <div style={{ 
-          position: 'absolute', 
-          top: isMobile ? 'calc(env(safe-area-inset-top, 24px) + 16px)' : '24px', 
-          left: isMobile ? '16px' : '24px',
-          zIndex: 10
+          position: 'sticky',
+          top: 0,
+          zIndex: 50,
+          background: '#0a0a0a',
+          paddingTop: 'calc(env(safe-area-inset-top, 24px) + 12px)',
+          paddingBottom: '12px',
+          paddingLeft: '16px',
+          paddingRight: '16px',
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 16
         }}>
           <button 
             onClick={() => router.back()} 
             style={{ 
-              width: 36, 
-              height: 36, 
-              borderRadius: '50%', 
-              background: 'rgba(0,0,0,0.6)', 
+              background: 'none', 
               border: 'none', 
-              cursor: 'pointer', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
               color: '#fff', 
-              transition: 'background 0.2s' 
+              cursor: 'pointer', 
+              padding: 0, 
+              display: 'flex', 
+              alignItems: 'center' 
             }}
-            onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.8)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.6)'}
           >
-            <ChevronLeft size={22} />
+            <ChevronLeft size={24} />
           </button>
-        </div>
-
-        {/* Profile Avatar overlay top-right */}
-        <div style={{ 
-          position: 'absolute', 
-          top: isMobile ? 'calc(env(safe-area-inset-top, 24px) + 16px)' : '24px', 
-          right: isMobile ? '16px' : '24px',
-          zIndex: 10
-        }}>
-          <Link href="/profile" style={{ textDecoration: 'none' }}>
-            <div style={{ position: 'relative' }}>
+          <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 20, fontWeight: 900, color: '#fff', margin: 0 }}>
+            Settings
+          </h1>
+          <div style={{ marginLeft: 'auto' }}>
+            <Link href="/profile" style={{ textDecoration: 'none' }}>
               <div style={{
-                width: 36,
-                height: 36,
+                width: 32,
+                height: 32,
                 borderRadius: '50%',
                 overflow: 'hidden',
                 border: '2px solid rgba(255,255,255,0.2)',
@@ -301,7 +270,7 @@ export default function SettingsPage() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: 900,
                 color: '#000',
               }}>
@@ -310,81 +279,170 @@ export default function SettingsPage() {
                   : (name?.[0] || 'U')
                 }
               </div>
-              <div style={{
-                position: 'absolute',
-                top: 0,
-                right: 0,
-                width: 10,
-                height: 10,
-                borderRadius: '50%',
-                background: G,
-                border: '2px solid #000',
-              }} />
-            </div>
-          </Link>
+            </Link>
+          </div>
         </div>
-
-        {/* Settings Details Overlay (Aligned bottom-left) */}
+      ) : (
         <div style={{
-          position: 'absolute',
-          bottom: '24px',
-          left: isMobile ? '16px' : '32px',
-          right: isMobile ? '16px' : '32px',
-          zIndex: 2,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 6
+          position: 'relative',
+          height: 320,
+          width: '100%',
+          overflow: 'hidden',
+          background: '#000'
         }}>
-          {/* Config Badge */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <div style={{
-              width: 16,
-              height: 16,
-              borderRadius: '50%',
-              background: G,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#000',
-              flexShrink: 0
-            }}>
-              <Check size={10} strokeWidth={4} color="black" />
-            </div>
-            <span style={{ 
-              fontSize: 12, 
-              fontWeight: 700, 
-              color: '#fff',
-              fontFamily: 'Inter, sans-serif'
-            }}>
-              System Preferences
-            </span>
+          {/* Banner Cover image */}
+          <img 
+            src={BANNER_IMG} 
+            alt="Settings" 
+            style={{ 
+              width: '100%', 
+              height: '100%', 
+              objectFit: 'cover',
+              opacity: 0.65
+            }} 
+          />
+          
+          {/* Linear Gradient Overlay */}
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.85) 100%)',
+            zIndex: 1
+          }} />
+
+          {/* Back Arrow Button (Overlaid top-left) */}
+          <div style={{ 
+            position: 'absolute', 
+            top: '24px', 
+            left: '24px',
+            zIndex: 10
+          }}>
+            <button 
+              onClick={() => router.back()} 
+              style={{ 
+                width: 36, 
+                height: 36, 
+                borderRadius: '50%', 
+                background: 'rgba(0,0,0,0.6)', 
+                border: 'none', 
+                cursor: 'pointer', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                color: '#fff', 
+                transition: 'background 0.2s' 
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.8)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.6)'}
+            >
+              <ChevronLeft size={22} />
+            </button>
           </div>
 
-          {/* Page Title */}
-          <h1 style={{ 
-            fontFamily: 'Outfit, sans-serif', 
-            fontSize: isMobile ? 36 : 48, 
-            fontWeight: 900, 
-            letterSpacing: '-0.02em', 
-            margin: '0 0 2px 0',
-            color: '#fff',
-            lineHeight: 1.1,
-            textShadow: '0 2px 8px rgba(0,0,0,0.6)'
+          {/* Profile Avatar overlay top-right */}
+          <div style={{ 
+            position: 'absolute', 
+            top: '24px', 
+            right: '24px',
+            zIndex: 10
           }}>
-            Settings
-          </h1>
+            <Link href="/profile" style={{ textDecoration: 'none' }}>
+              <div style={{ position: 'relative' }}>
+                <div style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: '50%',
+                  overflow: 'hidden',
+                  border: '2px solid rgba(255,255,255,0.2)',
+                  background: `linear-gradient(135deg, ${G}, #10b981)`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 14,
+                  fontWeight: 900,
+                  color: '#000',
+                }}>
+                  {avatar
+                    ? <img src={avatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    : (name?.[0] || 'U')
+                  }
+                </div>
+                <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  right: 0,
+                  width: 10,
+                  height: 10,
+                  borderRadius: '50%',
+                  background: G,
+                  border: '2px solid #000',
+                }} />
+              </div>
+            </Link>
+          </div>
 
-          <p style={{ 
-            fontSize: isMobile ? 12.5 : 13.5, 
-            fontWeight: 600, 
-            color: '#d1d5db', 
-            margin: 0,
-            textShadow: '0 1px 4px rgba(0,0,0,0.5)'
+          {/* Settings Details Overlay (Aligned bottom-left) */}
+          <div style={{
+            position: 'absolute',
+            bottom: '24px',
+            left: '32px',
+            right: '32px',
+            zIndex: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 6
           }}>
-            Manage your account, playback preferences, and display theme.
-          </p>
+            {/* Config Badge */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{
+                width: 16,
+                height: 16,
+                borderRadius: '50%',
+                background: G,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#000',
+                flexShrink: 0
+              }}>
+                <Check size={10} strokeWidth={4} color="black" />
+              </div>
+              <span style={{ 
+                fontSize: 12, 
+                fontWeight: 700, 
+                color: '#fff',
+                fontFamily: 'Inter, sans-serif'
+              }}>
+                System Preferences
+              </span>
+            </div>
+
+            {/* Page Title */}
+            <h1 style={{ 
+              fontFamily: 'Outfit, sans-serif', 
+              fontSize: 48, 
+              fontWeight: 900, 
+              letterSpacing: '-0.02em', 
+              margin: '0 0 2px 0',
+              color: '#fff',
+              lineHeight: 1.1,
+              textShadow: '0 2px 8px rgba(0,0,0,0.6)'
+            }}>
+              Settings
+            </h1>
+
+            <p style={{ 
+              fontSize: 13.5, 
+              fontWeight: 600, 
+              color: '#d1d5db', 
+              margin: 0,
+              textShadow: '0 1px 4px rgba(0,0,0,0.5)'
+            }}>
+              Manage your account, playback preferences, and display theme.
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ─── Main Content ─── */}
       <div style={{ 

@@ -12,6 +12,78 @@ export default function CapacitorInit() {
   const router = useRouter();
 
   useEffect(() => {
+    // Patch fetch dynamically so relative /api/* requests are routed to the remote server
+    // this must run after Capacitor has loaded and patched window.fetch (so we wrap Capacitor's patch)
+    if (typeof window !== 'undefined' && !(window as any).__beatoFetchIntercepted) {
+      (window as any).__beatoFetchIntercepted = true;
+      const _origFetch = window.fetch;
+      window.fetch = function (input, init) {
+        if (typeof input === 'string' && input.startsWith('/api/')) {
+          try {
+            const authStoreData = window.localStorage.getItem('beato-auth');
+            if (authStoreData) {
+              const parsed = JSON.parse(authStoreData);
+              const token = parsed?.state?.token;
+              if (token && token !== 'secure-session-active' && token !== 'mock-session-active') {
+                init = init || {};
+                let headers = init.headers;
+                if (!headers) {
+                  headers = {};
+                }
+                if (typeof (headers as any).set === 'function') {
+                  (headers as any).set('Authorization', `Bearer ${token}`);
+                } else if (Array.isArray(headers)) {
+                  const authIdx = headers.findIndex(h => h[0].toLowerCase() === 'authorization');
+                  if (authIdx !== -1) {
+                    headers[authIdx][1] = `Bearer ${token}`;
+                  } else {
+                    headers.push(['Authorization', `Bearer ${token}`]);
+                  }
+                } else {
+                  (headers as any)['Authorization'] = `Bearer ${token}`;
+                }
+                init.headers = headers;
+              }
+            }
+          } catch (e) {
+            console.error('Failed to inject Authorization token in fetch patch:', e);
+          }
+
+          try {
+            const proto = window.location.protocol;
+            const host = window.location.hostname;
+            const isLocalApp = proto === 'file:'
+              || proto === 'capacitor:'
+              || ((host === 'localhost' || host === '127.0.0.1') && window.location.port !== '3000' && window.location.port !== '3001');
+            const customBase = window.localStorage.getItem('beato_api_url') || null;
+            if (isLocalApp || customBase) {
+              const base = (customBase || 'https://beato-music-app.vercel.app').replace(/\/$/, '');
+              input = base + input;
+              
+              if (base.indexOf('loca.lt') !== -1 || base.indexOf('localhost.run') !== -1) {
+                init = init || {};
+                let headers = init.headers;
+                if (!headers) {
+                  headers = {};
+                }
+                if (typeof (headers as any).set === 'function') {
+                  (headers as any).set('Bypass-Tunnel-Reminder', 'true');
+                } else if (Array.isArray(headers)) {
+                  headers.push(['Bypass-Tunnel-Reminder', 'true']);
+                } else {
+                  (headers as any)['Bypass-Tunnel-Reminder'] = 'true';
+                }
+                init.headers = headers;
+              }
+            }
+          } catch (e) {
+            console.error('Failed to rewrite fetch URL in Capacitor patch:', e);
+          }
+        }
+        return _origFetch.call(this, input, init);
+      };
+    }
+
     const initStatusBar = async () => {
       if (Capacitor.isNativePlatform()) {
         try {

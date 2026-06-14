@@ -50,18 +50,27 @@ try:
         f.write(modified_cap)
         
     print("4. Compiling Next.js static export (npm run build)...")
+    # if os.path.exists(".next"):
+    #     print("   Cleaning .next directory to avoid stale types...")
+    #     try:
+    #         shutil.rmtree(".next")
+    #     except Exception as e:
+    #         print(f"   Warning: could not remove .next directory: {e}")
     res = subprocess.run(
         "npm run build",
         shell=True,
         capture_output=True,
-        text=True
+        text=True,
+        encoding="utf-8"
     )
     
     print("--- Build Output ---")
-    print(res.stdout)
+    safe_stdout = res.stdout.encode('ascii', errors='replace').decode('ascii')
+    print(safe_stdout)
     if res.stderr:
         print("--- Build Errors ---")
-        print(res.stderr)
+        safe_stderr = res.stderr.encode('ascii', errors='replace').decode('ascii')
+        print(safe_stderr)
         
     if res.returncode != 0:
         print("Error: Next.js compilation failed!")
@@ -72,12 +81,15 @@ try:
         "npx cap sync android",
         shell=True,
         capture_output=True,
-        text=True
+        text=True,
+        encoding="utf-8"
     )
     print("--- Capacitor Sync Output ---")
-    print(cap_res.stdout)
+    safe_cap_stdout = cap_res.stdout.encode('ascii', errors='replace').decode('ascii')
+    print(safe_cap_stdout)
     if cap_res.stderr:
-        print(cap_res.stderr)
+        safe_cap_stderr = cap_res.stderr.encode('ascii', errors='replace').decode('ascii')
+        print(safe_cap_stderr)
         
     print("\nSUCCESS! Static export compiled and synced to Android project successfully.")
     print("You can now open Android Studio, build the APK, and run it offline on your device!")

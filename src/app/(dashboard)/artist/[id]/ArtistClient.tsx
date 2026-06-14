@@ -336,21 +336,45 @@ function ArtistMobileView({
 }: any) {
   const [mobileTab, setMobileTab] = useState<'Music' | 'About'>('Music');
   const router = useRouter();
+  const [scrollTop, setScrollTop] = useState(0);
+
+  useEffect(() => {
+    const el = document.querySelector('.app-main');
+    if (!el) return;
+    const handler = () => {
+      setScrollTop(el.scrollTop);
+    };
+    el.addEventListener('scroll', handler, { passive: true });
+    handler();
+    return () => el.removeEventListener('scroll', handler);
+  }, []);
 
   // Color theme accent
   const hue = (artist.id.split('').reduce((a: number, c: string) => a + c.charCodeAt(0), 0) * 37) % 360;
 
   return (
     <div style={{ minHeight: '100vh', background: '#0d0d0d', color: '#fff', fontFamily: 'Inter, sans-serif', paddingBottom: 120 }}>
-      {/* ── HERO BANNER ── */}
-      <div style={{ position: 'relative', height: 320, overflow: 'hidden' }}>
-        {/* Back Button */}
+      {/* Sticky/Fixed Mobile Header */}
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 100,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        paddingLeft: 16,
+        paddingRight: 16,
+        paddingTop: 'calc(env(safe-area-inset-top, 24px) + 12px)',
+        paddingBottom: '12px',
+        background: scrollTop > 150 ? '#0d0d0d' : 'transparent',
+        borderBottom: scrollTop > 150 ? '1px solid rgba(255,255,255,0.05)' : '1px solid transparent',
+        transition: 'background 0.2s, border-bottom 0.2s',
+      }}>
         <button onClick={() => router.back()} style={{
-          position: 'absolute',
-          top: 'calc(env(safe-area-inset-top, 0px) + 16px)',
-          left: 16,
-          width: 38,
-          height: 38,
+          width: 32,
+          height: 32,
           borderRadius: '50%',
           background: 'rgba(0,0,0,0.5)',
           display: 'flex',
@@ -358,11 +382,25 @@ function ArtistMobileView({
           justifyContent: 'center',
           border: 'none',
           color: '#fff',
-          cursor: 'pointer',
-          zIndex: 50
+          cursor: 'pointer'
         }}>
-          <ArrowLeft size={20} color="#fff" />
+          <ArrowLeft size={18} color="#fff" />
         </button>
+        {scrollTop > 150 && (
+          <h1 style={{
+            fontFamily: 'Outfit, sans-serif',
+            fontSize: 18,
+            fontWeight: 800,
+            color: '#fff',
+            margin: 0,
+          }}>
+            {artist.name}
+          </h1>
+        )}
+      </div>
+
+      {/* ── HERO BANNER ── */}
+      <div style={{ position: 'relative', height: 320, overflow: 'hidden' }}>
 
         {/* Background Image */}
         {artist.coverImage || artist.image ? (

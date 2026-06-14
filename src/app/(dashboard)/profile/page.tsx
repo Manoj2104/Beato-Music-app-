@@ -413,126 +413,224 @@ export default function ProfilePage() {
     <div style={{ minHeight: '100%', background: BG, display: 'flex', flexDirection: 'column', color: '#fff', position: 'relative' }}>
       
       {/* ─── Cover Header Section ─── */}
-      <div style={{
-        position: 'relative',
-        height: isMobile ? 320 : 380,
-        width: '100%',
-        overflow: 'hidden',
-        background: '#000'
-      }}>
-        
-        {/* Cover Photo Banner */}
-        <img 
-          src={displayCover} 
-          alt={displayName} 
-          style={{ 
-            width: '100%', 
-            height: '100%', 
-            objectFit: 'cover',
-            opacity: 0.85
-          }} 
-        />
-
-        {/* Linear Gradient Overlay */}
-        <div style={{
-          position: 'absolute',
-          inset: 0,
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.85) 100%)',
-          zIndex: 1
-        }} />
-
-        {/* Back Arrow Button (Overlaid top-left) */}
-        <div style={{ 
-          position: 'absolute', 
-          top: isMobile ? 'calc(env(safe-area-inset-top, 24px) + 16px)' : '24px', 
-          left: isMobile ? '16px' : '24px',
-          zIndex: 10
-        }}>
-          <button 
-            onClick={() => router.back()} 
-            style={{ 
-              width: 36, 
-              height: 36, 
-              borderRadius: '50%', 
-              background: 'rgba(0,0,0,0.6)', 
-              border: 'none', 
-              cursor: 'pointer', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              color: '#fff', 
-              transition: 'background 0.2s' 
-            }}
-            onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.8)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.6)'}
-          >
-            <ChevronLeft size={22} />
-          </button>
-        </div>
-
-        {/* Profile Details Overlay (Aligned bottom-left) */}
-        <div style={{
-          position: 'absolute',
-          bottom: '24px',
-          left: isMobile ? '16px' : '32px',
-          right: isMobile ? '16px' : '32px',
-          zIndex: 2,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 6
-        }}>
+      {isMobile ? (
+        <>
+          {/* Sticky Mobile Header */}
+          <div style={{
+            position: 'sticky',
+            top: 0,
+            zIndex: 50,
+            background: '#0a0a0a',
+            paddingTop: 'calc(env(safe-area-inset-top, 24px) + 12px)',
+            paddingBottom: '12px',
+            paddingLeft: '16px',
+            paddingRight: '16px',
+            borderBottom: '1px solid rgba(255,255,255,0.05)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 16
+          }}>
+            <button 
+              onClick={() => router.back()} 
+              style={{ 
+                background: 'none', 
+                border: 'none', 
+                color: '#fff', 
+                cursor: 'pointer', 
+                padding: 0, 
+                display: 'flex', 
+                alignItems: 'center' 
+              }}
+            >
+              <ChevronLeft size={24} />
+            </button>
+            <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 20, fontWeight: 900, color: '#fff', margin: 0 }}>
+              Profile
+            </h1>
+          </div>
           
-          {/* Verified Badge Row */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          {/* Mobile Profile Details Card */}
+          <div style={{
+            position: 'relative',
+            height: 200,
+            width: '100%',
+            overflow: 'hidden',
+            background: '#000'
+          }}>
+            <img 
+              src={displayCover} 
+              alt={displayName} 
+              style={{ 
+                width: '100%', 
+                height: '100%', 
+                objectFit: 'cover',
+                opacity: 0.55
+              }} 
+            />
             <div style={{
-              width: 16,
-              height: 16,
-              borderRadius: '50%',
-              background: user?.verified ? '#1db954' : '#6b6b6b',
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(10,10,10,1) 100%)',
+              zIndex: 1
+            }} />
+            <div style={{
+              position: 'absolute',
+              bottom: '16px',
+              left: '16px',
+              right: '16px',
+              zIndex: 2,
               display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#000',
-              flexShrink: 0
+              flexDirection: 'column',
+              gap: 4
             }}>
-              <Check size={10} strokeWidth={4} color={user?.verified ? "black" : "#ccc"} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{
+                  width: 14,
+                  height: 14,
+                  borderRadius: '50%',
+                  background: user?.verified ? '#1db954' : '#6b6b6b',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#000',
+                  flexShrink: 0
+                }}>
+                  <Check size={8} strokeWidth={4} color={user?.verified ? "black" : "#ccc"} />
+                </div>
+                <span style={{ fontSize: 11, fontWeight: 700, color: user?.verified ? '#fff' : SOFT }}>
+                  {user?.verified ? 'Verified Profile' : 'Standard Profile'}
+                </span>
+              </div>
+              <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 28, fontWeight: 900, color: '#fff', margin: 0 }}>
+                {displayName}
+              </h1>
+              <p style={{ fontSize: 12, color: '#a3a3a3', margin: 0 }}>
+                {followersCount} follower{followersCount === 1 ? '' : 's'} • {followingCount} following
+              </p>
             </div>
-            <span style={{ 
-              fontSize: 12, 
-              fontWeight: 700, 
-              color: user?.verified ? '#fff' : SOFT,
-              fontFamily: 'Inter, sans-serif'
-            }}>
-              {user?.verified ? 'Verified Profile' : 'Standard Profile'}
-            </span>
+          </div>
+        </>
+      ) : (
+        <div style={{
+          position: 'relative',
+          height: 380,
+          width: '100%',
+          overflow: 'hidden',
+          background: '#000'
+        }}>
+          {/* Cover Photo Banner */}
+          <img 
+            src={displayCover} 
+            alt={displayName} 
+            style={{ 
+              width: '100%', 
+              height: '100%', 
+              objectFit: 'cover',
+              opacity: 0.85
+            }} 
+          />
+
+          {/* Linear Gradient Overlay */}
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.85) 100%)',
+            zIndex: 1
+          }} />
+
+          {/* Back Arrow Button (Overlaid top-left) */}
+          <div style={{ 
+            position: 'absolute', 
+            top: '24px', 
+            left: '24px',
+            zIndex: 10
+          }}>
+            <button 
+              onClick={() => router.back()} 
+              style={{ 
+                width: 36, 
+                height: 36, 
+                borderRadius: '50%', 
+                background: 'rgba(0,0,0,0.6)', 
+                border: 'none', 
+                cursor: 'pointer', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                color: '#fff', 
+                transition: 'background 0.2s' 
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.8)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.6)'}
+            >
+              <ChevronLeft size={22} />
+            </button>
           </div>
 
-          {/* User Name */}
-          <h1 style={{ 
-            fontFamily: 'Outfit, sans-serif', 
-            fontSize: isMobile ? 36 : 52, 
-            fontWeight: 900, 
-            letterSpacing: '-0.02em', 
-            margin: '0 0 2px 0',
-            color: '#fff',
-            lineHeight: 1.1,
-            textShadow: '0 2px 8px rgba(0,0,0,0.6)'
+          {/* Profile Details Overlay (Aligned bottom-left) */}
+          <div style={{
+            position: 'absolute',
+            bottom: '24px',
+            left: '32px',
+            right: '32px',
+            zIndex: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 6
           }}>
-            {displayName}
-          </h1>
+            
+            {/* Verified Badge Row */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{
+                width: 16,
+                height: 16,
+                borderRadius: '50%',
+                background: user?.verified ? '#1db954' : '#6b6b6b',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#000',
+                flexShrink: 0
+              }}>
+                <Check size={10} strokeWidth={4} color={user?.verified ? "black" : "#ccc"} />
+              </div>
+              <span style={{ 
+                fontSize: 12, 
+                fontWeight: 700, 
+                color: user?.verified ? '#fff' : SOFT,
+                fontFamily: 'Inter, sans-serif'
+              }}>
+                {user?.verified ? 'Verified Profile' : 'Standard Profile'}
+              </span>
+            </div>
 
-          {/* Real-time Follow Stats */}
-          <p style={{ 
-            fontSize: isMobile ? 13 : 14, 
-            fontWeight: 600, 
-            color: '#d1d5db', 
-            margin: 0,
-            textShadow: '0 1px 4px rgba(0,0,0,0.5)'
-          }}>
-            {followersCount} follower{followersCount === 1 ? '' : 's'} • {followingCount} following
-          </p>
+            {/* User Name */}
+            <h1 style={{ 
+              fontFamily: 'Outfit, sans-serif', 
+              fontSize: 52, 
+              fontWeight: 900, 
+              letterSpacing: '-0.02em', 
+              margin: '0 0 2px 0',
+              color: '#fff',
+              lineHeight: 1.1,
+              textShadow: '0 2px 8px rgba(0,0,0,0.6)'
+            }}>
+              {displayName}
+            </h1>
+
+            {/* Real-time Follow Stats */}
+            <p style={{ 
+              fontSize: 14, 
+              fontWeight: 600, 
+              color: '#d1d5db', 
+              margin: 0,
+              textShadow: '0 1px 4px rgba(0,0,0,0.5)'
+            }}>
+              {followersCount} follower{followersCount === 1 ? '' : 's'} • {followingCount} following
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ─── Main Content ─── */}
       <div style={{ 

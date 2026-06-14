@@ -11,6 +11,7 @@ import { usePlayerStore } from '@/store/playerStore';
 import { useAuthStore } from '@/store/authStore';
 import { useMusicStore, trackGradient, GENRE_COLORS } from '@/store/musicStore';
 import { usePlaylistStore } from '@/store/playlistStore';
+import { useDownloadStore } from '@/store/downloadStore';
 import { search, SearchResult } from '@/lib/search';
 import toast from 'react-hot-toast';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
@@ -317,6 +318,7 @@ export default function HomePage() {
   const [showMobileNotificationDropdown, setShowMobileNotificationDropdown] = useState(false);
   const { getAllTracks, getForYouTracks, uploadedTracks, recentlyPlayed, genreScores, activeArtistIds, fetchTracks } = useMusicStore();
   const { customPlaylists } = usePlaylistStore();
+  const { downloadedTracks } = useDownloadStore();
 
   useEffect(() => {
     const checkMobile = () => {
@@ -331,14 +333,54 @@ export default function HomePage() {
 
 
 
-  const [promotions, setPromotions] = useState<any[]>([]);
-  const [homeLayoutOrder, setHomeLayoutOrder] = useState<string[]>([]);
-  const [customSections, setCustomSections] = useState<Record<string, any>>({});
-  const [activeTheme, setActiveTheme] = useState<any>(null);
+  const [promotions, setPromotions] = useState<any[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('beato_promotions');
+      if (saved) {
+        try { return JSON.parse(saved); } catch(e) {}
+      }
+    }
+    return [];
+  });
+  const [homeLayoutOrder, setHomeLayoutOrder] = useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('beato_home_layout_order');
+      if (saved) {
+        try { return JSON.parse(saved); } catch(e) {}
+      }
+    }
+    return [];
+  });
+  const [customSections, setCustomSections] = useState<Record<string, any>>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('beato_custom_sections');
+      if (saved) {
+        try { return JSON.parse(saved); } catch(e) {}
+      }
+    }
+    return {};
+  });
+  const [activeTheme, setActiveTheme] = useState<any>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('beato_active_theme');
+      if (saved) {
+        try { return JSON.parse(saved); } catch(e) {}
+      }
+    }
+    return null;
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult | null>(null);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
-  const [events, setEvents] = useState<any[]>([]);
+  const [events, setEvents] = useState<any[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('beato_events');
+      if (saved) {
+        try { return JSON.parse(saved); } catch(e) {}
+      }
+    }
+    return [];
+  });
 
   // Custom interactive section states (Zepto Style)
   const [activeDealsTab, setActiveDealsTab] = useState<Record<string, string>>({});
@@ -360,6 +402,16 @@ export default function HomePage() {
           setCustomSections(payload.customSections || {});
           setActiveTheme(payload.activeTheme || null);
           setEvents(payload.events || []);
+
+          try {
+            localStorage.setItem('beato_promotions', JSON.stringify(payload.promotions || []));
+            localStorage.setItem('beato_home_layout_order', JSON.stringify(payload.homeLayoutOrder || []));
+            localStorage.setItem('beato_custom_sections', JSON.stringify(payload.customSections || {}));
+            localStorage.setItem('beato_active_theme', JSON.stringify(payload.activeTheme || null));
+            localStorage.setItem('beato_events', JSON.stringify(payload.events || []));
+          } catch (err) {
+            console.warn('Failed to cache layout in localStorage:', err);
+          }
         }
       } catch (e) {
         console.error('Failed fetching homepage layout', e);
@@ -383,6 +435,16 @@ export default function HomePage() {
             setCustomSections(payload.customSections || {});
             setActiveTheme(payload.activeTheme || null);
             setEvents(payload.events || []);
+
+            try {
+              localStorage.setItem('beato_promotions', JSON.stringify(payload.promotions || []));
+              localStorage.setItem('beato_home_layout_order', JSON.stringify(payload.homeLayoutOrder || []));
+              localStorage.setItem('beato_custom_sections', JSON.stringify(payload.customSections || {}));
+              localStorage.setItem('beato_active_theme', JSON.stringify(payload.activeTheme || null));
+              localStorage.setItem('beato_events', JSON.stringify(payload.events || []));
+            } catch (err) {
+              console.warn('Failed to cache layout in localStorage:', err);
+            }
           }
         } catch (e) {
           console.error('Failed fetching homepage layout', e);
@@ -5136,22 +5198,7 @@ export default function HomePage() {
     }
   };
 
-  const DEFAULT_LAYOUT_ORDER = [
-    "quick_access",
-    "liked_songs",
-    "promotions_hero",
-    "made_for_you",
-    "featured_artist",
-    "new_music",
-    "live_events",
-    "trending_now",
-    "your_taste",
-    "recently_played",
-    "mood_playlists",
-    "daily_mixes"
-  ];
-
-  const layoutToRender = homeLayoutOrder.length > 0 ? homeLayoutOrder : DEFAULT_LAYOUT_ORDER;
+  const layoutToRender = homeLayoutOrder;
 
   const pageBg = activeTheme ? activeTheme.background : '#0a0a0a';
   const headerGradient = activeTheme ? activeTheme.gradient : 'linear-gradient(180deg, rgba(29, 185, 84,0.08) 0%, rgba(10,10,10,0) 100%)';
@@ -5163,6 +5210,7 @@ export default function HomePage() {
       </div>
     );
   }
+
 
   return (
     <div className="homepage-themed" style={{ minHeight: '100%', paddingBottom: 32, background: pageBg, transition: 'background 0.5s ease' }}>
@@ -5194,7 +5242,7 @@ export default function HomePage() {
       `}</style>
 
       {/* ── Hero Gradient header with TopBar ── */}
-      <div style={{ position: 'sticky', top: isMobile ? 'calc(-1 * env(safe-area-inset-top, 24px))' : 0, zIndex: 50, background: isMobile ? '#0a0a0a' : headerGradient, paddingTop: isMobile ? 'calc(env(safe-area-inset-top, 24px) + 12px)' : '20px', paddingRight: isMobile ? '16px' : '24px', paddingBottom: isMobile ? '12px' : '24px', paddingLeft: isMobile ? '16px' : '24px' }}>
+      <div style={{ position: 'sticky', top: 0, zIndex: 50, background: isMobile ? '#0a0a0a' : headerGradient, paddingTop: isMobile ? 'calc(env(safe-area-inset-top, 24px) + 12px)' : '20px', paddingRight: isMobile ? '16px' : '24px', paddingBottom: isMobile ? '12px' : '24px', paddingLeft: isMobile ? '16px' : '24px' }}>
         {isMobile ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
             {/* User Profile Avatar */}
@@ -5348,51 +5396,7 @@ export default function HomePage() {
       </div>
 
       <div style={{ padding: isMobile ? '0 16px' : '0 24px' }}>
-        {/* Offline Banner Card */}
-        {!isOnline && (
-          <div style={{
-            background: 'rgba(239, 68, 68, 0.12)',
-            border: '1.5px dashed rgba(239, 68, 68, 0.3)',
-            borderRadius: 16,
-            padding: '20px',
-            marginBottom: 24,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            textAlign: 'center',
-            gap: 12,
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
-          }}>
-            <span style={{ fontSize: 32 }}>📶</span>
-            <div>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: '#ef4444' }}>You're Currently Offline</h3>
-              <p style={{ margin: '4px 0 0 0', fontSize: 13, color: '#a3a3a3', lineHeight: '1.4' }}>
-                Connect to the internet to browse and stream millions of songs.
-              </p>
-            </div>
-            <Link
-              href="/downloads"
-              style={{
-                background: '#1db954',
-                color: '#000',
-                textDecoration: 'none',
-                borderRadius: 24,
-                padding: '10px 20px',
-                fontSize: 13,
-                fontWeight: 800,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                marginTop: 4,
-                boxShadow: '0 4px 12px rgba(29, 185, 84, 0.2)',
-                transition: 'transform 0.2s'
-              }}
-            >
-              Go to Downloads to enjoy offline music 🎵
-            </Link>
-          </div>
-        )}
+
 
         {/* ── Uploaded Tracks Alert ── */}
         {!isMobile && approvedUploadedTracks.length > 0 && (
@@ -5406,7 +5410,33 @@ export default function HomePage() {
         )}
 
         {/* Dynamic sections rendered in sequenced order */}
-        {layoutToRender.map(sectionId => renderHomeSection(sectionId))}
+        {layoutToRender.length > 0 ? (
+          layoutToRender.map(sectionId => renderHomeSection(sectionId))
+        ) : (
+          <div style={{ padding: '40px 20px', textAlign: 'center', background: 'rgba(255, 255, 255, 0.02)', borderRadius: 18, border: '1px dashed rgba(255, 255, 255, 0.15)', marginTop: 24 }}>
+            <span style={{ fontSize: 48, display: 'block', marginBottom: 16 }}>🎵</span>
+            {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') ? (
+              <div>
+                <h3 style={{ fontSize: 18, fontWeight: 800, color: '#fff', marginBottom: 8 }}>Start Designing Your Homepage!</h3>
+                <p style={{ fontSize: 13, color: '#a3a3a3', lineHeight: '1.5', maxWidth: 400, margin: '0 auto 20px' }}>
+                  No homepage sections have been published yet. Head over to the Homepage Design Studio in the Admin Panel to customize layout order, active theme, and add components.
+                </p>
+                <Link href="/admin/panel" style={{ textDecoration: 'none' }}>
+                  <button style={{ background: GREEN, color: '#000', border: 'none', borderRadius: 20, padding: '10px 24px', fontSize: 13, fontWeight: 800, cursor: 'pointer' }}>
+                    Go to Admin Design Studio
+                  </button>
+                </Link>
+              </div>
+            ) : (
+              <div>
+                <h3 style={{ fontSize: 18, fontWeight: 800, color: '#fff', marginBottom: 8 }}>Welcome to Beato!</h3>
+                <p style={{ fontSize: 13, color: '#a3a3a3', lineHeight: '1.5', maxWidth: 400, margin: '0 auto' }}>
+                  Experience premium sound and customize your vibe. Use the navigation bar to search for tracks, browse your library, or download your favorite tracks.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Floating Cart Bar (Zepto Style) */}

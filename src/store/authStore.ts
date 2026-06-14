@@ -2,6 +2,21 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { User } from '@/types';
 import { socketManager } from '@/lib/socket';
+import { Capacitor } from '@capacitor/core';
+import { Network } from '@capacitor/network';
+
+const checkIsOffline = async (): Promise<boolean> => {
+  if (typeof window === 'undefined') return false;
+  if (Capacitor.isNativePlatform()) {
+    try {
+      const status = await Network.getStatus();
+      return !status.connected;
+    } catch (e) {
+      console.warn('Capacitor Network.getStatus failed:', e);
+    }
+  }
+  return navigator.onLine === false;
+};
 
 const DEFAULT_PREFERENCES = {
   autoplay: true,
@@ -29,7 +44,7 @@ interface AuthStore {
   isAuthenticated: boolean;
   isLoading: boolean;
   token: string | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, allowMockFallback?: boolean) => Promise<void>;
   loginWithSocial: (provider: string) => Promise<void>;
   signup: (name: string, email: string, password: string, confirmPassword: string) => Promise<void>;
   sendOtp: (phone: string) => Promise<{ success: boolean; message?: string; developmentSandboxCode?: string }>;
@@ -56,7 +71,7 @@ export const useAuthStore = create<AuthStore>()(
       isMobileDrawerOpen: false,
       setMobileDrawerOpen: (open) => set({ isMobileDrawerOpen: open }),
 
-      login: async (email, password) => {
+      login: async (email, password, allowMockFallback = false) => {
         set({ isLoading: true });
         try {
           let data;
@@ -71,21 +86,21 @@ export const useAuthStore = create<AuthStore>()(
             const text = await res.text();
             try {
               data = JSON.parse(text);
-            } catch (jsonErr) {
-              console.warn('Failed to parse API login response as JSON:', jsonErr);
-              const isOffline = typeof navigator !== 'undefined' && navigator.onLine === false;
-              if (isOffline) {
+            } catch (jsonErr: any) {
+              console.warn('Failed to parse API login response as JSON:', jsonErr, 'Raw Text:', text);
+              const isOffline = await checkIsOffline();
+              if (isOffline && allowMockFallback) {
                 throw new Error('FALLBACK_TO_MOCK');
               }
-              throw new Error('Invalid server response. Please try again.');
+              throw new Error(`Invalid server response: ${jsonErr.message}. Content: ${text.slice(0, 80)}`);
             }
           } catch (netErr: any) {
             if (netErr.message === 'FALLBACK_TO_MOCK' || netErr.message === 'Invalid server response. Please try again.') {
               throw netErr;
             }
             console.warn('Network error or offline during API login:', netErr);
-            const isOffline = typeof navigator !== 'undefined' && navigator.onLine === false;
-            if (isOffline) {
+            const isOffline = await checkIsOffline();
+            if (isOffline && allowMockFallback) {
               throw new Error('FALLBACK_TO_MOCK');
             }
             throw new Error('Network error. Cannot reach API server. Please check connection.');
@@ -97,16 +112,16 @@ export const useAuthStore = create<AuthStore>()(
 
           // Force-set session cookies on client-side for mobile WebView compatibility
           if (typeof document !== 'undefined' && data.token) {
-            document.cookie = `beato-token=${data.token}; path=/; max-age=3600; SameSite=Lax`;
+            document.cookie = `beato-token=${data.token}; path=/; max-age=31536000; SameSite=Lax`;
             if (data.user && data.user.role) {
-              document.cookie = `beato-role=${data.user.role}; path=/; max-age=604800; SameSite=Lax`;
+              document.cookie = `beato-role=${data.user.role}; path=/; max-age=31536000; SameSite=Lax`;
             }
           }
 
           set({
             user: data.user,
             isAuthenticated: true,
-            token: 'secure-session-active',
+            token: data.token || 'secure-session-active',
           });
         } catch (error: any) {
           if (error.message === 'FALLBACK_TO_MOCK') {
@@ -184,16 +199,16 @@ export const useAuthStore = create<AuthStore>()(
 
           // Force-set session cookies on client-side for mobile WebView compatibility
           if (typeof document !== 'undefined' && data.token) {
-            document.cookie = `beato-token=${data.token}; path=/; max-age=3600; SameSite=Lax`;
+            document.cookie = `beato-token=${data.token}; path=/; max-age=31536000; SameSite=Lax`;
             if (data.user && data.user.role) {
-              document.cookie = `beato-role=${data.user.role}; path=/; max-age=604800; SameSite=Lax`;
+              document.cookie = `beato-role=${data.user.role}; path=/; max-age=31536000; SameSite=Lax`;
             }
           }
 
           set({
             user: data.user,
             isAuthenticated: true,
-            token: 'secure-session-active',
+            token: data.token || 'secure-session-active',
           });
         } catch (error: any) {
           if (error.message === 'FALLBACK_TO_MOCK') {
@@ -243,9 +258,13 @@ export const useAuthStore = create<AuthStore>()(
             if (!res.ok) {
               throw new Error(data.error || 'Signup failed');
             }
-          } catch (err) {
-            console.warn('Network error or offline during signup, mocking local success');
-            // Offline/Static fallback: succeed instantly
+          } catch (err: any) {
+            console.warn('Network error or offline during signup:', err);
+            const isOffline = await checkIsOffline();
+            if (isOffline) {
+              throw new Error('You are offline. Please check your internet connection.');
+            }
+            throw new Error(err.message || 'Signup failed. Please try again.');
           }
         } finally {
           set({ isLoading: false });
@@ -268,7 +287,7 @@ export const useAuthStore = create<AuthStore>()(
             try {
               data = JSON.parse(text);
             } catch (jsonErr) {
-              const isOffline = typeof navigator !== 'undefined' && navigator.onLine === false;
+              const isOffline = await checkIsOffline();
               if (isOffline) {
                 throw new Error('FALLBACK_TO_MOCK');
               }
@@ -279,7 +298,7 @@ export const useAuthStore = create<AuthStore>()(
               throw err;
             }
             console.warn('Network error or offline during sendOtp:', err);
-            const isOffline = typeof navigator !== 'undefined' && navigator.onLine === false;
+            const isOffline = await checkIsOffline();
             if (isOffline) {
               throw new Error('FALLBACK_TO_MOCK');
             }
@@ -319,7 +338,7 @@ export const useAuthStore = create<AuthStore>()(
             try {
               data = JSON.parse(text);
             } catch (jsonErr) {
-              const isOffline = typeof navigator !== 'undefined' && navigator.onLine === false;
+              const isOffline = await checkIsOffline();
               if (isOffline) {
                 throw new Error('FALLBACK_TO_MOCK');
               }
@@ -330,7 +349,7 @@ export const useAuthStore = create<AuthStore>()(
               throw err;
             }
             console.warn('Network error or offline during verifyOtp:', err);
-            const isOffline = typeof navigator !== 'undefined' && navigator.onLine === false;
+            const isOffline = await checkIsOffline();
             if (isOffline) {
               throw new Error('FALLBACK_TO_MOCK');
             }
@@ -343,16 +362,16 @@ export const useAuthStore = create<AuthStore>()(
 
           // Force-set session cookies on client-side for mobile WebView compatibility
           if (typeof document !== 'undefined' && data.token) {
-            document.cookie = `beato-token=${data.token}; path=/; max-age=3600; SameSite=Lax`;
+            document.cookie = `beato-token=${data.token}; path=/; max-age=31536000; SameSite=Lax`;
             if (data.user && data.user.role) {
-              document.cookie = `beato-role=${data.user.role}; path=/; max-age=604800; SameSite=Lax`;
+              document.cookie = `beato-role=${data.user.role}; path=/; max-age=31536000; SameSite=Lax`;
             }
           }
 
           set({
             user: data.user,
             isAuthenticated: true,
-            token: 'secure-session-active',
+            token: data.token || 'secure-session-active',
           });
         } catch (error: any) {
           if (error.message === 'FALLBACK_TO_MOCK') {
@@ -431,7 +450,7 @@ export const useAuthStore = create<AuthStore>()(
             set({
               user: data.user,
               isAuthenticated: true,
-              token: 'secure-session-active',
+              token: data.token || get().token || 'secure-session-active',
             });
           } else {
             // Only clear the session if the server explicitly tells us the user is unauthorized (401 or 403)
@@ -446,9 +465,15 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       updateUser: (updates) =>
-        set((state) => ({
-          user: state.user ? { ...state.user, ...updates } : null,
-        })),
+        set((state) => {
+          const newState: any = {
+            user: state.user ? { ...state.user, ...updates } : null,
+          };
+          if ((updates as any).token) {
+            newState.token = (updates as any).token;
+          }
+          return newState;
+        }),
 
       upgradeToArtist: (userId) => {
         const currentUser = get().user;

@@ -49,7 +49,7 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
         .then((res) => res.json())
         .then((data) => {
           if (data.success) {
-            updateUser(data.user);
+            updateUser({ ...data.user, token: data.token });
             upgradeToArtist(user.id);
             toast.success(`Artist Portal unlocked for ${data.user.name}!`, {
               style: { background: '#1a1a1a', color: '#fff', border: `1px solid ${G}30`, borderRadius: 12 },
@@ -128,6 +128,15 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
     }
   };
 
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   // Close menu on outside click
   useEffect(() => {
     const h = (e: MouseEvent) => { if (menuRef.current && !menuRef.current.contains(e.target as Node)) setShowUserMenu(false); };
@@ -138,7 +147,10 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
   const barStyle: React.CSSProperties = {
     position: 'sticky', top: 0, zIndex: 50,
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    padding: '10px 22px',
+    paddingTop: isMobile ? 'calc(env(safe-area-inset-top, 24px) + 10px)' : '10px',
+    paddingBottom: '10px',
+    paddingLeft: '22px',
+    paddingRight: '22px',
     background: transparent ? 'transparent' : bgColor ? `linear-gradient(to bottom, ${bgColor}cc, transparent)` : 'rgba(18,18,18,0.92)',
     backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
     borderBottom: transparent ? 'none' : '1px solid rgba(255,255,255,0.05)',
@@ -185,7 +197,7 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
         });
         const data = await res.json();
         if (res.ok && data.success) {
-          updateUser(data.user);
+          updateUser({ ...data.user, token: data.token });
           upgradeToArtist(user?.id || '');
           toast.success('Artist Portal unlocked!', { id: tid });
           // Hard navigate so middleware loads cookie correctly

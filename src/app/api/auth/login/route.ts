@@ -36,17 +36,17 @@ export async function POST(request: NextRequest) {
       name: user.name,
     };
 
-    // Access Token (Expires in 1 hour)
-    const token = await signJWT(payload, '1h');
-    // Refresh Token (Expires in 7 days)
-    const refreshToken = await signJWT(payload, '7d');
+    // Access Token (Expires in 365 days)
+    const token = await signJWT(payload, '365d');
+    // Refresh Token (Expires in 365 days)
+    const refreshToken = await signJWT(payload, '365d');
 
     // 5. Store session in simulated DB
     db.saveSession({
       id: `session-${Date.now()}`,
       userId: user.id,
       token,
-      expiresAt: new Date(Date.now() + 3600000).toISOString(),
+      expiresAt: new Date(Date.now() + 365 * 24 * 3600000).toISOString(),
     });
 
     // 6. Build cookies response
@@ -75,8 +75,8 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    const maxAgeAccess = 3600; // 1 hour
-    const maxAgeRefresh = 604800; // 7 days
+    const maxAgeAccess = 31536000; // 365 days
+    const maxAgeRefresh = 31536000; // 365 days
 
     // Set secure HttpOnly cookies
     response.cookies.set('beato-token', token, {

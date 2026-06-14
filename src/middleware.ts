@@ -24,9 +24,14 @@ export async function middleware(request: NextRequest) {
     return addCorsHeaders(request, response);
   }
 
-  // Retrieve token from cookies and verify signature
-  const tokenCookie = request.cookies.get('beato-token');
-  const token = tokenCookie?.value;
+  // Retrieve token from cookies or Authorization header
+  let token = request.cookies.get('beato-token')?.value;
+  if (!token) {
+    const authHeader = request.headers.get('Authorization') || request.headers.get('authorization');
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
+  }
 
   let userRole: string | undefined = undefined;
   let isAuthenticated = false;

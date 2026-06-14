@@ -425,86 +425,97 @@ function MobileLibraryView({
     <div>
       {/* Mobile Spotify-Style Header */}
       {activeTab === 'Liked' ? null : (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-          <div
-            onClick={() => setMobileDrawerOpen(true)}
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: '50%',
-              background: '#1db954', // Green circle
-              color: '#fff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: 800,
-              fontSize: 14,
-              fontFamily: 'Outfit, sans-serif',
-              cursor: 'pointer'
-            }}
-          >
-            {user?.name ? user.name[0].toUpperCase() : 'M'}
+        <div style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 50,
+          background: '#080808',
+          paddingTop: 'calc(env(safe-area-inset-top, 24px) + 12px)',
+          paddingBottom: '12px',
+          marginLeft: '-16px',
+          marginRight: '-16px',
+          paddingLeft: '16px',
+          paddingRight: '16px',
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
+          marginBottom: '20px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+            <div
+              onClick={() => setMobileDrawerOpen(true)}
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: '50%',
+                background: '#1db954', // Green circle
+                color: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 800,
+                fontSize: 14,
+                fontFamily: 'Outfit, sans-serif',
+                cursor: 'pointer'
+              }}
+            >
+              {user?.name ? user.name[0].toUpperCase() : 'M'}
+            </div>
+            <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 24, fontWeight: 900, color: '#fff', margin: 0 }}>Your Library</h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginLeft: 'auto' }}>
+              <Search size={22} color="#fff" style={{ cursor: 'pointer' }} onClick={() => {
+                toast('Search library…', { icon: '🔍' });
+              }} />
+              <Plus size={24} color="#fff" style={{ cursor: 'pointer' }} onClick={() => setShowAddMenu(true)} />
+            </div>
           </div>
-          <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 24, fontWeight: 900, color: '#fff' }}>Your Library</h1>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginLeft: 'auto' }}>
-            <Search size={22} color="#fff" style={{ cursor: 'pointer' }} onClick={() => {
-              toast('Search library…', { icon: '🔍' });
-            }} />
-            <Plus size={24} color="#fff" style={{ cursor: 'pointer' }} onClick={() => setShowAddMenu(true)} />
-          </div>
-        </div>
-      )}
 
-      {/* Horizontally Scrolling Pills/Chips */}
-      {activeTab !== 'Liked' && (
-        <div style={{ 
-          display: 'flex', 
-          gap: 8, 
-          overflowX: 'auto', 
-          scrollbarWidth: 'none', 
-          msOverflowStyle: 'none', 
-          paddingBottom: 4,
-          marginBottom: 16,
-          WebkitOverflowScrolling: 'touch'
-        }} className="hide-scrollbar">
-          <style>{`
-            .hide-scrollbar::-webkit-scrollbar {
-              display: none;
-            }
-          `}</style>
-          {[
-            { id: 'Playlists', label: 'Playlists' },
-            { id: 'Artists', label: 'Artists' },
-            { id: 'Albums', label: 'Albums' },
-          ].map(chip => {
-            const active = activeTab === chip.id;
-            return (
-              <button
-                key={chip.id}
-                onClick={() => {
-                  if (active) {
-                    setActiveTab('overview');
-                  } else {
-                    setActiveTab(chip.id);
-                  }
-                }}
-                style={{
-                  padding: '6px 16px',
-                  borderRadius: 20,
-                  background: active ? G : 'rgba(255,255,255,0.08)',
-                  color: active ? '#000' : '#fff',
-                  fontSize: 12.5,
-                  fontWeight: 600,
-                  border: 'none',
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                  transition: 'all 0.15s'
-                }}
-              >
-                {chip.label}
-              </button>
-            );
-          })}
+          {/* Horizontally Scrolling Pills/Chips */}
+          <div style={{ 
+            display: 'flex', 
+            gap: 8, 
+            overflowX: 'auto', 
+            scrollbarWidth: 'none', 
+            msOverflowStyle: 'none', 
+            WebkitOverflowScrolling: 'touch'
+          }} className="hide-scrollbar">
+            <style>{`
+              .hide-scrollbar::-webkit-scrollbar {
+                display: none;
+              }
+            `}</style>
+            {[
+              { id: 'Playlists', label: 'Playlists' },
+              { id: 'Artists', label: 'Artists' },
+              { id: 'Albums', label: 'Albums' },
+            ].map(chip => {
+              const active = activeTab === chip.id;
+              return (
+                <button
+                  key={chip.id}
+                  onClick={() => {
+                    if (active) {
+                      setActiveTab('overview');
+                    } else {
+                      setActiveTab(chip.id);
+                    }
+                  }}
+                  style={{
+                    padding: '6px 16px',
+                    borderRadius: 20,
+                    background: active ? G : 'rgba(255,255,255,0.08)',
+                    color: active ? '#000' : '#fff',
+                    fontSize: 12.5,
+                    fontWeight: 600,
+                    border: 'none',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    transition: 'all 0.15s'
+                  }}
+                >
+                  {chip.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
 
@@ -603,14 +614,32 @@ function MobileLibraryView({
       {/* Mobile Main Content */}
       {activeTab === 'Liked' ? (
         /* Liked Songs mobile detail view */
-        <div style={{ margin: '-16px -16px 0 -16px', paddingBottom: 20 }}>
+        <div style={{ margin: '0 -16px 0 -16px', paddingBottom: 20 }}>
           {/* Beautiful fading top banner gradient background */}
           <div style={{ 
             background: 'linear-gradient(180deg, rgba(29, 185, 84, 0.45) 0%, rgba(13, 27, 20, 0.15) 50%, rgba(8, 8, 8, 0) 100%)',
-            padding: '24px 16px 20px 16px',
+            padding: '0 16px 20px 16px',
           }}>
             {/* Nav row */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+            <div style={{ 
+              position: 'sticky', 
+              top: 0, 
+              zIndex: 50, 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 12, 
+              marginBottom: 24, 
+              paddingTop: 'calc(env(safe-area-inset-top, 24px) + 12px)',
+              paddingBottom: '12px',
+              marginLeft: '-16px',
+              marginRight: '-16px',
+              paddingLeft: '16px',
+              paddingRight: '16px',
+              background: 'rgba(7, 31, 17, 0.85)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              borderBottom: '1px solid rgba(255,255,255,0.05)'
+            }}>
               <button onClick={() => setActiveTab('overview')} style={{ background: 'rgba(255,255,255,0.08)', border: 'none', color: '#fff', cursor: 'pointer', padding: 8, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 38, height: 38 }}>
                 <ChevronLeft size={22} />
               </button>
@@ -1245,7 +1274,7 @@ function LibraryPageContent() {
   const GENRES_AVAIL = ['Pop', 'Hip-Hop', 'Electronic', 'R&B', 'Indie', 'Rock', 'Ambient'];
 
   return (
-    <div style={{ minHeight: '100%', background: '#080808', padding: isMobile ? '16px 16px 80px' : 0 }}>
+    <div style={{ minHeight: '100%', background: '#080808', padding: isMobile ? '0 16px 80px' : 0 }}>
       {isMobile ? (
         <MobileLibraryView
           activeTab={activeTab}

@@ -21,7 +21,14 @@ const ROLE_HIERARCHY: Record<UserRole, number> = {
  * Extracts and returns the authenticated user's role and token from cookies after verifying cryptographically
  */
 export async function getAuthUser(request: NextRequest): Promise<AuthenticatedUser | null> {
-  const token = request.cookies.get('beato-token')?.value;
+  let token = request.cookies.get('beato-token')?.value;
+
+  if (!token) {
+    const authHeader = request.headers.get('Authorization') || request.headers.get('authorization');
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
+  }
 
   if (!token) {
     return null;

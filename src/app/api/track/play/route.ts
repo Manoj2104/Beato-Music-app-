@@ -43,7 +43,14 @@ export async function POST(req: NextRequest) {
     let country = 'US';
     let userId = 'anonymous';
 
-    const token = req.cookies.get('beato-token')?.value;
+    let token = req.cookies.get('beato-token')?.value;
+    if (!token) {
+      const authHeader = req.headers.get('Authorization') || req.headers.get('authorization');
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      }
+    }
+
     if (token) {
       try {
         const payload = await verifyJWT(token);
