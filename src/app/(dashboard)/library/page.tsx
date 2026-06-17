@@ -1245,7 +1245,7 @@ function LibraryPageContent() {
   const GENRES_AVAIL = ['Pop', 'Hip-Hop', 'Electronic', 'R&B', 'Indie', 'Rock', 'Ambient'];
 
   return (
-    <div className="library-themed-container" style={{ minHeight: '100%', background: 'var(--color-ss-bg, #fbf9f5)', padding: isMobile ? 'calc(var(--sat, 0px) + 20px) 16px 80px' : 0 }}>
+    <div className="library-themed-container" style={{ minHeight: '100%', background: 'var(--color-ss-bg, #fbf9f5)', padding: isMobile ? 'calc(var(--sat, 0px) + 12px) 16px 80px' : 0 }}>
       {isMobile ? (
         <MobileLibraryView
           activeTab={activeTab}

@@ -228,7 +228,7 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-outfit), system-ui, sans-serif;
   }
   .sidebar-container { display: none !important; }
   .app-sidebar { display: none !important; }
-  .app-main { grid-row: 1 / 2; grid-column: 1 / 2; border-radius: 0; }
+  .app-main { grid-row: 1 / 2; grid-column: 1 / 2; border-radius: 0; padding-top: 0 !important; border: none !important; }
   .app-player {
     grid-row: 2 / 3 !important;
     grid-column: 1 / 2 !important;

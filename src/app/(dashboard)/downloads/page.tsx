@@ -177,7 +177,7 @@ export default function DownloadsPage() {
           backdropFilter: scrolled ? 'blur(20px)' : 'none',
           WebkitBackdropFilter: scrolled ? 'blur(20px)' : 'none',
           borderBottom: scrolled ? '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))' : '1px solid transparent',
-          paddingTop: 'calc(var(--sat, 0px) + 20px)',
+          paddingTop: 'calc(var(--sat, 0px) + 12px)',
           paddingBottom: '16px',
           margin: '0 -16px 16px -16px',
           paddingLeft: '16px',
@@ -368,7 +368,7 @@ export default function DownloadsPage() {
         {(!isMobile || downloadedTracks.length === 0) && (
           <>
             {isMobile ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4, paddingTop: 'calc(var(--sat, 0px) + 20px)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4, paddingTop: 'calc(var(--sat, 0px) + 12px)' }}>
                 {/* User Profile Avatar */}
                 <div
                   onClick={() => setMobileDrawerOpen(true)}

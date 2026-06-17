@@ -5215,8 +5215,7 @@ export default function HomePage() {
         }
       `}</style>
 
-      {/* ── Hero Gradient header with TopBar ── */}
-      <div style={{ position: 'sticky', top: 0, zIndex: 50, background: isMobile ? '#fbf9f5' : headerGradient, paddingTop: isMobile ? 'calc(var(--sat, 0px) + 20px)' : '20px', paddingRight: isMobile ? '16px' : '24px', paddingBottom: isMobile ? '12px' : '24px', paddingLeft: isMobile ? '16px' : '24px' }}>
+      <div style={{ position: 'sticky', top: 0, zIndex: 50, background: isMobile ? '#fbf9f5' : headerGradient, paddingTop: isMobile ? 'calc(var(--sat, 0px) + 12px)' : '20px', paddingRight: isMobile ? '16px' : '24px', paddingBottom: isMobile ? '12px' : '24px', paddingLeft: isMobile ? '16px' : '24px' }}>
         {isMobile ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
             {/* User Profile Avatar */}
