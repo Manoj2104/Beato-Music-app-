@@ -49,6 +49,13 @@
   --sab: env(safe-area-inset-bottom, 0px);
 }
 
+@media (max-width: 768px) {
+  :root {
+    --sat: env(safe-area-inset-top, 38px); /* ⚡ Safe status bar spacing fallback for mobile/Android/iOS */
+    --sab: env(safe-area-inset-bottom, 12px);
+  }
+}
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body {
