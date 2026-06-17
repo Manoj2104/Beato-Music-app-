@@ -16,6 +16,7 @@ import { useDownloadStore } from '@/store/downloadStore';
 import { usePlaylistStore } from '@/store/playlistStore';
 import { formatDuration, mockArtists } from '@/lib/mockData';
 import { getLyricsForTrack } from '@/lib/lyrics';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface FullscreenPlayerProps {
   onClose: () => void;
@@ -106,7 +107,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
   const [showSettings, setShowSettings] = useState(false);
 
   // Mobile layout state hooks
-  const [isMobile, setIsMobile] = useState(false);
+  const isMobile = useIsMobile(); // ⚡ shared single resize listener
   const [scrollTop, setScrollTop] = useState(0);
   const [isFollowingArtist, setIsFollowingArtist] = useState(false);
   const [followedCredits, setFollowedCredits] = useState<Record<string, boolean>>({});
@@ -157,14 +158,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
     return `Web Player (${browser} on ${os})`;
   }, []);
 
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     setScrollTop(e.currentTarget.scrollTop);
@@ -1200,6 +1194,14 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
             <SkipForward size={26} fill="currentColor" />
           </button>
 
+          <button
+            onClick={cycleRepeat}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: repeat !== 'none' ? '#b08850' : 'rgba(255,255,255,0.6)', padding: 8 }}
+            title="Repeat"
+          >
+            {repeat === 'one' ? <Repeat1 size={20} /> : <Repeat size={20} />}
+          </button>
+
           <div style={{ position: 'relative' }}>
             <button
               onClick={() => { setShowSleepMenu(!showSleepMenu); }}
@@ -2015,6 +2017,14 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: '100%' }}
         transition={{ type: 'spring', damping: 25, stiffness: 120 }}
+        drag={isMobile && scrollTop <= 5 ? "y" : false}
+        dragConstraints={{ top: 0, bottom: 0 }}
+        dragElastic={{ top: 0, bottom: 0.7 }}
+        onDragEnd={(event, info) => {
+          if (info.offset.y > 100) {
+            onClose();
+          }
+        }}
         className="fullscreen-player-container"
         style={{
           background: bgGradient,

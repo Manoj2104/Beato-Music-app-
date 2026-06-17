@@ -21,6 +21,7 @@ const getLocalIPs = () => {
 };
 
 const nextConfig: NextConfig = {
+  output: 'export',
   allowedDevOrigins: getLocalIPs(),
   devIndicators: false,
   images: {
