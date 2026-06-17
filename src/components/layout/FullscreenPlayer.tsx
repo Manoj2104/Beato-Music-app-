@@ -1143,7 +1143,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
           </div>
         </div>
 
-        {/* 6. PLAYBACK CONTROLS */}
+        {/* 6. PLAYBACK CONTROLS (Perfectly centered 5-element row) */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
@@ -1201,74 +1201,9 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
           >
             {repeat === 'one' ? <Repeat1 size={20} /> : <Repeat size={20} />}
           </button>
-
-          <div style={{ position: 'relative' }}>
-            <button
-              onClick={() => { setShowSleepMenu(!showSleepMenu); }}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: sleepTimer ? '#b08850' : 'rgba(255,255,255,0.6)', padding: 8, display: 'flex', alignItems: 'center', gap: 2 }}
-            >
-              <Clock size={20} />
-              {sleepTimer && <span style={{ fontSize: 9, fontWeight: 700 }}>{sleepTimer}m</span>}
-            </button>
-
-            <AnimatePresence>
-              {showSleepMenu && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  style={{
-                    position: 'absolute',
-                    bottom: 'calc(100% + 8px)',
-                    right: 0,
-                    background: '#1a1a1a',
-                    border: '1px solid #282828',
-                    borderRadius: 8,
-                    overflow: 'hidden',
-                    zIndex: 100,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    width: 130
-                  }}
-                >
-                  <span style={{ fontSize: 9, color: '#a3a3a3', padding: '6px 12px', fontWeight: 700, borderBottom: '1px solid #282828', textTransform: 'uppercase' }}>
-                    Sleep Timer
-                  </span>
-                  {[
-                    { label: 'Off', val: null },
-                    { label: '5m', val: 5 },
-                    { label: '15m', val: 15 },
-                    { label: '30m', val: 30 },
-                    { label: '60m', val: 60 },
-                  ].map((t) => (
-                    <button
-                      key={t.label}
-                      onClick={() => {
-                        setSleepTimer(t.val);
-                        setShowSleepMenu(false);
-                      }}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: sleepTimer === t.val ? '#b08850' : '#fff',
-                        padding: '8px 12px',
-                        fontSize: 12,
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                        backgroundColor: sleepTimer === t.val ? 'rgba(176, 136, 80,0.1)' : 'transparent',
-                      }}
-                    >
-                      {t.label}
-                    </button>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
         </div>
 
-        {/* 7. DEVICE ROW & SHARE / QUEUE */}
+        {/* 7. DEVICE ROW & SHARE / SLEEP TIMER / QUEUE */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
@@ -1287,6 +1222,73 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
             <button style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', display: 'flex' }}>
               <Share2 size={20} />
             </button>
+            
+            {/* Sleep Timer (Clock) in bottom row */}
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <button
+                onClick={() => { setShowSleepMenu(!showSleepMenu); }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: sleepTimer ? '#b08850' : 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: 2, padding: 4 }}
+              >
+                <Clock size={20} />
+                {sleepTimer && <span style={{ fontSize: 9, fontWeight: 700 }}>{sleepTimer}m</span>}
+              </button>
+
+              <AnimatePresence>
+                {showSleepMenu && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    style={{
+                      position: 'absolute',
+                      bottom: 'calc(100% + 8px)',
+                      right: -36,
+                      background: '#1a1a1a',
+                      border: '1px solid #282828',
+                      borderRadius: 8,
+                      overflow: 'hidden',
+                      zIndex: 100,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      width: 120
+                    }}
+                  >
+                    <span style={{ fontSize: 9, color: '#a3a3a3', padding: '6px 12px', fontWeight: 700, borderBottom: '1px solid #282828', textTransform: 'uppercase', textAlign: 'left' }}>
+                      Sleep Timer
+                    </span>
+                    {[
+                      { label: 'Off', val: null },
+                      { label: '5m', val: 5 },
+                      { label: '15m', val: 15 },
+                      { label: '30m', val: 30 },
+                      { label: '60m', val: 60 },
+                    ].map((t) => (
+                      <button
+                        key={t.label}
+                        onClick={() => {
+                          setSleepTimer(t.val);
+                          setShowSleepMenu(false);
+                        }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: sleepTimer === t.val ? '#b08850' : '#fff',
+                          padding: '8px 12px',
+                          fontSize: 12,
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          textAlign: 'left',
+                          backgroundColor: sleepTimer === t.val ? 'rgba(176, 136, 80,0.1)' : 'transparent',
+                        }}
+                      >
+                        {t.label}
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
             <button 
               onClick={() => setShowQueueDrawer(true)}
               style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', display: 'flex' }}
