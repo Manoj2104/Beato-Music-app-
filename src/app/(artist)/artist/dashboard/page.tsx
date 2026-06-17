@@ -3291,7 +3291,7 @@ function ArtistDashboardContent() {
   // 7. Profile Tab — World-Class Artist Identity & Brand Management Platform
   const renderProfile = () => {
     const L: React.CSSProperties = { display: 'block', fontSize: 11, fontWeight: 700, color: '#737373', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 };
-    const S: React.CSSProperties = { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: 24 };
+    const S: React.CSSProperties = { background: 'var(--color-ss-elevated, #ffffff)', border: '1.5px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))', borderRadius: 16, padding: 24, boxShadow: '0 4px 12px rgba(43, 34, 26, 0.04)' };
 
     const genres = ['Pop','Hip-Hop','Electronic','R&B','Rock','Indie','Jazz','Classical','Country','Latin','Afrobeats','K-Pop','Tamil','Bollywood','Folk','Soul','Reggae','Dance'];
     const countries = [{ code: 'IN', name: 'India' },{ code: 'US', name: 'USA' },{ code: 'GB', name: 'UK' },{ code: 'BR', name: 'Brazil' },{ code: 'NG', name: 'Nigeria' },{ code: 'KR', name: 'South Korea' },{ code: 'JP', name: 'Japan' },{ code: 'DE', name: 'Germany' },{ code: 'AU', name: 'Australia' },{ code: 'CA', name: 'Canada' }];
@@ -3344,13 +3344,13 @@ function ArtistDashboardContent() {
       <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
         {/* ── Banner + Avatar Hero ── */}
-        <div style={{ borderRadius: 18, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)' }}>
+        <div style={{ borderRadius: 18, overflow: 'hidden', border: '1.5px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))', background: 'var(--color-ss-elevated, #ffffff)' }}>
           {/* Banner */}
           <div style={{
             height: isMobile ? 110 : 130,
             background: artistProfile?.bannerImage
               ? `url(${artistProfile.bannerImage}) center/cover`
-              : `linear-gradient(135deg, ${profileIdentity.brandColor}50 0%, #1a1a2e 60%, #0f0f0f 100%)`,
+              : `linear-gradient(135deg, ${profileIdentity.brandColor}30 0%, var(--color-ss-surface, #f4eede) 100%)`,
             position: 'relative',
           }}>
             {/* Hidden file input for banner */}
@@ -3400,14 +3400,14 @@ function ArtistDashboardContent() {
               width: isMobile ? 64 : 72, height: isMobile ? 64 : 72, borderRadius: '50%',
               border: `3px solid ${profileIdentity.brandColor}`,
               backgroundImage: artistProfile?.avatar ? `url(${artistProfile.avatar})` : 'none',
-              backgroundColor: artistProfile?.avatar ? 'transparent' : 'rgba(40,40,40,1)',
+              backgroundColor: artistProfile?.avatar ? 'transparent' : 'var(--color-ss-surface, #f4eede)',
               backgroundPosition: 'center',
               backgroundRepeat: 'no-repeat',
               backgroundSize: 'cover',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+              cursor: 'pointer', boxShadow: '0 4px 12px rgba(43, 34, 26, 0.08)',
             }}>
-              {!artistProfile?.avatar && <User size={isMobile ? 22 : 26} color='#555' />}
+              {!artistProfile?.avatar && <User size={isMobile ? 22 : 26} color='var(--color-ss-text-muted, #87786c)' />}
               <div style={{ position: 'absolute', bottom: 1, right: 1, width: 20, height: 20, borderRadius: '50%', background: G, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9 }}>📷</div>
             </label>
           </div>
@@ -3416,14 +3416,14 @@ function ArtistDashboardContent() {
           <div className="profile-hero-row">
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ color: '#fff', fontFamily: 'Outfit,sans-serif', fontWeight: 900, fontSize: 20 }}>
+                <span style={{ color: 'var(--color-ss-text-primary, #221a15)', fontFamily: 'Outfit,sans-serif', fontWeight: 900, fontSize: 20 }}>
                   {profileIdentity.stageName || artistName}
                 </span>
                 {isVerified && (
                   <span style={{ fontSize: 11, fontWeight: 800, color: G, background: 'rgba(176, 136, 80,0.15)', padding: '2px 10px', borderRadius: 20 }}>✅ Verified</span>
                 )}
                 {!isVerified && (
-                  <span style={{ fontSize: 11, fontWeight: 700, color: '#737373', background: 'rgba(255,255,255,0.06)', padding: '2px 10px', borderRadius: 20 }}>Unverified</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-ss-text-muted, #87786c)', background: 'var(--color-ss-surface, #f4eede)', padding: '2px 10px', borderRadius: 20 }}>Unverified</span>
                 )}
               </div>
               <div className="profile-meta-row">
@@ -4293,7 +4293,7 @@ function ArtistDashboardContent() {
           width: auto;
         }
         .profile-hero-row {
-          background: #111;
+          background: var(--color-ss-elevated, #ffffff);
           padding: 46px 24px 20px;
           display: flex;
           align-items: center;
@@ -4302,7 +4302,7 @@ function ArtistDashboardContent() {
           gap: 12px;
         }
         .profile-meta-row {
-          color: #525252;
+          color: var(--color-ss-text-muted, #87786c);
           font-size: 12px;
           margin-top: 4px;
           display: flex;
@@ -4403,12 +4403,15 @@ function ArtistDashboardContent() {
 
       {showUpload && <UploadModal onClose={() => setShowUpload(false)} />}
       
-      <div className="mobile-only" style={{ width: '100%' }}>
+      <div className="mobile-only" style={{ width: '100%', position: 'sticky', top: 0, zIndex: 100, background: 'var(--color-ss-bg, #fbf9f5)' }}>
         {/* Mobile Premium Header */}
         <div
           style={{
             background: 'linear-gradient(180deg, rgba(176, 136, 80,0.15) 0%, var(--color-ss-bg, #fbf9f5) 100%)',
-            padding: '16px 16px 10px',
+            paddingTop: 'calc(var(--sat, 0px) + 12px)',
+            paddingRight: '16px',
+            paddingBottom: '10px',
+            paddingLeft: '16px',
             borderBottom: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
             display: 'flex',
             flexDirection: 'column',

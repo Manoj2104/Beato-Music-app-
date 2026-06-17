@@ -909,68 +909,76 @@ export default function UploadPage() {
 
       {/* Header section — Dashboard-style, no TopBar */}
       <div style={{
-        background: 'linear-gradient(180deg, rgba(16,185,129,0.12) 0%, transparent 100%)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 100,
+        background: 'var(--color-ss-bg, #fbf9f5)',
         borderBottom: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
-        padding: '10px 0 10px'
       }}>
-        <div className="upload-subheader" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{
+          background: 'linear-gradient(180deg, rgba(16,185,129,0.12) 0%, transparent 100%)',
+          paddingTop: 'var(--sat, 0px)',
+          paddingBottom: '4px'
+        }}>
+          <div className="upload-subheader" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
 
-          {/* Left: Avatar (opens drawer) + Artist name + badge */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            {/* Pink avatar — click opens mobile drawer */}
-            <div
-              onClick={() => setMobileDrawerOpen(true)}
-              style={{
-                width: 36, height: 36, borderRadius: '50%',
-                background: '#34d399',
-                color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontWeight: 900, fontSize: 15, fontFamily: 'Outfit, sans-serif', flexShrink: 0,
-                cursor: 'pointer',
-                boxShadow: '0 2px 10px rgba(52,211,153,0.35)',
-                transition: 'transform 0.15s, box-shadow 0.15s',
-              }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1.08)'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
-            >
-              {user?.name ? user.name[0].toUpperCase() : formData.artistName[0]?.toUpperCase() || 'A'}
-            </div>
-
-            {/* Name + verified badge + subtitle */}
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 17, fontWeight: 900, color: 'var(--color-ss-text-primary, #221a15)', margin: 0, lineHeight: 1 }}>
-                  {formData.artistName}
-                </h2>
-                <span style={{
-                  fontSize: 10, fontWeight: 800, padding: '2px 7px', borderRadius: 100,
-                  background: 'rgba(176, 136, 80,0.12)', border: '1px solid rgba(176, 136, 80,0.22)',
-                  color: G, display: 'inline-flex', alignItems: 'center', gap: 4
-                }}>
-                  <span style={{ width: 5, height: 5, borderRadius: '50%', background: G, display: 'inline-block', animation: 'pulse 1.5s infinite' }} />
-                  Verified
-                </span>
+            {/* Left: Avatar (opens drawer) + Artist name + badge */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              {/* Pink avatar — click opens mobile drawer */}
+              <div
+                onClick={() => setMobileDrawerOpen(true)}
+                style={{
+                  width: 36, height: 36, borderRadius: '50%',
+                  background: '#34d399',
+                  color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontWeight: 900, fontSize: 15, fontFamily: 'Outfit, sans-serif', flexShrink: 0,
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 10px rgba(52,211,153,0.35)',
+                  transition: 'transform 0.15s, box-shadow 0.15s',
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1.08)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
+              >
+                {user?.name ? user.name[0].toUpperCase() : formData.artistName[0]?.toUpperCase() || 'A'}
               </div>
-              <p style={{ color: 'var(--color-ss-text-muted, #87786c)', fontSize: 11, margin: '3px 0 0', fontFamily: 'Inter, sans-serif' }}>Upload Studio</p>
-            </div>
-          </div>
 
-          {/* Right: track count + back button */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span className="upload-tracks-count" style={{ fontSize: 11, color: 'var(--color-ss-text-muted, #87786c)', whiteSpace: 'nowrap' }}>
-              <strong style={{ color: 'var(--color-ss-text-primary, #221a15)' }}>{myUploadedTracksCount}</strong> tracks
-            </span>
-            <Link href="/artist/dashboard" style={{ textDecoration: 'none' }}>
-              <button style={{
-                padding: '7px 13px', borderRadius: 9, color: 'var(--color-ss-text-primary, #221a15)', fontSize: 12, fontWeight: 700,
-                cursor: 'pointer', border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
-                background: 'var(--color-ss-elevated, #ffffff)', display: 'flex', alignItems: 'center',
-                gap: 5, whiteSpace: 'nowrap', transition: 'all 0.2s'
-              }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-ss-surface, #f4eede)')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'var(--color-ss-elevated, #ffffff)')}>
-                <ChevronLeft size={13} /> Dashboard
-              </button>
-            </Link>
+              {/* Name + verified badge + subtitle */}
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                  <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 17, fontWeight: 900, color: 'var(--color-ss-text-primary, #221a15)', margin: 0, lineHeight: 1 }}>
+                    {formData.artistName}
+                  </h2>
+                  <span style={{
+                    fontSize: 10, fontWeight: 800, padding: '2px 7px', borderRadius: 100,
+                    background: 'rgba(176, 136, 80,0.12)', border: '1px solid rgba(176, 136, 80,0.22)',
+                    color: G, display: 'inline-flex', alignItems: 'center', gap: 4
+                  }}>
+                    <span style={{ width: 5, height: 5, borderRadius: '50%', background: G, display: 'inline-block', animation: 'pulse 1.5s infinite' }} />
+                    Verified
+                  </span>
+                </div>
+                <p style={{ color: 'var(--color-ss-text-muted, #87786c)', fontSize: 11, margin: '3px 0 0', fontFamily: 'Inter, sans-serif' }}>Upload Studio</p>
+              </div>
+            </div>
+
+            {/* Right: track count + back button */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span className="upload-tracks-count" style={{ fontSize: 11, color: 'var(--color-ss-text-muted, #87786c)', whiteSpace: 'nowrap' }}>
+                <strong style={{ color: 'var(--color-ss-text-primary, #221a15)' }}>{myUploadedTracksCount}</strong> tracks
+              </span>
+              <Link href="/artist/dashboard" style={{ textDecoration: 'none' }}>
+                <button style={{
+                  padding: '7px 13px', borderRadius: 9, color: 'var(--color-ss-text-primary, #221a15)', fontSize: 12, fontWeight: 700,
+                  cursor: 'pointer', border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
+                  background: 'var(--color-ss-elevated, #ffffff)', display: 'flex', alignItems: 'center',
+                  gap: 5, whiteSpace: 'nowrap', transition: 'all 0.2s'
+                }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-ss-surface, #f4eede)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'var(--color-ss-elevated, #ffffff)')}>
+                  <ChevronLeft size={13} /> Dashboard
+                </button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
