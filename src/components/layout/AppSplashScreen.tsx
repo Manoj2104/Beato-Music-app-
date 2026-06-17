@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { Capacitor } from '@capacitor/core';
-import { SplashScreen } from '@capacitor/splash-screen';
 import { Music } from 'lucide-react';
 
 export default function AppSplashScreen() {
@@ -15,9 +14,16 @@ export default function AppSplashScreen() {
       setMounted(true);
 
       // Hide the native Android splash screen immediately so our animated React splash screen takes over
-      SplashScreen.hide().catch((err) => {
-        console.warn('Capacitor native splash hide error:', err);
-      });
+      // We load it dynamically here to prevent any server-side rendering (SSR) runtime exceptions
+      import('@capacitor/splash-screen')
+        .then(({ SplashScreen }) => {
+          SplashScreen.hide().catch((err) => {
+            console.warn('Capacitor native splash hide error:', err);
+          });
+        })
+        .catch((err) => {
+          console.error('Failed to load Capacitor SplashScreen dynamically:', err);
+        });
 
       // Keep React splash visible for 2.5 seconds, then trigger fade out
       const fadeTimeout = setTimeout(() => {
