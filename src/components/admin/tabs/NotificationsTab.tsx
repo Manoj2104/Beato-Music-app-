@@ -47,13 +47,13 @@ interface NotificationStats {
 
 // ─── Theme Configurations ──────────────────────────────────────────────────────
 
-const GREEN = '#1db954';
+const GREEN = '#b08850';
 const BLUE = '#10b981';
 const YELLOW = '#f59e0b';
 const RED = '#ef4444';
 
 const typeColors: Record<NotifType, { color: string; bg: string; icon: string; label: string }> = {
-  push:   { color: GREEN, bg: 'rgba(29, 185, 84, 0.12)', icon: '🔔', label: 'Push Notification' },
+  push:   { color: GREEN, bg: 'rgba(176, 136, 80, 0.12)', icon: '🔔', label: 'Push Notification' },
   email:  { color: BLUE,  bg: 'rgba(16, 185, 129, 0.12)', icon: '📧', label: 'Email Broadcast' },
   'in-app': { color: YELLOW, bg: 'rgba(245, 158, 11, 0.12)', icon: '💬', label: 'In-App Message' },
 };
@@ -531,7 +531,7 @@ export default function NotificationsTab() {
   if (loading) {
     return (
       <div style={{ padding: '40px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
-        <div style={{ width: 40, height: 40, border: '3.5px solid rgba(29, 185, 84, 0.1)', borderTopColor: GREEN, borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+        <div style={{ width: 40, height: 40, border: '3.5px solid rgba(176, 136, 80, 0.1)', borderTopColor: GREEN, borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
         <div style={{ color: '#888', fontSize: 13, fontWeight: 500, fontFamily: 'Inter, sans-serif' }}>Synchronizing Notification Center...</div>
       </div>
     );
@@ -641,7 +641,7 @@ export default function NotificationsTab() {
               <button onClick={handleSendBroadcast} disabled={isBroadcasting}
                 style={{ 
                   background: GREEN, border: 'none', color: '#000', borderRadius: 10, padding: '12px 0', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', width: '100%', marginTop: 6,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: `0 4px 14px 0 rgba(29, 185, 84, 0.2)`
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: `0 4px 14px 0 rgba(176, 136, 80, 0.2)`
                 }}>
                 {isBroadcasting ? (
                   <div style={{ width: 18, height: 18, border: '2.5px solid #000', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
@@ -749,8 +749,8 @@ export default function NotificationsTab() {
               <Plus size={16} color={GREEN} /> Preset Templates
             </div>
             <button onClick={() => { setEditingTemplate(null); setShowTplModal(true); }}
-              style={{ background: 'rgba(29, 185, 84, 0.1)', border: '1px solid rgba(29, 185, 84, 0.2)', color: GREEN, borderRadius: 8, padding: '6px 12px', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'Inter, sans-serif', display: 'flex', alignItems: 'center', gap: 4 }}
-              onMouseEnter={e => e.currentTarget.style.background = 'rgba(29, 185, 84, 0.2)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(29, 185, 84, 0.1)'}>
+              style={{ background: 'rgba(176, 136, 80, 0.1)', border: '1px solid rgba(176, 136, 80, 0.2)', color: GREEN, borderRadius: 8, padding: '6px 12px', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'Inter, sans-serif', display: 'flex', alignItems: 'center', gap: 4 }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(176, 136, 80, 0.2)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(176, 136, 80, 0.1)'}>
               <Plus size={12} /> Add Template
             </button>
           </div>
@@ -776,8 +776,8 @@ export default function NotificationsTab() {
                           <Edit3 size={11} />
                         </button>
                         <button onClick={() => handleUseTemplate(t)}
-                          style={{ background: 'rgba(29, 185, 84, 0.1)', border: '1px solid rgba(29, 185, 84, 0.2)', color: GREEN, borderRadius: 6, padding: '4px 8px', fontSize: 10, cursor: 'pointer', fontWeight: 600 }}
-                          onMouseEnter={e => e.currentTarget.style.background = 'rgba(29, 185, 84, 0.2)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(29, 185, 84, 0.1)'}>
+                          style={{ background: 'rgba(176, 136, 80, 0.1)', border: '1px solid rgba(176, 136, 80, 0.2)', color: GREEN, borderRadius: 6, padding: '4px 8px', fontSize: 10, cursor: 'pointer', fontWeight: 600 }}
+                          onMouseEnter={e => e.currentTarget.style.background = 'rgba(176, 136, 80, 0.2)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(176, 136, 80, 0.1)'}>
                           Use
                         </button>
                         <button onClick={() => handleDeleteTemplate(t.id, t.name)}

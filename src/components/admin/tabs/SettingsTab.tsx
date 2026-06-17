@@ -21,7 +21,7 @@ function Toggle({ value, onChange, size = 'sm' }: { value: boolean; onChange: (v
   const ballSize = h - 8, ballOff = 4, ballOn = w - ballSize - ballOff;
   return (
     <div onClick={() => onChange(!value)}
-      style={{ width: w, height: h, borderRadius: r, background: value ? '#1db954' : '#2a2a2a', cursor: 'pointer', position: 'relative', transition: 'background 0.25s', flexShrink: 0 }}>
+      style={{ width: w, height: h, borderRadius: r, background: value ? '#b08850' : '#2a2a2a', cursor: 'pointer', position: 'relative', transition: 'background 0.25s', flexShrink: 0 }}>
       <motion.div animate={{ left: value ? ballOn : ballOff }} transition={{ type: 'spring', stiffness: 500, damping: 35 }}
         style={{ width: ballSize, height: ballSize, borderRadius: '50%', background: '#fff', position: 'absolute', top: ballOff }} />
     </div>
@@ -40,7 +40,7 @@ function ToggleRow({ label, description, value, onChange }: { label: string; des
   );
 }
 
-function SectionHeader({ title, icon, badge, badgeColor = '#1db954' }: { title: string; icon: string; badge?: string; badgeColor?: string }) {
+function SectionHeader({ title, icon, badge, badgeColor = '#b08850' }: { title: string; icon: string; badge?: string; badgeColor?: string }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 22 }}>
       <span style={{ fontSize: 22 }}>{icon}</span>
@@ -50,11 +50,11 @@ function SectionHeader({ title, icon, badge, badgeColor = '#1db954' }: { title: 
   );
 }
 
-function SaveBtn({ onClick, loading, label = 'Save Changes', color = '#1db954' }: { onClick: () => void; loading?: boolean; label?: string; color?: string }) {
+function SaveBtn({ onClick, loading, label = 'Save Changes', color = '#b08850' }: { onClick: () => void; loading?: boolean; label?: string; color?: string }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
       <button onClick={onClick} disabled={loading}
-        style={{ padding: '10px 24px', borderRadius: 9, border: 'none', background: color, color: color === '#1db954' ? '#000' : '#fff', fontWeight: 800, fontSize: 13, cursor: loading ? 'wait' : 'pointer', opacity: loading ? 0.7 : 1, display: 'flex', alignItems: 'center', gap: 8 }}>
+        style={{ padding: '10px 24px', borderRadius: 9, border: 'none', background: color, color: color === '#b08850' ? '#000' : '#fff', fontWeight: 800, fontSize: 13, cursor: loading ? 'wait' : 'pointer', opacity: loading ? 0.7 : 1, display: 'flex', alignItems: 'center', gap: 8 }}>
         {loading ? <>⏳ Saving...</> : label}
       </button>
     </div>
@@ -76,7 +76,7 @@ function PassInput({ value, onChange, placeholder }: { value: string; onChange: 
 }
 
 function StatusDot({ ok }: { ok: boolean | null }) {
-  const color = ok === null ? '#6b7280' : ok ? '#1db954' : '#ef4444';
+  const color = ok === null ? '#6b7280' : ok ? '#b08850' : '#ef4444';
   return <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: color, boxShadow: `0 0 6px ${color}` }} />;
 }
 
@@ -241,7 +241,7 @@ export default function SettingsTab() {
     return (
       <div style={{ ...FONT, background: '#0a0a0a', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-          style={{ width: 40, height: 40, border: '3px solid #1e1e1e', borderTopColor: '#1db954', borderRadius: '50%' }} />
+          style={{ width: 40, height: 40, border: '3px solid #1e1e1e', borderTopColor: '#b08850', borderRadius: '50%' }} />
       </div>
     );
   }
@@ -286,7 +286,7 @@ export default function SettingsTab() {
         <div style={{ display: 'flex', gap: 6, marginBottom: 24, flexWrap: 'wrap' }}>
           {TABS.map(t => (
             <button key={t.id} onClick={() => setActiveTab(t.id)}
-              style={{ padding: '9px 18px', borderRadius: 50, border: activeTab === t.id ? '1px solid #1db954' : '1px solid #222', background: activeTab === t.id ? '#1db95420' : '#111', color: activeTab === t.id ? '#1db954' : '#6b7280', fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.2s', fontFamily: 'inherit' }}>
+              style={{ padding: '9px 18px', borderRadius: 50, border: activeTab === t.id ? '1px solid #b08850' : '1px solid #222', background: activeTab === t.id ? '#b0885020' : '#111', color: activeTab === t.id ? '#b08850' : '#6b7280', fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.2s', fontFamily: 'inherit' }}>
               {t.icon} {t.label}
               {t.id === 'security' && sec.maintenanceMode && <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#ef4444', display: 'inline-block' }} />}
             </button>
@@ -344,7 +344,7 @@ export default function SettingsTab() {
                   <div style={{ display: 'flex', gap: 8 }}>
                     {[50, 100, 200, 500].map(mb => (
                       <button key={mb} onClick={() => upd('general', 'maxUploadMB', mb)}
-                        style={{ padding: '9px 18px', borderRadius: 9, border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: 13, background: g.maxUploadMB === mb ? '#1db954' : '#1a1a1a', color: g.maxUploadMB === mb ? '#000' : '#6b7280', transition: 'all 0.2s', fontFamily: 'inherit' }}>
+                        style={{ padding: '9px 18px', borderRadius: 9, border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: 13, background: g.maxUploadMB === mb ? '#b08850' : '#1a1a1a', color: g.maxUploadMB === mb ? '#000' : '#6b7280', transition: 'all 0.2s', fontFamily: 'inherit' }}>
                         {mb} MB
                       </button>
                     ))}
@@ -397,7 +397,7 @@ export default function SettingsTab() {
                     placeholder={'192.168.1.0/24\n10.0.0.1\n203.0.113.45'}
                     style={{ ...INPUT, resize: 'vertical', fontFamily: 'monospace', fontSize: 13 }} />
                 </div>
-                <SaveBtn onClick={() => saveSettings('security', settings.security)} loading={saving} color={sec.maintenanceMode ? '#ef4444' : '#1db954'} />
+                <SaveBtn onClick={() => saveSettings('security', settings.security)} loading={saving} color={sec.maintenanceMode ? '#ef4444' : '#b08850'} />
               </div>
             )}
 
@@ -462,7 +462,7 @@ export default function SettingsTab() {
                   <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                     {[['INR', '🇮🇳'], ['USD', '🇺🇸'], ['EUR', '🇪🇺'], ['GBP', '🇬🇧'], ['AUD', '🇦🇺']].map(([cur, flag]) => (
                       <button key={cur} onClick={() => upd('billing', 'currency', cur)}
-                        style={{ padding: '8px 16px', borderRadius: 9, border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: 13, background: b.currency === cur ? '#1db954' : '#1a1a1a', color: b.currency === cur ? '#000' : '#6b7280', fontFamily: 'inherit' }}>
+                        style={{ padding: '8px 16px', borderRadius: 9, border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: 13, background: b.currency === cur ? '#b08850' : '#1a1a1a', color: b.currency === cur ? '#000' : '#6b7280', fontFamily: 'inherit' }}>
                         {flag} {cur}
                       </button>
                     ))}
@@ -495,7 +495,7 @@ export default function SettingsTab() {
                 {/* Email Config */}
                 <div style={CARD}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
-                    <SectionHeader title="📧 Gmail SMTP (Email)" icon="" badge={msgCfg.email?.enabled ? 'ENABLED' : 'DISABLED'} badgeColor={msgCfg.email?.enabled ? '#1db954' : '#6b7280'} />
+                    <SectionHeader title="📧 Gmail SMTP (Email)" icon="" badge={msgCfg.email?.enabled ? 'ENABLED' : 'DISABLED'} badgeColor={msgCfg.email?.enabled ? '#b08850' : '#6b7280'} />
                     <Toggle value={msgCfg.email?.enabled || false} onChange={v => setMsgCfg((m: any) => ({ ...m, email: { ...m.email, enabled: v } }))} />
                   </div>
                   <div style={{ opacity: msgCfg.email?.enabled ? 1 : 0.45, transition: 'opacity 0.3s', pointerEvents: msgCfg.email?.enabled ? 'auto' : 'none' }}>
@@ -521,7 +521,7 @@ export default function SettingsTab() {
                             { port: 25, label: '25', sub: 'Plain', secure: false },
                           ].map(({ port: p, label, sub, secure: s }) => (
                             <button key={p} onClick={() => setMsgCfg((m: any) => ({ ...m, email: { ...m.email, port: p, secure: s } }))}
-                              style={{ flex: 1, padding: '8px 0', borderRadius: 9, border: 'none', cursor: 'pointer', fontFamily: 'inherit', background: msgCfg.email?.port === p ? '#1db954' : '#1a1a1a', color: msgCfg.email?.port === p ? '#000' : '#6b7280', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                              style={{ flex: 1, padding: '8px 0', borderRadius: 9, border: 'none', cursor: 'pointer', fontFamily: 'inherit', background: msgCfg.email?.port === p ? '#b08850' : '#1a1a1a', color: msgCfg.email?.port === p ? '#000' : '#6b7280', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
                               <span style={{ fontWeight: 800, fontSize: 13 }}>{label}</span>
                               <span style={{ fontSize: 10, opacity: 0.8 }}>{sub}</span>
                             </button>
@@ -540,7 +540,7 @@ export default function SettingsTab() {
                       <div style={{ display: 'flex', gap: 10 }}>
                         <input value={testTarget} onChange={e => setTestTarget(e.target.value)} placeholder="test@gmail.com" style={{ ...INPUT, flex: 1 }} />
                         <button onClick={() => testChannel('email')} disabled={testingChannel === 'email'}
-                          style={{ padding: '10px 20px', borderRadius: 9, border: 'none', background: '#1db954', color: '#000', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'inherit' }}>
+                          style={{ padding: '10px 20px', borderRadius: 9, border: 'none', background: '#b08850', color: '#000', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'inherit' }}>
                           {testingChannel === 'email' ? '⏳ Sending...' : '📧 Send Test'}
                         </button>
                       </div>
@@ -657,7 +657,7 @@ export default function SettingsTab() {
                   <button onClick={() => {
                     setEditRule({ id: `rule-${Date.now()}`, name: 'New Rule', event: 'user.signup', enabled: true, userAction: { channel: 'email', subject: '', template: '' }, adminAction: { channel: 'none', template: '' }, fireCount: 0 });
                     setShowRuleModal(true);
-                  }} style={{ padding: '10px 20px', borderRadius: 10, border: 'none', background: '#1db954', color: '#000', fontWeight: 800, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  }} style={{ padding: '10px 20px', borderRadius: 10, border: 'none', background: '#b08850', color: '#000', fontWeight: 800, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>
                     + Add Rule
                   </button>
                 </div>
@@ -676,7 +676,7 @@ export default function SettingsTab() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {rules.map(rule => (
                     <motion.div key={rule.id} layout
-                      style={{ background: '#111', borderRadius: 14, border: `1px solid ${rule.enabled ? '#1db95430' : '#1e1e1e'}`, padding: '18px 22px', transition: 'border-color 0.3s' }}>
+                      style={{ background: '#111', borderRadius: 14, border: `1px solid ${rule.enabled ? '#b0885030' : '#1e1e1e'}`, padding: '18px 22px', transition: 'border-color 0.3s' }}>
                       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
                         <Toggle value={rule.enabled} onChange={() => toggleRule(rule)} />
                         <div style={{ flex: 1 }}>
@@ -811,7 +811,7 @@ export default function SettingsTab() {
                   Cancel
                 </button>
                 <button onClick={() => saveRule(editRule)}
-                  style={{ flex: 2, padding: '12px', borderRadius: 10, border: 'none', background: '#1db954', color: '#000', cursor: 'pointer', fontWeight: 800, fontSize: 14, fontFamily: 'inherit' }}>
+                  style={{ flex: 2, padding: '12px', borderRadius: 10, border: 'none', background: '#b08850', color: '#000', cursor: 'pointer', fontWeight: 800, fontSize: 14, fontFamily: 'inherit' }}>
                   💾 Save Rule
                 </button>
               </div>

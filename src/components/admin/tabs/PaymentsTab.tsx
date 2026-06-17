@@ -41,9 +41,9 @@ interface Stats {
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const SC: Record<TxStatus, string> = { completed: '#1db954', pending: '#f59e0b', failed: '#ef4444', refunded: '#10b981' };
-const RC: Record<string, string> = { low: '#1db954', medium: '#f59e0b', high: '#ef4444' };
-const PC: Record<string, string> = { free: '#6b7280', student: '#10b981', premium: '#1db954', family: '#10b981', creator: '#f59e0b' };
+const SC: Record<TxStatus, string> = { completed: '#b08850', pending: '#f59e0b', failed: '#ef4444', refunded: '#10b981' };
+const RC: Record<string, string> = { low: '#b08850', medium: '#f59e0b', high: '#ef4444' };
+const PC: Record<string, string> = { free: '#6b7280', student: '#10b981', premium: '#b08850', family: '#10b981', creator: '#f59e0b' };
 const MC: Record<string, string> = { Visa: '#1a56db', Mastercard: '#eb4034', PayPal: '#0070ba', UPI: '#7c3aed', 'Apple Pay': '#555', 'Google Pay': '#4285f4', 'Admin Plan': '#34d399', Admin: '#34d399' };
 const MI: Record<string, string> = { Visa: '💳', Mastercard: '💳', PayPal: '🅿️', UPI: '📱', 'Apple Pay': '🍎', 'Google Pay': '🔍', 'Admin Plan': '👑', Admin: '👑' };
 
@@ -51,8 +51,8 @@ const inp: React.CSSProperties = { background: '#080808', border: '1px solid #22
 const card: React.CSSProperties = { background: '#0c0c0c', border: '1px solid #1a1a1a', borderRadius: 16 };
 const btn = (active?: boolean, color?: string): React.CSSProperties => ({
   padding: '7px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-  background: active ? (color || '#1db954') : '#111', color: active ? (color === '#ef4444' ? '#fff' : '#000') : '#6b7280',
-  border: `1px solid ${active ? (color || '#1db954') : '#222'}`,
+  background: active ? (color || '#b08850') : '#111', color: active ? (color === '#ef4444' ? '#fff' : '#000') : '#6b7280',
+  border: `1px solid ${active ? (color || '#b08850') : '#222'}`,
 });
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -68,7 +68,7 @@ function Kpi({ label, value, sub, color, icon, trend }: any) {
       <div style={{ color, fontSize: 26, fontWeight: 800, fontFamily: 'Outfit,sans-serif', lineHeight: 1, marginBottom: 6 }}>{value}</div>
       {sub && <div style={{ fontSize: 11, color: '#374151' }}>{sub}</div>}
       {trend !== undefined && (
-        <div style={{ fontSize: 11, color: String(trend).startsWith('-') ? '#ef4444' : '#1db954', fontWeight: 600, marginTop: 2 }}>
+        <div style={{ fontSize: 11, color: String(trend).startsWith('-') ? '#ef4444' : '#b08850', fontWeight: 600, marginTop: 2 }}>
           {String(trend).startsWith('-') ? '' : '+'}{trend}% vs yesterday
         </div>
       )}
@@ -165,7 +165,7 @@ function InvoiceModal({ tx, onClose }: { tx: Tx; onClose: () => void }) {
               <div style={{ fontSize: 11, color: '#6b7280', marginTop: 3 }}>Full access to all {tx.planLabel} features · Auto-renews monthly</div>
             </div>
             <div style={{ fontSize: 14, textAlign: 'center' }}>1</div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#1db954' }}>{sym}{tx.amount.toFixed(2)}</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#b08850' }}>{sym}{tx.amount.toFixed(2)}</div>
           </div>
           <div style={{ borderTop: '1px solid #1a1a1a', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ fontSize: 12, color: '#6b7280' }}>Subtotal</div>
@@ -177,7 +177,7 @@ function InvoiceModal({ tx, onClose }: { tx: Tx; onClose: () => void }) {
           </div>
           <div style={{ background: '#161616', padding: '14px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ fontSize: 14, fontWeight: 700 }}>Total Due</div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: '#1db954', fontFamily: 'Outfit,sans-serif' }}>{sym}{tx.amount.toFixed(2)} {tx.currency}</div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: '#b08850', fontFamily: 'Outfit,sans-serif' }}>{sym}{tx.amount.toFixed(2)} {tx.currency}</div>
           </div>
         </div>
 
@@ -199,7 +199,7 @@ function InvoiceModal({ tx, onClose }: { tx: Tx; onClose: () => void }) {
 
         {/* Actions */}
         <div style={{ display: 'flex', gap: 10 }}>
-          <button onClick={printInvoice} style={{ flex: 1, background: '#1db954', border: 'none', color: '#000', borderRadius: 10, padding: '12px', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+          <button onClick={printInvoice} style={{ flex: 1, background: '#b08850', border: 'none', color: '#000', borderRadius: 10, padding: '12px', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
             🖨️ Print Invoice
           </button>
           <button onClick={onClose} style={{ flex: 1, background: '#111', border: '1px solid #2a2a2a', color: '#9ca3af', borderRadius: 10, padding: '12px', fontSize: 13, cursor: 'pointer' }}>
@@ -243,7 +243,7 @@ function RefundModal({ tx, onClose, onRefund }: { tx: Tx; onClose: () => void; o
             <div style={{ fontSize: 12, color: '#6b7280' }}>{tx.email}</div>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 20, fontWeight: 800, color: '#1db954' }}>{sym}{tx.amount.toFixed(2)}</div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: '#b08850' }}>{sym}{tx.amount.toFixed(2)}</div>
             <div style={{ fontSize: 11, color: '#6b7280' }}>{tx.method}</div>
           </div>
         </div>
@@ -396,7 +396,7 @@ export default function PaymentsTab() {
 
   const TH = ({ label, field }: { label: string; field?: string }) => (
     <th onClick={() => field && handleSort(field)} style={{ padding: '10px 12px', textAlign: 'left', color: '#4b5563', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', whiteSpace: 'nowrap', cursor: field ? 'pointer' : 'default' }}>
-      {label} {field && <span style={{ color: sortField === field ? '#1db954' : '#333' }}>{sortField === field ? (sortDir === 'asc' ? '↑' : '↓') : '↕'}</span>}
+      {label} {field && <span style={{ color: sortField === field ? '#b08850' : '#333' }}>{sortField === field ? (sortDir === 'asc' ? '↑' : '↓') : '↕'}</span>}
     </th>
   );
 
@@ -413,8 +413,8 @@ export default function PaymentsTab() {
           <h2 style={{ margin: 0, fontSize: 22, fontWeight: 800, fontFamily: 'Outfit,sans-serif' }}>💰 Payment Management</h2>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 6 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              {liveMode && <motion.div animate={{ scale: [1, 1.6, 1], opacity: [1, 0.4, 1] }} transition={{ duration: 1.5, repeat: Infinity }} style={{ width: 7, height: 7, borderRadius: '50%', background: '#1db954' }} />}
-              <span style={{ fontSize: 11, color: liveMode ? '#1db954' : '#6b7280', fontWeight: 700 }}>{liveMode ? 'LIVE' : 'PAUSED'}</span>
+              {liveMode && <motion.div animate={{ scale: [1, 1.6, 1], opacity: [1, 0.4, 1] }} transition={{ duration: 1.5, repeat: Infinity }} style={{ width: 7, height: 7, borderRadius: '50%', background: '#b08850' }} />}
+              <span style={{ fontSize: 11, color: liveMode ? '#b08850' : '#6b7280', fontWeight: 700 }}>{liveMode ? 'LIVE' : 'PAUSED'}</span>
             </div>
             {lastUpdated && <span style={{ fontSize: 11, color: '#4b5563' }}>Updated {lastUpdated}</span>}
             <span style={{ fontSize: 11, color: '#4b5563' }}>📊 {paidCount} paid · {totalCount - paidCount} free · {totalCount} total users</span>
@@ -424,15 +424,15 @@ export default function PaymentsTab() {
           {(['transactions', 'users', 'analytics'] as View[]).map(v => (
             <button key={v} onClick={() => setView(v)} style={{ ...btn(view === v), textTransform: 'capitalize' }}>{v}</button>
           ))}
-          <button onClick={() => setLiveMode(m => !m)} style={{ ...btn(liveMode, '#1db954') }}>{liveMode ? '⏸ Pause' : '▶ Live'}</button>
+          <button onClick={() => setLiveMode(m => !m)} style={{ ...btn(liveMode, '#b08850') }}>{liveMode ? '⏸ Pause' : '▶ Live'}</button>
           <button onClick={fetchData} style={{ ...btn(false) }}>↻</button>
-          <button onClick={exportCSV} style={{ background: '#1db954', border: 'none', color: '#000', borderRadius: 20, padding: '7px 16px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>⬇ Export</button>
+          <button onClick={exportCSV} style={{ background: '#b08850', border: 'none', color: '#000', borderRadius: 20, padding: '7px 16px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>⬇ Export</button>
         </div>
       </div>
 
       {/* ── KPI Grid ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 12 }}>
-        <Kpi label="Total Revenue" value={loading ? '…' : fmt(stats?.totalRevenue || 0, symbol)} color="#1db954" icon="💰" sub={`${stats?.completedCount || 0} completed transactions`} />
+        <Kpi label="Total Revenue" value={loading ? '…' : fmt(stats?.totalRevenue || 0, symbol)} color="#b08850" icon="💰" sub={`${stats?.completedCount || 0} completed transactions`} />
         <Kpi label="Today's Revenue" value={loading ? '…' : fmt(stats?.todayRevenue || 0, symbol)} color="#10b981" icon="📈" trend={stats?.todayTrend} />
         <Kpi label="Monthly Recurring" value={loading ? '…' : fmt(stats?.mrr || 0, symbol)} color="#10b981" icon="🔄" sub="Active paid subscriptions" />
         <Kpi label="Avg Order Value" value={loading ? '…' : `${symbol}${(stats?.avgOrderValue || 0).toFixed(2)}`} color="#f59e0b" icon="🎯" sub="Per completed txn" />
@@ -441,7 +441,7 @@ export default function PaymentsTab() {
         <Kpi label="Pending Payouts" value={loading ? '…' : fmt(stats?.pendingAmount || 0, symbol)} color="#f59e0b" icon="⏳" sub={`${stats?.pendingCount || 0} pending`} />
         <Kpi label="Failed" value={loading ? '…' : `${stats?.failedCount || 0}`} color="#ef4444" icon="❌" sub={`${stats?.highRiskCount || 0} high-risk`} />
         <Kpi label="Refunded" value={loading ? '…' : fmt(stats?.refundedAmount || 0, symbol)} color="#10b981" icon="↩️" sub={`${stats?.refundedCount || 0} refunds`} />
-        <Kpi label="Success Rate" value={loading ? '…' : `${stats?.successRate || 0}%`} color="#1db954" icon="✅" sub={`${stats?.completedCount || 0}/${stats?.totalTxns || 0} txns`} />
+        <Kpi label="Success Rate" value={loading ? '…' : `${stats?.successRate || 0}%`} color="#b08850" icon="✅" sub={`${stats?.completedCount || 0}/${stats?.totalTxns || 0} txns`} />
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 28 }}>
         <Kpi label="Ad Revenue" value={loading ? '…' : fmt(stats?.adRevenue || 0, symbol)} color="#06b6d4" icon="📢" sub="From free-tier streams" />
@@ -461,7 +461,7 @@ export default function PaymentsTab() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
                   <div style={{ fontSize: 15, fontWeight: 700, fontFamily: 'Outfit,sans-serif' }}>
                     All Transactions ({filteredTxns.length})
-                    {selected.length > 0 && <span style={{ marginLeft: 10, fontSize: 12, color: '#1db954' }}>{selected.length} selected</span>}
+                    {selected.length > 0 && <span style={{ marginLeft: 10, fontSize: 12, color: '#b08850' }}>{selected.length} selected</span>}
                   </div>
                   {selected.length > 0 && (
                     <button onClick={() => { toast.success(`Exported ${selected.length} transactions`); setSelected([]); }}
@@ -494,7 +494,7 @@ export default function PaymentsTab() {
                   <thead>
                     <tr style={{ borderBottom: '1px solid #1a1a1a' }}>
                       <th style={{ width: 36, padding: '10px 8px' }}>
-                        <input type="checkbox" checked={selected.length === filteredTxns.length && filteredTxns.length > 0} onChange={() => setSelected(selected.length === filteredTxns.length ? [] : filteredTxns.map(t => t.id))} style={{ accentColor: '#1db954' }} />
+                        <input type="checkbox" checked={selected.length === filteredTxns.length && filteredTxns.length > 0} onChange={() => setSelected(selected.length === filteredTxns.length ? [] : filteredTxns.map(t => t.id))} style={{ accentColor: '#b08850' }} />
                       </th>
                       <TH label="Invoice / TXN" field="invoiceId" />
                       <TH label="User" field="user" />
@@ -513,11 +513,11 @@ export default function PaymentsTab() {
                         <motion.tr key={tx.id}
                           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                           transition={{ delay: Math.min(i * 0.015, 0.3) }}
-                          style={{ borderBottom: '1px solid #111', background: selected.includes(tx.id) ? 'rgba(29, 185, 84,0.04)' : 'transparent' }}
+                          style={{ borderBottom: '1px solid #111', background: selected.includes(tx.id) ? 'rgba(176, 136, 80,0.04)' : 'transparent' }}
                           onMouseEnter={e => { (e.currentTarget as HTMLTableRowElement).style.background = '#0f0f0f'; }}
-                          onMouseLeave={e => { (e.currentTarget as HTMLTableRowElement).style.background = selected.includes(tx.id) ? 'rgba(29, 185, 84,0.04)' : 'transparent'; }}>
+                          onMouseLeave={e => { (e.currentTarget as HTMLTableRowElement).style.background = selected.includes(tx.id) ? 'rgba(176, 136, 80,0.04)' : 'transparent'; }}>
                           <td style={{ padding: '11px 8px' }}>
-                            <input type="checkbox" checked={selected.includes(tx.id)} onChange={() => setSelected(p => p.includes(tx.id) ? p.filter(x => x !== tx.id) : [...p, tx.id])} style={{ accentColor: '#1db954' }} />
+                            <input type="checkbox" checked={selected.includes(tx.id)} onChange={() => setSelected(p => p.includes(tx.id) ? p.filter(x => x !== tx.id) : [...p, tx.id])} style={{ accentColor: '#b08850' }} />
                           </td>
                           <td style={{ padding: '11px 12px' }}>
                             <div style={{ fontSize: 11, color: '#6b7280', fontFamily: 'monospace' }}>{tx.id}</div>
@@ -528,7 +528,7 @@ export default function PaymentsTab() {
                             <div style={{ fontSize: 10, color: '#4b5563' }}>{tx.email} · {tx.country}</div>
                           </td>
                           <td style={{ padding: '11px 12px' }}>
-                            <div style={{ fontSize: 16, fontWeight: 800, color: '#1db954', fontFamily: 'Outfit,sans-serif' }}>{symbol}{tx.amount.toFixed(2)}</div>
+                            <div style={{ fontSize: 16, fontWeight: 800, color: '#b08850', fontFamily: 'Outfit,sans-serif' }}>{symbol}{tx.amount.toFixed(2)}</div>
                             <div style={{ fontSize: 10, color: '#4b5563' }}>{tx.currency}</div>
                           </td>
                           <td style={{ padding: '11px 12px' }}>
@@ -601,12 +601,12 @@ export default function PaymentsTab() {
                             <Badge val={u.plan} colorMap={PC} />
                           </td>
                           <td style={{ padding: '12px 12px' }}>
-                            <div style={{ fontSize: 16, fontWeight: 800, color: '#1db954', fontFamily: 'Outfit,sans-serif' }}>{symbol}{u.totalPaid.toFixed(2)}</div>
+                            <div style={{ fontSize: 16, fontWeight: 800, color: '#b08850', fontFamily: 'Outfit,sans-serif' }}>{symbol}{u.totalPaid.toFixed(2)}</div>
                           </td>
                           <td style={{ padding: '12px 12px', fontSize: 12, color: '#9ca3af' }}>{MI[u.method] || '💳'} {u.method}</td>
                           <td style={{ padding: '12px 12px', fontSize: 13, color: '#e5e7eb', textAlign: 'center' }}>{u.txCount}</td>
                           <td style={{ padding: '12px 12px', fontSize: 12, color: '#6b7280', whiteSpace: 'nowrap' }}>{u.lastPayment}</td>
-                          <td style={{ padding: '12px 12px' }}><Badge val={u.status} colorMap={{ active: '#1db954', suspended: '#ef4444' }} /></td>
+                          <td style={{ padding: '12px 12px' }}><Badge val={u.status} colorMap={{ active: '#b08850', suspended: '#ef4444' }} /></td>
                           <td style={{ padding: '12px 12px' }}>
                             <div style={{ display: 'flex', gap: 6 }}>
                               <button onClick={() => { const tx = transactions.find(t => t.userId === u.id); if (tx) setInvoiceModal(tx); }}
@@ -633,7 +633,7 @@ export default function PaymentsTab() {
                 <div style={{ fontSize: 15, fontWeight: 700, fontFamily: 'Outfit,sans-serif' }}>Revenue Analytics</div>
                 <div style={{ display: 'flex', gap: 6 }}>
                   {(['daily', 'monthly', 'method', 'plan'] as ChartType[]).map(c => (
-                    <button key={c} onClick={() => setChartType(c)} style={btn(chartType === c, '#1db954')}>
+                    <button key={c} onClick={() => setChartType(c)} style={btn(chartType === c, '#b08850')}>
                       {c === 'daily' ? 'Daily' : c === 'monthly' ? 'Monthly' : c === 'method' ? 'By Method' : 'By Plan'}
                     </button>
                   ))}
@@ -647,15 +647,15 @@ export default function PaymentsTab() {
                       <AreaChart data={dailyRevenue}>
                         <defs>
                           <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#1db954" stopOpacity={0.3} />
-                            <stop offset="95%" stopColor="#1db954" stopOpacity={0} />
+                            <stop offset="5%" stopColor="#b08850" stopOpacity={0.3} />
+                            <stop offset="95%" stopColor="#b08850" stopOpacity={0} />
                           </linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="#1a1a1a" />
                         <XAxis dataKey="day" tick={{ fill: '#4b5563', fontSize: 10 }} axisLine={false} tickLine={false} />
                         <YAxis tick={{ fill: '#4b5563', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={v => `${symbol}${v}`} />
                         <Tooltip contentStyle={{ background: '#0a0a0a', border: '1px solid #333', borderRadius: 10, color: '#fff', fontSize: 12 }} formatter={(v: any) => [`${symbol}${Number(v).toFixed(2)}`, 'Revenue']} />
-                        <Area type="monotone" dataKey="revenue" stroke="#1db954" fill="url(#ag)" strokeWidth={2.5} dot={false} />
+                        <Area type="monotone" dataKey="revenue" stroke="#b08850" fill="url(#ag)" strokeWidth={2.5} dot={false} />
                       </AreaChart>
                     </ResponsiveContainer>
                   </motion.div>
@@ -732,7 +732,7 @@ export default function PaymentsTab() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
               {[
                 { label: 'Paid Users', value: `${paidCount}`, sub: `${totalCount} total users · ${totalCount - paidCount} free`, color: '#10b981' },
-                { label: 'Revenue Per Paid User', value: paidCount > 0 ? fmt((stats?.totalRevenue || 0) / paidCount, symbol) : `${symbol}0`, sub: 'Lifetime value', color: '#1db954' },
+                { label: 'Revenue Per Paid User', value: paidCount > 0 ? fmt((stats?.totalRevenue || 0) / paidCount, symbol) : `${symbol}0`, sub: 'Lifetime value', color: '#b08850' },
                 { label: 'Payment Success Rate', value: `${stats?.successRate || 0}%`, sub: `${stats?.completedCount || 0} successful · ${stats?.failedCount || 0} failed`, color: '#f59e0b' },
               ].map(c => (
                 <div key={c.label} style={{ ...card, padding: '18px 20px' }}>

@@ -18,7 +18,7 @@ const countryToRegion: Record<string, string> = {
 };
 
 const regionColors: Record<string, string> = {
-  'Asia-Pacific': '#1db954',
+  'Asia-Pacific': '#b08850',
   'Americas': '#10b981',
   'Europe': '#10b981',
   'Africa & Middle East': '#f59e0b',
@@ -89,7 +89,7 @@ export default function GeographyTab() {
         <motion.div 
           animate={{ rotate: 360 }}
           transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-          style={{ width: 40, height: 40, border: `3px solid rgba(29, 185, 84, 0.15)`, borderTopColor: '#1db954', borderRadius: '50%' }} 
+          style={{ width: 40, height: 40, border: `3px solid rgba(176, 136, 80, 0.15)`, borderTopColor: '#b08850', borderRadius: '50%' }} 
         />
         <div style={{ color: '#6b7280', fontSize: 14 }}>Aggregating Beato geographic data...</div>
       </div>
@@ -157,7 +157,7 @@ export default function GeographyTab() {
       {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 24 }}>
         {[
-          { label: 'Countries Active', value: String(countriesActive), color: '#1db954' },
+          { label: 'Countries Active', value: String(countriesActive), color: '#b08850' },
           { label: 'Top Country', value: topCountry, color: '#fff' },
           { label: 'Fastest Growing', value: fastestGrowing, color: '#f59e0b' },
           { label: 'Global Coverage', value: `${globalCoverage}%`, color: '#10b981' },
@@ -182,7 +182,7 @@ export default function GeographyTab() {
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ fontSize: 11, color: '#9ca3af' }}>{r.revenue}</span>
-              <span style={{ fontSize: 11, color: '#1db954', fontWeight: 700 }}>{r.growth}</span>
+              <span style={{ fontSize: 11, color: '#b08850', fontWeight: 700 }}>{r.growth}</span>
             </div>
           </div>
         ))}
@@ -196,7 +196,7 @@ export default function GeographyTab() {
             {(['users', 'revenue', 'growth'] as SortKey[]).map(s => (
               <button key={s} onClick={() => setSort(s)} style={{
                 padding: '5px 12px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 600, textTransform: 'capitalize',
-                background: sort === s ? '#1db954' : '#1a1a1a', color: sort === s ? '#000' : '#9ca3af',
+                background: sort === s ? '#b08850' : '#1a1a1a', color: sort === s ? '#000' : '#9ca3af',
               }}>{s}</button>
             ))}
           </div>
@@ -224,9 +224,9 @@ export default function GeographyTab() {
                     </td>
                     <td style={{ padding: '10px 12px', color: '#e5e7eb' }}>{formatNumber(c.users)}</td>
                     <td style={{ padding: '10px 12px', color: '#9ca3af' }}>{formatNumber(c.streams)}</td>
-                    <td style={{ padding: '10px 12px', color: '#1db954', fontWeight: 600 }}>{currencySymbol}{c.revenue.toLocaleString()}</td>
+                    <td style={{ padding: '10px 12px', color: '#b08850', fontWeight: 600 }}>{currencySymbol}{c.revenue.toLocaleString()}</td>
                     <td style={{ padding: '10px 12px' }}>
-                      <span style={{ color: '#1db954', fontWeight: 700 }}>↑ +{c.growth}%</span>
+                      <span style={{ color: '#b08850', fontWeight: 700 }}>↑ +{c.growth}%</span>
                     </td>
                   </tr>
                 ))}

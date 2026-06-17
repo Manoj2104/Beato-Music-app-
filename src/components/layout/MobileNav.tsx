@@ -63,7 +63,7 @@ function MobileNavContent() {
               alignItems: 'center',
               justifyContent: 'center',
               textDecoration: 'none',
-              color: active ? '#fff' : '#a3a3a3',
+              color: active ? 'var(--color-ss-primary, #b08850)' : 'var(--color-ss-text-muted, #87786c)',
               fontSize: '10px',
               fontWeight: active ? '700' : '500',
               gap: '4px',
@@ -72,7 +72,7 @@ function MobileNavContent() {
               transition: 'color 0.2s ease',
             }}
           >
-            <Icon size={20} strokeWidth={active ? 2.5 : 2} color={active ? '#fff' : '#a3a3a3'} />
+            <Icon size={20} strokeWidth={active ? 2.5 : 2} color={active ? 'var(--color-ss-primary, #b08850)' : 'var(--color-ss-text-muted, #87786c)'} />
             <span>{item.label}</span>
           </Link>
         );

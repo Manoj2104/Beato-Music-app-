@@ -7,7 +7,7 @@ import { useAuthStore } from '@/store/authStore';
 
 const PLAN_COLORS: Record<string, string> = {
   free: '#6b7280',
-  premium: '#1db954',
+  premium: '#b08850',
   family: '#10b981',
   student: '#10b981',
   creator: '#f59e0b',
@@ -178,10 +178,10 @@ export default function UsersTab() {
           onClick={() => setSubView('directory')}
           style={{
             padding: '8px 16px',
-            background: subView === 'directory' ? 'rgba(29, 185, 84,0.1)' : 'transparent',
+            background: subView === 'directory' ? 'rgba(176, 136, 80,0.1)' : 'transparent',
             border: 'none',
             borderRadius: 8,
-            color: subView === 'directory' ? '#1db954' : '#a3a3a3',
+            color: subView === 'directory' ? '#b08850' : '#a3a3a3',
             fontWeight: 700,
             fontSize: 13,
             cursor: 'pointer',
@@ -194,10 +194,10 @@ export default function UsersTab() {
           onClick={() => setSubView('verifications')}
           style={{
             padding: '8px 16px',
-            background: subView === 'verifications' ? 'rgba(29, 185, 84,0.1)' : 'transparent',
+            background: subView === 'verifications' ? 'rgba(176, 136, 80,0.1)' : 'transparent',
             border: 'none',
             borderRadius: 8,
-            color: subView === 'verifications' ? '#1db954' : '#a3a3a3',
+            color: subView === 'verifications' ? '#b08850' : '#a3a3a3',
             fontWeight: 700,
             fontSize: 13,
             cursor: 'pointer',
@@ -228,7 +228,7 @@ export default function UsersTab() {
           {/* Top Header & Actions */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14 }}>
         <div style={{ display: 'flex', gap: 10 }}>
-          <button onClick={() => setShowAddModal(true)} style={{ background: '#1db954', border: 'none', borderRadius: 8, color: '#000', padding: '9px 16px', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>+ Add User</button>
+          <button onClick={() => setShowAddModal(true)} style={{ background: '#b08850', border: 'none', borderRadius: 8, color: '#000', padding: '9px 16px', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>+ Add User</button>
           <button onClick={exportCSV} style={{ background: '#1a1a1a', border: '1px solid #333', borderRadius: 8, color: '#fff', padding: '9px 16px', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>Download CSV</button>
         </div>
 
@@ -266,7 +266,7 @@ export default function UsersTab() {
           style={{ background: '#10b98122', border: '1px solid #10b981', borderRadius: 10, padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span style={{ fontSize: 13, fontWeight: 700, color: '#10b981' }}>{selectedUsers.length} users selected</span>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={() => executeBulkAction('bulk_activate')} style={{ background: '#1db954', border: 'none', borderRadius: 6, color: '#000', padding: '6px 12px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Activate Selected</button>
+            <button onClick={() => executeBulkAction('bulk_activate')} style={{ background: '#b08850', border: 'none', borderRadius: 6, color: '#000', padding: '6px 12px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Activate Selected</button>
             <button onClick={() => executeBulkAction('bulk_suspend')} style={{ background: '#f59e0b', border: 'none', borderRadius: 6, color: '#000', padding: '6px 12px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Suspend Selected</button>
             <button onClick={() => { if(confirm('Are you sure you want to permanently delete these users?')) executeBulkAction('bulk_remove'); }} style={{ background: '#ef4444', border: 'none', borderRadius: 6, color: '#fff', padding: '6px 12px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Delete Selected</button>
           </div>
@@ -281,7 +281,7 @@ export default function UsersTab() {
           padding: '14px 20px',
           borderBottom: '1px solid #1a1a1a',
         }}>
-          <div><input type="checkbox" checked={selectedUsers.length === filteredUsers.length && filteredUsers.length > 0} onChange={toggleSelectAll} style={{ accentColor: '#1db954' }} /></div>
+          <div><input type="checkbox" checked={selectedUsers.length === filteredUsers.length && filteredUsers.length > 0} onChange={toggleSelectAll} style={{ accentColor: '#b08850' }} /></div>
           {['Name', 'Email', 'Plan', 'Joined', 'Status', 'Actions'].map((h, i) => (
             <div key={h} onClick={() => handleSort(h.toLowerCase() === 'joined' ? 'joinedAt' : h.toLowerCase())} style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', letterSpacing: '0.06em', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
               {h.toUpperCase()}
@@ -312,11 +312,11 @@ export default function UsersTab() {
                   padding: '12px 20px',
                   borderBottom: i < filteredUsers.length - 1 ? '1px solid #1a1a1a' : 'none',
                   alignItems: 'center',
-                  background: u.isActive ? (selectedUsers.includes(u.id) ? 'rgba(29, 185, 84, 0.05)' : 'transparent') : 'rgba(239, 68, 68, 0.02)',
+                  background: u.isActive ? (selectedUsers.includes(u.id) ? 'rgba(176, 136, 80, 0.05)' : 'transparent') : 'rgba(239, 68, 68, 0.02)',
                 }}
               >
                 <div>
-                  <input type="checkbox" disabled={isSelf || (isAdmin && u.role === 'SUPER_ADMIN')} checked={selectedUsers.includes(u.id)} onChange={() => toggleSelect(u.id)} style={{ accentColor: '#1db954' }} />
+                  <input type="checkbox" disabled={isSelf || (isAdmin && u.role === 'SUPER_ADMIN')} checked={selectedUsers.includes(u.id)} onChange={() => toggleSelect(u.id)} style={{ accentColor: '#b08850' }} />
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <img src={u.avatar} alt={u.name} style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover' }} />
@@ -333,7 +333,7 @@ export default function UsersTab() {
                 </div>
                 <div style={{ fontSize: 12, color: '#6b7280' }}>{u.joinedAt}</div>
                 <div>
-                  <span style={{ padding: '4px 10px', borderRadius: 20, fontSize: 10, fontWeight: 700, background: u.isActive ? 'rgba(29, 185, 84, 0.12)' : 'rgba(239, 68, 68, 0.12)', color: u.isActive ? '#1db954' : '#ef4444' }}>
+                  <span style={{ padding: '4px 10px', borderRadius: 20, fontSize: 10, fontWeight: 700, background: u.isActive ? 'rgba(176, 136, 80, 0.12)' : 'rgba(239, 68, 68, 0.12)', color: u.isActive ? '#b08850' : '#ef4444' }}>
                     {u.isActive ? 'ACTIVE' : 'SUSPENDED'}
                   </span>
                 </div>
@@ -355,7 +355,7 @@ export default function UsersTab() {
                             {u.isActive ? (
                               <div onClick={() => { executeAction(u.id, 'suspend'); setActiveMenu(null); }} style={{ padding: '8px 12px', fontSize: 12, cursor: 'pointer', borderRadius: 4, color: '#f59e0b' }} onMouseEnter={e => e.currentTarget.style.background = '#333'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>Suspend User</div>
                             ) : (
-                              <div onClick={() => { executeAction(u.id, 'activate'); setActiveMenu(null); }} style={{ padding: '8px 12px', fontSize: 12, cursor: 'pointer', borderRadius: 4, color: '#1db954' }} onMouseEnter={e => e.currentTarget.style.background = '#333'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>Activate User</div>
+                              <div onClick={() => { executeAction(u.id, 'activate'); setActiveMenu(null); }} style={{ padding: '8px 12px', fontSize: 12, cursor: 'pointer', borderRadius: 4, color: '#b08850' }} onMouseEnter={e => e.currentTarget.style.background = '#333'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>Activate User</div>
                             )}
                             <div onClick={() => { if(confirm('Permanently delete?')) executeAction(u.id, 'remove'); setActiveMenu(null); }} style={{ padding: '8px 12px', fontSize: 12, cursor: 'pointer', borderRadius: 4, color: '#ef4444' }} onMouseEnter={e => e.currentTarget.style.background = '#333'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>Delete User</div>
                           </>
@@ -404,7 +404,7 @@ export default function UsersTab() {
             ) : (
               users.filter(u => u.verificationRequest).map((u, i) => {
                 const req = u.verificationRequest;
-                const statusColor = req.status === 'APPROVED' ? '#1db954' : req.status === 'REJECTED' ? '#ef4444' : '#f59e0b';
+                const statusColor = req.status === 'APPROVED' ? '#b08850' : req.status === 'REJECTED' ? '#ef4444' : '#f59e0b';
                 
                 return (
                   <div
@@ -468,7 +468,7 @@ export default function UsersTab() {
                           <button
                             onClick={() => executeAction(u.id, 'approve_verification')}
                             style={{
-                              background: '#1db954',
+                              background: '#b08850',
                               border: 'none',
                               borderRadius: 6,
                               color: '#000',
@@ -610,7 +610,7 @@ export default function UsersTab() {
                 
                 <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 10 }}>
                   <button onClick={() => { setShowAddModal(false); setShowEditModal(null); }} style={{ background: '#1a1a1a', border: 'none', borderRadius: 8, color: '#9ca3af', padding: '10px 18px', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
-                  <button onClick={showAddModal ? handleAddUser : handleEditUser} style={{ background: '#1db954', border: 'none', borderRadius: 8, color: '#000', padding: '10px 20px', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>{showAddModal ? 'Create User' : 'Save Changes'}</button>
+                  <button onClick={showAddModal ? handleAddUser : handleEditUser} style={{ background: '#b08850', border: 'none', borderRadius: 8, color: '#000', padding: '10px 20px', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>{showAddModal ? 'Create User' : 'Save Changes'}</button>
                 </div>
               </div>
             </motion.div>
@@ -650,7 +650,7 @@ export default function UsersTab() {
                 </div>
                 <div style={{ background: '#0a0a0a', padding: 12, borderRadius: 8, border: '1px solid #1a1a1a' }}>
                   <p style={{ margin: '0 0 4px', fontSize: 11, color: '#6b7280' }}>STATUS</p>
-                  <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: showDetailsModal.isActive ? '#1db954' : '#ef4444' }}>{showDetailsModal.isActive ? 'Active' : 'Suspended'}</p>
+                  <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: showDetailsModal.isActive ? '#b08850' : '#ef4444' }}>{showDetailsModal.isActive ? 'Active' : 'Suspended'}</p>
                 </div>
               </div>
 
@@ -689,7 +689,7 @@ export default function UsersTab() {
               <div style={{ width: '100%', overflow: 'auto', display: 'flex', justifyContent: 'center' }}>
                 <img src={previewImage} alt="Document Proof" style={{ maxWidth: '100%', maxHeight: '70vh', objectFit: 'contain', borderRadius: 8 }} />
               </div>
-              <button onClick={() => setPreviewImage(null)} style={{ background: '#1db954', border: 'none', borderRadius: 8, color: '#000', padding: '9px 20px', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Close Preview</button>
+              <button onClick={() => setPreviewImage(null)} style={{ background: '#b08850', border: 'none', borderRadius: 8, color: '#000', padding: '9px 20px', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Close Preview</button>
             </motion.div>
           </motion.div>
         )}

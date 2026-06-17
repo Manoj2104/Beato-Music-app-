@@ -39,7 +39,7 @@ export default function AlbumPage({ params }: { params: Promise<{ id: string }> 
       <div className="relative">
         <div
           className="absolute inset-0 opacity-70"
-          style={{ background: 'linear-gradient(180deg, #1a3040 0%, #121212 100%)' }}
+          style={{ background: 'linear-gradient(180deg, #2b221a 0%, #120e0b 100%)' }}
         />
         <TopBar transparent />
 
@@ -107,26 +107,26 @@ export default function AlbumPage({ params }: { params: Promise<{ id: string }> 
       <div className="px-4 md:px-6 py-4 flex items-center justify-between md:justify-start gap-4 md:gap-5">
         {/* Left icons on mobile, normal order on desktop */}
         <div className="flex items-center gap-3.5 md:gap-5 order-1 md:order-2">
-          <button className="text-ss-text-muted hover:text-white transition-colors">
+          <button className="text-ss-text-muted hover:text-ss-text-primary transition-colors">
             <Shuffle size={22} />
           </button>
 
           <button
             onClick={() => toggleSaveAlbum(album.id)}
-            className={`transition-colors ${isSaved ? 'text-ss-primary' : 'text-ss-text-muted hover:text-white'}`}
+            className={`transition-colors ${isSaved ? 'text-ss-primary' : 'text-ss-text-muted hover:text-ss-text-primary'}`}
           >
             <Heart size={22} fill={isSaved ? 'currentColor' : 'none'} />
           </button>
 
-          <button className="text-ss-text-muted hover:text-white transition-colors">
+          <button className="text-ss-text-muted hover:text-ss-text-primary transition-colors">
             <Download size={20} />
           </button>
 
-          <button className="text-ss-text-muted hover:text-white transition-colors">
+          <button className="text-ss-text-muted hover:text-ss-text-primary transition-colors">
             <Share2 size={20} />
           </button>
 
-          <button className="text-ss-text-muted hover:text-white transition-colors">
+          <button className="text-ss-text-muted hover:text-ss-text-primary transition-colors">
             <MoreHorizontal size={20} />
           </button>
         </div>
@@ -152,7 +152,7 @@ export default function AlbumPage({ params }: { params: Promise<{ id: string }> 
 
       {/* Track list */}
       <div className="px-2 md:px-6 mb-10">
-        <div className="track-list-header grid grid-cols-[16px_40px_1fr_80px] items-center gap-3 px-4 py-2 text-xs text-ss-text-muted font-medium uppercase tracking-wider border-b border-white/5 mb-2">
+        <div className="track-list-header grid grid-cols-[16px_40px_1fr_80px] items-center gap-3 px-4 py-2 text-xs text-ss-text-muted font-medium uppercase tracking-wider border-b border-ss-border mb-2">
           <span>#</span>
           <span />
           <span>Title</span>
@@ -174,10 +174,10 @@ export default function AlbumPage({ params }: { params: Promise<{ id: string }> 
       {moreByArtist.length > 0 && artist && (
         <div className="px-6">
           <div className="flex items-end justify-between mb-4">
-            <h2 className="font-display text-xl font-bold text-white">
+            <h2 className="font-display text-xl font-bold text-ss-text-primary">
               More by {artist.name}
             </h2>
-            <Link href={`/artist/${artist.id}`} className="text-xs font-semibold text-ss-text-muted hover:text-white uppercase tracking-wider">
+            <Link href={`/artist/${artist.id}`} className="text-xs font-semibold text-ss-text-muted hover:text-ss-text-primary uppercase tracking-wider">
               See discography
             </Link>
           </div>

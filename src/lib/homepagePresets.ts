@@ -115,9 +115,9 @@ const CORE_PRESETS: HomepagePreset[] = [
     description: 'The iconic dark green experience — clean, minimal, and familiar.',
     category: 'Platform Style',
     tags: ['dark', 'minimal', 'green', 'classic'],
-    thumbnail: 'linear-gradient(135deg, #121212 0%, #1db954 100%)',
+    thumbnail: 'linear-gradient(135deg, #121212 0%, #b08850 100%)',
     theme: {
-      primary: '#1db954', primaryGlow: 'rgba(29, 185, 84,0.4)',
+      primary: '#b08850', primaryGlow: 'rgba(176, 136, 80,0.4)',
       background: '#121212', surface: '#181818', card: '#282828',
       text: '#ffffff', textMuted: '#b3b3b3', accent: '#10b981', accentSecondary: '#34d399',
       font: 'Inter', borderColor: '#333333', gradient: 'linear-gradient(180deg, #16201a 0%, #121212 60%)'

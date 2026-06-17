@@ -15,15 +15,17 @@ import { usePlaylistStore } from '@/store/playlistStore';
 import { useMusicStore, trackGradient } from '@/store/musicStore';
 import { mockArtists, mockPlaylists } from '@/lib/mockData';
 import toast from 'react-hot-toast';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
-const G = '#1db954';
-const BG = '#0a0a0a';
-const BORDER = 'rgba(255,255,255,0.06)';
-const SOFT = '#a3a3a3';
-const MUTED = '#737373';
+const G = '#b08850';
+const BG = 'var(--color-ss-bg, #fbf9f5)';
+const BORDER = 'var(--color-ss-border, rgba(43, 34, 26, 0.08))';
+const SOFT = '#4d3f35';
+const MUTED = 'var(--color-ss-text-muted, #87786c)';
+const WHITE = 'var(--color-ss-text-primary, #221a15)';
 
 // Default banner cover image if the user has not uploaded one
-const DEFAULT_BANNER = 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1200&h=600&fit=crop';
+const DEFAULT_BANNER = '/images/profile_banner.png';
 
 const Label = ({ children }: { children: React.ReactNode }) => (
   <p style={{ fontSize: 11, fontWeight: 700, color: MUTED, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>
@@ -31,14 +33,18 @@ const Label = ({ children }: { children: React.ReactNode }) => (
   </p>
 );
 
+// ⚡ Module-level flag: true after first hydration, so subsequent tab
+// navigations start mounted=true and skip the blank-screen frame.
+let _profileHydrated = false;
+
 export default function ProfilePage() {
   const router = useRouter();
   const { user, logout, updateUser, upgradeToArtist, initializeSession } = useAuthStore();
   const { customPlaylists } = usePlaylistStore();
   const { recentlyPlayed } = useMusicStore();
   
-  const [mounted, setMounted] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [mounted, setMounted] = useState(_profileHydrated);
+  const isMobile = useIsMobile(); // ⚡ shared single resize listener
   const [showMenu, setShowMenu] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   
@@ -120,8 +126,7 @@ export default function ProfilePage() {
       toast.error('Please enter a valid phone number');
       return;
     }
-    setVerifying(true);
-    // Simulate sending OTP
+    // Simulate sending OTP instantly
     setTimeout(() => {
       const code = Math.floor(100000 + Math.random() * 900000).toString();
       setGeneratedOtp(code);
@@ -133,15 +138,15 @@ export default function ProfilePage() {
         style: { background: '#1a1a1a', color: '#fff', border: '1px solid #10b981', borderRadius: 12 }
       });
 
-      // Simulate OTP Auto-Read (auto-fill the verification input after 1.5 seconds)
+      // Simulate OTP Auto-Read (auto-fill the verification input after 10ms)
       setTimeout(() => {
         setVerifyOtp(code);
         toast.success('OTP auto-read successfully! 📱', {
           id: 'otp-auto-read',
-          style: { background: '#1a1a1a', color: '#fff', border: '1px solid #1db954', borderRadius: 12 }
+          style: { background: '#1a1a1a', color: '#fff', border: '1px solid #b08850', borderRadius: 12 }
         });
-      }, 1500);
-    }, 1000);
+      }, 10);
+    }, 10);
   };
 
   const handleVerifyOtp = async () => {
@@ -156,9 +161,9 @@ export default function ProfilePage() {
       setVerifyStep(3); // Move to Step 3: Identity proof form
       setVerifyName(user?.name || ''); // Default to display name
       toast.success('Mobile verification successful! 📱 Please submit identity proof.', {
-        style: { background: '#1a1a1a', color: '#fff', border: '1px solid #1db954', borderRadius: 12 }
+        style: { background: '#1a1a1a', color: '#fff', border: '1px solid #b08850', borderRadius: 12 }
       });
-    }, 1200);
+    }, 10);
   };
 
   const handleSubmitProof = async () => {
@@ -240,7 +245,7 @@ export default function ProfilePage() {
           verificationRequest: reqPayload
         } as any);
         toast.success('Verification details submitted! Under review. 📄', {
-          style: { background: '#1a1a1a', color: '#fff', border: '1px solid #1db954', borderRadius: 12 }
+          style: { background: '#1a1a1a', color: '#fff', border: '1px solid #b08850', borderRadius: 12 }
         });
         setVerifyStep(4); // Move to submitted review screen
       } else {
@@ -265,11 +270,10 @@ export default function ProfilePage() {
     setShowVerifyModal(false);
   };
 
-  useEffect(() => {
-    initializeSession();
-  }, []);
+
 
   useEffect(() => {
+    _profileHydrated = true;
     setMounted(true);
     setNewName(user?.name || 'Manoj lastro');
     setCoverUrl((user as any)?.coverImage || '');
@@ -286,13 +290,6 @@ export default function ProfilePage() {
         window.history.replaceState({}, '', newUrl);
       }
     }
-    
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
   }, [user]);
 
   // Close dropdown on outside click
@@ -410,230 +407,186 @@ export default function ProfilePage() {
   };
 
   return (
-    <div style={{ minHeight: '100%', background: BG, display: 'flex', flexDirection: 'column', color: '#fff', position: 'relative' }}>
+    <div style={{ minHeight: '100%', background: BG, display: 'flex', flexDirection: 'column', color: WHITE, position: 'relative' }}>
+      <style>{`
+        .profile-main-content h1,
+        .profile-main-content h2,
+        .profile-main-content h3,
+        .profile-main-content h4,
+        .profile-main-content p,
+        .profile-main-content span,
+        .profile-main-content label {
+          color: var(--color-ss-text-primary, #221a15) !important;
+        }
+        .profile-main-content button:not(.text-white-force) {
+          color: var(--color-ss-text-primary, #221a15) !important;
+          border-color: rgba(43, 34, 26, 0.3) !important;
+        }
+        .profile-main-content div[style*="background: rgba(255, 255, 255, 0.02)"],
+        .profile-main-content div[style*="background: rgba(255,255,255,0.02)"] {
+          background: var(--color-ss-surface, #f4eede) !important;
+          border-color: var(--color-ss-border, rgba(43, 34, 26, 0.08)) !important;
+        }
+        .profile-main-content div[style*="background: rgba(255, 255, 255, 0.05)"],
+        .profile-main-content div[style*="background: rgba(255,255,255,0.05)"] {
+          background: var(--color-ss-surface, #f4eede) !important;
+          border-color: var(--color-ss-border, rgba(43, 34, 26, 0.08)) !important;
+        }
+        .profile-modal-themed {
+          background: var(--color-ss-elevated, #ffffff) !important;
+          border: 1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08)) !important;
+          box-shadow: 0 20px 50px rgba(43, 34, 26, 0.15) !important;
+        }
+        .profile-modal-themed h1,
+        .profile-modal-themed h2,
+        .profile-modal-themed h3,
+        .profile-modal-themed h4,
+        .profile-modal-themed p,
+        .profile-modal-themed span,
+        .profile-modal-themed label {
+          color: var(--color-ss-text-primary, #221a15) !important;
+        }
+        .profile-modal-themed input,
+        .profile-modal-themed select,
+        .profile-modal-themed textarea {
+          background: var(--color-ss-surface, #f4eede) !important;
+          color: var(--color-ss-text-primary, #221a15) !important;
+          border: 1.5px solid var(--color-ss-border, rgba(43, 34, 26, 0.08)) !important;
+        }
+        .profile-modal-themed button {
+          border-color: rgba(43, 34, 26, 0.3) !important;
+        }
+        .profile-modal-themed button[style*="background: rgb(176, 136, 80)"],
+        .profile-modal-themed button[style*="background: #b08850"] {
+          color: #000 !important;
+          border: none !important;
+        }
+      `}</style>
       
       {/* ─── Cover Header Section ─── */}
-      {isMobile ? (
-        <>
-          {/* Sticky Mobile Header */}
-          <div style={{
-            position: 'sticky',
-            top: 0,
-            zIndex: 50,
-            background: '#0a0a0a',
-            paddingTop: 'calc(env(safe-area-inset-top, 24px) + 12px)',
-            paddingBottom: '12px',
-            paddingLeft: '16px',
-            paddingRight: '16px',
-            borderBottom: '1px solid rgba(255,255,255,0.05)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 16
-          }}>
-            <button 
-              onClick={() => router.back()} 
-              style={{ 
-                background: 'none', 
-                border: 'none', 
-                color: '#fff', 
-                cursor: 'pointer', 
-                padding: 0, 
-                display: 'flex', 
-                alignItems: 'center' 
-              }}
-            >
-              <ChevronLeft size={24} />
-            </button>
-            <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 20, fontWeight: 900, color: '#fff', margin: 0 }}>
-              Profile
-            </h1>
-          </div>
-          
-          {/* Mobile Profile Details Card */}
-          <div style={{
-            position: 'relative',
-            height: 200,
-            width: '100%',
-            overflow: 'hidden',
-            background: '#000'
-          }}>
-            <img 
-              src={displayCover} 
-              alt={displayName} 
-              style={{ 
-                width: '100%', 
-                height: '100%', 
-                objectFit: 'cover',
-                opacity: 0.55
-              }} 
-            />
-            <div style={{
-              position: 'absolute',
-              inset: 0,
-              background: 'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(10,10,10,1) 100%)',
-              zIndex: 1
-            }} />
-            <div style={{
-              position: 'absolute',
-              bottom: '16px',
-              left: '16px',
-              right: '16px',
-              zIndex: 2,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 4
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <div style={{
-                  width: 14,
-                  height: 14,
-                  borderRadius: '50%',
-                  background: user?.verified ? '#1db954' : '#6b6b6b',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#000',
-                  flexShrink: 0
-                }}>
-                  <Check size={8} strokeWidth={4} color={user?.verified ? "black" : "#ccc"} />
-                </div>
-                <span style={{ fontSize: 11, fontWeight: 700, color: user?.verified ? '#fff' : SOFT }}>
-                  {user?.verified ? 'Verified Profile' : 'Standard Profile'}
-                </span>
-              </div>
-              <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 28, fontWeight: 900, color: '#fff', margin: 0 }}>
-                {displayName}
-              </h1>
-              <p style={{ fontSize: 12, color: '#a3a3a3', margin: 0 }}>
-                {followersCount} follower{followersCount === 1 ? '' : 's'} • {followingCount} following
-              </p>
-            </div>
-          </div>
-        </>
-      ) : (
+      <div style={{
+        position: 'relative',
+        height: isMobile ? 320 : 380,
+        width: '100%',
+        overflow: 'hidden',
+        background: '#000'
+      }}>
+        
+        {/* Cover Photo Banner */}
+        <img 
+          src={displayCover} 
+          alt={displayName} 
+          style={{ 
+            width: '100%', 
+            height: '100%', 
+            objectFit: 'cover',
+            opacity: 0.85
+          }} 
+        />
+
+        {/* Linear Gradient Overlay */}
         <div style={{
-          position: 'relative',
-          height: 380,
-          width: '100%',
-          overflow: 'hidden',
-          background: '#000'
+          position: 'absolute',
+          inset: 0,
+          background: 'linear-gradient(to bottom, rgba(43,34,26,0.15) 0%, rgba(43,34,26,0.85) 100%)',
+          zIndex: 1
+        }} />
+
+        {/* Back Arrow Button (Overlaid top-left) */}
+        <div style={{ 
+          position: 'absolute', 
+          top: isMobile ? 'calc(var(--sat, 0px) + 16px)' : '24px', 
+          left: isMobile ? '16px' : '24px',
+          zIndex: 10
         }}>
-          {/* Cover Photo Banner */}
-          <img 
-            src={displayCover} 
-            alt={displayName} 
+          <button 
+            onClick={() => router.back()} 
             style={{ 
-              width: '100%', 
-              height: '100%', 
-              objectFit: 'cover',
-              opacity: 0.85
-            }} 
-          />
-
-          {/* Linear Gradient Overlay */}
-          <div style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.85) 100%)',
-            zIndex: 1
-          }} />
-
-          {/* Back Arrow Button (Overlaid top-left) */}
-          <div style={{ 
-            position: 'absolute', 
-            top: '24px', 
-            left: '24px',
-            zIndex: 10
-          }}>
-            <button 
-              onClick={() => router.back()} 
-              style={{ 
-                width: 36, 
-                height: 36, 
-                borderRadius: '50%', 
-                background: 'rgba(0,0,0,0.6)', 
-                border: 'none', 
-                cursor: 'pointer', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                color: '#fff', 
-                transition: 'background 0.2s' 
-              }}
-              onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.8)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.6)'}
-            >
-              <ChevronLeft size={22} />
-            </button>
-          </div>
-
-          {/* Profile Details Overlay (Aligned bottom-left) */}
-          <div style={{
-            position: 'absolute',
-            bottom: '24px',
-            left: '32px',
-            right: '32px',
-            zIndex: 2,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 6
-          }}>
-            
-            {/* Verified Badge Row */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <div style={{
-                width: 16,
-                height: 16,
-                borderRadius: '50%',
-                background: user?.verified ? '#1db954' : '#6b6b6b',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#000',
-                flexShrink: 0
-              }}>
-                <Check size={10} strokeWidth={4} color={user?.verified ? "black" : "#ccc"} />
-              </div>
-              <span style={{ 
-                fontSize: 12, 
-                fontWeight: 700, 
-                color: user?.verified ? '#fff' : SOFT,
-                fontFamily: 'Inter, sans-serif'
-              }}>
-                {user?.verified ? 'Verified Profile' : 'Standard Profile'}
-              </span>
-            </div>
-
-            {/* User Name */}
-            <h1 style={{ 
-              fontFamily: 'Outfit, sans-serif', 
-              fontSize: 52, 
-              fontWeight: 900, 
-              letterSpacing: '-0.02em', 
-              margin: '0 0 2px 0',
-              color: '#fff',
-              lineHeight: 1.1,
-              textShadow: '0 2px 8px rgba(0,0,0,0.6)'
-            }}>
-              {displayName}
-            </h1>
-
-            {/* Real-time Follow Stats */}
-            <p style={{ 
-              fontSize: 14, 
-              fontWeight: 600, 
-              color: '#d1d5db', 
-              margin: 0,
-              textShadow: '0 1px 4px rgba(0,0,0,0.5)'
-            }}>
-              {followersCount} follower{followersCount === 1 ? '' : 's'} • {followingCount} following
-            </p>
-          </div>
+              width: 36, 
+              height: 36, 
+              borderRadius: '50%', 
+              background: 'rgba(0,0,0,0.6)', 
+              border: 'none', 
+              cursor: 'pointer', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              color: '#fff', 
+              transition: 'background 0.2s' 
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.8)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.6)'}
+          >
+            <ChevronLeft size={22} />
+          </button>
         </div>
-      )}
+
+        {/* Profile Details Overlay (Aligned bottom-left) */}
+        <div style={{
+          position: 'absolute',
+          bottom: '24px',
+          left: isMobile ? '16px' : '32px',
+          right: isMobile ? '16px' : '32px',
+          zIndex: 2,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 6
+        }}>
+          
+          {/* Verified Badge Row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{
+              width: 16,
+              height: 16,
+              borderRadius: '50%',
+              background: user?.verified ? '#b08850' : '#6b6b6b',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#000',
+              flexShrink: 0
+            }}>
+              <Check size={10} strokeWidth={4} color={user?.verified ? "black" : "#ccc"} />
+            </div>
+            <span style={{ 
+              fontSize: 12, 
+              fontWeight: 700, 
+              color: user?.verified ? '#fff' : SOFT,
+              fontFamily: 'Inter, sans-serif'
+            }}>
+              {user?.verified ? 'Verified Profile' : 'Standard Profile'}
+            </span>
+          </div>
+
+          {/* User Name */}
+          <h1 style={{ 
+            fontFamily: 'Outfit, sans-serif', 
+            fontSize: isMobile ? 36 : 52, 
+            fontWeight: 900, 
+            letterSpacing: '-0.02em', 
+            margin: '0 0 2px 0',
+            color: '#fff',
+            lineHeight: 1.1,
+            textShadow: '0 2px 8px rgba(0,0,0,0.6)'
+          }}>
+            {displayName}
+          </h1>
+
+          {/* Real-time Follow Stats */}
+          <p style={{ 
+            fontSize: isMobile ? 13 : 14, 
+            fontWeight: 600, 
+            color: '#d1d5db', 
+            margin: 0,
+            textShadow: '0 1px 4px rgba(0,0,0,0.5)'
+          }}>
+            {followersCount} follower{followersCount === 1 ? '' : 's'} • {followingCount} following
+          </p>
+        </div>
+      </div>
 
       {/* ─── Main Content ─── */}
-      <div style={{ 
+      <div className="profile-main-content" style={{ 
         padding: isMobile ? '24px 16px 100px' : '32px 32px 100px', 
         display: 'flex', 
         flexDirection: 'column', 
@@ -735,15 +688,12 @@ export default function ProfilePage() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 8, scale: 0.95 }}
                   transition={{ duration: 0.12 }}
+                  className="profile-modal-themed"
                   style={{
                     position: 'absolute',
                     top: 'calc(100% + 8px)',
                     left: 0,
                     width: 200,
-                    background: '#1c1c1e',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: 12,
-                    boxShadow: '0 12px 36px rgba(0,0,0,0.5)',
                     zIndex: 100,
                     overflow: 'hidden'
                   }}
@@ -1020,7 +970,7 @@ export default function ProfilePage() {
                       padding: '2px 8px', 
                       borderRadius: 12, 
                       background: user?.verified 
-                        ? 'rgba(29, 185, 84, 0.15)' 
+                        ? 'rgba(176, 136, 80, 0.15)' 
                         : user?.verificationRequest?.status === 'PENDING'
                           ? 'rgba(245, 158, 11, 0.15)'
                           : user?.verificationRequest?.status === 'REJECTED'
@@ -1172,16 +1122,14 @@ export default function ProfilePage() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
               transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+              className="profile-modal-themed"
               style={{
                 position: 'relative',
-                background: '#1c1c1e',
-                border: '1px solid rgba(255,255,255,0.08)',
                 borderRadius: 24,
                 padding: '28px',
                 zIndex: 100001,
                 width: 400,
                 maxWidth: '90vw',
-                boxShadow: '0 20px 50px rgba(0,0,0,0.8)',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 20
@@ -1348,16 +1296,15 @@ export default function ProfilePage() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
               transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+              className="profile-modal-themed"
               style={{
                 position: 'relative',
-                background: '#1c1c1e',
                 border: '1px solid rgba(239, 68, 68, 0.25)',
                 borderRadius: 24,
                 padding: '28px',
                 zIndex: 100001,
                 width: 400,
                 maxWidth: '90vw',
-                boxShadow: '0 20px 50px rgba(0,0,0,0.8)',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 16
@@ -1450,16 +1397,14 @@ export default function ProfilePage() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
               transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+              className="profile-modal-themed"
               style={{
                 position: 'relative',
-                background: '#1c1c1e',
-                border: '1px solid rgba(255,255,255,0.08)',
                 borderRadius: 24,
                 padding: '28px',
                 zIndex: 100001,
                 width: 400,
                 maxWidth: '90vw',
-                boxShadow: '0 20px 50px rgba(0,0,0,0.8)',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 20
@@ -1808,7 +1753,7 @@ export default function ProfilePage() {
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, textAlign: 'center', padding: '10px 0' }}>
                   <div style={{
                     width: 56, height: 56, borderRadius: '50%',
-                    background: 'rgba(29, 185, 84, 0.15)',
+                    background: 'rgba(176, 136, 80, 0.15)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center'
                   }}>
                     <Check size={28} color={G} strokeWidth={3} />

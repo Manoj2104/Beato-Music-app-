@@ -12,8 +12,8 @@ import { EXTENDED_LAYOUT_OPTIONS } from '@/lib/layoutOptions';
 
 // ─── Local Style Helper ───
 const COLORS = {
-  primary: '#1db954',
-  primaryBg: 'rgba(29, 185, 84, 0.15)',
+  primary: '#b08850',
+  primaryBg: 'rgba(176, 136, 80, 0.15)',
   blue: '#10b981',
   purple: '#10b981',
   orange: '#f59e0b',
@@ -100,7 +100,7 @@ interface MarketingPayload {
 
 const campaignTypeColors = {
   email:  { color: '#10b981', bg: '#10b9811a', icon: '📧' },
-  push:   { color: '#1db954', bg: '#1db9541a', icon: '🔔' },
+  push:   { color: '#b08850', bg: '#b088501a', icon: '🔔' },
   banner: { color: '#f59e0b', bg: '#f59e0b1a', icon: '🖼' },
   sms:    { color: '#10b981', bg: '#10b9811a', icon: '💬' },
 };
@@ -895,7 +895,7 @@ export default function MarketingTab() {
                     <span style={{ background: channel.bg, color: channel.color, border: `1px solid ${channel.color}33`, padding: '3px 8px', borderRadius: 6, fontSize: 10, fontWeight: 700, textTransform: 'uppercase' }}>
                       {channel.icon} {c.type}
                     </span>
-                    <span style={{ fontSize: 10, background: c.status === 'active' ? 'rgba(29, 185, 84,0.1)' : 'rgba(107,114,128,0.1)', color: c.status === 'active' ? COLORS.primary : COLORS.textMuted, border: `1px solid ${c.status === 'active' ? COLORS.primary : COLORS.border}33`, padding: '2px 8px', borderRadius: 20, fontWeight: 700, textTransform: 'uppercase' }}>
+                    <span style={{ fontSize: 10, background: c.status === 'active' ? 'rgba(176, 136, 80,0.1)' : 'rgba(107,114,128,0.1)', color: c.status === 'active' ? COLORS.primary : COLORS.textMuted, border: `1px solid ${c.status === 'active' ? COLORS.primary : COLORS.border}33`, padding: '2px 8px', borderRadius: 20, fontWeight: 700, textTransform: 'uppercase' }}>
                       {c.status}
                     </span>
                   </div>
@@ -960,7 +960,7 @@ export default function MarketingTab() {
                 <Tooltip {...chartTooltip} />
                 <Legend wrapperStyle={{ fontSize: 10 }} />
                 <Area type="monotone" dataKey="Cost" name={`Spend (${data.currency.symbol})`} stroke={COLORS.red} fill="rgba(239,68,68,0.1)" />
-                <Area type="monotone" dataKey="Revenue" name={`Revenue (${data.currency.symbol})`} stroke={COLORS.primary} fill="rgba(29, 185, 84,0.15)" />
+                <Area type="monotone" dataKey="Revenue" name={`Revenue (${data.currency.symbol})`} stroke={COLORS.primary} fill="rgba(176, 136, 80,0.15)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -1105,7 +1105,7 @@ export default function MarketingTab() {
                       </td>
                       <td style={{ padding: '12px 14px', color: COLORS.textMuted }}>{p.expiry}</td>
                       <td style={{ padding: '12px 14px' }}>
-                        <span style={{ fontSize: 10, background: p.status === 'active' ? 'rgba(29, 185, 84,0.1)' : 'rgba(239,68,68,0.1)', color: p.status === 'active' ? COLORS.primary : COLORS.red, border: `1px solid ${p.status === 'active' ? COLORS.primary : COLORS.red}33`, padding: '2px 8px', borderRadius: 20, fontWeight: 700, textTransform: 'uppercase' }}>
+                        <span style={{ fontSize: 10, background: p.status === 'active' ? 'rgba(176, 136, 80,0.1)' : 'rgba(239,68,68,0.1)', color: p.status === 'active' ? COLORS.primary : COLORS.red, border: `1px solid ${p.status === 'active' ? COLORS.primary : COLORS.red}33`, padding: '2px 8px', borderRadius: 20, fontWeight: 700, textTransform: 'uppercase' }}>
                           {p.status}
                         </span>
                       </td>
@@ -1174,7 +1174,7 @@ export default function MarketingTab() {
                     </span>
                   )}
                   {sectionId.startsWith('promo_') && (
-                    <span style={{ fontSize: 9, background: 'rgba(29, 185, 84, 0.15)', color: COLORS.primary, border: '1px solid rgba(29, 185, 84,0.3)', padding: '1px 5px', borderRadius: 4 }}>
+                    <span style={{ fontSize: 9, background: 'rgba(176, 136, 80, 0.15)', color: COLORS.primary, border: '1px solid rgba(176, 136, 80,0.3)', padding: '1px 5px', borderRadius: 4 }}>
                       Promo Banner
                     </span>
                   )}
@@ -1451,7 +1451,7 @@ export default function MarketingTab() {
                         .map(t => {
                           const isChecked = customSecSongIds.includes(t.id);
                           return (
-                            <label key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', padding: '4px 6px', borderRadius: 4, background: isChecked ? 'rgba(29, 185, 84, 0.12)' : 'transparent', transition: 'background 0.15s' }}>
+                            <label key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', padding: '4px 6px', borderRadius: 4, background: isChecked ? 'rgba(176, 136, 80, 0.12)' : 'transparent', transition: 'background 0.15s' }}>
                               <input
                                 type="checkbox"
                                 checked={isChecked}
@@ -1808,7 +1808,7 @@ export default function MarketingTab() {
                     <span style={{ fontSize: 9, background: COLORS.primaryBg, color: COLORS.primary, border: `1px solid ${COLORS.primary}22`, padding: '2px 6px', borderRadius: 4, textTransform: 'uppercase', fontWeight: 700 }}>
                       {promo.type}
                     </span>
-                    <span style={{ fontSize: 10, background: promo.status === 'active' ? 'rgba(29, 185, 84,0.1)' : 'rgba(107,114,128,0.1)', color: promo.status === 'active' ? COLORS.primary : COLORS.textMuted, border: `1px solid ${promo.status === 'active' ? COLORS.primary : COLORS.border}33`, padding: '2px 8px', borderRadius: 20, fontWeight: 700, textTransform: 'uppercase' }}>
+                    <span style={{ fontSize: 10, background: promo.status === 'active' ? 'rgba(176, 136, 80,0.1)' : 'rgba(107,114,128,0.1)', color: promo.status === 'active' ? COLORS.primary : COLORS.textMuted, border: `1px solid ${promo.status === 'active' ? COLORS.primary : COLORS.border}33`, padding: '2px 8px', borderRadius: 20, fontWeight: 700, textTransform: 'uppercase' }}>
                       {promo.status}
                     </span>
                   </div>
@@ -2046,7 +2046,7 @@ function CampaignModal({ onClose, reload, targetedCounts }: CampaignModalProps) 
         </div>
         
         {/* Real-time Audience estimator banner */}
-        <div style={{ background: 'rgba(29, 185, 84, 0.1)', border: `1px solid ${COLORS.primary}33`, borderRadius: 8, padding: '10px 12px', marginBottom: 16 }}>
+        <div style={{ background: 'rgba(176, 136, 80, 0.1)', border: `1px solid ${COLORS.primary}33`, borderRadius: 8, padding: '10px 12px', marginBottom: 16 }}>
           <span style={{ fontSize: 10, color: COLORS.primary, fontWeight: 700, display: 'block' }}>🎯 REAL-TIME AUDIENCE ESTIMATE</span>
           <strong style={{ fontSize: 14, color: '#fff' }}>Targeting {getEstimate().toLocaleString()} users matching segment criteria.</strong>
         </div>
@@ -2250,7 +2250,7 @@ function CropModal({ imageSrc, onCrop, onClose }: CropModalProps) {
       ctx.drawImage(img, x, y, drawWidth, drawHeight);
 
       // Visual border guide
-      ctx.strokeStyle = '#1db954';
+      ctx.strokeStyle = '#b08850';
       ctx.lineWidth = 1.5;
       ctx.strokeRect(1, 1, w - 2, h - 2);
     };
@@ -2339,9 +2339,9 @@ function CropModal({ imageSrc, onCrop, onClose }: CropModalProps) {
               step={0.05}
               value={zoom}
               onChange={(e) => setZoom(parseFloat(e.target.value))}
-              style={{ flex: 1, accentColor: '#1db954' }}
+              style={{ flex: 1, accentColor: '#b08850' }}
             />
-            <span style={{ fontSize: 11, color: '#1db954', fontWeight: 700 }}>{Math.round(zoom * 100)}%</span>
+            <span style={{ fontSize: 11, color: '#b08850', fontWeight: 700 }}>{Math.round(zoom * 100)}%</span>
           </div>
 
           <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 12 }}>
@@ -2350,7 +2350,7 @@ function CropModal({ imageSrc, onCrop, onClose }: CropModalProps) {
               Cancel
             </button>
             <button onClick={handleConfirm}
-              style={{ background: '#1db954', border: 'none', color: '#000', borderRadius: 8, padding: '8px 24px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+              style={{ background: '#b08850', border: 'none', color: '#000', borderRadius: 8, padding: '8px 24px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
               Confirm Crop (1200x400)
             </button>
           </div>

@@ -24,7 +24,7 @@ const DEFAULT_TEMPLATES = [
     name: 'Welcome Email',
     subject: 'Welcome to Beato! 🎵',
     preview: 'Hello {{name}},\n\nWelcome to Beato! Your account is officially set up and ready to explore the global sound waves.\n\nTo help you get started, we have curated a personalized dashboard for you. Click below to begin your listening journey.\n\nDiscover New Soundscapes:\n⚡ Explore over 40 million tracks\n⚡ Stream ad-free podcasts and daily releases\n⚡ Create and share playlists with friends',
-    color: 'linear-gradient(135deg,#1db954,#0d6b31)',
+    color: 'linear-gradient(135deg,#b08850,#0d6b31)',
     type: 'transactional',
     usedCount: 0,
     createdAt: new Date().toISOString()
@@ -84,7 +84,7 @@ const DEFAULT_TEMPLATES = [
     name: 'Artist Royalties Statement',
     subject: 'Your Monthly Creator Payout Statement 💰',
     preview: 'Dear {{name}},\n\nYour artist royalty report for the period ending May 31, 2026, is now available in your Creator Hub.\n\nHere is your payout summary:\n▶️ Total Streams: 1,280,000 plays\n📈 Performance Growth: +14% month-over-month\n💰 Estimated Net Royalty: $4,480.00 USD\n\nRoyalties will be disbursed to your configured payout account within 3 business days.',
-    color: 'linear-gradient(135deg,#1db954,#0d6b31)',
+    color: 'linear-gradient(135deg,#b08850,#0d6b31)',
     type: 'transactional',
     usedCount: 0,
     createdAt: new Date().toISOString()
@@ -316,7 +316,7 @@ export async function POST(req: NextRequest) {
       id: `tpl-${Date.now()}`,
       name, subject: subject || '', preview: preview || '',
       type: type || 'promotional',
-      color: color || 'linear-gradient(135deg,#1db954,#0d6b31)',
+      color: color || 'linear-gradient(135deg,#b08850,#0d6b31)',
       usedCount: 0, createdAt: new Date().toISOString(),
     };
     raw.emailTemplates = raw.emailTemplates || [];

@@ -48,7 +48,7 @@ interface Stats {
 const PLAN_COLORS: Record<PlanName, string> = {
   free: '#6b7280',
   student: '#a3e635',
-  premium: '#1db954',
+  premium: '#b08850',
   family: '#10b981',
   creator: '#34d399',
 };
@@ -62,7 +62,7 @@ const PLAN_LABELS: Record<PlanName, string> = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  active: '#1db954',
+  active: '#b08850',
   cancelled: '#ef4444',
   trial: '#34d399',
   paused: '#f59e0b',
@@ -323,7 +323,7 @@ export default function SubscriptionsTab() {
         <StatCard
           label="Total Subscribers"
           value={loading ? '...' : (stats?.totalSubs || 0).toLocaleString()}
-          color="#1db954"
+          color="#b08850"
           sub="↑ 3.2% from last month"
         />
         <StatCard
@@ -351,9 +351,9 @@ export default function SubscriptionsTab() {
         <motion.div
           animate={{ scale: [1, 1.5, 1], opacity: [1, 0.4, 1] }}
           transition={{ duration: 1.8, repeat: Infinity }}
-          style={{ width: 8, height: 8, borderRadius: '50%', background: '#1db954' }}
+          style={{ width: 8, height: 8, borderRadius: '50%', background: '#b08850' }}
         />
-        <span style={{ fontSize: 11, color: '#1db954', fontWeight: 700, letterSpacing: '0.08em' }}>LIVE — refreshes every 5 seconds</span>
+        <span style={{ fontSize: 11, color: '#b08850', fontWeight: 700, letterSpacing: '0.08em' }}>LIVE — refreshes every 5 seconds</span>
       </div>
 
       {/* ── Plan Cards ── */}
@@ -381,9 +381,9 @@ export default function SubscriptionsTab() {
             {(['growth', 'revenue', 'pie'] as const).map(c => (
               <button key={c} onClick={() => setActiveChart(c)} style={{
                 padding: '5px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                background: activeChart === c ? '#1db954' : '#1a1a1a',
+                background: activeChart === c ? '#b08850' : '#1a1a1a',
                 color: activeChart === c ? '#000' : '#888',
-                border: activeChart === c ? '1px solid #1db954' : '1px solid #2a2a2a',
+                border: activeChart === c ? '1px solid #b08850' : '1px solid #2a2a2a',
               }}>
                 {c === 'growth' ? 'Subscriber Growth' : c === 'revenue' ? 'Revenue Trend' : 'Plan Distribution'}
               </button>
@@ -423,8 +423,8 @@ export default function SubscriptionsTab() {
                 <BarChart data={REVENUE_DATA} margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#1db954" stopOpacity={0.9} />
-                      <stop offset="100%" stopColor="#1db954" stopOpacity={0.3} />
+                      <stop offset="0%" stopColor="#b08850" stopOpacity={0.9} />
+                      <stop offset="100%" stopColor="#b08850" stopOpacity={0.3} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#1e1e1e" />
@@ -505,9 +505,9 @@ export default function SubscriptionsTab() {
                 <button key={f} onClick={() => setFilter(f)}
                   style={{
                     padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                    background: filter === f ? '#1db954' : '#1a1a1a',
+                    background: filter === f ? '#b08850' : '#1a1a1a',
                     color: filter === f ? '#000' : '#888',
-                    border: filter === f ? '1px solid #1db954' : '1px solid #2a2a2a',
+                    border: filter === f ? '1px solid #b08850' : '1px solid #2a2a2a',
                   }}>{f}</button>
               ))}
             </div>
@@ -587,7 +587,7 @@ export default function SubscriptionsTab() {
                             </button>
                           ) : (
                             <button onClick={() => handleAction(sub.id, 'activate_sub', sub.name)}
-                              style={{ background: '#1db95422', border: '1px solid #1db95444', color: '#1db954', borderRadius: 6, padding: '5px 10px', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                              style={{ background: '#b0885022', border: '1px solid #b0885044', color: '#b08850', borderRadius: 6, padding: '5px 10px', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
                               Activate
                             </button>
                           )}
@@ -645,7 +645,7 @@ export default function SubscriptionsTab() {
 
               <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
                 <button onClick={() => setChangePlanModal(null)} style={{ background: '#1a1a1a', border: 'none', borderRadius: 8, color: '#9ca3af', padding: '10px 18px', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
-                <button onClick={handleChangePlan} style={{ background: '#1db954', border: 'none', borderRadius: 8, color: '#000', padding: '10px 20px', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Apply Change</button>
+                <button onClick={handleChangePlan} style={{ background: '#b08850', border: 'none', borderRadius: 8, color: '#000', padding: '10px 20px', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Apply Change</button>
               </div>
             </motion.div>
           </motion.div>

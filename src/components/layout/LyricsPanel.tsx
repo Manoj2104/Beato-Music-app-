@@ -71,7 +71,7 @@ export default function LyricsPanel({ onClose }: LyricsPanelProps) {
         padding: '16px 20px',
         borderBottom: '1px solid #282828'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#1db954' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#b08850' }}>
           <Mic size={18} />
           <h3 style={{ fontSize: 16, fontWeight: 700, color: '#fff', margin: 0 }}>Synced Lyrics</h3>
         </div>

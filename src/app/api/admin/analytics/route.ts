@@ -154,7 +154,7 @@ export async function GET(request: NextRequest) {
     });
     const devTotal = Math.max(filteredUsers.length, 1);
     const devices = [
-      { name: 'Mobile', pct: Math.round((mobileCount / devTotal) * 100), color: '#1db954' },
+      { name: 'Mobile', pct: Math.round((mobileCount / devTotal) * 100), color: '#b08850' },
       { name: 'Desktop', pct: Math.round((desktopCount / devTotal) * 100), color: '#10b981' },
       { name: 'Tablet', pct: Math.round((tabletCount / devTotal) * 100), color: '#f59e0b' },
       { name: 'Smart TV', pct: 100 - Math.round((mobileCount / devTotal) * 100) - Math.round((desktopCount / devTotal) * 100) - Math.round((tabletCount / devTotal) * 100), color: '#10b981' }
@@ -174,7 +174,7 @@ export async function GET(request: NextRequest) {
       { name: 'Low (96kbps)', count: lowQ, pct: Math.round((lowQ / qTotal) * 100), color: '#ef4444' },
       { name: 'Normal (160kbps)', count: normalQ, pct: Math.round((normalQ / qTotal) * 100), color: '#f59e0b' },
       { name: 'High (320kbps)', count: highQ, pct: Math.round((highQ / qTotal) * 100), color: '#10b981' },
-      { name: 'Lossless (Hi-Fi)', count: veryHighQ, pct: 100 - Math.round((lowQ / qTotal) * 100) - Math.round((normalQ / qTotal) * 100) - Math.round((highQ / qTotal) * 100), color: '#1db954' }
+      { name: 'Lossless (Hi-Fi)', count: veryHighQ, pct: 100 - Math.round((lowQ / qTotal) * 100) - Math.round((normalQ / qTotal) * 100) - Math.round((highQ / qTotal) * 100), color: '#b08850' }
     ];
 
     // 10. Dynamic Genre Performance (Dynamic play calculations from tracks)
@@ -197,7 +197,7 @@ export async function GET(request: NextRequest) {
       { label: 'Visited Landing Page', count: funnelVisited, pct: 100, color: '#10b981' },
       { label: 'Registered Accounts', count: funnelRegistered, pct: Math.round((funnelRegistered / Math.max(funnelVisited, 1)) * 100), color: '#10b981' },
       { label: 'Activated User Profiles', count: funnelActivated, pct: Math.round((funnelActivated / Math.max(funnelVisited, 1)) * 100), color: '#f59e0b' },
-      { label: 'Premium Converted Tiers', count: funnelPremium, pct: Math.max(0.1, Number(((funnelPremium / Math.max(funnelVisited, 1)) * 100).toFixed(2))), color: '#1db954' },
+      { label: 'Premium Converted Tiers', count: funnelPremium, pct: Math.max(0.1, Number(((funnelPremium / Math.max(funnelVisited, 1)) * 100).toFixed(2))), color: '#b08850' },
     ];
 
     // 12. Dynamic Customer Segmentation (RFM Analysis)
@@ -217,7 +217,7 @@ export async function GET(request: NextRequest) {
 
     const totalSeg = Math.max(filteredUsers.length, 1);
     const rfmSegments = [
-      { name: 'Champions', count: champions, pct: Math.round((champions / totalSeg) * 100), desc: 'High listening volume & active premium accounts.', color: '#1db954' },
+      { name: 'Champions', count: champions, pct: Math.round((champions / totalSeg) * 100), desc: 'High listening volume & active premium accounts.', color: '#b08850' },
       { name: 'Loyal Customers', count: loyal, pct: Math.round((loyal / totalSeg) * 100), desc: 'Subscribed premium members with steady usage.', color: '#10b981' },
       { name: 'Promising Users', count: promising, pct: Math.round((promising / totalSeg) * 100), desc: 'New free tier accounts with accelerating stream hours.', color: '#10b981' },
       { name: 'Needs Attention', count: attention, pct: Math.round((attention / totalSeg) * 100), desc: 'Moderate listening activity but low engagement conversion.', color: '#f59e0b' },

@@ -37,7 +37,7 @@ interface FeatureFlag {
 const AUDIENCES = ['All', 'Premium', 'Free', 'Artists', 'Beta Testers', 'Internal'];
 
 const statusColor: Record<ExpStatus, { bg: string; color: string }> = {
-  Running: { bg: 'rgba(29, 185, 84, 0.1)', color: '#1db954' },
+  Running: { bg: 'rgba(176, 136, 80, 0.1)', color: '#b08850' },
   Completed: { bg: 'rgba(96, 165, 250, 0.1)', color: '#60a5fa' },
   Paused: { bg: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' },
 };

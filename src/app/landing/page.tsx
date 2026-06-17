@@ -19,7 +19,7 @@ const stats = [
 ];
 
 const features = [
-  { icon: Headphones, title: 'Lossless Audio', desc: 'Experience music in stunning 320kbps quality with our premium tier.', color: '#1db954', bg: 'rgba(29, 185, 84,0.1)' },
+  { icon: Headphones, title: 'Lossless Audio', desc: 'Experience music in stunning 320kbps quality with our premium tier.', color: '#b08850', bg: 'rgba(176, 136, 80,0.1)' },
   { icon: Radio, title: 'AI Radio', desc: 'Let our AI create the perfect playlist based on your mood and taste.', color: '#10b981', bg: 'rgba(16, 185, 129,0.1)' },
   { icon: Download, title: 'Offline Mode', desc: 'Download up to 10,000 songs and listen anywhere, without internet.', color: '#34d399', bg: 'rgba(52, 211, 153,0.1)' },
   { icon: Mic2, title: 'Live Lyrics', desc: 'Follow along with synchronized, word-by-word lyrics in real-time.', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
@@ -28,7 +28,7 @@ const features = [
 ];
 
 const testimonials = [
-  { name: 'Arjun K.', text: "Beato's AI recommendations are insane. Found 20 new artists I love in a week!", initials: 'AK', color: '#1db954', role: 'Music Enthusiast' },
+  { name: 'Arjun K.', text: "Beato's AI recommendations are insane. Found 20 new artists I love in a week!", initials: 'AK', color: '#b08850', role: 'Music Enthusiast' },
   { name: 'Priya M.', text: 'The sound quality is unmatched. Worth every penny of the premium plan.', initials: 'PM', color: '#10b981', role: 'Premium User' },
   { name: 'Carlos R.', text: 'As an artist, the dashboard gives me insights I never had before. Game changer.', initials: 'CR', color: '#34d399', role: 'Independent Artist' },
 ];
@@ -42,7 +42,7 @@ const WaveformVisual = () => (
         className="flex-1 rounded-full"
         style={{
           height: `${h}%`,
-          background: `linear-gradient(to top, #1db954, #10b981)`,
+          background: `linear-gradient(to top, #b08850, #10b981)`,
           animation: `waveform ${0.8 + (i % 4) * 0.2}s ease-in-out infinite alternate`,
           animationDelay: `${i * 0.1}s`,
           opacity: 0.7 + (i % 3) * 0.1,
@@ -58,7 +58,7 @@ const VinylRecord = ({ rotating }: { rotating: boolean }) => (
     className="relative w-64 h-64 rounded-full"
     style={{
       background: 'conic-gradient(from 0deg, #1a1a1a, #2a2a2a, #1a1a1a, #333, #1a1a1a)',
-      boxShadow: '0 0 40px rgba(29, 185, 84,0.3), 0 0 80px rgba(29, 185, 84,0.1)',
+      boxShadow: '0 0 40px rgba(176, 136, 80,0.3), 0 0 80px rgba(176, 136, 80,0.1)',
       animation: rotating ? 'spin 4s linear infinite' : 'none',
     }}
   >
@@ -69,7 +69,7 @@ const VinylRecord = ({ rotating }: { rotating: boolean }) => (
     ))}
     {/* Center label */}
     <div className="absolute inset-0 m-auto w-20 h-20 rounded-full flex items-center justify-center"
-      style={{ background: 'linear-gradient(135deg, #1db954, #0d7a35)' }}>
+      style={{ background: 'linear-gradient(135deg, #b08850, #0d7a35)' }}>
       <Music2 size={28} color="black" />
     </div>
     {/* Center hole */}
@@ -129,7 +129,7 @@ export default function LandingPage() {
   const [symbol, setSymbol] = useState('$');
 
   const songs = [
-    { song: 'Midnight Cascade', artist: 'Aurora Nightfall', color: '#1db954' },
+    { song: 'Midnight Cascade', artist: 'Aurora Nightfall', color: '#b08850' },
     { song: 'Binary Pulse', artist: 'Cipher Nova', color: '#10b981' },
     { song: 'Solar Flare', artist: 'Selene Ray', color: '#34d399' },
   ];
@@ -289,7 +289,7 @@ export default function LandingPage() {
       }}>
         <div className="landing-nav-container">
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-            <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, #1db954, #10b981)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, #b08850, #10b981)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Music2 size={18} color="black" />
             </div>
             <span style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: 20, color: '#fff' }}>Beato</span>
@@ -310,12 +310,12 @@ export default function LandingPage() {
             <Link href="/login" style={{ color: 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 500, textDecoration: 'none' }}>Log in</Link>
             <Link href="/register">
               <button style={{
-                padding: '10px 24px', borderRadius: 100, background: '#1db954',
+                padding: '10px 24px', borderRadius: 100, background: '#b08850',
                 color: '#000', fontWeight: 700, fontSize: 14, cursor: 'pointer', border: 'none',
-                boxShadow: '0 0 20px rgba(29, 185, 84,0.3)', transition: 'background 0.2s',
+                boxShadow: '0 0 20px rgba(176, 136, 80,0.3)', transition: 'background 0.2s',
               }}
                 onMouseEnter={e => (e.currentTarget.style.background = '#34d399')}
-                onMouseLeave={e => (e.currentTarget.style.background = '#1db954')}>
+                onMouseLeave={e => (e.currentTarget.style.background = '#b08850')}>
                 Sign up free
               </button>
             </Link>
@@ -327,7 +327,7 @@ export default function LandingPage() {
       <section style={{ position: 'relative', minHeight: 'calc(100vh - 64px)', display: 'flex', alignItems: 'center', overflow: 'hidden' }}>
         {/* Background blobs */}
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-          <div style={{ position: 'absolute', top: -100, right: -100, width: 700, height: 700, borderRadius: '50%', background: 'rgba(29, 185, 84,0.06)', filter: 'blur(80px)' }} />
+          <div style={{ position: 'absolute', top: -100, right: -100, width: 700, height: 700, borderRadius: '50%', background: 'rgba(176, 136, 80,0.06)', filter: 'blur(80px)' }} />
           <div style={{ position: 'absolute', bottom: -100, left: -100, width: 600, height: 600, borderRadius: '50%', background: 'rgba(16, 185, 129,0.06)', filter: 'blur(80px)' }} />
           <div style={{ position: 'absolute', top: '40%', left: '40%', width: 400, height: 400, borderRadius: '50%', background: 'rgba(52, 211, 153,0.04)', filter: 'blur(60px)' }} />
         </div>
@@ -336,14 +336,14 @@ export default function LandingPage() {
 
           {/* Left: Text */}
           <motion.div initial={{ opacity: 0, x: -40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7 }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', borderRadius: 100, background: 'rgba(29, 185, 84,0.12)', border: '1px solid rgba(29, 185, 84,0.25)', marginBottom: 24 }}>
-              <Zap size={14} color="#1db954" />
-              <span style={{ color: '#1db954', fontSize: 13, fontWeight: 600 }}>AI-Powered Music Experience</span>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', borderRadius: 100, background: 'rgba(176, 136, 80,0.12)', border: '1px solid rgba(176, 136, 80,0.25)', marginBottom: 24 }}>
+              <Zap size={14} color="#b08850" />
+              <span style={{ color: '#b08850', fontSize: 13, fontWeight: 600 }}>AI-Powered Music Experience</span>
             </div>
 
             <h1 className="landing-hero-title">
               Your{' '}
-              <span style={{ background: 'linear-gradient(135deg, #1db954, #10b981)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+              <span style={{ background: 'linear-gradient(135deg, #b08850, #10b981)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                 Universe
               </span>
               <br />
@@ -359,9 +359,9 @@ export default function LandingPage() {
                 <motion.button
                   whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
                   style={{
-                    padding: '16px 36px', borderRadius: 100, background: '#1db954', color: '#000',
+                    padding: '16px 36px', borderRadius: 100, background: '#b08850', color: '#000',
                     fontWeight: 800, fontSize: 16, cursor: 'pointer', border: 'none', display: 'flex',
-                    alignItems: 'center', gap: 8, boxShadow: '0 0 30px rgba(29, 185, 84,0.4)',
+                    alignItems: 'center', gap: 8, boxShadow: '0 0 30px rgba(176, 136, 80,0.4)',
                     fontFamily: 'Outfit, sans-serif',
                   }}>
                   Get Started Free <ChevronRight size={18} />
@@ -385,7 +385,7 @@ export default function LandingPage() {
             <div className="landing-hero-stats" style={{ display: 'flex', gap: 32 }}>
               {stats.map((s, i) => (
                 <div key={s.label}>
-                  <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 28, fontWeight: 900, color: '#1db954', lineHeight: 1 }}>{s.value}</p>
+                  <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 28, fontWeight: 900, color: '#b08850', lineHeight: 1 }}>{s.value}</p>
                   <p style={{ color: '#525252', fontSize: 12, marginTop: 2 }}>{s.label}</p>
                 </div>
               ))}
@@ -409,7 +409,7 @@ export default function LandingPage() {
                   border: '1px solid rgba(255,255,255,0.12)', borderRadius: 16,
                   padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 8,
                 }}>
-                <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#1db954', animation: 'pulse 1.5s ease-in-out infinite' }} />
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#b08850', animation: 'pulse 1.5s ease-in-out infinite' }} />
                 <span style={{ fontSize: 12, fontWeight: 600, color: '#fff' }}>Now Playing</span>
               </motion.div>
 
@@ -437,7 +437,7 @@ export default function LandingPage() {
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   transition: 'background 0.2s', zIndex: 10,
                 }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(29, 185, 84,0.3)')}
+                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(176, 136, 80,0.3)')}
                 onMouseLeave={e => (e.currentTarget.style.background = 'rgba(0,0,0,0.6)')}>
                 {isPlaying ? <Pause size={20} fill="white" color="white" /> : <Play size={20} fill="white" color="white" className="translate-x-0.5" />}
               </button>
@@ -472,7 +472,7 @@ export default function LandingPage() {
             style={{ textAlign: 'center', marginBottom: 64 }}>
             <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 56, fontWeight: 900, marginBottom: 16, letterSpacing: '-1px' }}>
               Everything music.{' '}
-              <span style={{ background: 'linear-gradient(135deg, #1db954, #10b981)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+              <span style={{ background: 'linear-gradient(135deg, #b08850, #10b981)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                 Nothing less.
               </span>
             </h2>
@@ -509,26 +509,26 @@ export default function LandingPage() {
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{
             borderRadius: 28, padding: '60px 64px', position: 'relative', overflow: 'hidden',
-            background: 'linear-gradient(135deg, rgba(29, 185, 84,0.15) 0%, rgba(16, 185, 129,0.15) 100%)',
-            border: '1px solid rgba(29, 185, 84,0.2)',
+            background: 'linear-gradient(135deg, rgba(176, 136, 80,0.15) 0%, rgba(16, 185, 129,0.15) 100%)',
+            border: '1px solid rgba(176, 136, 80,0.2)',
           }}>
-            <div style={{ position: 'absolute', top: -60, right: -60, width: 300, height: 300, borderRadius: '50%', background: 'rgba(29, 185, 84,0.1)', filter: 'blur(60px)' }} />
+            <div style={{ position: 'absolute', top: -60, right: -60, width: 300, height: 300, borderRadius: '50%', background: 'rgba(176, 136, 80,0.1)', filter: 'blur(60px)' }} />
             <div className="landing-artist-grid">
               <div>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(29, 185, 84,0.15)', border: '1px solid rgba(29, 185, 84,0.3)', borderRadius: 100, padding: '6px 14px', marginBottom: 20 }}>
-                  <Award size={14} color="#1db954" />
-                  <span style={{ color: '#1db954', fontSize: 12, fontWeight: 600 }}>ARTIST PLATFORM</span>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(176, 136, 80,0.15)', border: '1px solid rgba(176, 136, 80,0.3)', borderRadius: 100, padding: '6px 14px', marginBottom: 20 }}>
+                  <Award size={14} color="#b08850" />
+                  <span style={{ color: '#b08850', fontSize: 12, fontWeight: 600 }}>ARTIST PLATFORM</span>
                 </div>
                 <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 44, fontWeight: 900, marginBottom: 16, letterSpacing: '-0.5px' }}>
                   Built for artists.<br />
-                  <span style={{ color: '#1db954' }}>Made to grow.</span>
+                  <span style={{ color: '#b08850' }}>Made to grow.</span>
                 </h2>
                 <p style={{ color: '#a3a3a3', fontSize: 16, lineHeight: 1.7, marginBottom: 32 }}>
                   Upload your music, track analytics, connect with fans, and monetize your art — all from one powerful dashboard.
                 </p>
                 <Link href="/register">
                   <button style={{
-                    padding: '14px 32px', borderRadius: 100, background: '#1db954', color: '#000',
+                    padding: '14px 32px', borderRadius: 100, background: '#b08850', color: '#000',
                     fontWeight: 700, fontSize: 15, cursor: 'pointer', border: 'none',
                     fontFamily: 'Outfit, sans-serif',
                   }}>
@@ -538,7 +538,7 @@ export default function LandingPage() {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {[
-                  { label: 'Monthly Streams', value: '2.4M', change: '+18%', color: '#1db954' },
+                  { label: 'Monthly Streams', value: '2.4M', change: '+18%', color: '#b08850' },
                   { label: 'New Followers', value: '12.8K', change: '+32%', color: '#10b981' },
                   { label: 'Revenue', value: '$4,280', change: '+24%', color: '#34d399' },
                 ].map(metric => (
@@ -577,15 +577,15 @@ export default function LandingPage() {
                 transition={{ delay: i * 0.1 }}
                 style={{
                   padding: 32, borderRadius: 24, display: 'flex', flexDirection: 'column',
-                  background: plan.highlighted ? 'rgba(29, 185, 84,0.08)' : 'rgba(255,255,255,0.04)',
-                  border: plan.highlighted ? '1px solid rgba(29, 185, 84,0.4)' : '1px solid rgba(255,255,255,0.08)',
-                  boxShadow: plan.highlighted ? '0 0 40px rgba(29, 185, 84,0.15)' : 'none',
+                  background: plan.highlighted ? 'rgba(176, 136, 80,0.08)' : 'rgba(255,255,255,0.04)',
+                  border: plan.highlighted ? '1px solid rgba(176, 136, 80,0.4)' : '1px solid rgba(255,255,255,0.08)',
+                  boxShadow: plan.highlighted ? '0 0 40px rgba(176, 136, 80,0.15)' : 'none',
                   position: 'relative',
                 }}>
                 {plan.highlighted && (
                   <div style={{
                     position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)',
-                    background: '#1db954', color: '#000', borderRadius: 100, padding: '4px 16px',
+                    background: '#b08850', color: '#000', borderRadius: 100, padding: '4px 16px',
                     fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap',
                   }}>Most Popular</div>
                 )}
@@ -598,7 +598,7 @@ export default function LandingPage() {
                 <ul style={{ listStyle: 'none', flex: 1, marginBottom: 28, display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {plan.features.slice(0, 5).map(f => (
                     <li key={f} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                      <Check size={15} color="#1db954" style={{ flexShrink: 0, marginTop: 1 }} />
+                      <Check size={15} color="#b08850" style={{ flexShrink: 0, marginTop: 1 }} />
                       <span style={{ color: '#a3a3a3', fontSize: 14 }}>{f}</span>
                     </li>
                   ))}
@@ -606,7 +606,7 @@ export default function LandingPage() {
                 <Link href="/register">
                   <button style={{
                     width: '100%', padding: '14px', borderRadius: 14,
-                    background: plan.highlighted ? '#1db954' : 'rgba(255,255,255,0.1)',
+                    background: plan.highlighted ? '#b08850' : 'rgba(255,255,255,0.1)',
                     color: plan.highlighted ? '#000' : '#fff',
                     fontWeight: 700, fontSize: 15, cursor: 'pointer', border: 'none',
                     fontFamily: 'Outfit, sans-serif', transition: 'opacity 0.2s',
@@ -665,7 +665,7 @@ export default function LandingPage() {
             initial={{ opacity: 0, scale: 0.97 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
             style={{
               borderRadius: 32, padding: '80px 60px', textAlign: 'center', position: 'relative', overflow: 'hidden',
-              background: 'linear-gradient(135deg, #1db954 0%, #16a34a 30%, #10b981 70%, #34d399 100%)',
+              background: 'linear-gradient(135deg, #b08850 0%, #16a34a 30%, #10b981 70%, #34d399 100%)',
             }}>
             <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)' }} />
             <div style={{ position: 'relative' }}>
@@ -715,7 +715,7 @@ export default function LandingPage() {
           </div>
           <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 28, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'linear-gradient(135deg, #1db954, #10b981)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'linear-gradient(135deg, #b08850, #10b981)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Music2 size={14} color="black" />
               </div>
               <span style={{ color: '#fff', fontWeight: 700, fontFamily: 'Outfit, sans-serif' }}>Beato</span>

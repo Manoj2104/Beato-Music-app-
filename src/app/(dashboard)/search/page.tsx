@@ -12,8 +12,9 @@ import { search, getSuggestions, SearchResult, SearchSuggestion, highlightMatch 
 import TrackCard from '@/components/music/TrackCard';
 import TopBar from '@/components/layout/TopBar';
 import { usePlaylistStore } from '@/store/playlistStore';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
-const G = '#1db954';
+const G = '#b08850';
 
 const BROWSE_GENRES = [
   { name: 'Pop', color: '#34d399', emoji: '🎤', image: 'https://images.unsplash.com/photo-1529518969858-8baa65152fc8?w=120&auto=format&fit=crop&q=80' },
@@ -51,8 +52,8 @@ function ArtistCard({ artist, small }: { artist: any; small?: boolean }) {
         🎤
       </div>
       <div style={{ textAlign: 'center' }}>
-        <p style={{ color: '#fff', fontSize: small ? 12 : 14, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 120 }}>{artist.name}</p>
-        <p style={{ color: '#737373', fontSize: 11 }}>Artist</p>
+        <p style={{ color: 'var(--color-ss-text-primary, #221a15)', fontSize: small ? 12 : 14, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 120 }}>{artist.name}</p>
+        <p style={{ color: 'var(--color-ss-text-muted, #87786c)', fontSize: 11 }}>Artist</p>
       </div>
     </Link>
   );
@@ -64,8 +65,8 @@ function AlbumCard({ album }: { album: any }) {
       <div style={{ width: '100%', paddingBottom: '100%', position: 'relative', borderRadius: 10, overflow: 'hidden', background: trackGradient(album.id) }}>
         <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28 }}>🎵</div>
       </div>
-      <p style={{ color: '#fff', fontSize: 13, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{album.title}</p>
-      <p style={{ color: '#737373', fontSize: 11 }}>{album.year} · {album.artistName}</p>
+      <p style={{ color: 'var(--color-ss-text-primary, #221a15)', fontSize: 13, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{album.title}</p>
+      <p style={{ color: 'var(--color-ss-text-muted, #87786c)', fontSize: 11 }}>{album.year} · {album.artistName}</p>
     </Link>
   );
 }
@@ -110,8 +111,8 @@ function PlaylistSearchCard({ playlist }: { playlist: any }) {
           </div>
         )}
       </div>
-      <p style={{ color: '#fff', fontSize: 13, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: 2 }}>{playlist.title}</p>
-      <p style={{ color: '#737373', fontSize: 11 }}>Playlist · {playlist.ownerName}</p>
+      <p style={{ color: 'var(--color-ss-text-primary, #221a15)', fontSize: 13, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: 2 }}>{playlist.title}</p>
+      <p style={{ color: 'var(--color-ss-text-muted, #87786c)', fontSize: 11 }}>Playlist · {playlist.ownerName}</p>
     </Link>
   );
 }
@@ -121,8 +122,8 @@ function TopResult({ topResult, onPlay }: { topResult: SearchResult['topResult']
   const item = topResult.item as any;
 
   return (
-    <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: 14, padding: 20, border: '1px solid rgba(255,255,255,0.08)' }}>
-      <p style={{ color: '#737373', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 14 }}>Top Result</p>
+    <div style={{ background: 'var(--color-ss-elevated, #ffffff)', borderRadius: 14, padding: 20, border: '1px solid var(--color-ss-border, rgba(43,34,26,0.08))', boxShadow: '0 4px 15px rgba(43, 34, 26, 0.02)' }}>
+      <p style={{ color: 'var(--color-ss-text-muted, #87786c)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 14 }}>Top Result</p>
       <div style={{ display: 'flex', gap: 16, alignItems: 'flex-end' }}>
         <Link href={topResult.type === 'artist' ? `/artist/${item.id}` : topResult.type === 'album' ? `/album/${item.id}` : '#'}
           onClick={e => { if (topResult.type === 'track') e.preventDefault(); }}
@@ -130,7 +131,7 @@ function TopResult({ topResult, onPlay }: { topResult: SearchResult['topResult']
           <div style={{
             width: 90, height: 90, borderRadius: topResult.type === 'artist' ? '50%' : 12,
             background: trackGradient(item.id), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36,
-            flexShrink: 0, boxShadow: '0 8px 24px rgba(0,0,0,0.4)', cursor: topResult.type === 'track' ? 'default' : 'pointer'
+            flexShrink: 0, boxShadow: '0 8px 24px rgba(43,34,26,0.06)', cursor: topResult.type === 'track' ? 'default' : 'pointer'
           }}>
             {topResult.type === 'artist' ? '🎤' : '🎵'}
           </div>
@@ -138,48 +139,48 @@ function TopResult({ topResult, onPlay }: { topResult: SearchResult['topResult']
         <div>
           {topResult.type === 'artist' || topResult.type === 'album' ? (
             <Link href={topResult.type === 'artist' ? `/artist/${item.id}` : `/album/${item.id}`} style={{ textDecoration: 'none' }}>
-              <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 24, fontWeight: 900, color: '#fff', marginBottom: 4, cursor: 'pointer' }}
+              <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 24, fontWeight: 900, color: 'var(--color-ss-text-primary, #221a15)', marginBottom: 4, cursor: 'pointer' }}
                 onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'}
                 onMouseLeave={e => e.currentTarget.style.textDecoration = 'none'}>
                 {item.name || item.title}
               </p>
             </Link>
           ) : (
-            <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 24, fontWeight: 900, color: '#fff', marginBottom: 4 }}>{item.name || item.title}</p>
+            <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 24, fontWeight: 900, color: 'var(--color-ss-text-primary, #221a15)', marginBottom: 4 }}>{item.name || item.title}</p>
           )}
-          <p style={{ color: '#737373', fontSize: 13 }}>
+          <p style={{ color: 'var(--color-ss-text-muted, #87786c)', fontSize: 13 }}>
             {topResult.type === 'track' ? (
               <span>
                 Song ·{' '}
-                <Link href={`/artist/${item.artistId}`} style={{ color: '#737373', textDecoration: 'none' }}
-                  onMouseEnter={e => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.textDecoration = 'underline'; }}
-                  onMouseLeave={e => { e.currentTarget.style.color = '#737373'; e.currentTarget.style.textDecoration = 'none'; }}>
+                <Link href={`/artist/${item.artistId}`} style={{ color: 'var(--color-ss-text-muted, #87786c)', textDecoration: 'none' }}
+                  onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-ss-text-primary, #221a15)'; e.currentTarget.style.textDecoration = 'underline'; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-ss-text-muted, #87786c)'; e.currentTarget.style.textDecoration = 'none'; }}>
                   {item.artistName}
                 </Link>
               </span>
             ) :
              topResult.type === 'artist' ? (
-              <span>
-                Artist ·{' '}
-                <Link href={`/artist/${item.id}`} style={{ color: '#737373', textDecoration: 'none' }}
-                  onMouseEnter={e => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.textDecoration = 'underline'; }}
-                  onMouseLeave={e => { e.currentTarget.style.color = '#737373'; e.currentTarget.style.textDecoration = 'none'; }}>
-                  {(item.monthlyListeners / 1_000_000).toFixed(1)}M listeners
-                </Link>
-              </span>
+               <span>
+                 Artist ·{' '}
+                 <Link href={`/artist/${item.id}`} style={{ color: 'var(--color-ss-text-muted, #87786c)', textDecoration: 'none' }}
+                   onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-ss-text-primary, #221a15)'; e.currentTarget.style.textDecoration = 'underline'; }}
+                   onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-ss-text-muted, #87786c)'; e.currentTarget.style.textDecoration = 'none'; }}>
+                   {(item.monthlyListeners / 1_000_000).toFixed(1)}M listeners
+                 </Link>
+               </span>
              ) :
              topResult.type === 'album' ? (
-              <span>
-                Album ·{' '}
-                <Link href={`/artist/${item.artistId}`} style={{ color: '#737373', textDecoration: 'none' }}
-                  onMouseEnter={e => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.textDecoration = 'underline'; }}
-                  onMouseLeave={e => { e.currentTarget.style.color = '#737373'; e.currentTarget.style.textDecoration = 'none'; }}>
-                  {item.artistName}
-                </Link>
-              </span>
+               <span>
+                 Album ·{' '}
+                 <Link href={`/artist/${item.artistId}`} style={{ color: 'var(--color-ss-text-muted, #87786c)', textDecoration: 'none' }}
+                   onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-ss-text-primary, #221a15)'; e.currentTarget.style.textDecoration = 'underline'; }}
+                   onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-ss-text-muted, #87786c)'; e.currentTarget.style.textDecoration = 'none'; }}>
+                   {item.artistName}
+                 </Link>
+               </span>
              ) : 'Playlist'}
           </p>
-          <button onClick={onPlay} style={{ marginTop: 14, width: 44, height: 44, borderRadius: '50%', background: G, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 14px rgba(29, 185, 84,0.4)' }}>
+          <button onClick={onPlay} style={{ marginTop: 14, width: 44, height: 44, borderRadius: '50%', background: G, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 4px 14px rgba(176,136,80,0.4)` }}>
             <Play size={18} fill="black" color="black" />
           </button>
         </div>
@@ -212,15 +213,18 @@ export default function SearchPage() {
   const { user, setMobileDrawerOpen } = useAuthStore();
   const { customPlaylists } = usePlaylistStore();
   const allTracks = getAllTracks();
-  const [isMobile, setIsMobile] = useState(false);
+  const isMobile = useIsMobile(); // ⚡ shared single resize listener
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
+    const el = document.querySelector('.app-main');
+    if (!el) return;
+    const handler = () => {
+      setScrolled(el.scrollTop > 5);
     };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    el.addEventListener('scroll', handler, { passive: true });
+    handler(); // initial check
+    return () => el.removeEventListener('scroll', handler);
   }, []);
 
   // Debounce search
@@ -254,23 +258,24 @@ export default function SearchPage() {
   const FILTERS = ['all', 'songs', 'artists', 'albums', 'playlists'] as const;
 
   return (
-    <div style={{ minHeight: '100%', background: '#0a0a0a', padding: isMobile ? '0 16px 32px' : '20px 24px' }}>
+    <div style={{ minHeight: '100%', background: 'var(--color-ss-bg, #fbf9f5)', padding: isMobile ? '0 16px 32px' : '20px 24px' }}>
       {isMobile ? (
         <div style={{
           position: 'sticky',
           top: 0,
           zIndex: 50,
-          background: '#0a0a0a',
-          paddingTop: 'calc(env(safe-area-inset-top, 24px) + 12px)',
+          background: scrolled ? 'rgba(251, 249, 245, 0.85)' : 'var(--color-ss-bg, #fbf9f5)',
+          backdropFilter: scrolled ? 'blur(20px)' : 'none',
+          WebkitBackdropFilter: scrolled ? 'blur(20px)' : 'none',
+          borderBottom: scrolled ? '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))' : '1px solid transparent',
+          paddingTop: 'calc(var(--sat, 0px) + 20px)',
           paddingBottom: '16px',
-          marginLeft: '-16px',
-          marginRight: '-16px',
+          margin: '0 -16px 16px -16px',
           paddingLeft: '16px',
           paddingRight: '16px',
-          borderBottom: '1px solid rgba(255,255,255,0.05)',
-          marginBottom: '20px'
+          transition: 'background-color 0.25s, border-color 0.25s, backdrop-filter 0.25s',
         }}>
-          {/* Header Row */}
+          {/* Header */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
             {/* User Profile Avatar */}
             <div
@@ -279,7 +284,7 @@ export default function SearchPage() {
                 width: 32,
                 height: 32,
                 borderRadius: '50%',
-                background: '#1db954', // Green circle
+                background: 'var(--color-ss-primary, #b08850)',
                 color: '#fff',
                 display: 'flex',
                 alignItems: 'center',
@@ -292,14 +297,14 @@ export default function SearchPage() {
             >
               {user?.name ? user.name[0].toUpperCase() : 'M'}
             </div>
-            <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 24, fontWeight: 900, color: '#fff', margin: 0 }}>Search</h1>
-            <Camera size={22} color="#fff" style={{ cursor: 'pointer', marginLeft: 'auto' }} />
+            <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 24, fontWeight: 900, color: 'var(--color-ss-text-primary, #221a15)' }}>Search</h1>
+            <Camera size={22} color="var(--color-ss-text-primary, #221a15)" style={{ cursor: 'pointer', marginLeft: 'auto' }} />
           </div>
 
-          {/* Search bar inside sticky container */}
+          {/* Search bar */}
           <div style={{ position: 'relative', maxWidth: 680, margin: '0 auto' }}>
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-              <Search size={18} color={'#525252'} style={{ position: 'absolute', left: 16, flexShrink: 0 }} />
+              <Search size={18} color='#525252' style={{ position: 'absolute', left: 16, flexShrink: 0 }} />
               <input
                 value={query}
                 onChange={e => { setQuery(e.target.value); setShowSuggestions(true); }}
@@ -307,6 +312,7 @@ export default function SearchPage() {
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
                 placeholder="What do you want to listen to?"
                 autoFocus
+                suppressHydrationWarning
                 style={{
                   width: '100%',
                   background: '#fff',
@@ -317,11 +323,12 @@ export default function SearchPage() {
                   fontSize: 14.5,
                   outline: 'none',
                   fontFamily: 'Inter, sans-serif',
+                  transition: 'border-color 0.2s',
                 }}
               />
               {query && (
                 <button onClick={() => { setQuery(''); setResults(null); setSuggestions([]); }}
-                  style={{ position: 'absolute', right: 16, background: 'none', border: 'none', cursor: 'pointer', color: '#737373', display: 'flex', alignItems: 'center' }}>
+                  style={{ position: 'absolute', right: 16, background: 'none', border: 'none', cursor: 'pointer', color: '#000', display: 'flex', alignItems: 'center' }}>
                   <X size={18} />
                 </button>
               )}
@@ -331,20 +338,20 @@ export default function SearchPage() {
             <AnimatePresence>
               {showSuggestions && suggestions.length > 0 && (
                 <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-                  style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0, background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, zIndex: 100, overflow: 'hidden', boxShadow: '0 12px 40px rgba(0,0,0,0.6)' }}>
+                  style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0, background: 'var(--color-ss-elevated, #ffffff)', border: '1px solid var(--color-ss-border, rgba(43,34,26,0.08))', borderRadius: 14, zIndex: 100, overflow: 'hidden', boxShadow: '0 12px 40px rgba(43,34,26,0.06)' }}>
                   {suggestions.map(s => {
                     const href = s.type === 'artist' ? `/artist/${s.id}` : s.type === 'album' ? `/album/${s.id}` : `/search?q=${encodeURIComponent(s.text)}`;
                     return (
                       <Link key={`${s.type}-${s.id}`} href={href} style={{ textDecoration: 'none' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', cursor: 'pointer', transition: 'background 0.15s' }}
-                          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
+                          onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-ss-surface, #f4eede)')}
                           onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
-                          <div style={{ width: 32, height: 32, borderRadius: s.type === 'artist' ? '50%' : 6, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                            {s.type === 'artist' ? <User size={14} color="#a3a3a3" /> : s.type === 'album' ? <Disc size={14} color="#a3a3a3" /> : <Music size={14} color="#a3a3a3" />}
+                          <div style={{ width: 32, height: 32, borderRadius: s.type === 'artist' ? '50%' : 6, background: 'var(--color-ss-surface, #f4eede)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            {s.type === 'artist' ? <User size={14} color="var(--color-ss-text-muted, #87786c)" /> : s.type === 'album' ? <Disc size={14} color="var(--color-ss-text-muted, #87786c)" /> : <Music size={14} color="var(--color-ss-text-muted, #87786c)" />}
                           </div>
                           <div>
-                            <p style={{ color: '#fff', fontSize: 14, fontWeight: 500 }}>{s.text}</p>
-                            {s.subtitle && <p style={{ color: '#737373', fontSize: 11 }}>{s.subtitle}</p>}
+                            <p style={{ color: 'var(--color-ss-text-primary, #221a15)', fontSize: 14, fontWeight: 500 }}>{s.text}</p>
+                            {s.subtitle && <p style={{ color: 'var(--color-ss-text-muted, #87786c)', fontSize: 11 }}>{s.subtitle}</p>}
                           </div>
                           <Search size={12} color="#525252" style={{ marginLeft: 'auto' }} />
                         </div>
@@ -362,7 +369,7 @@ export default function SearchPage() {
           {/* Search bar */}
           <div style={{ position: 'relative', maxWidth: 680, margin: '0 auto 28px' }}>
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-              <Search size={18} color={query ? '#fff' : '#737373'} style={{ position: 'absolute', left: 16, flexShrink: 0 }} />
+              <Search size={18} color={query ? 'var(--color-ss-text-primary, #221a15)' : 'var(--color-ss-text-muted, #87786c)'} style={{ position: 'absolute', left: 16, flexShrink: 0 }} />
               <input
                 value={query}
                 onChange={e => { setQuery(e.target.value); setShowSuggestions(true); }}
@@ -370,13 +377,14 @@ export default function SearchPage() {
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
                 placeholder="What do you want to listen to?"
                 autoFocus
+                suppressHydrationWarning
                 style={{
                   width: '100%',
-                  background: 'rgba(255,255,255,0.1)',
-                  border: `2px solid ${query ? G : 'transparent'}`,
+                  background: 'var(--color-ss-elevated, #ffffff)',
+                  border: `1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))`,
                   borderRadius: 30,
                   padding: '14px 48px 14px 48px',
-                  color: '#fff',
+                  color: 'var(--color-ss-text-primary, #221a15)',
                   fontSize: 14.5,
                   outline: 'none',
                   fontFamily: 'Inter, sans-serif',
@@ -385,7 +393,7 @@ export default function SearchPage() {
               />
               {query && (
                 <button onClick={() => { setQuery(''); setResults(null); setSuggestions([]); }}
-                  style={{ position: 'absolute', right: 16, background: 'none', border: 'none', cursor: 'pointer', color: '#737373', display: 'flex', alignItems: 'center' }}>
+                  style={{ position: 'absolute', right: 16, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-ss-text-muted, #87786c)', display: 'flex', alignItems: 'center' }}>
                   <X size={18} />
                 </button>
               )}
@@ -395,20 +403,20 @@ export default function SearchPage() {
             <AnimatePresence>
               {showSuggestions && suggestions.length > 0 && (
                 <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-                  style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0, background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, zIndex: 100, overflow: 'hidden', boxShadow: '0 12px 40px rgba(0,0,0,0.6)' }}>
+                  style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0, background: 'var(--color-ss-elevated, #ffffff)', border: '1px solid var(--color-ss-border, rgba(43,34,26,0.08))', borderRadius: 14, zIndex: 100, overflow: 'hidden', boxShadow: '0 12px 40px rgba(43,34,26,0.06)' }}>
                   {suggestions.map(s => {
                     const href = s.type === 'artist' ? `/artist/${s.id}` : s.type === 'album' ? `/album/${s.id}` : `/search?q=${encodeURIComponent(s.text)}`;
                     return (
                       <Link key={`${s.type}-${s.id}`} href={href} style={{ textDecoration: 'none' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', cursor: 'pointer', transition: 'background 0.15s' }}
-                          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
+                          onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-ss-surface, #f4eede)')}
                           onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
-                          <div style={{ width: 32, height: 32, borderRadius: s.type === 'artist' ? '50%' : 6, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                            {s.type === 'artist' ? <User size={14} color="#a3a3a3" /> : s.type === 'album' ? <Disc size={14} color="#a3a3a3" /> : <Music size={14} color="#a3a3a3" />}
+                          <div style={{ width: 32, height: 32, borderRadius: s.type === 'artist' ? '50%' : 6, background: 'var(--color-ss-surface, #f4eede)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            {s.type === 'artist' ? <User size={14} color="var(--color-ss-text-muted, #87786c)" /> : s.type === 'album' ? <Disc size={14} color="var(--color-ss-text-muted, #87786c)" /> : <Music size={14} color="var(--color-ss-text-muted, #87786c)" />}
                           </div>
                           <div>
-                            <p style={{ color: '#fff', fontSize: 14, fontWeight: 500 }}>{s.text}</p>
-                            {s.subtitle && <p style={{ color: '#737373', fontSize: 11 }}>{s.subtitle}</p>}
+                            <p style={{ color: 'var(--color-ss-text-primary, #221a15)', fontSize: 14, fontWeight: 500 }}>{s.text}</p>
+                            {s.subtitle && <p style={{ color: 'var(--color-ss-text-muted, #87786c)', fontSize: 11 }}>{s.subtitle}</p>}
                           </div>
                           <Search size={12} color="#525252" style={{ marginLeft: 'auto' }} />
                         </div>
@@ -427,9 +435,10 @@ export default function SearchPage() {
         <div style={{ display: 'flex', gap: 8, marginBottom: 24, overflowX: 'auto' }}>
           {FILTERS.map(f => (
             <button key={f} onClick={() => setActiveFilter(f)} style={{
-              padding: '7px 16px', borderRadius: 100, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: 'none', whiteSpace: 'nowrap',
-              background: activeFilter === f ? '#fff' : 'rgba(255,255,255,0.1)',
-              color: activeFilter === f ? '#000' : '#fff', transition: 'all 0.15s',
+              padding: '7px 16px', borderRadius: 100, fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap',
+              background: activeFilter === f ? 'var(--color-ss-text-primary, #221a15)' : 'var(--color-ss-elevated, #ffffff)',
+              border: activeFilter === f ? '1px solid transparent' : '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
+              color: activeFilter === f ? 'var(--color-ss-elevated, #ffffff)' : 'var(--color-ss-text-primary, #221a15)', transition: 'all 0.15s',
             }}>
               {f.charAt(0).toUpperCase() + f.slice(1)}
             </button>
@@ -453,8 +462,8 @@ export default function SearchPage() {
                     }
                   }} />
                 )}
-                <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 14, padding: '16px 4px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <p style={{ color: '#737373', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10, paddingLeft: 14 }}>Songs</p>
+                <div style={{ background: 'var(--color-ss-elevated, #ffffff)', borderRadius: 14, padding: '16px 4px', border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))', boxShadow: '0 4px 15px rgba(43, 34, 26, 0.02)' }}>
+                  <p style={{ color: 'var(--color-ss-text-muted, #87786c)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10, paddingLeft: 14 }}>Songs</p>
                   {results.tracks.slice(0, 5).map((track, i) => (
                     <TrackCard key={track.id} track={track} index={i} queue={results.tracks} compact />
                   ))}
@@ -465,7 +474,7 @@ export default function SearchPage() {
             {/* Artists */}
             {(activeFilter === 'all' || activeFilter === 'artists') && results.artists.length > 0 && (
               <section style={{ marginBottom: 32 }}>
-                <h3 style={{ fontFamily: 'Outfit, sans-serif', color: '#fff', fontSize: 18, fontWeight: 800, marginBottom: 18 }}>Artists</h3>
+                <h3 style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--color-ss-text-primary, #221a15)', fontSize: 18, fontWeight: 800, marginBottom: 18 }}>Artists</h3>
                 <div style={{ display: 'flex', gap: 24, overflowX: 'auto', paddingBottom: 8 }}>
                   {results.artists.map(a => <ArtistCard key={a.id} artist={a} />)}
                 </div>
@@ -475,7 +484,7 @@ export default function SearchPage() {
             {/* Albums */}
             {(activeFilter === 'all' || activeFilter === 'albums') && results.albums.length > 0 && (
               <section style={{ marginBottom: 32 }}>
-                <h3 style={{ fontFamily: 'Outfit, sans-serif', color: '#fff', fontSize: 18, fontWeight: 800, marginBottom: 18 }}>Albums</h3>
+                <h3 style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--color-ss-text-primary, #221a15)', fontSize: 18, fontWeight: 800, marginBottom: 18 }}>Albums</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(160px, 1fr))', gap: 16 }}>
                   {results.albums.map(a => <AlbumCard key={a.id} album={a} />)}
                 </div>
@@ -485,7 +494,7 @@ export default function SearchPage() {
             {/* Playlists */}
             {(activeFilter === 'all' || activeFilter === 'playlists') && results.playlists.length > 0 && (
               <section style={{ marginBottom: 32 }}>
-                <h3 style={{ fontFamily: 'Outfit, sans-serif', color: '#fff', fontSize: 18, fontWeight: 800, marginBottom: 18 }}>Playlists</h3>
+                <h3 style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--color-ss-text-primary, #221a15)', fontSize: 18, fontWeight: 800, marginBottom: 18 }}>Playlists</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(160px, 1fr))', gap: 16 }}>
                   {results.playlists.map(p => <PlaylistSearchCard key={p.id} playlist={p} />)}
                 </div>
@@ -495,7 +504,7 @@ export default function SearchPage() {
             {/* More songs */}
             {activeFilter === 'songs' && results.tracks.length > 5 && (
               <section>
-                <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ background: 'var(--color-ss-elevated, #ffffff)', borderRadius: 14, overflow: 'hidden', border: '1px solid var(--color-ss-border, rgba(43,34,26,0.08))' }}>
                   {results.tracks.slice(5).map((track, i) => (
                     <TrackCard key={track.id} track={track} index={i + 5} queue={results.tracks} />
                   ))}
@@ -507,8 +516,8 @@ export default function SearchPage() {
             {results.tracks.length === 0 && results.artists.length === 0 && results.albums.length === 0 && results.playlists.length === 0 && (
               <div style={{ textAlign: 'center', padding: '60px 20px' }}>
                 <p style={{ fontSize: 48, marginBottom: 16 }}>🔍</p>
-                <h3 style={{ fontFamily: 'Outfit, sans-serif', color: '#fff', fontSize: 22, fontWeight: 800, marginBottom: 8 }}>No results for "{query}"</h3>
-                <p style={{ color: '#737373', fontSize: 14 }}>Try different keywords or check for typos</p>
+                <h3 style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--color-ss-text-primary, #221a15)', fontSize: 22, fontWeight: 800, marginBottom: 8 }}>No results for "{query}"</h3>
+                <p style={{ color: 'var(--color-ss-text-muted, #87786c)', fontSize: 14 }}>Try different keywords or check for typos</p>
               </div>
             )}
           </motion.div>
@@ -520,7 +529,7 @@ export default function SearchPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
               {/* Start browsing */}
               <div>
-                <h2 style={{ fontFamily: 'Outfit, sans-serif', color: '#fff', fontSize: 18, fontWeight: 800, marginBottom: 12 }}>Start browsing</h2>
+                <h2 style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--color-ss-text-primary, #221a15)', fontSize: 18, fontWeight: 800, marginBottom: 12 }}>Start browsing</h2>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
                   {[
                     { name: 'Music', color: '#eb1e32', image: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=120&auto=format&fit=crop&q=80' },
@@ -541,37 +550,37 @@ export default function SearchPage() {
 
               {/* Advertisement */}
               <div style={{
-                background: '#121212',
-                border: '1px solid rgba(255,255,255,0.06)',
+                background: 'var(--color-ss-elevated, #ffffff)',
+                border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
                 borderRadius: 12,
                 padding: '16px 20px',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 12,
-                boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                boxShadow: '0 4px 12px rgba(43,34,26,0.02)',
                 margin: '8px 0'
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <div style={{ padding: '2px 6px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 3, fontSize: 9, fontWeight: 700, color: '#a3a3a3', letterSpacing: '0.05em' }}>ADVERTISEMENT</div>
-                    <span style={{ fontSize: 11, color: '#fff', fontWeight: 800 }}>ICICI LOMBARD</span>
+                    <div style={{ padding: '2px 6px', background: 'var(--color-ss-surface, #f4eede)', border: '1px solid var(--color-ss-border, rgba(43,34,26,0.08))', borderRadius: 3, fontSize: 9, fontWeight: 700, color: 'var(--color-ss-text-muted, #87786c)', letterSpacing: '0.05em' }}>ADVERTISEMENT</div>
+                    <span style={{ fontSize: 11, color: 'var(--color-ss-text-primary, #221a15)', fontWeight: 800 }}>ICICI LOMBARD</span>
                   </div>
-                  <span style={{ fontSize: 14, color: '#737373', cursor: 'pointer' }}>⋮</span>
+                  <span style={{ fontSize: 14, color: 'var(--color-ss-text-muted, #87786c)', cursor: 'pointer' }}>⋮</span>
                 </div>
                 <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
-                  <div style={{ width: 80, height: 80, borderRadius: 8, background: '#fff', display: 'flex', alignItems: 'center', justifyItems: 'center', overflow: 'hidden', flexShrink: 0 }}>
+                  <div style={{ width: 80, height: 80, borderRadius: 8, background: 'var(--color-ss-surface, #f4eede)', display: 'flex', alignItems: 'center', justifyItems: 'center', overflow: 'hidden', flexShrink: 0 }}>
                     <img src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=120&auto=format&fit=crop&q=80" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <h4 style={{ color: '#fff', fontSize: 13.5, fontWeight: 700, margin: '0 0 10px 0', lineHeight: '1.4' }}>30-minute roadside assistance promise</h4>
-                    <button style={{ background: '#fff', color: '#000', border: 'none', borderRadius: 20, padding: '6px 16px', fontSize: 11, fontWeight: 800, cursor: 'pointer', float: 'right' }}>Buy now</button>
+                    <h4 style={{ color: 'var(--color-ss-text-primary, #221a15)', fontSize: 13.5, fontWeight: 700, margin: '0 0 10px 0', lineHeight: '1.4' }}>30-minute roadside assistance promise</h4>
+                    <button style={{ background: 'var(--color-ss-text-primary, #221a15)', color: 'var(--color-ss-elevated, #ffffff)', border: 'none', borderRadius: 20, padding: '6px 16px', fontSize: 11, fontWeight: 800, cursor: 'pointer', float: 'right' }}>Buy now</button>
                   </div>
                 </div>
               </div>
 
               {/* Discover something new */}
               <div>
-                <h2 style={{ fontFamily: 'Outfit, sans-serif', color: '#fff', fontSize: 18, fontWeight: 800, marginBottom: 12 }}>Discover something new</h2>
+                <h2 style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--color-ss-text-primary, #221a15)', fontSize: 18, fontWeight: 800, marginBottom: 12 }}>Discover something new</h2>
                 <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 6 }} className="no-scrollbar">
                   {[
                     { tag: '#tamil dance', image: 'https://images.unsplash.com/photo-1519834785169-98be25ec3f84?w=200&auto=format&fit=crop&q=80' },
@@ -591,7 +600,7 @@ export default function SearchPage() {
 
               {/* Browse all */}
               <div>
-                <h2 style={{ fontFamily: 'Outfit, sans-serif', color: '#fff', fontSize: 18, fontWeight: 800, marginBottom: 12 }}>Browse all</h2>
+                <h2 style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--color-ss-text-primary, #221a15)', fontSize: 18, fontWeight: 800, marginBottom: 12 }}>Browse all</h2>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
                   {BROWSE_GENRES.map(g => (
                     <motion.div key={g.name} whileTap={{ scale: 0.97 }}
@@ -603,7 +612,7 @@ export default function SearchPage() {
                       <p style={{ color: '#fff', fontWeight: 800, fontSize: 14, fontFamily: 'Outfit, sans-serif', margin: 0, position: 'relative', zIndex: 1 }}>{g.name}</p>
                       {g.image ? (
                         <div style={{ position: 'absolute', bottom: -5, right: -10, width: 52, height: 52, transform: 'rotate(25deg)', borderRadius: 4, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.4)', zIndex: 0 }}>
-                          <img src={g.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                           <img src={g.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         </div>
                       ) : (
                         <div style={{ position: 'absolute', bottom: -8, right: -4, fontSize: 36, opacity: 0.6, transform: 'rotate(15deg)', zIndex: 0 }}>{g.emoji}</div>
@@ -615,7 +624,7 @@ export default function SearchPage() {
             </div>
           ) : (
             <div>
-              <h2 style={{ fontFamily: 'Outfit, sans-serif', color: '#fff', fontSize: 20, fontWeight: 800, marginBottom: 18 }}>Browse Genres</h2>
+              <h2 style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--color-ss-text-primary, #221a15)', fontSize: 20, fontWeight: 800, marginBottom: 18 }}>Browse Genres</h2>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12 }}>
                 {BROWSE_GENRES.map(g => (
                   <motion.div key={g.name} whileHover={{ scale: 1.03 }}

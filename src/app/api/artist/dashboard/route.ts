@@ -161,7 +161,7 @@ export async function GET(request: NextRequest) {
       cityMap[key].streams++;
     });
 
-    const cityColors = ['#1db954', '#10b981', '#34d399', '#f59e0b', '#06b6d4', '#ef4444'];
+    const cityColors = ['#b08850', '#10b981', '#34d399', '#f59e0b', '#06b6d4', '#ef4444'];
     const geoHotspots = Object.values(cityMap).map((item, index) => ({
       city: item.city,
       country: item.country,

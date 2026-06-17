@@ -5,14 +5,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, X, Check, Music, TrendingUp, User, Star, Upload } from 'lucide-react';
 import { useNotificationStore, NotifType } from '@/store/notificationStore';
 
-const G = '#1db954';
+const G = '#b08850';
 
 const TYPE_CONFIG: Record<NotifType, { icon: any; color: string; bg: string }> = {
   new_release:    { icon: Music, color: '#10b981', bg: 'rgba(16,185,129,0.15)' },
   trending:       { icon: TrendingUp, color: '#f59e0b', bg: 'rgba(245,158,11,0.15)' },
   system:         { icon: Star, color: '#06b6d4', bg: 'rgba(6,182,212,0.15)' },
   new_follower:   { icon: User, color: '#34d399', bg: 'rgba(52,211,153,0.15)' },
-  upload_complete:{ icon: Upload, color: G, bg: 'rgba(29, 185, 84,0.15)' },
+  upload_complete:{ icon: Upload, color: G, bg: 'rgba(176, 136, 80,0.15)' },
   like:           { icon: Star, color: '#f97316', bg: 'rgba(249,115,22,0.15)' },
 };
 
@@ -42,19 +42,19 @@ export default function NotificationBell() {
       <button onClick={() => setOpen(o => !o)}
         style={{
           position: 'relative', width: 36, height: 36, borderRadius: '50%', border: 'none',
-          background: open ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.08)', cursor: 'pointer',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff',
+          background: open ? 'rgba(43,34,26,0.12)' : 'rgba(43,34,26,0.06)', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-ss-text-primary, #221a15)',
           transition: 'background 0.15s',
         }}
-        onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.15)')}
-        onMouseLeave={e => (e.currentTarget.style.background = open ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.08)')}>
+        onMouseEnter={e => (e.currentTarget.style.background = 'rgba(43,34,26,0.12)')}
+        onMouseLeave={e => (e.currentTarget.style.background = open ? 'rgba(43,34,26,0.12)' : 'rgba(43,34,26,0.06)')}>
         <Bell size={17} />
         {unreadCount > 0 && (
           <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}
             style={{
               position: 'absolute', top: -3, right: -3, width: unreadCount > 9 ? 20 : 16, height: 16,
               borderRadius: 8, background: G, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 9, fontWeight: 800, color: '#000', border: '2px solid #111',
+              fontSize: 9, fontWeight: 800, color: '#fff', border: '2px solid var(--color-ss-bg, #fbf9f5)',
             }}>
             {unreadCount > 99 ? '99+' : unreadCount}
           </motion.div>
@@ -66,12 +66,12 @@ export default function NotificationBell() {
           <motion.div initial={{ opacity: 0, y: -8, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8, scale: 0.96 }} transition={{ duration: 0.15 }}
             style={{
               position: 'absolute', top: 'calc(100% + 10px)', right: 0, width: 360,
-              background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16,
-              boxShadow: '0 16px 50px rgba(0,0,0,0.7)', zIndex: 1000, overflow: 'hidden',
+              background: 'var(--color-ss-elevated, #ffffff)', border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))', borderRadius: 16,
+              boxShadow: '0 12px 40px rgba(43, 34, 26, 0.08)', zIndex: 1000, overflow: 'hidden',
             }}>
             {/* Header */}
-            <div style={{ padding: '16px 18px 12px', borderBottom: '1px solid rgba(255,255,255,0.07)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <h3 style={{ color: '#fff', fontWeight: 800, fontSize: 15, fontFamily: 'Outfit, sans-serif' }}>
+            <div style={{ padding: '16px 18px 12px', borderBottom: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <h3 style={{ color: 'var(--color-ss-text-primary, #221a15)', fontWeight: 800, fontSize: 15, fontFamily: 'Outfit, sans-serif' }}>
                 Notifications {unreadCount > 0 && <span style={{ color: G, fontSize: 12 }}>({unreadCount} new)</span>}
               </h3>
               <div style={{ display: 'flex', gap: 8 }}>
@@ -80,7 +80,7 @@ export default function NotificationBell() {
                     Mark all read
                   </button>
                 )}
-                <button onClick={clearAll} style={{ fontSize: 11, color: '#525252', background: 'none', border: 'none', cursor: 'pointer' }}>
+                <button onClick={clearAll} style={{ fontSize: 11, color: 'var(--color-ss-text-muted, #87786c)', background: 'none', border: 'none', cursor: 'pointer' }}>
                   Clear all
                 </button>
               </div>
@@ -90,8 +90,8 @@ export default function NotificationBell() {
             <div style={{ maxHeight: 380, overflowY: 'auto' }}>
               {notifications.length === 0 ? (
                 <div style={{ padding: '40px 20px', textAlign: 'center' }}>
-                  <Bell size={32} color="#525252" style={{ margin: '0 auto 10px' }} />
-                  <p style={{ color: '#525252', fontSize: 13 }}>No notifications</p>
+                  <Bell size={32} color="var(--color-ss-text-muted, #87786c)" style={{ margin: '0 auto 10px' }} />
+                  <p style={{ color: 'var(--color-ss-text-muted, #87786c)', fontSize: 13 }}>No notifications</p>
                 </div>
               ) : (
                 notifications.map(n => {
@@ -102,18 +102,18 @@ export default function NotificationBell() {
                       onClick={() => markRead(n.id)}
                       style={{
                         display: 'flex', gap: 12, padding: '13px 18px', cursor: 'pointer',
-                        background: n.read ? 'transparent' : 'rgba(29, 185, 84,0.04)',
+                        background: n.read ? 'transparent' : 'rgba(176, 136, 80,0.04)',
                         borderLeft: n.read ? '3px solid transparent' : `3px solid ${G}`,
                         transition: 'background 0.15s',
                       }}
-                      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.04)')}
-                      onMouseLeave={e => (e.currentTarget.style.background = n.read ? 'transparent' : 'rgba(29, 185, 84,0.04)')}>
+                      onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-ss-surface, #f4eede)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = n.read ? 'transparent' : 'rgba(176, 136, 80,0.04)')}>
                       <div style={{ width: 36, height: 36, borderRadius: '50%', background: cfg?.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <Icon size={16} color={cfg?.color} />
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{ color: n.read ? '#a3a3a3' : '#fff', fontSize: 13, lineHeight: 1.4, fontWeight: n.read ? 400 : 500 }}>{n.message}</p>
-                        <p style={{ color: '#525252', fontSize: 11, marginTop: 4 }}>{relativeTime(n.timestamp)}</p>
+                        <p style={{ color: n.read ? 'var(--color-ss-text-muted, #87786c)' : 'var(--color-ss-text-primary, #221a15)', fontSize: 13, lineHeight: 1.4, fontWeight: n.read ? 400 : 500 }}>{n.message}</p>
+                        <p style={{ color: 'var(--color-ss-text-muted, #87786c)', fontSize: 11, marginTop: 4 }}>{relativeTime(n.timestamp)}</p>
                       </div>
                       {!n.read && <div style={{ width: 7, height: 7, borderRadius: '50%', background: G, marginTop: 5, flexShrink: 0 }} />}
                     </motion.div>

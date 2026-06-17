@@ -18,6 +18,7 @@ import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { WifiOff } from 'lucide-react';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const { syncFromServer } = useRealtimeStore();
@@ -29,7 +30,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
   const [showNowPlaying, setShowNowPlaying] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const isMobile = useIsMobile(); // ⚡ shared single resize listener
   const [isScrolled, setIsScrolled] = useState(false);
 
   // Automatically show Now Playing panel when a track starts playing
@@ -42,8 +43,14 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const showRightPanel = (showQueue || showLyrics || (showNowPlaying && !showQueue && !showLyrics)) && !!currentTrack;
 
   useEffect(() => {
-    initializeSession();
-    fetchTracks();
+    // ⚡ Throttle: only call initializeSession & fetchTracks once per browser tab session
+    const sessionKey = 'beato-layout-init';
+    const alreadyInit = typeof sessionStorage !== 'undefined' && sessionStorage.getItem(sessionKey);
+    if (!alreadyInit) {
+      if (typeof sessionStorage !== 'undefined') sessionStorage.setItem(sessionKey, '1');
+      initializeSession();
+      fetchTracks();
+    }
   }, []);
 
   useEffect(() => {
@@ -53,12 +60,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     }
   }, [user, token]);
 
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+
 
   useEffect(() => {
     const mainEl = document.getElementById('main-content');
@@ -78,23 +80,35 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    syncFromServer();
-    const realtimePoll = setInterval(syncFromServer, 15000);
+    // ⚡ Defer by 2s so page content renders first before background polling starts
+    const startDelay = setTimeout(() => {
+      syncFromServer();
+      const realtimePoll = setInterval(syncFromServer, 30000); // ⚡ 30s instead of 15s
 
-    // Wire socket notifications
-    if (socketManager) {
-      const unsubNewSong = socketManager.on('NEW_SONG', (track) => {
-        addNotification({ type: 'upload_complete', message: `🎵 New track: "${track.title}" by ${track.artistName}`, trackTitle: track.title });
-      });
-      const unsubNotif = socketManager.on('NOTIFICATION', (n) => {
-        addNotification(n);
-      });
-      return () => {
-        clearInterval(realtimePoll);
-        unsubNewSong(); unsubNotif();
-      };
-    }
-    return () => clearInterval(realtimePoll);
+      // Wire socket notifications
+      if (socketManager) {
+        const unsubNewSong = socketManager.on('NEW_SONG', (track) => {
+          addNotification({ type: 'upload_complete', message: `🎵 New track: "${track.title}" by ${track.artistName}`, trackTitle: track.title });
+        });
+        const unsubNotif = socketManager.on('NOTIFICATION', (n) => {
+          addNotification(n);
+        });
+        // Return cleanup inside the timeout callback — attach to outer ref
+        (window as any).__beatoRealtimeCleanup = () => {
+          clearInterval(realtimePoll);
+          unsubNewSong(); unsubNotif();
+        };
+      } else {
+        (window as any).__beatoRealtimeCleanup = () => clearInterval(realtimePoll);
+      }
+    }, 2000);
+
+    return () => {
+      clearTimeout(startDelay);
+      if (typeof window !== 'undefined' && (window as any).__beatoRealtimeCleanup) {
+        (window as any).__beatoRealtimeCleanup();
+      }
+    };
   }, [syncFromServer, addNotification]);
 
   const cleanPath = pathname ? pathname.split('?')[0].split('#')[0].replace(/\.html$/, '').replace(/\/$/, '') : '';
@@ -116,11 +130,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           top: 0,
           left: 0,
           right: 0,
-          height: 'env(safe-area-inset-top, 24px)',
-          background: isScrolled ? '#080808' : 'transparent',
+          height: 'var(--sat, 0px)',
+          background: isScrolled ? 'var(--color-ss-surface, #f4eede)' : 'transparent',
           zIndex: 9999,
           pointerEvents: 'none',
-          transition: 'background 0.25s ease-in-out',
+          transition: 'background 0.2s ease-in-out',
         }} />
       )}
       <Sidebar />
@@ -132,7 +146,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <div style={{
             position: 'absolute',
             inset: 0,
-            background: 'rgba(10, 10, 10, 0.65)',
+            background: 'rgba(251, 249, 245, 0.82)',
             backdropFilter: 'blur(16px)',
             WebkitBackdropFilter: 'blur(16px)',
             display: 'flex',
@@ -142,25 +156,25 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             textAlign: 'center',
             padding: '24px',
             zIndex: 999,
-            color: '#fff',
+            color: '#221a15',
             fontFamily: 'Outfit, sans-serif'
           }}>
             <WifiOff size={64} color="#ef4444" style={{ marginBottom: 20, opacity: 0.8 }} />
-            <h2 style={{ fontSize: 24, fontWeight: 900, marginBottom: 10 }}>You're Currently Offline</h2>
-            <p style={{ fontSize: 14, color: '#a3a3a3', maxWidth: 360, lineHeight: 1.6, marginBottom: 28 }}>
+            <h2 style={{ fontSize: 24, fontWeight: 900, marginBottom: 10, color: '#221a15' }}>You're Currently Offline</h2>
+            <p style={{ fontSize: 14, color: '#87786c', maxWidth: 360, lineHeight: 1.6, marginBottom: 28 }}>
               Connect to the internet to browse and stream millions of songs.
             </p>
             <Link href="/downloads" style={{ textDecoration: 'none' }}>
               <button style={{
-                background: '#1db954',
-                color: '#000',
+                background: 'var(--color-ss-primary, #b08850)',
+                color: '#fff',
                 border: 'none',
                 borderRadius: 30,
                 padding: '12px 32px',
                 fontSize: 14,
                 fontWeight: 800,
                 cursor: 'pointer',
-                boxShadow: '0 4px 14px rgba(29, 185, 84, 0.4)',
+                boxShadow: '0 4px 14px rgba(176, 136, 80, 0.35)',
                 transition: 'all 0.2s'
               }}
               onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.03)'}

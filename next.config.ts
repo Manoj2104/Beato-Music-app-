@@ -22,6 +22,7 @@ const getLocalIPs = () => {
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: getLocalIPs(),
+  devIndicators: false,
   images: {
     unoptimized: true,
     remotePatterns: [
@@ -40,8 +41,10 @@ const nextConfig: NextConfig = {
     ],
   },
   experimental: {
-    // Allow server actions
+    // ⚡ Tree-shake heavy icon/animation libraries → smaller JS bundles = faster loads
+    optimizePackageImports: ['lucide-react', 'framer-motion', 'recharts'],
   },
 };
 
 export default nextConfig;
+

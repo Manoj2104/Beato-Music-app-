@@ -11,7 +11,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useMusicStore, trackGradient } from '@/store/musicStore';
 import { formatDuration } from '@/lib/mockData';
 
-const GREEN = '#1db954';
+const GREEN = '#b08850';
 
 interface TrackCardProps {
   track: Track;
@@ -71,9 +71,9 @@ export default function TrackCard({ track, index, queue = [], showAlbum = true, 
     <div
       className={`track-card-row ${compact ? 'compact' : ''}`}
       style={{
-        background: isCurrentTrack ? 'rgba(255,255,255,0.08)' : 'transparent',
+        background: isCurrentTrack ? 'rgba(176, 136, 80, 0.08)' : 'transparent',
       }}
-      onMouseEnter={e => { setIsHovered(true); if (!isCurrentTrack) e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
+      onMouseEnter={e => { setIsHovered(true); if (!isCurrentTrack) e.currentTarget.style.background = 'rgba(43, 34, 26, 0.04)'; }}
       onMouseLeave={e => { setIsHovered(false); if (!isCurrentTrack) e.currentTarget.style.background = 'transparent'; }}
       onClick={handlePlay}>
 
@@ -82,7 +82,7 @@ export default function TrackCard({ track, index, queue = [], showAlbum = true, 
         {isHovered ? (
           isCurrentTrack && isPlaying
             ? <Pause size={14} color={GREEN} fill={GREEN} />
-            : <Play size={14} color="#fff" fill="#fff" />
+            : <Play size={14} color="#221a15" fill="#221a15" />
         ) : (
           isCurrentTrack && isPlaying ? (
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 14 }}>
@@ -91,7 +91,7 @@ export default function TrackCard({ track, index, queue = [], showAlbum = true, 
               ))}
             </div>
           ) : (
-            <span style={{ fontSize: 13, color: isCurrentTrack ? GREEN : '#737373' }}>{index !== undefined ? index + 1 : '•'}</span>
+            <span style={{ fontSize: 13, color: isCurrentTrack ? GREEN : '#87786c' }}>{index !== undefined ? index + 1 : '•'}</span>
           )
         )}
       </div>
@@ -108,7 +108,7 @@ export default function TrackCard({ track, index, queue = [], showAlbum = true, 
         alignItems: 'center',
         justifyContent: 'center',
         flexShrink: 0,
-        boxShadow: isCurrentTrack ? `0 0 12px rgba(29, 185, 84, 0.3)` : 'none'
+        boxShadow: isCurrentTrack ? `0 0 12px rgba(176, 136, 80, 0.3)` : 'none'
       }}>
         {displayImage ? (
           <img
@@ -124,14 +124,14 @@ export default function TrackCard({ track, index, queue = [], showAlbum = true, 
 
       {/* Title + Artist */}
       <div style={{ minWidth: 0 }}>
-        <p style={{ color: isCurrentTrack ? GREEN : '#fff', fontSize: 14.5, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <p style={{ color: isCurrentTrack ? GREEN : '#221a15', fontSize: 14.5, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {track.title}
-          {track.explicit && <span style={{ marginLeft: 6, fontSize: 9, background: 'rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.7)', padding: '1px 5px', borderRadius: 3 }}>E</span>}
+          {track.explicit && <span style={{ marginLeft: 6, fontSize: 9, background: 'rgba(43,34,26,0.08)', color: '#87786c', padding: '1px 5px', borderRadius: 3 }}>E</span>}
         </p>
         <Link href={`/artist/${track.artistId}`} onClick={e => e.stopPropagation()} style={{ textDecoration: 'none' }}>
-          <p style={{ color: '#737373', fontSize: 12.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 1 }}
-            onMouseEnter={e => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.textDecoration = 'underline'; }}
-            onMouseLeave={e => { e.currentTarget.style.color = '#737373'; e.currentTarget.style.textDecoration = 'none'; }}>
+          <p style={{ color: '#87786c', fontSize: 12.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 1 }}
+            onMouseEnter={e => { e.currentTarget.style.color = '#221a15'; e.currentTarget.style.textDecoration = 'underline'; }}
+            onMouseLeave={e => { e.currentTarget.style.color = '#87786c'; e.currentTarget.style.textDecoration = 'none'; }}>
             {track.artistName}
           </p>
         </Link>
@@ -140,9 +140,9 @@ export default function TrackCard({ track, index, queue = [], showAlbum = true, 
       {/* Album */}
       {showAlbum && !compact && (
         <Link className="track-card-album" href={`/album/${track.albumId}`} onClick={e => e.stopPropagation()} style={{ textDecoration: 'none' }}>
-          <p style={{ color: '#737373', fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-            onMouseEnter={e => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.textDecoration = 'underline'; }}
-            onMouseLeave={e => { e.currentTarget.style.color = '#737373'; e.currentTarget.style.textDecoration = 'none'; }}>
+          <p style={{ color: '#87786c', fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+            onMouseEnter={e => { e.currentTarget.style.color = '#221a15'; e.currentTarget.style.textDecoration = 'underline'; }}
+            onMouseLeave={e => { e.currentTarget.style.color = '#87786c'; e.currentTarget.style.textDecoration = 'none'; }}>
             {track.albumName}
           </p>
         </Link>
@@ -151,9 +151,9 @@ export default function TrackCard({ track, index, queue = [], showAlbum = true, 
       {/* Actions + Duration */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 10 }}>
         <button className="track-card-like" onClick={handleLike} title={isLiked ? 'Remove from Liked Songs' : 'Add to Liked Songs'}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: isLiked ? GREEN : '#737373', opacity: isHovered || isLiked ? 1 : 0, transition: 'opacity 0.15s, color 0.15s', padding: 0 }}
-          onMouseEnter={e => (e.currentTarget.style.color = isLiked ? '#34d399' : '#fff')}
-          onMouseLeave={e => (e.currentTarget.style.color = isLiked ? GREEN : '#737373')}>
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: isLiked ? GREEN : '#87786c', opacity: isHovered || isLiked ? 1 : 0, transition: 'opacity 0.15s, color 0.15s', padding: 0 }}
+          onMouseEnter={e => (e.currentTarget.style.color = isLiked ? '#34d399' : '#221a15')}
+          onMouseLeave={e => (e.currentTarget.style.color = isLiked ? GREEN : '#87786c')}>
           <Heart size={15} fill={isLiked ? GREEN : 'none'} color={isLiked ? GREEN : 'currentColor'} />
         </button>
         {/* Download Button */}
@@ -190,9 +190,9 @@ export default function TrackCard({ track, index, queue = [], showAlbum = true, 
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 0 6px rgba(29, 185, 84, 0.4)'
+              boxShadow: '0 0 6px rgba(176, 136, 80, 0.3)'
             }}>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </div>
@@ -201,31 +201,31 @@ export default function TrackCard({ track, index, queue = [], showAlbum = true, 
               width: 18,
               height: 18,
               borderRadius: '50%',
-              border: '2px solid #737373',
+              border: '2px solid #87786c',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               transition: 'border-color 0.2s',
             }}
-            onMouseEnter={e => e.currentTarget.style.borderColor = '#fff'}
-            onMouseLeave={e => e.currentTarget.style.borderColor = '#737373'}
+            onMouseEnter={e => e.currentTarget.style.borderColor = '#221a15'}
+            onMouseLeave={e => e.currentTarget.style.borderColor = '#87786c'}
             >
-              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#737373' }}>
+              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#87786c' }}>
                 <line x1="12" y1="5" x2="12" y2="19" />
                 <line x1="5" y1="12" x2="19" y2="12" />
               </svg>
             </div>
           )}
         </button>
-        <span className="track-card-duration" style={{ color: '#737373', fontSize: 12, fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>
+        <span className="track-card-duration" style={{ color: '#87786c', fontSize: 12, fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>
           {formatDuration(track.duration)}
         </span>
         <button className="track-card-more hidden md:block" onClick={e => e.stopPropagation()} title="More options"
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#737373', opacity: isHovered ? 1 : 0, transition: 'opacity 0.15s', padding: 0 }}>
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#87786c', opacity: isHovered ? 1 : 0, transition: 'opacity 0.15s', padding: 0 }}>
           <MoreHorizontal size={15} />
         </button>
         <button className="track-card-more block md:hidden" onClick={e => e.stopPropagation()} title="More options"
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#737373', opacity: 1, padding: 0 }}>
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#87786c', opacity: 1, padding: 0 }}>
           <MoreVertical size={18} />
         </button>
       </div>

@@ -15,8 +15,12 @@ import { usePlayerStore } from '@/store/playerStore';
 import { useMusicStore, trackGradient } from '@/store/musicStore';
 import { mockArtists, mockAlbums, mockPlaylists, mockTracks } from '@/lib/mockData';
 import { search, SearchResult } from '@/lib/search';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
-const G = '#1db954';
+const G = '#b08850';
+
+// ⚡ Cooldown tracking for role sync to avoid redundant fetches on every mount
+let lastRoleSyncTime = 0;
 
 export default function TopBar({ transparent = false, bgColor, showSearch = false }: { transparent?: boolean; bgColor?: string; showSearch?: boolean }) {
   const router = useRouter();
@@ -24,6 +28,8 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
   const { getApplicationByUserId } = useArtistApplicationStore();
   const activeApp = user ? getApplicationByUserId(user.id) : undefined;
   const isApproved = activeApp?.status === 'APPROVED';
+
+  const isMobile = useIsMobile(); // ⚡ shared single resize listener
 
   // Helper to read local cookies
   const getCookie = (name: string) => {
@@ -41,6 +47,10 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
   // Background sync for approved artists to update role cookies and token
   useEffect(() => {
     if (user && needsSync) {
+      const now = Date.now();
+      if (now - lastRoleSyncTime < 60000) return; // ⚡ Throttle: 60s cooldown
+      lastRoleSyncTime = now;
+
       fetch('/api/auth/refresh-role', { 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -52,7 +62,7 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
             updateUser({ ...data.user, token: data.token });
             upgradeToArtist(user.id);
             toast.success(`Artist Portal unlocked for ${data.user.name}!`, {
-              style: { background: '#1a1a1a', color: '#fff', border: `1px solid ${G}30`, borderRadius: 12 },
+              style: { background: '#ffffff', color: '#221a15', border: `1px solid ${G}30`, borderRadius: 12, boxShadow: '0 4px 12px rgba(43, 34, 26, 0.05)' },
               id: 'bg-sync-success'
             });
           }
@@ -128,15 +138,6 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
     }
   };
 
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
   // Close menu on outside click
   useEffect(() => {
     const h = (e: MouseEvent) => { if (menuRef.current && !menuRef.current.contains(e.target as Node)) setShowUserMenu(false); };
@@ -147,13 +148,10 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
   const barStyle: React.CSSProperties = {
     position: 'sticky', top: 0, zIndex: 50,
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    paddingTop: isMobile ? 'calc(env(safe-area-inset-top, 24px) + 10px)' : '10px',
-    paddingBottom: '10px',
-    paddingLeft: '22px',
-    paddingRight: '22px',
-    background: transparent ? 'transparent' : bgColor ? `linear-gradient(to bottom, ${bgColor}cc, transparent)` : 'rgba(18,18,18,0.92)',
+    padding: isMobile ? 'calc(var(--sat, 0px) + 10px) 16px 10px 16px' : '10px 22px',
+    background: transparent ? 'transparent' : bgColor ? `linear-gradient(to bottom, ${bgColor}cc, transparent)` : 'rgba(251,249,245,0.9)',
     backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
-    borderBottom: transparent ? 'none' : '1px solid rgba(255,255,255,0.05)',
+    borderBottom: transparent ? 'none' : '1px solid rgba(43, 34, 26, 0.05)',
     transition: 'background 0.3s',
   };
 
@@ -219,21 +217,21 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
     <div style={barStyle}>
       {/* Nav buttons */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <button onClick={() => router.back()} className="flex" style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(0,0,0,0.5)', border: 'none', cursor: 'pointer', alignItems: 'center', justifyContent: 'center', color: '#fff', transition: 'background 0.15s' }}
-          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(0,0,0,0.8)')}
-          onMouseLeave={e => (e.currentTarget.style.background = 'rgba(0,0,0,0.5)')}>
+        <button onClick={() => router.back()} className="flex" style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(43,34,26,0.05)', border: 'none', cursor: 'pointer', alignItems: 'center', justifyContent: 'center', color: '#221a15', transition: 'background 0.15s' }}
+          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(43,34,26,0.1)')}
+          onMouseLeave={e => (e.currentTarget.style.background = 'rgba(43,34,26,0.05)')}>
           <ChevronLeft size={17} />
         </button>
-        <button onClick={() => router.forward()} className="hidden md:flex" style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(0,0,0,0.5)', border: 'none', cursor: 'pointer', alignItems: 'center', justifyContent: 'center', color: '#fff', transition: 'background 0.15s' }}
-          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(0,0,0,0.8)')}
-          onMouseLeave={e => (e.currentTarget.style.background = 'rgba(0,0,0,0.5)')}>
+        <button onClick={() => router.forward()} className="hidden md:flex" style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(43,34,26,0.05)', border: 'none', cursor: 'pointer', alignItems: 'center', justifyContent: 'center', color: '#221a15', transition: 'background 0.15s' }}
+          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(43,34,26,0.1)')}
+          onMouseLeave={e => (e.currentTarget.style.background = 'rgba(43,34,26,0.05)')}>
           <ChevronRight size={17} />
         </button>
 
         {/* Live users indicator */}
         <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-ss-primary/10 border border-ss-primary/20 ml-0 md:ml-2">
           <div className="w-1.5 h-1.5 rounded-full bg-ss-primary animate-pulse" />
-          <span style={{ color: '#a3a3a3', fontSize: 11, fontWeight: 600 }}>
+          <span style={{ color: '#87786c', fontSize: 11, fontWeight: 600 }}>
             {activeUsers.toLocaleString()}
             <span className="hidden sm:inline"> listening now</span>
           </span>
@@ -249,10 +247,10 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
               value={currency}
               onChange={handleCurrencyChange}
               style={{
-                background: 'rgba(255,255,255,0.08)',
-                border: '1px solid rgba(255,255,255,0.15)',
+                background: 'rgba(43,34,26,0.05)',
+                border: '1px solid rgba(43,34,26,0.1)',
                 borderRadius: 100,
-                color: '#fff',
+                color: '#221a15',
                 padding: '6px 28px 6px 14px',
                 fontSize: 12,
                 fontWeight: 700,
@@ -263,20 +261,20 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
                 transition: 'background 0.15s, border-color 0.15s',
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.14)';
-                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)';
+                e.currentTarget.style.background = 'rgba(43,34,26,0.08)';
+                e.currentTarget.style.borderColor = 'rgba(43,34,26,0.2)';
               }}
               onMouseLeave={e => {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
-                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
+                e.currentTarget.style.background = 'rgba(43,34,26,0.05)';
+                e.currentTarget.style.borderColor = 'rgba(43,34,26,0.1)';
               }}
             >
-              <option value="USD" style={{ background: '#181818', color: '#fff' }}>💵 USD ($)</option>
-              <option value="INR" style={{ background: '#181818', color: '#fff' }}>🇮🇳 INR (₹)</option>
+              <option value="USD" style={{ background: '#ffffff', color: '#221a15' }}>💵 USD ($)</option>
+              <option value="INR" style={{ background: '#ffffff', color: '#221a15' }}>🇮🇳 INR (₹)</option>
             </select>
             <ChevronDown
               size={12}
-              color="rgba(255,255,255,0.6)"
+              color="rgba(43,34,26,0.6)"
               style={{
                 position: 'absolute',
                 right: 12,
@@ -290,7 +288,7 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
         {showSearch && (
           <div className="hidden md:block relative w-[220px] z-[100]">
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-              <Search size={14} color={searchQuery ? '#fff' : '#a3a3a3'} style={{ position: 'absolute', left: 12, flexShrink: 0 }} />
+              <Search size={14} color={searchQuery ? '#221a15' : '#87786c'} style={{ position: 'absolute', left: 12, flexShrink: 0 }} />
               <input
                 value={searchQuery}
                 onChange={e => { handleSearchChange(e.target.value); setShowSearchDropdown(true); }}
@@ -298,11 +296,11 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
                 placeholder="Search..."
                 style={{
                   width: '100%',
-                  background: 'rgba(255,255,255,0.1)',
+                  background: 'rgba(43,34,26,0.05)',
                   border: `1px solid ${searchQuery ? G : 'transparent'}`,
                   borderRadius: 20,
                   padding: '6px 30px 6px 32px',
-                  color: '#fff',
+                  color: '#221a15',
                   fontSize: 12,
                   outline: 'none',
                   fontFamily: 'Inter, sans-serif',
@@ -312,7 +310,7 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
               {searchQuery && (
                 <button
                   onClick={() => { setSearchQuery(''); setSearchResults(null); }}
-                  style={{ position: 'absolute', right: 12, background: 'none', border: 'none', cursor: 'pointer', color: '#a3a3a3', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}
+                  style={{ position: 'absolute', right: 12, background: 'none', border: 'none', cursor: 'pointer', color: '#87786c', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}
                 >
                   <X size={14} />
                 </button>
@@ -337,13 +335,13 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
                       top: 'calc(100% + 8px)',
                       right: 0,
                       width: 320,
-                      background: 'rgba(20, 20, 20, 0.96)',
+                      background: '#fffcf8',
                       backdropFilter: 'blur(20px)',
-                      border: '1px solid rgba(255,255,255,0.1)',
+                      border: '1px solid rgba(43,34,26,0.08)',
                       borderRadius: 12,
                       zIndex: 100,
                       overflow: 'hidden',
-                      boxShadow: '0 16px 48px rgba(0,0,0,0.8)',
+                      boxShadow: '0 16px 48px rgba(43,34,26,0.1)',
                       maxHeight: 350,
                       overflowY: 'auto',
                       padding: '12px'
@@ -352,9 +350,9 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
                     {/* Songs Section */}
                     {searchResults.tracks.length > 0 && (
                       <div style={{ marginBottom: 12 }}>
-                        <p style={{ color: '#737373', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Songs</p>
+                        <p style={{ color: '#87786c', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Songs</p>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                          {searchResults.tracks.slice(0, 4).map((track: any) => {
+                           {searchResults.tracks.slice(0, 4).map((track: any) => {
                             const isCurrent = currentTrack?.id === track.id;
                             return (
                               <div 
@@ -364,15 +362,15 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
                                   setShowSearchDropdown(false);
                                 }}
                                 style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '5px 8px', borderRadius: 8, cursor: 'pointer', transition: 'background 0.2s', background: 'transparent' }}
-                                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.06)')}
+                                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(43,34,26,0.04)')}
                                 onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                               >
                                 <div style={{ width: 28, height: 28, borderRadius: 4, backgroundImage: track.coverImage ? `url(${track.coverImage})` : 'none', backgroundColor: track.coverImage ? 'transparent' : trackGradient(track.id), backgroundSize: 'cover', backgroundPosition: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                  {!track.coverImage && <Music size={10} color="#a3a3a3" />}
+                                  {!track.coverImage && <Music size={10} color="#87786c" />}
                                 </div>
                                 <div style={{ flex: 1, minWidth: 0 }}>
-                                  <p style={{ color: isCurrent ? G : '#fff', fontSize: 12, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.title}</p>
-                                  <p style={{ color: '#a3a3a3', fontSize: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.artistName}</p>
+                                  <p style={{ color: isCurrent ? G : '#221a15', fontSize: 12, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.title}</p>
+                                  <p style={{ color: '#87786c', fontSize: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.artistName}</p>
                                 </div>
                               </div>
                             );
@@ -380,11 +378,11 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
                         </div>
                       </div>
                     )}
-
-                    {/* Artists Section */}
+ 
+                     {/* Artists Section */}
                     {searchResults.artists.length > 0 && (
                       <div style={{ marginBottom: 12 }}>
-                        <p style={{ color: '#737373', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Artists</p>
+                        <p style={{ color: '#87786c', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Artists</p>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                           {searchResults.artists.slice(0, 3).map((artist: any) => (
                             <Link 
@@ -392,26 +390,26 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
                               href={`/artist/${artist.id}`}
                               onClick={() => setShowSearchDropdown(false)}
                               style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10, padding: '5px 8px', borderRadius: 8, transition: 'background 0.2s' }}
-                              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.06)')}
+                              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(43,34,26,0.04)')}
                               onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                             >
                               <div style={{ width: 28, height: 28, borderRadius: '50%', background: `hsl(${artist.id.charCodeAt(artist.id.length - 1) * 40 % 360}, 50%, 35%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 12 }}>
                                 🎤
                               </div>
                               <div style={{ flex: 1, minWidth: 0 }}>
-                                <p style={{ color: '#fff', fontSize: 12, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{artist.name}</p>
-                                <p style={{ color: '#a3a3a3', fontSize: 10 }}>Artist</p>
+                                <p style={{ color: '#221a15', fontSize: 12, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{artist.name}</p>
+                                <p style={{ color: '#87786c', fontSize: 10 }}>Artist</p>
                               </div>
                             </Link>
                           ))}
                         </div>
                       </div>
                     )}
-
-                    {/* Albums Section */}
+ 
+                     {/* Albums Section */}
                     {searchResults.albums.length > 0 && (
                       <div>
-                        <p style={{ color: '#737373', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Albums</p>
+                        <p style={{ color: '#87786c', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Albums</p>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                           {searchResults.albums.slice(0, 3).map((album: any) => (
                             <Link 
@@ -419,26 +417,26 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
                               href={`/album/${album.id}`}
                               onClick={() => setShowSearchDropdown(false)}
                               style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10, padding: '5px 8px', borderRadius: 8, transition: 'background 0.2s' }}
-                              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.06)')}
+                              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(43,34,26,0.04)')}
                               onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                             >
                               <div style={{ width: 28, height: 28, borderRadius: 4, background: trackGradient(album.id), display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 12 }}>
                                 💿
                               </div>
                               <div style={{ flex: 1, minWidth: 0 }}>
-                                <p style={{ color: '#fff', fontSize: 12, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{album.title}</p>
-                                <p style={{ color: '#a3a3a3', fontSize: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{album.artistName}</p>
+                                <p style={{ color: '#221a15', fontSize: 12, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{album.title}</p>
+                                <p style={{ color: '#87786c', fontSize: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{album.artistName}</p>
                               </div>
                             </Link>
                           ))}
                         </div>
                       </div>
                     )}
-
-                    {/* No Results */}
+ 
+                     {/* No Results */}
                     {searchResults.tracks.length === 0 && searchResults.artists.length === 0 && searchResults.albums.length === 0 && (
                       <div style={{ textAlign: 'center', padding: '10px 0' }}>
-                        <p style={{ color: '#737373', fontSize: 12 }}>No results found for "{searchQuery}"</p>
+                        <p style={{ color: '#87786c', fontSize: 12 }}>No results found for "{searchQuery}"</p>
                       </div>
                     )}
                   </motion.div>
@@ -450,15 +448,15 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
 
         {/* Explore Premium */}
         <Link href="/premium" className="hidden md:block" style={{ textDecoration: 'none' }}>
-          <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 100, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'background 0.15s' }}
-            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.14)')}
-            onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.08)')}>
+          <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 100, background: 'rgba(43,34,26,0.05)', border: '1px solid rgba(43,34,26,0.1)', color: '#221a15', fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'background 0.15s' }}
+            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(43,34,26,0.08)')}
+            onMouseLeave={e => (e.currentTarget.style.background = 'rgba(43,34,26,0.05)')}>
             <Crown size={13} color="#fbbf24" /> Explore Premium
           </button>
         </Link>
 
         {/* Install App */}
-        <button className="hidden md:block" style={{ padding: '6px 14px', borderRadius: 100, background: '#fff', color: '#000', fontSize: 12, fontWeight: 700, cursor: 'pointer', border: 'none', transition: 'transform 0.15s' }}
+        <button className="hidden md:block" style={{ padding: '6px 14px', borderRadius: 100, background: '#221a15', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', border: 'none', transition: 'transform 0.15s' }}
           onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.04)')}
           onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}>
           Install App
@@ -467,7 +465,7 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
         {/* Mobile active listener indicator */}
         <div className="flex md:hidden items-center gap-1.5 px-2.5 py-1 rounded-full bg-ss-primary/10 border border-ss-primary/20 mr-1">
           <div className="w-1.5 h-1.5 rounded-full bg-ss-primary animate-pulse" />
-          <span style={{ color: '#a3a3a3', fontSize: 11, fontWeight: 600 }}>
+          <span style={{ color: '#87786c', fontSize: 11, fontWeight: 600 }}>
             {activeUsers.toLocaleString()}
           </span>
         </div>
@@ -482,49 +480,49 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
           {user ? (
             <div ref={menuRef} style={{ position: 'relative' }}>
               <button onClick={() => setShowUserMenu(o => !o)} className="flex items-center gap-1.5 p-1 md:pr-3 md:pl-1 rounded-full transition-all" style={{
-                background: showUserMenu ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)',
+                background: showUserMenu ? 'rgba(43,34,26,0.08)' : 'rgba(43,34,26,0.04)', border: '1px solid rgba(43,34,26,0.08)',
                 cursor: 'pointer',
               }}>
-                <div style={{ width: 26, height: 26, borderRadius: '50%', background: `linear-gradient(135deg, ${G}, #10b981)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, color: '#000', flexShrink: 0 }}>
+                <div style={{ width: 26, height: 26, borderRadius: '50%', background: `linear-gradient(135deg, ${G}, #ebdcb9)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, color: '#fff', flexShrink: 0 }}>
                   {user.name[0].toUpperCase()}
                 </div>
-                <span className="hidden md:inline" style={{ color: '#fff', fontSize: 13, fontWeight: 600 }}>{user.name.split(' ')[0]}</span>
-                <ChevronDown className="hidden md:inline" size={13} color="rgba(255,255,255,0.5)" style={{ transform: showUserMenu ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+                <span className="hidden md:inline" style={{ color: '#221a15', fontSize: 13, fontWeight: 600 }}>{user.name.split(' ')[0]}</span>
+                <ChevronDown className="hidden md:inline" size={13} color="rgba(43,34,26,0.5)" style={{ transform: showUserMenu ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
               </button>
 
               <AnimatePresence>
                 {showUserMenu && (
                   <motion.div initial={{ opacity: 0, y: 6, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 6, scale: 0.97 }} transition={{ duration: 0.12 }}
-                    style={{ position: 'absolute', right: 0, top: 'calc(100% + 8px)', width: 220, background: '#1e1e1e', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, overflow: 'hidden', boxShadow: '0 12px 40px rgba(0,0,0,0.6)', zIndex: 100 }}>
+                    style={{ position: 'absolute', right: 0, top: 'calc(100% + 8px)', width: 220, background: '#ffffff', border: '1px solid rgba(43,34,26,0.08)', borderRadius: 14, overflow: 'hidden', boxShadow: '0 12px 40px rgba(43,34,26,0.08)', zIndex: 100 }}>
                     {/* User info header */}
-                    <div style={{ padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.07)', display: 'flex', gap: 10, alignItems: 'center' }}>
-                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: `linear-gradient(135deg, ${G}, #10b981)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, color: '#000', flexShrink: 0 }}>
+                    <div style={{ padding: '14px 16px', borderBottom: '1px solid rgba(43,34,26,0.08)', display: 'flex', gap: 10, alignItems: 'center' }}>
+                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: `linear-gradient(135deg, ${G}, #ebdcb9)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, color: '#fff', flexShrink: 0 }}>
                         {user.name[0].toUpperCase()}
                       </div>
                       <div style={{ minWidth: 0 }}>
-                        <p style={{ color: '#fff', fontWeight: 700, fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name}</p>
+                        <p style={{ color: '#221a15', fontWeight: 700, fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name}</p>
                         <p style={{ color: G, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{user.subscription} plan</p>
                       </div>
                     </div>
 
                     {allowedMenuItems.map(({ label, icon: Icon, href }) => (
                       <Link key={label} href={href} style={{ textDecoration: 'none' }} onClick={(e) => handleItemClick(e, label, href)}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', cursor: 'pointer', transition: 'background 0.15s', color: 'rgba(255,255,255,0.8)' }}
-                          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = '#fff'; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.8)'; }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', cursor: 'pointer', transition: 'background 0.15s', color: '#4d3f35' }}
+                          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(43,34,26,0.04)'; e.currentTarget.style.color = '#221a15'; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#4d3f35'; }}>
                           <Icon size={14} />
                           <span style={{ fontSize: 13 }}>{label}</span>
                         </div>
                       </Link>
                     ))}
 
-                    <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+                    <div style={{ borderTop: '1px solid rgba(43,34,26,0.08)' }}>
                       <button onClick={() => { logout(); setShowUserMenu(false); }} style={{
                         display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', cursor: 'pointer',
-                        background: 'none', border: 'none', width: '100%', color: 'rgba(255,255,255,0.6)', fontSize: 13, transition: 'background 0.15s',
+                        background: 'none', border: 'none', width: '100%', color: '#87786c', fontSize: 13, transition: 'background 0.15s',
                       }}
-                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = '#fff'; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; }}>
+                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(43,34,26,0.04)'; e.currentTarget.style.color = '#221a15'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#87786c'; }}>
                         <LogOut size={14} /> Log out
                       </button>
                     </div>
@@ -534,7 +532,7 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
             </div>
           ) : (
             <Link href="/login" style={{ textDecoration: 'none' }}>
-              <button style={{ padding: '7px 18px', borderRadius: 100, background: G, color: '#000', fontWeight: 800, fontSize: 13, cursor: 'pointer', border: 'none', fontFamily: 'Outfit, sans-serif' }}>
+              <button style={{ padding: '7px 18px', borderRadius: 100, background: G, color: '#221a15', fontWeight: 800, fontSize: 13, cursor: 'pointer', border: 'none', fontFamily: 'Outfit, sans-serif' }}>
                 Log in
               </button>
             </Link>

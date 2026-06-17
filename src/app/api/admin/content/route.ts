@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
         status: t.status === 'approved' ? 'Approved' : t.status === 'rejected' ? 'Rejected' : 'Pending',
         uploaded: t.uploadedAt || '2026-05-01',
         featured: t.featured || false,
-        color: t.coverImage || 'linear-gradient(135deg, #1db954, #191414)',
+        color: t.coverImage || 'linear-gradient(135deg, #b08850, #191414)',
         explicit: t.explicit || false,
         isDbTrack: true,
         audioUrl: t.audioUrl || '',

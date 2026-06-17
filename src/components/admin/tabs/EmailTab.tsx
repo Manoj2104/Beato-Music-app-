@@ -17,7 +17,7 @@ const CARD = {
 };
 
 const GRADIENTS = [
-  { name: 'Emerald Green', value: 'linear-gradient(135deg,#1db954,#0d6b31)' },
+  { name: 'Emerald Green', value: 'linear-gradient(135deg,#b08850,#0d6b31)' },
   { name: 'Deep Purple', value: 'linear-gradient(135deg,#a78bfa,#6d28d9)' },
   { name: 'Electric Blue', value: 'linear-gradient(135deg,#60a5fa,#1d4ed8)' },
   { name: 'Amber Orange', value: 'linear-gradient(135deg,#f59e0b,#b45309)' },
@@ -123,7 +123,7 @@ export default function EmailTab() {
     subject: '',
     preview: '',
     type: 'promotional',
-    color: 'linear-gradient(135deg,#1db954,#0d6b31)',
+    color: 'linear-gradient(135deg,#b08850,#0d6b31)',
   });
 
   const [isEditingTemplate, setIsEditingTemplate] = useState(false);
@@ -271,7 +271,7 @@ export default function EmailTab() {
         subject: '',
         preview: '',
         type: 'promotional',
-        color: 'linear-gradient(135deg,#1db954,#0d6b31)',
+        color: 'linear-gradient(135deg,#b08850,#0d6b31)',
       });
       fetchData();
     } catch (err: any) {
@@ -289,7 +289,7 @@ export default function EmailTab() {
       subject: tpl.subject || '',
       preview: tpl.preview || '',
       type: tpl.type || 'promotional',
-      color: tpl.color || 'linear-gradient(135deg,#1db954,#0d6b31)',
+      color: tpl.color || 'linear-gradient(135deg,#b08850,#0d6b31)',
     });
     setShowTemplateModal(true);
   };
@@ -334,7 +334,7 @@ export default function EmailTab() {
   }
 
   const STATS_ITEMS = [
-    { label: 'Subscribers', value: formatNumber(stats.subscribers), icon: '👥', color: '#1db954' },
+    { label: 'Subscribers', value: formatNumber(stats.subscribers), icon: '👥', color: '#b08850' },
     { label: 'Emails Sent', value: formatNumber(stats.emailsSentMonth), icon: '📨', color: '#60a5fa' },
     { label: 'Avg Open Rate', value: formatPercentage(stats.openRate), icon: '📬', color: '#a78bfa' },
     { label: 'Unsubscribes', value: formatNumber(stats.unsubscribes), icon: '🚫', color: '#ff4d4d' },
@@ -373,11 +373,11 @@ export default function EmailTab() {
               subject: '',
               preview: '',
               type: 'promotional',
-              color: 'linear-gradient(135deg,#1db954,#0d6b31)',
+              color: 'linear-gradient(135deg,#b08850,#0d6b31)',
             });
             setShowTemplateModal(true);
           }}
-            style={{ padding: '7px 16px', borderRadius: 8, border: '1px solid #2a2a2a', background: '#1a1a1a', color: '#1db954', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+            style={{ padding: '7px 16px', borderRadius: 8, border: '1px solid #2a2a2a', background: '#1a1a1a', color: '#b08850', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
             + Create Template
           </button>
         </div>
@@ -436,7 +436,7 @@ export default function EmailTab() {
             <p style={{ margin: '4px 0 0 0', fontSize: 12, color: '#4b5563' }}>Real-time campaigns executed or scheduled. Send to lists generated instantly from the database.</p>
           </div>
           <button onClick={() => setShowCampaignModal(true)}
-            style={{ padding: '9px 18px', borderRadius: 9, border: 'none', background: '#1db954', color: '#000', fontWeight: 800, fontSize: 13, cursor: 'pointer' }}>
+            style={{ padding: '9px 18px', borderRadius: 9, border: 'none', background: '#b08850', color: '#000', fontWeight: 800, fontSize: 13, cursor: 'pointer' }}>
             + Create Campaign
           </button>
         </div>
@@ -458,7 +458,7 @@ export default function EmailTab() {
               ) : (
                 campaigns.map((c, i) => {
                   const statusColors = {
-                    sent: { bg: '#1a3a27', color: '#1db954' },
+                    sent: { bg: '#1a3a27', color: '#b08850' },
                     scheduled: { bg: '#1a2240', color: '#60a5fa' },
                     draft: { bg: '#222', color: '#6b7280' },
                     sending: { bg: '#2a2010', color: '#f59e0b' },
@@ -481,7 +481,7 @@ export default function EmailTab() {
                       <td style={{ padding: '12px 14px', color: '#9ca3af' }}>{formatNumber(c.segmentSize)} users</td>
                       <td style={{ padding: '12px 14px', color: '#9ca3af' }}>{c.templateName}</td>
                       <td style={{ padding: '12px 14px', color: '#e5e7eb', fontWeight: 600 }}>{c.status === 'sent' ? formatNumber(c.sentCount) : '—'}</td>
-                      <td style={{ padding: '12px 14px', color: '#1db954', fontWeight: 600 }}>{c.status === 'sent' ? formatPercentage(c.openRate) : '—'}</td>
+                      <td style={{ padding: '12px 14px', color: '#b08850', fontWeight: 600 }}>{c.status === 'sent' ? formatPercentage(c.openRate) : '—'}</td>
                       <td style={{ padding: '12px 14px', color: '#60a5fa', fontWeight: 600 }}>{c.status === 'sent' ? formatPercentage(c.clickRate) : '—'}</td>
                       <td style={{ padding: '12px 14px', color: '#a78bfa', fontWeight: 800 }}>{c.status === 'sent' && c.revenue > 0 ? `$${formatNumber(c.revenue)}` : '—'}</td>
                       <td style={{ padding: '12px 14px' }}>
@@ -493,7 +493,7 @@ export default function EmailTab() {
                         <div style={{ display: 'flex', gap: 6 }}>
                           {c.status === 'draft' && (
                             <button onClick={() => handleSendCampaign(c.id, c.name)}
-                              style={{ padding: '5px 10px', borderRadius: 6, border: 'none', background: '#1db954', color: '#000', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+                              style={{ padding: '5px 10px', borderRadius: 6, border: 'none', background: '#b08850', color: '#000', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
                               🚀 Send
                             </button>
                           )}
@@ -576,7 +576,7 @@ export default function EmailTab() {
                 <div style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
                   {['now', 'scheduled'].map(s => (
                     <button key={s} type="button" onClick={() => setCampaignForm({ ...campaignForm, scheduleType: s as any })}
-                      style={{ padding: '8px 18px', borderRadius: 8, border: 'none', background: campaignForm.scheduleType === s ? '#1db954' : '#1e1e1e', color: campaignForm.scheduleType === s ? '#000' : '#9ca3af', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+                      style={{ padding: '8px 18px', borderRadius: 8, border: 'none', background: campaignForm.scheduleType === s ? '#b08850' : '#1e1e1e', color: campaignForm.scheduleType === s ? '#000' : '#9ca3af', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
                       {s === 'now' ? 'Send Now' : 'Schedule for Later'}
                     </button>
                   ))}
@@ -593,7 +593,7 @@ export default function EmailTab() {
                   Cancel
                 </button>
                 <button type="button" onClick={handleCreateCampaign} disabled={submitting}
-                  style={{ flex: 2, padding: '12px 0', borderRadius: 9, border: 'none', background: '#1db954', color: '#000', fontWeight: 800, fontSize: 14, cursor: 'pointer', opacity: submitting ? 0.7 : 1 }}>
+                  style={{ flex: 2, padding: '12px 0', borderRadius: 9, border: 'none', background: '#b08850', color: '#000', fontWeight: 800, fontSize: 14, cursor: 'pointer', opacity: submitting ? 0.7 : 1 }}>
                   {submitting ? 'Creating...' : campaignForm.scheduleType === 'now' ? '🚀 Send Campaign' : '📅 Schedule Campaign'}
                 </button>
               </div>
@@ -659,7 +659,7 @@ export default function EmailTab() {
                   Cancel
                 </button>
                 <button type="button" onClick={handleSaveTemplate} disabled={submitting}
-                  style={{ flex: 2, padding: '12px 0', borderRadius: 9, border: 'none', background: '#1db954', color: '#000', fontWeight: 800, fontSize: 14, cursor: 'pointer', opacity: submitting ? 0.7 : 1 }}>
+                  style={{ flex: 2, padding: '12px 0', borderRadius: 9, border: 'none', background: '#b08850', color: '#000', fontWeight: 800, fontSize: 14, cursor: 'pointer', opacity: submitting ? 0.7 : 1 }}>
                   {submitting ? 'Saving...' : '💾 Save Template'}
                 </button>
               </div>
@@ -695,7 +695,7 @@ export default function EmailTab() {
                 <h4 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#fff', marginBottom: 8 }}>{previewTemplate.subject || '(No Subject)'}</h4>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#8e8e93' }}>
                   <div>
-                    <strong>From:</strong> Beato &lt;<span style={{ color: '#1db954' }}>newsletter@beato.io</span>&gt;
+                    <strong>From:</strong> Beato &lt;<span style={{ color: '#b08850' }}>newsletter@beato.io</span>&gt;
                   </div>
                   <div>Just now</div>
                 </div>
@@ -723,7 +723,7 @@ export default function EmailTab() {
                     {/* Dynamic Template Preset Renderer */}
                     {previewTemplate.id === 'tpl-1' && (
                       <div style={{ textAlign: 'center', margin: '24px 0' }}>
-                        <button type="button" style={{ background: '#1db954', border: 'none', padding: '12px 30px', borderRadius: 25, color: '#000', fontWeight: 'bold', fontSize: 13, cursor: 'default', boxShadow: '0 4px 14px rgba(29, 185, 84,0.3)' }}>
+                        <button type="button" style={{ background: '#b08850', border: 'none', padding: '12px 30px', borderRadius: 25, color: '#000', fontWeight: 'bold', fontSize: 13, cursor: 'default', boxShadow: '0 4px 14px rgba(176, 136, 80,0.3)' }}>
                           🚀 Start Streaming Now
                         </button>
                       </div>
@@ -741,7 +741,7 @@ export default function EmailTab() {
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, margin: '20px 0' }}>
                         {[
                           { label: 'Listening Time', val: '4,820 min', color: '#60a5fa' },
-                          { label: 'Top Artist', val: 'Cipher Nova', color: '#1db954' },
+                          { label: 'Top Artist', val: 'Cipher Nova', color: '#b08850' },
                           { label: 'Top Track', val: 'Phantom Signal', color: '#a78bfa' },
                           { label: 'Listening Streak', val: '12 Days', color: '#f59e0b' }
                         ].map(st => (
@@ -804,11 +804,11 @@ export default function EmailTab() {
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #282828', paddingTop: 8, paddingBottom: 8, fontSize: 11 }}>
                           <span style={{ color: '#6b7280' }}>Royalty growth</span>
-                          <span style={{ color: '#1db954', fontWeight: 'bold' }}>+14% MoM</span>
+                          <span style={{ color: '#b08850', fontWeight: 'bold' }}>+14% MoM</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, fontSize: 12, fontWeight: 'bold' }}>
                           <span style={{ color: '#fff' }}>Royalty Net payout</span>
-                          <span style={{ color: '#1db954' }}>$4,480.00 USD</span>
+                          <span style={{ color: '#b08850' }}>$4,480.00 USD</span>
                         </div>
                       </div>
                     )}
@@ -847,13 +847,13 @@ export default function EmailTab() {
                     )}
 
                     <p style={{ margin: '16px 0 4px 0', fontSize: 13.5 }}>Enjoy your listening,</p>
-                    <p style={{ margin: 0, fontWeight: 'bold', color: '#1db954', fontSize: 13.5 }}>The Beato Team</p>
+                    <p style={{ margin: 0, fontWeight: 'bold', color: '#b08850', fontSize: 13.5 }}>The Beato Team</p>
                   </div>
 
                   {/* Simulated Footer */}
                   <div style={{ background: '#1a1a1a', padding: 16, textAlign: 'center', borderTop: '1px solid #222', fontSize: 11, color: '#48484a' }}>
                     This is an automated message sent to you by Beato.<br />
-                    To unsubscribe from these communications, <span style={{ color: '#1db954', cursor: 'default' }}>click here</span>.
+                    To unsubscribe from these communications, <span style={{ color: '#b08850', cursor: 'default' }}>click here</span>.
                   </div>
                 </div>
               </div>
@@ -861,7 +861,7 @@ export default function EmailTab() {
               {/* Close Bar */}
               <div style={{ background: '#121212', padding: '16px 24px', display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid #2a2a2a' }}>
                 <button type="button" onClick={() => setShowPreviewModal(false)}
-                  style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#1db954', color: '#000', fontWeight: 'bold', fontSize: 13, cursor: 'pointer' }}>
+                  style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#b08850', color: '#000', fontWeight: 'bold', fontSize: 13, cursor: 'pointer' }}>
                   Close Preview
                 </button>
               </div>

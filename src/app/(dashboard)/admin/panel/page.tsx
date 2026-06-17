@@ -16,7 +16,7 @@ import { mockArtists, mockTracks } from '@/lib/mockData';
 import { cn } from '@/lib/utils';
 
 const adminStats = [
-  { label: 'Total Users', value: '2.4M', change: '+12.3%', positive: true, icon: Users, color: '#1db954' },
+  { label: 'Total Users', value: '2.4M', change: '+12.3%', positive: true, icon: Users, color: '#b08850' },
   { label: 'Active Artists', value: '18,420', change: '+8.1%', positive: true, icon: Music, color: '#10b981' },
   { label: 'Monthly Revenue', value: '$1.2M', change: '+22.4%', positive: true, icon: DollarSign, color: '#f59e0b' },
   { label: 'Total Streams', value: '890M', change: '-1.2%', positive: false, icon: BarChart3, color: '#34d399' },
@@ -138,8 +138,8 @@ export default function AdminPanelPage() {
                     <AreaChart data={userGrowthData}>
                       <defs>
                         <linearGradient id="userGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#1db954" stopOpacity={0.3} />
-                          <stop offset="95%" stopColor="#1db954" stopOpacity={0} />
+                          <stop offset="5%" stopColor="#b08850" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="#b08850" stopOpacity={0} />
                         </linearGradient>
                         <linearGradient id="premiumGrad" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
@@ -153,7 +153,7 @@ export default function AdminPanelPage() {
                         contentStyle={{ background: '#282828', border: '1px solid #404040', borderRadius: '8px', color: '#fff' }}
                         formatter={(v: any) => [`${(Number(v)/1_000_000).toFixed(2)}M`, '']}
                       />
-                      <Area type="monotone" dataKey="users" stroke="#1db954" strokeWidth={2} fill="url(#userGrad)" name="Total Users" />
+                      <Area type="monotone" dataKey="users" stroke="#b08850" strokeWidth={2} fill="url(#userGrad)" name="Total Users" />
                       <Area type="monotone" dataKey="premium" stroke="#10b981" strokeWidth={2} fill="url(#premiumGrad)" name="Premium" />
                     </AreaChart>
                   </ResponsiveContainer>
@@ -311,7 +311,7 @@ function ArtistVerificationPanel() {
 
   const statusColor: Record<string, string> = {
     under_review: '#f59e0b',
-    approved: '#1db954',
+    approved: '#b08850',
     rejected: '#ef4444',
   };
   const statusLabel: Record<string, string> = {
@@ -336,7 +336,7 @@ function ArtistVerificationPanel() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
         {[
           { label: 'Pending', count: requests.filter(r => r.status === 'under_review').length, color: '#f59e0b' },
-          { label: 'Approved', count: requests.filter(r => r.status === 'approved').length, color: '#1db954' },
+          { label: 'Approved', count: requests.filter(r => r.status === 'approved').length, color: '#b08850' },
           { label: 'Rejected', count: requests.filter(r => r.status === 'rejected').length, color: '#ef4444' },
         ].map(s => (
           <div key={s.label} style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${s.color}25`, borderRadius: 12, padding: '14px 18px' }}>
@@ -360,7 +360,7 @@ function ArtistVerificationPanel() {
               <div style={{ padding: 32, textAlign: 'center', color: '#a3a3a3' }}>
                 <div style={{ fontSize: 48, marginBottom: 12 }}>📄</div>
                 <p>PDF document uploaded</p>
-                <a href={viewDoc} download='proof.pdf' style={{ color: '#1db954', fontSize: 13 }}>Download PDF</a>
+                <a href={viewDoc} download='proof.pdf' style={{ color: '#b08850', fontSize: 13 }}>Download PDF</a>
               </div>
             )}
           </div>
@@ -410,7 +410,7 @@ function ArtistVerificationPanel() {
                     <button
                       disabled={processing === req.artistId}
                       onClick={() => act(req.artistId, 'approve')}
-                      style={{ background: 'rgba(29, 185, 84,0.15)', border: '1px solid rgba(29, 185, 84,0.3)', color: '#1db954', borderRadius: 8, padding: '7px 16px', fontSize: 12, cursor: 'pointer', fontWeight: 700 }}
+                      style={{ background: 'rgba(176, 136, 80,0.15)', border: '1px solid rgba(176, 136, 80,0.3)', color: '#b08850', borderRadius: 8, padding: '7px 16px', fontSize: 12, cursor: 'pointer', fontWeight: 700 }}
                     >
                       ✅ Verify
                     </button>

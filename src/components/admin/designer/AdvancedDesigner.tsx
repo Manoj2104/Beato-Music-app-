@@ -59,8 +59,8 @@ export interface DesignerElement {
 const D = {
   bg: '#070707', surface: '#0f0f0f', panel: '#111111', card: '#181818',
   border: '#242424', borderHover: '#383838', text: '#ffffff',
-  muted: '#606060', mutedLight: '#888888', primary: '#1db954',
-  primaryDim: 'rgba(29, 185, 84,0.15)', blue: '#10b981', blueDim: 'rgba(16, 185, 129,0.12)',
+  muted: '#606060', mutedLight: '#888888', primary: '#b08850',
+  primaryDim: 'rgba(176, 136, 80,0.15)', blue: '#10b981', blueDim: 'rgba(16, 185, 129,0.12)',
   purple: '#10b981', orange: '#f59e0b', red: '#ef4444', pink: '#34d399',
   sel: '#10b981', canvasBg: '#0c0c0c',
 };
@@ -106,11 +106,11 @@ function mkImage(src: string, x: number, y: number, w = 300, h = 200): DesignerE
 }
 function mkButton(label: string, x: number, y: number): DesignerElement {
   return { id: gid('button'), type: 'button', name: 'Button', x, y, width: 160, height: 44, rotation: 0, zIndex: 1, locked: false, hidden: false, elStyle: defStyle(), animation: defAnim(),
-    button: { label, href: '#', bgColor: '#1db954', textColor: '#000000', borderRadius: 22, fontSize: 13, fontWeight: 700, fontFamily: 'Inter', paddingX: 20, paddingY: 10 } };
+    button: { label, href: '#', bgColor: '#b08850', textColor: '#000000', borderRadius: 22, fontSize: 13, fontWeight: 700, fontFamily: 'Inter', paddingX: 20, paddingY: 10 } };
 }
 function mkShape(kind: ShapeKind, x: number, y: number, w = 130, h = 130): DesignerElement {
   return { id: gid('shape'), type: 'shape', name: kind.charAt(0).toUpperCase() + kind.slice(1), x, y, width: w, height: h, rotation: 0, zIndex: 1, locked: false, hidden: false, elStyle: defStyle(), animation: defAnim(),
-    shape: { kind, fill: '#1db954', stroke: 'transparent', strokeWidth: 0, borderRadius: 8, points: 5, opacity: 1 } };
+    shape: { kind, fill: '#b08850', stroke: 'transparent', strokeWidth: 0, borderRadius: 8, points: 5, opacity: 1 } };
 }
 function mkContainer(x: number, y: number, w = 380, h = 240): DesignerElement {
   return { id: gid('container'), type: 'container', name: 'Container', x, y, width: w, height: h, rotation: 0, zIndex: 1, locked: false, hidden: false, elStyle: defStyle(), animation: defAnim(),
@@ -118,7 +118,7 @@ function mkContainer(x: number, y: number, w = 380, h = 240): DesignerElement {
 }
 function mkBadge(label: string, x: number, y: number): DesignerElement {
   return { id: gid('badge'), type: 'badge', name: 'Badge', x, y, width: 72, height: 22, rotation: 0, zIndex: 1, locked: false, hidden: false, elStyle: defStyle(), animation: defAnim(),
-    badge: { label, bgColor: '#1db954', textColor: '#000000', borderRadius: 11, fontSize: 9 } };
+    badge: { label, bgColor: '#b08850', textColor: '#000000', borderRadius: 11, fontSize: 9 } };
 }
 
 function starterElements(): DesignerElement[] {
@@ -127,7 +127,7 @@ function starterElements(): DesignerElement[] {
       container: { bgColor: 'rgba(255,255,255,0.03)', borderRadius: 16, border: 'solid', borderColor: 'rgba(255,255,255,0.07)', borderWidth: 1, boxShadow: '0 20px 60px rgba(0,0,0,0.6)', padding: 28 } },
     { ...mkImage('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600', 420, 90, 230, 210), zIndex: 2 },
     { ...mkBadge('✦ NEW RELEASE', 90, 92), zIndex: 3,
-      badge: { label: '✦ NEW RELEASE', bgColor: '#1db954', textColor: '#000', borderRadius: 11, fontSize: 8 } },
+      badge: { label: '✦ NEW RELEASE', bgColor: '#b08850', textColor: '#000', borderRadius: 11, fontSize: 8 } },
     { ...mkText('Good Morning 🎵', 90, 126, 28, 900), zIndex: 4, width: 290 },
     { ...mkText('Your personalized stage, powered by AI', 90, 172, 12, 400), zIndex: 5, width: 270,
       text: { content: 'Your personalized stage, powered by AI', fontFamily: 'Inter', fontSize: 12, fontWeight: 400, color: '#888888', letterSpacing: 0, lineHeight: 1.5, textAlign: 'left', italic: false, underline: false, uppercase: false } },
@@ -1016,7 +1016,7 @@ export default function AdvancedDesigner({ onClose, initialElements, sectionName
                     <div><label style={lbl}>Text Gradient Presets</label>
                       <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                         {[
-                          { label: 'Neon',   v: 'linear-gradient(135deg, #1db954, #00d2ff)' },
+                          { label: 'Neon',   v: 'linear-gradient(135deg, #b08850, #00d2ff)' },
                           { label: 'Fire',   v: 'linear-gradient(135deg, #f59e0b, #ef4444)' },
                           { label: 'Royal',  v: 'linear-gradient(135deg, #10b981, #34d399)' },
                           { label: 'Gold',   v: 'linear-gradient(135deg, #f59e0b, #fbbf24)' },
@@ -1117,7 +1117,7 @@ export default function AdvancedDesigner({ onClose, initialElements, sectionName
                     <div><label style={lbl}>Quick Styles</label>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }}>
                         {[
-                          { label: 'Primary', bg: '#1db954', tc: '#000000' },
+                          { label: 'Primary', bg: '#b08850', tc: '#000000' },
                           { label: 'Dark',    bg: '#181818', tc: '#ffffff' },
                           { label: 'Purple',  bg: '#10b981', tc: '#ffffff' },
                           { label: 'Outline', bg: 'transparent', tc: '#ffffff' },
@@ -1143,7 +1143,7 @@ export default function AdvancedDesigner({ onClose, initialElements, sectionName
                       </select></div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 5 }}>
                       <div><label style={lbl}>Fill Color</label>
-                        <input type="color" value={s.fill.startsWith('#') ? s.fill : '#1db954'} onChange={e => updProp(el.id, 'shape', { fill: e.target.value })} style={{ width: '100%', height: 30, border: `1px solid ${D.border}`, borderRadius: 5, cursor: 'pointer', background: 'transparent', padding: 0 }} /></div>
+                        <input type="color" value={s.fill.startsWith('#') ? s.fill : '#b08850'} onChange={e => updProp(el.id, 'shape', { fill: e.target.value })} style={{ width: '100%', height: 30, border: `1px solid ${D.border}`, borderRadius: 5, cursor: 'pointer', background: 'transparent', padding: 0 }} /></div>
                       <div><label style={lbl}>Stroke</label>
                         <input type="color" value={s.stroke.startsWith('#') ? s.stroke : '#ffffff'} onChange={e => updProp(el.id, 'shape', { stroke: e.target.value })} style={{ width: '100%', height: 30, border: `1px solid ${D.border}`, borderRadius: 5, cursor: 'pointer', background: 'transparent', padding: 0 }} /></div>
                     </div>
@@ -1170,7 +1170,7 @@ export default function AdvancedDesigner({ onClose, initialElements, sectionName
                         {[
                           { label: 'Nebula',  v: 'linear-gradient(135deg, rgba(16, 185, 129,0.3), rgba(52, 211, 153,0.3))' },
                           { label: 'Ocean',   v: 'linear-gradient(135deg, rgba(16, 185, 129,0.3), rgba(6,182,212,0.3))'  },
-                          { label: 'Forest',  v: 'linear-gradient(135deg, rgba(29, 185, 84,0.25), rgba(16,185,129,0.25))' },
+                          { label: 'Forest',  v: 'linear-gradient(135deg, rgba(176, 136, 80,0.25), rgba(16,185,129,0.25))' },
                           { label: 'Sunset',  v: 'linear-gradient(135deg, rgba(245,158,11,0.3), rgba(239,68,68,0.3))'  },
                           { label: 'Glass',   v: 'rgba(255,255,255,0.05)'  },
                           { label: 'None',    v: ''                        },
@@ -1193,7 +1193,7 @@ export default function AdvancedDesigner({ onClose, initialElements, sectionName
                           { label: 'None', v: 'none' },
                           { label: 'Soft', v: '0 8px 32px rgba(0,0,0,0.4)' },
                           { label: 'Hard', v: '4px 4px 0px rgba(0,0,0,0.8)' },
-                          { label: 'Neon', v: '0 0 20px rgba(29, 185, 84,0.4)' },
+                          { label: 'Neon', v: '0 0 20px rgba(176, 136, 80,0.4)' },
                         ].map(s => (
                           <button key={s.label} onClick={() => updProp(el.id, 'container', { boxShadow: s.v })}
                             style={{ ...iconBtn(c.boxShadow === s.v), fontSize: 9, padding: '3px 8px' }}>{s.label}</button>
@@ -1212,7 +1212,7 @@ export default function AdvancedDesigner({ onClose, initialElements, sectionName
                       <input value={b.label} onChange={e => updProp(el.id, 'badge', { label: e.target.value })} style={inp()} /></div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 5 }}>
                       <div><label style={lbl}>Background</label>
-                        <input type="color" value={b.bgColor.startsWith('#') ? b.bgColor : '#1db954'} onChange={e => updProp(el.id, 'badge', { bgColor: e.target.value })} style={{ width: '100%', height: 30, border: `1px solid ${D.border}`, borderRadius: 5, cursor: 'pointer', background: 'transparent', padding: 0 }} /></div>
+                        <input type="color" value={b.bgColor.startsWith('#') ? b.bgColor : '#b08850'} onChange={e => updProp(el.id, 'badge', { bgColor: e.target.value })} style={{ width: '100%', height: 30, border: `1px solid ${D.border}`, borderRadius: 5, cursor: 'pointer', background: 'transparent', padding: 0 }} /></div>
                       <div><label style={lbl}>Text Color</label>
                         <input type="color" value={b.textColor.startsWith('#') ? b.textColor : '#000000'} onChange={e => updProp(el.id, 'badge', { textColor: e.target.value })} style={{ width: '100%', height: 30, border: `1px solid ${D.border}`, borderRadius: 5, cursor: 'pointer', background: 'transparent', padding: 0 }} /></div>
                     </div>
@@ -1239,7 +1239,7 @@ export default function AdvancedDesigner({ onClose, initialElements, sectionName
                     { label: 'None', v: undefined },
                     { label: 'Soft', v: '0 8px 30px rgba(0,0,0,0.4)' },
                     { label: 'Hard', v: '4px 4px 0 rgba(0,0,0,0.8)' },
-                    { label: 'Neon', v: '0 0 20px rgba(29, 185, 84,0.5)' },
+                    { label: 'Neon', v: '0 0 20px rgba(176, 136, 80,0.5)' },
                     { label: 'Blue', v: '0 0 20px rgba(16, 185, 129,0.5)' },
                   ].map(s => (
                     <button key={s.label} onClick={() => updEl(el.id, { elStyle: { ...el.elStyle, boxShadow: s.v } })}
@@ -1463,7 +1463,7 @@ export default function AdvancedDesigner({ onClose, initialElements, sectionName
 
         {/* Save button */}
         <button onClick={() => { onSave?.(elements); }}
-          style={{ background: 'linear-gradient(135deg, #1db954, #17a349)', border: 'none', borderRadius: 8, color: '#000', padding: '8px 18px', cursor: 'pointer', fontWeight: 800, fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          style={{ background: 'linear-gradient(135deg, #b08850, #17a349)', border: 'none', borderRadius: 8, color: '#000', padding: '8px 18px', cursor: 'pointer', fontWeight: 800, fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
           💾 Save
         </button>
 

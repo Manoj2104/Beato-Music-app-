@@ -12,6 +12,22 @@ export default function CapacitorInit() {
   const router = useRouter();
 
   useEffect(() => {
+    // Set custom safe-area top and bottom CSS variables for mobile layout scaling
+    if (typeof window !== 'undefined') {
+      if (Capacitor.isNativePlatform()) {
+        if (Capacitor.getPlatform() === 'android') {
+          document.documentElement.style.setProperty('--sat', '44px');
+          document.documentElement.style.setProperty('--sab', '0px');
+        } else {
+          document.documentElement.style.setProperty('--sat', 'env(safe-area-inset-top, 44px)');
+          document.documentElement.style.setProperty('--sab', 'env(safe-area-inset-bottom, 0px)');
+        }
+      } else {
+        document.documentElement.style.setProperty('--sat', '0px');
+        document.documentElement.style.setProperty('--sab', '0px');
+      }
+    }
+
     // Patch fetch dynamically so relative /api/* requests are routed to the remote server
     // this must run after Capacitor has loaded and patched window.fetch (so we wrap Capacitor's patch)
     if (typeof window !== 'undefined' && !(window as any).__beatoFetchIntercepted) {

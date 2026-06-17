@@ -141,7 +141,7 @@ export default function QueuePanel({ onClose }: QueuePanelProps) {
                 <Disc size={20} color="rgba(255,255,255,0.6)" className={isPlaying ? 'float-animation' : ''} />
               </div>
               <div style={{ minWidth: 0, flex: 1 }}>
-                <p style={{ color: '#1db954', fontSize: 14, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>
+                <p style={{ color: '#b08850', fontSize: 14, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>
                   {currentTrack.title}
                 </p>
                 <p style={{ color: '#a3a3a3', fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: '2px 0 0 0' }}>
@@ -153,14 +153,14 @@ export default function QueuePanel({ onClose }: QueuePanelProps) {
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: '#1db954',
+                  color: '#b08850',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   padding: 8,
                   borderRadius: '50%',
-                  backgroundColor: 'rgba(29, 185, 84, 0.1)'
+                  backgroundColor: 'rgba(176, 136, 80, 0.1)'
                 }}
               >
                 {isPlaying ? (
@@ -170,7 +170,7 @@ export default function QueuePanel({ onClose }: QueuePanelProps) {
                     <span className="waveform-bar" style={{ width: 2, height: 14, animationDelay: '0.5s' }} />
                   </span>
                 ) : (
-                  <Play size={14} fill="#1db954" />
+                  <Play size={14} fill="#b08850" />
                 )}
               </button>
             </div>
@@ -218,7 +218,7 @@ export default function QueuePanel({ onClose }: QueuePanelProps) {
                   }}
                   whileDrag={{
                     scale: 1.02,
-                    borderColor: 'rgba(29, 185, 84, 0.4)',
+                    borderColor: 'rgba(176, 136, 80, 0.4)',
                     boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
                     cursor: 'grabbing'
                   }}
@@ -256,7 +256,7 @@ export default function QueuePanel({ onClose }: QueuePanelProps) {
                       margin: 0,
                       cursor: 'pointer'
                     }}
-                      onMouseEnter={e => (e.currentTarget.style.color = '#1db954')}
+                      onMouseEnter={e => (e.currentTarget.style.color = '#b08850')}
                       onMouseLeave={e => (e.currentTarget.style.color = '#fff')}
                     >
                       {track.title}

@@ -21,14 +21,14 @@ import { usePlaylistStore } from '@/store/playlistStore';
 import { useDownloadStore } from '@/store/downloadStore';
 import { useMusicStore, trackGradient } from '@/store/musicStore';
 
-const G = '#1db954';
+const G = '#b08850';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const EDIT_GRADIENTS = [
   { id: 'ocean',   css: 'linear-gradient(135deg,#1e3a5f,#0ea5e9)' },
   { id: 'sunset',  css: 'linear-gradient(135deg,#7c1d0a,#f97316)' },
   { id: 'aurora',  css: 'linear-gradient(135deg,#4c1d95,#34d399)' },
-  { id: 'forest',  css: 'linear-gradient(135deg,#064e3b,#1db954)' },
+  { id: 'forest',  css: 'linear-gradient(135deg,#064e3b,#b08850)' },
   { id: 'galaxy',  css: 'linear-gradient(135deg,#1e1b4b,#6366f1)' },
   { id: 'gold',    css: 'linear-gradient(135deg,#78350f,#fbbf24)' },
   { id: 'rose',    css: 'linear-gradient(135deg,#881337,#fb7185)' },
@@ -120,7 +120,7 @@ function SuggestedTrack({ track, onAdd, isAdded }: { track: any; onAdd: () => vo
         <p style={{ color: '#737373', fontSize: 12 }}>{track.artistName}</p>
       </div>
       {isAdded ? (
-        <div style={{ color: '#1db954', padding: '5px 12px', display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div style={{ color: '#b08850', padding: '5px 12px', display: 'flex', alignItems: 'center', gap: 4 }}>
           <Check size={14} strokeWidth={3.5} />
         </div>
       ) : (
@@ -190,7 +190,7 @@ function DesktopRecommendedCard({ track, onAdd, isAdded, onPlay }: { track: any;
       
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{
-          color: hov ? '#1db954' : '#fff',
+          color: hov ? '#b08850' : '#fff',
           fontWeight: 600,
           fontSize: 14,
           margin: '0 0 4px 0',
@@ -212,7 +212,7 @@ function DesktopRecommendedCard({ track, onAdd, isAdded, onPlay }: { track: any;
       <div onClick={(e) => e.stopPropagation()}>
         {isAdded ? (
           <div style={{
-            color: '#1db954',
+            color: '#b08850',
             padding: '6px 12px',
             display: 'flex',
             alignItems: 'center',
@@ -296,8 +296,8 @@ function DesktopTrendingCard({ track, onAdd, isAdded, onPlay }: { track: any; on
           borderRadius: 4,
           fontSize: 9,
           fontWeight: 800,
-          color: '#1db954',
-          border: '1px solid rgba(29, 185, 84,0.3)',
+          color: '#b08850',
+          border: '1px solid rgba(176, 136, 80,0.3)',
           zIndex: 5
         }}>
           🔥 {numFmt(track.plays || 0)}
@@ -317,11 +317,11 @@ function DesktopTrendingCard({ track, onAdd, isAdded, onPlay }: { track: any; on
               width: 40,
               height: 40,
               borderRadius: '50%',
-              background: '#1db954',
+              background: '#b08850',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 4px 12px rgba(29, 185, 84,0.4)'
+              boxShadow: '0 4px 12px rgba(176, 136, 80,0.4)'
             }}>
               <Play size={18} fill="black" color="black" style={{ marginLeft: 2 }} />
             </div>
@@ -341,7 +341,7 @@ function DesktopTrendingCard({ track, onAdd, isAdded, onPlay }: { track: any; on
             width: 28,
             height: 28,
             borderRadius: '50%',
-            background: isAdded ? '#1db954' : 'rgba(0,0,0,0.85)',
+            background: isAdded ? '#b08850' : 'rgba(0,0,0,0.85)',
             border: isAdded ? 'none' : '1px solid rgba(255,255,255,0.3)',
             display: 'flex',
             alignItems: 'center',
@@ -361,7 +361,7 @@ function DesktopTrendingCard({ track, onAdd, isAdded, onPlay }: { track: any; on
 
       <div style={{ minWidth: 0 }}>
         <p style={{
-          color: hov ? '#1db954' : '#fff',
+          color: hov ? '#b08850' : '#fff',
           fontWeight: 600,
           fontSize: 13,
           margin: 0,
@@ -392,7 +392,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
   const [scrollTop, setScrollTop] = useState(0);
   // Mobile scroll animations based on scrollTop state
   const headerBgOpacity = Math.min(1, Math.max(0, scrollTop / 180));
-  const headerBorder = scrollTop > 180 ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(255,255,255,0)';
+  const headerBorder = scrollTop > 180 ? '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))' : '1px solid rgba(255,255,255,0)';
   const coverScale = Math.max(0.5, 1 - (scrollTop / 250) * 0.5);
   const coverOpacity = Math.min(1, Math.max(0, 1 - scrollTop / 200));
   const coverTranslateY = Math.min(40, (scrollTop / 250) * 40);
@@ -451,7 +451,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
           {!isLiked && (
             <button
               onClick={(ev) => { ev.stopPropagation(); toast.dismiss(t.id); setPickerTrack(track); setShowPlaylistPicker(true); }}
-              style={{ background: 'none', border: 'none', color: '#1db954', fontSize: 13, fontWeight: 700, cursor: 'pointer', flexShrink: 0, padding: '2px 0' }}
+              style={{ background: 'none', border: 'none', color: '#b08850', fontSize: 13, fontWeight: 700, cursor: 'pointer', flexShrink: 0, padding: '2px 0' }}
             >
               Change
             </button>
@@ -707,14 +707,14 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
   const themeColor = playlist.id === 'playlist-1' ? '#3b1f8c' : playlist.id === 'playlist-2' ? '#115332' : '#143e26';
 
   return (
-    <div style={{ minHeight: '100%', background: '#121212', position: 'relative' }}>
+    <div className="playlist-themed-container" style={{ minHeight: '100%', background: 'var(--color-ss-bg, #fbf9f5)', position: 'relative' }}>
       <style>{`
         /* Dynamic styles to override global elements for this page only */
         @media (max-width: 768px) {
           .app-main {
             padding-bottom: 120px !important;
             border-radius: 0px !important;
-            background: #121212 !important;
+            background: var(--color-ss-bg, #fbf9f5) !important;
           }
           .playlist-desktop-container {
             display: none !important;
@@ -739,18 +739,18 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
             max-width: 90% !important;
             height: 75vh !important;
             border-radius: 20px !important;
-            border: 1px solid rgba(255,255,255,0.1) !important;
-            box-shadow: 0 24px 64px rgba(0,0,0,0.8) !important;
+            border: 1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08)) !important;
+            box-shadow: 0 24px 64px rgba(43, 34, 26, 0.1) !important;
           }
           .carousel-nav-btn:hover {
-            background: rgba(255,255,255,0.12) !important;
-            border-color: rgba(255,255,255,0.2) !important;
+            background: var(--color-ss-hover) !important;
+            border-color: var(--color-ss-border) !important;
             transform: scale(1.05);
           }
         }
         
         .playlist-mobile-container {
-          background-color: #121212;
+          background-color: var(--color-ss-bg, #fbf9f5);
           font-family: 'Spotify Circular', 'Circular', -apple-system, BlinkMacSystemFont, sans-serif;
           min-height: 100vh;
         }
@@ -761,10 +761,127 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
           -ms-overflow-style: none;
           scrollbar-width: none;
         }
+
+        /* ─── Light/Beige Theme CSS Overrides ─── */
+        
+        .playlist-desktop-container h2,
+        .playlist-desktop-container h3,
+        .playlist-desktop-container h4 {
+          color: var(--color-ss-text-primary, #221a15) !important;
+        }
+
+        /* Override general texts to be espresso */
+        .playlist-desktop-container p:not(.hero-text):not(.text-white-force),
+        .playlist-desktop-container span:not(.hero-text):not(.text-white-force) {
+          color: var(--color-ss-text-primary, #221a15) !important;
+        }
+
+        /* Override muted texts */
+        .playlist-desktop-container .text-ss-text-muted,
+        .playlist-desktop-container span[style*="color: rgb(115, 115, 115)"],
+        .playlist-desktop-container p[style*="color: rgb(115, 115, 115)"],
+        .playlist-desktop-container span[style*="color: #737373"],
+        .playlist-desktop-container p[style*="color: #737373"],
+        .playlist-desktop-container div[style*="color: rgb(82, 82, 82)"],
+        .playlist-desktop-container div[style*="color: #525252"],
+        .playlist-desktop-container span[style*="color: #525252"] {
+          color: var(--color-ss-text-muted, #87786c) !important;
+        }
+
+        /* Controls bar buttons */
+        .playlist-desktop-container button:not(.play-btn-force):not(.text-white-force) {
+          color: var(--color-ss-text-primary, #221a15) !important;
+          border-color: rgba(43, 34, 26, 0.2) !important;
+        }
+        
+        /* Lists and card hovers */
+        .playlist-desktop-container div[style*="background: rgba(255, 255, 255, 0.05)"],
+        .playlist-desktop-container div[style*="background: rgba(255,255,255,0.05)"],
+        .playlist-desktop-container div[style*="background: rgba(255, 255, 255, 0.08)"],
+        .playlist-desktop-container div[style*="background: rgba(255,255,255,0.08)"] {
+          background: var(--color-ss-surface, #f4eede) !important;
+          border-color: var(--color-ss-border, rgba(43, 34, 26, 0.08)) !important;
+        }
+
+        /* Borders */
+        .playlist-desktop-container div[style*="border-bottom: 1px solid rgba(255,255,255,0.07)"] {
+          border-bottom: 1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08)) !important;
+        }
+        .playlist-desktop-container div[style*="border-top: 1px solid rgba(255,255,255,0.07)"] {
+          border-top: 1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08)) !important;
+        }
+        .playlist-desktop-container div[style*="border-bottom: 1px solid rgba(255,255,255,0.05)"] {
+          border-bottom: 1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08)) !important;
+        }
+
+        /* Context menus / dropdowns */
+        .playlist-themed-container div[style*="background: rgb(30, 30, 30)"],
+        .playlist-themed-container div[style*="background: #1e1e1e"] {
+          background: var(--color-ss-elevated, #ffffff) !important;
+          border: 1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08)) !important;
+          box-shadow: 0 10px 30px rgba(43, 34, 26, 0.1) !important;
+        }
+        .playlist-themed-container div[style*="background: rgb(30, 30, 30)"] button,
+        .playlist-themed-container div[style*="background: #1e1e1e"] button,
+        .playlist-themed-container div[style*="background: rgb(30, 30, 30)"] span,
+        .playlist-themed-container div[style*="background: #1e1e1e"] span,
+        .playlist-themed-container div[style*="background: rgb(30, 30, 30)"] p,
+        .playlist-themed-container div[style*="background: #1e1e1e"] p {
+          color: var(--color-ss-text-primary, #221a15) !important;
+        }
+        .playlist-themed-container div[style*="background: rgb(30, 30, 30)"] button:hover,
+        .playlist-themed-container div[style*="background: #1e1e1e"] button:hover {
+          background: var(--color-ss-surface, #f4eede) !important;
+        }
+
+        /* Modals & drawers */
+        .playlist-themed-container .all-songs-drawer-content,
+        .playlist-themed-container div[style*="background: rgb(18, 18, 18)"],
+        .playlist-themed-container div[style*="background: #121212"] {
+          background: var(--color-ss-elevated, #ffffff) !important;
+          border-color: var(--color-ss-border, rgba(43, 34, 26, 0.08)) !important;
+        }
+        .playlist-themed-container .all-songs-drawer-content h3,
+        .playlist-themed-container .all-songs-drawer-content p,
+        .playlist-themed-container .all-songs-drawer-content span,
+        .playlist-themed-container .all-songs-drawer-content input,
+        .playlist-themed-container div[style*="background: rgb(18, 18, 18)"] span,
+        .playlist-themed-container div[style*="background: #121212"] span,
+        .playlist-themed-container div[style*="background: rgb(18, 18, 18)"] p,
+        .playlist-themed-container div[style*="background: #121212"] p,
+        .playlist-themed-container div[style*="background: rgb(18, 18, 18)"] h3,
+        .playlist-themed-container div[style*="background: #121212"] h3 {
+          color: var(--color-ss-text-primary, #221a15) !important;
+        }
+        .playlist-themed-container .all-songs-drawer-content input,
+        .playlist-themed-container div[style*="background: rgb(18, 18, 18)"] input,
+        .playlist-themed-container div[style*="background: #121212"] input {
+          background: var(--color-ss-surface, #f4eede) !important;
+          color: var(--color-ss-text-primary, #221a15) !important;
+          border: 1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08)) !important;
+        }
+
+        /* Mobile Container styles */
+        .playlist-mobile-container p,
+        .playlist-mobile-container span,
+        .playlist-mobile-container h1,
+        .playlist-mobile-container h2,
+        .playlist-mobile-container h3,
+        .playlist-mobile-container h4 {
+          color: var(--color-ss-text-primary, #221a15) !important;
+        }
+        .playlist-mobile-container button:not(.play-btn-force):not(.text-white-force) {
+          color: var(--color-ss-text-primary, #221a15) !important;
+          border-color: rgba(43, 34, 26, 0.2) !important;
+        }
+        .playlist-mobile-container input {
+          background: var(--color-ss-elevated, #ffffff) !important;
+          color: var(--color-ss-text-primary, #221a15) !important;
+        }
       `}</style>
 
       {/* ── DESKTOP PLAYLIST VIEW ── */}
-      <div className="playlist-desktop-container" style={{ minHeight: '100%', background: '#0a0a0a', position: 'relative' }}>
+      <div className="playlist-desktop-container" style={{ minHeight: '100%', background: 'var(--color-ss-bg, #fbf9f5)', position: 'relative' }}>
         {/* ── Sticky mini-header ─────────────────────────────────────────── */}
         <AnimatePresence>
           {miniHeader && (
@@ -780,7 +897,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                 paddingLeft: 16,
                 paddingRight: 16,
                 paddingBottom: 10,
-                paddingTop: 'calc(env(safe-area-inset-top, 0px) + 10px)',
+                paddingTop: 'calc(var(--sat, 0px) + 10px)',
                 display: 'flex', alignItems: 'center', gap: 14,
               }}
             >
@@ -800,7 +917,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
         </AnimatePresence>
 
         {/* ── Hero ───────────────────────────────────────────────────────── */}
-        <div ref={heroRef} style={{ position: 'relative', overflow: 'hidden', height: 380, width: '100%', background: '#000' }}>
+        <div ref={heroRef} className="playlist-hero-container" style={{ position: 'relative', overflow: 'hidden', height: 380, width: '100%', background: '#1e1610' }}>
           
           {/* Cover Photo Banner (Using playlist cover or custom gradient) */}
           <div style={{
@@ -822,14 +939,14 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
             ) : customGrad ? (
               <div style={{ width: '100%', height: '100%', background: customGrad, opacity: 0.75 }} />
             ) : (
-              <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #1a3a28, #1e4d35)', opacity: 0.75 }} />
+              <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #2b221a, #b08850)', opacity: 0.75 }} />
             )}
             
             {/* Linear Gradient Overlay for deep contrast */}
             <div style={{
               position: 'absolute',
               inset: 0,
-              background: 'linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.85) 100%)'
+              background: 'linear-gradient(to bottom, rgba(43,34,26,0.15) 0%, rgba(43,34,26,0.85) 100%)'
             }} />
           </div>
 
@@ -839,7 +956,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
           </div>
 
           {/* Playlist Details Overlay (Aligned bottom-left, styled like Nandhini Profile Page) */}
-          <div style={{
+          <div className="playlist-hero-details" style={{
             position: 'absolute',
             bottom: '24px',
             left: '32px',
@@ -856,7 +973,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                 width: 16,
                 height: 16,
                 borderRadius: '50%',
-                background: '#1db954',
+                background: '#b08850',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -1018,7 +1135,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                 borderRadius: '50%',
                 background: 'transparent',
                 border: '1px solid rgba(255,255,255,0.15)',
-                color: shuffle ? '#1db954' : '#fff',
+                color: shuffle ? '#b08850' : '#fff',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -1035,7 +1152,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                 e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
               }}
             >
-              <Shuffle size={14} color={shuffle ? '#1db954' : '#fff'} />
+              <Shuffle size={14} color={shuffle ? '#b08850' : '#fff'} />
             </motion.button>
 
             {/* Save / Follow (+) or Add to your playlist capsule button if not owner */}
@@ -1491,8 +1608,8 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
       {/* ── MOBILE PLAYLIST VIEW ── */}
       <div className="playlist-mobile-container" style={{
         display: 'none',
-        background: `linear-gradient(180deg, ${themeColor} 0%, #121212 50%, #121212 100%)`,
-        paddingTop: 'calc(env(safe-area-inset-top, 0px) + 72px)',
+        background: `linear-gradient(180deg, ${themeColor} 0%, var(--color-ss-bg, #fbf9f5) 50%, var(--color-ss-bg, #fbf9f5) 100%)`,
+        paddingTop: 'calc(var(--sat, 0px) + 72px)',
         paddingBottom: 128,
         minHeight: '100vh',
         boxSizing: 'border-box'
@@ -1505,14 +1622,14 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
           justifyContent: 'space-between',
           paddingLeft: 16,
           paddingRight: 16,
-          paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)',
+          paddingTop: 'calc(var(--sat, 0px) + 16px)',
           paddingBottom: 12,
           position: 'fixed',
           top: 0,
           left: 0,
           right: 0,
           zIndex: 100,
-          backgroundColor: `rgba(18, 18, 18, ${headerBgOpacity})`,
+          backgroundColor: `rgba(251, 249, 245, ${headerBgOpacity})`,
           borderBottom: headerBorder,
         }}>
           <button onClick={() => router.back()} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}>
@@ -1741,7 +1858,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
               {displayCoverImage ? (
                 <img src={displayCoverImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               ) : (
-                <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #1db954, #10b981)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10 }}>🎵</div>
+                <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #b08850, #10b981)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10 }}>🎵</div>
               )}
             </div>
 
@@ -2110,7 +2227,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        color: user?.likedSongs.includes(track.id) ? '#1db954' : 'rgba(255,255,255,0.6)',
+                        color: user?.likedSongs.includes(track.id) ? '#b08850' : 'rgba(255,255,255,0.6)',
                       }}
                     >
                       {user?.likedSongs.includes(track.id) ? (
@@ -2118,7 +2235,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                           width: 20,
                           height: 20,
                           borderRadius: '50%',
-                          background: '#1db954',
+                          background: '#b08850',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -2145,10 +2262,10 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                     >
                       {downloadingIds.includes(track.id) ? (
                         <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} style={{ display: 'flex' }}>
-                          <div style={{ width: 18, height: 18, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.2)', borderTopColor: '#1db954' }} />
+                          <div style={{ width: 18, height: 18, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.2)', borderTopColor: '#b08850' }} />
                         </motion.div>
                       ) : downloadedTrackIds.includes(track.id) ? (
-                        <Download size={20} color="#1db954" />
+                        <Download size={20} color="#b08850" />
                       ) : (
                         <Download size={20} color="rgba(255,255,255,0.6)" />
                       )}
@@ -2267,7 +2384,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                       style={{
                         background: 'transparent',
                         border: 'none',
-                        color: isAdded ? '#1db954' : '#b3b3b3',
+                        color: isAdded ? '#b08850' : '#b3b3b3',
                         cursor: 'pointer',
                         padding: 8,
                         display: 'flex',
@@ -2350,8 +2467,8 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                         borderRadius: 4,
                         fontSize: 9,
                         fontWeight: 800,
-                        color: '#1db954',
-                        border: '1px solid rgba(29, 185, 84,0.3)'
+                        color: '#b08850',
+                        border: '1px solid rgba(176, 136, 80,0.3)'
                       }}>
                         🔥 {numFmt(track.plays || 0)}
                       </div>
@@ -2373,7 +2490,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                           width: 28,
                           height: 28,
                           borderRadius: '50%',
-                          background: isAdded ? '#1db954' : 'rgba(0,0,0,0.8)',
+                          background: isAdded ? '#b08850' : 'rgba(0,0,0,0.8)',
                           border: isAdded ? 'none' : '1px solid rgba(255,255,255,0.3)',
                           display: 'flex',
                           alignItems: 'center',
@@ -2610,7 +2727,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                       setDrawerGenre('');
                     }}
                     style={{
-                      background: drawerCategory === cat ? '#1db954' : 'rgba(255,255,255,0.06)',
+                      background: drawerCategory === cat ? '#b08850' : 'rgba(255,255,255,0.06)',
                       color: drawerCategory === cat ? '#000' : '#fff',
                       border: 'none',
                       borderRadius: 16,
@@ -2638,7 +2755,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                       setDrawerCategory('');
                     }}
                     style={{
-                      background: drawerGenre === gen ? '#1db954' : 'rgba(255,255,255,0.06)',
+                      background: drawerGenre === gen ? '#b08850' : 'rgba(255,255,255,0.06)',
                       color: drawerGenre === gen ? '#000' : '#fff',
                       border: 'none',
                       borderRadius: 16,
@@ -2712,7 +2829,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            color: isAdded ? '#1db954' : '#fff',
+                            color: isAdded ? '#b08850' : '#fff',
                             cursor: 'pointer'
                           }}
                         >
@@ -2785,7 +2902,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                     addPlaylist(newPlaylist);
                     toast.success(`Created playlist "${title}" and added song`, { id: 'playlist-create' });
                   }}
-                  style={{ background: 'none', border: 'none', color: '#1db954', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
+                  style={{ background: 'none', border: 'none', color: '#b08850', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
                 >
                   New playlist
                 </button>
@@ -2819,7 +2936,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                   </div>
                   {user?.likedSongs.includes(pickerTrack.id) ? (
                     <div style={{
-                      width: 22, height: 22, borderRadius: '50%', background: '#1db954',
+                      width: 22, height: 22, borderRadius: '50%', background: '#b08850',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}>
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
@@ -2898,12 +3015,12 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                             )}
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <p style={{ color: alreadyAdded ? '#1db954' : '#fff', fontSize: 14, fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pl.title}</p>
+                            <p style={{ color: alreadyAdded ? '#b08850' : '#fff', fontSize: 14, fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pl.title}</p>
                             <p style={{ color: '#737373', fontSize: 12, margin: '2px 0 0', }}>{pl.tracks.length === 0 ? 'Empty' : `${pl.tracks.length} song${pl.tracks.length === 1 ? '' : 's'}`}</p>
                           </div>
                           {alreadyAdded ? (
                             <div style={{
-                              width: 22, height: 22, borderRadius: '50%', background: '#1db954',
+                              width: 22, height: 22, borderRadius: '50%', background: '#b08850',
                               display: 'flex', alignItems: 'center', justifyContent: 'center',
                             }}>
                               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">

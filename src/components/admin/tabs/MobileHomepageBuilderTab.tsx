@@ -20,8 +20,8 @@ import { EXTENDED_LAYOUT_OPTIONS } from '@/lib/layoutOptions';
 
 // ─── Colors and Styling constants ─────────────────────────────────────────────
 const C = {
-  primary: '#1db954',
-  primaryDim: 'rgba(29, 185, 84, 0.15)',
+  primary: '#b08850',
+  primaryDim: 'rgba(176, 136, 80, 0.15)',
   bg: '#0a0a0a',
   surface: '#121212',
   card: '#1e1e1e',
@@ -130,7 +130,7 @@ export default function MobileHomepageBuilderTab() {
   const [settBgValue, setSettBgValue] = useState('');
   const [settAnimation, setSettAnimation] = useState<SectionConfig['animation']>('fade');
   const [settBorder, setSettBorder] = useState<SectionConfig['borderStyle']>('none');
-  const [settBorderColor, setSettBorderColor] = useState('#1db954');
+  const [settBorderColor, setSettBorderColor] = useState('#b08850');
   const [settAudience, setSettAudience] = useState<'all' | 'premium' | 'free'>('all');
   const [settPadding, setSettPadding] = useState<SectionConfig['padding']>('md');
   const [settCardSize, setSettCardSize] = useState<SectionConfig['cardSize']>('md');
@@ -293,7 +293,7 @@ export default function MobileHomepageBuilderTab() {
     setSettBgValue(sec.background.value);
     setSettAnimation(sec.animation);
     setSettBorder(sec.borderStyle);
-    setSettBorderColor(sec.borderColor || '#1db954');
+    setSettBorderColor(sec.borderColor || '#b08850');
     setSettAudience(sec.audience || 'all');
     setSettPadding(sec.padding);
     setSettCardSize(sec.cardSize || 'md');
@@ -546,7 +546,7 @@ export default function MobileHomepageBuilderTab() {
               disabled={tab.disabled}
               onClick={() => setActivePanel(tab.id as BuilderPanel)}
               style={{
-                background: activePanel === tab.id ? 'rgba(29, 185, 84, 0.1)' : 'transparent',
+                background: activePanel === tab.id ? 'rgba(176, 136, 80, 0.1)' : 'transparent',
                 border: 'none',
                 borderBottom: activePanel === tab.id ? `2px solid ${C.primary}` : '2px solid transparent',
                 color: activePanel === tab.id ? C.primary : tab.disabled ? '#444' : C.muted,
@@ -598,7 +598,7 @@ export default function MobileHomepageBuilderTab() {
                           display: 'flex',
                           alignItems: 'center',
                           gap: 12,
-                          background: selectedSection?.id === sec.id ? 'rgba(29, 185, 84,0.05)' : C.surface,
+                          background: selectedSection?.id === sec.id ? 'rgba(176, 136, 80,0.05)' : C.surface,
                           border: `1px solid ${selectedSection?.id === sec.id ? C.primary : dragOverIdx === idx ? '#444' : C.border}`,
                           borderRadius: 10,
                           padding: '12px 16px',
@@ -1102,7 +1102,7 @@ export default function MobileHomepageBuilderTab() {
             {/* Top header with dynamic gradient backdrop */}
             <div
               style={{
-                background: selectedPreset?.theme?.gradient || 'linear-gradient(180deg, rgba(29, 185, 84,0.08) 0%, rgba(10,10,10,0) 100%)',
+                background: selectedPreset?.theme?.gradient || 'linear-gradient(180deg, rgba(176, 136, 80,0.08) 0%, rgba(10,10,10,0) 100%)',
                 padding: '42px 12px 16px 12px',
                 margin: '-12px -12px 16px -12px', // pull negative margin to fill full-bleed screen width
                 position: 'relative'
@@ -1137,7 +1137,7 @@ export default function MobileHomepageBuilderTab() {
                       <button
                         key={chip}
                         style={{
-                          background: active ? (selectedPreset?.theme?.primary || '#1db954') : 'rgba(255,255,255,0.08)',
+                          background: active ? (selectedPreset?.theme?.primary || '#b08850') : 'rgba(255,255,255,0.08)',
                           color: active ? '#000' : '#fff',
                           border: 'none',
                           borderRadius: 20,
@@ -1273,7 +1273,7 @@ export default function MobileHomepageBuilderTab() {
                           <div style={{ fontSize: 8, color: selectedPreset?.theme?.textMuted || '#737373', marginTop: 1 }}>{likedTracks?.length || 0} tracks saved</div>
                         </div>
                       </div>
-                      <button style={{ width: 28, height: 28, borderRadius: '50%', background: selectedPreset?.theme?.primary || '#1db954', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 10, color: '#000', boxShadow: '0 0 10px rgba(29, 185, 84,0.3)' }}>
+                      <button style={{ width: 28, height: 28, borderRadius: '50%', background: selectedPreset?.theme?.primary || '#b08850', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 10, color: '#000', boxShadow: '0 0 10px rgba(176, 136, 80,0.3)' }}>
                         ▶
                       </button>
                     </div>
@@ -1578,7 +1578,7 @@ export default function MobileHomepageBuilderTab() {
                                       <div style={{ fontSize: 9, fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.name}</div>
                                       <div style={{ fontSize: 7, color: selectedPreset?.theme?.textMuted || '#737373', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.location} • {ev.date}</div>
                                     </div>
-                                    <span style={{ fontSize: 8, fontWeight: 800, color: selectedPreset?.theme?.primary || '#1db954' }}>{ev.price}</span>
+                                    <span style={{ fontSize: 8, fontWeight: 800, color: selectedPreset?.theme?.primary || '#b08850' }}>{ev.price}</span>
                                   </div>
                                 );
                               })}
@@ -1610,7 +1610,7 @@ export default function MobileHomepageBuilderTab() {
                                 <span style={{ color: '#ff0055', fontSize: 7, fontWeight: 800, letterSpacing: '0.05em', display: 'block', marginBottom: 2 }}>FEATURED LIVE SHOW</span>
                                 <div style={{ fontSize: 10, fontWeight: 950, color: '#fff' }}>{ev.name}</div>
                                 <div style={{ fontSize: 7, color: '#ccc', marginTop: 1 }}>📍 {ev.location} • 📅 {ev.date}</div>
-                                <button style={{ background: selectedPreset?.theme?.primary || '#1db954', color: '#000', border: 'none', borderRadius: 8, padding: '3px 8px', fontSize: 7, fontWeight: 800, marginTop: 4 }}>Get Tickets • {ev.price}</button>
+                                <button style={{ background: selectedPreset?.theme?.primary || '#b08850', color: '#000', border: 'none', borderRadius: 8, padding: '3px 8px', fontSize: 7, fontWeight: 800, marginTop: 4 }}>Get Tickets • {ev.price}</button>
                               </div>
                             </div>
                           );
@@ -1806,7 +1806,7 @@ export default function MobileHomepageBuilderTab() {
                               justifyContent: 'center',
                               animation: 'spin 3s linear infinite'
                             }}>
-                              <div style={{ width: 6, height: 6, borderRadius: '50%', background: selectedPreset?.theme?.primary || '#1db954' }} />
+                              <div style={{ width: 6, height: 6, borderRadius: '50%', background: selectedPreset?.theme?.primary || '#b08850' }} />
                             </div>
 
                             <div style={{ position: 'absolute', bottom: 8, left: 8, right: 30, zIndex: 2 }}>
@@ -1837,7 +1837,7 @@ export default function MobileHomepageBuilderTab() {
                             borderRadius: 8,
                             overflow: 'hidden',
                             boxShadow: isCenter ? '0 8px 20px rgba(0,0,0,0.6)' : '0 4px 10px rgba(0,0,0,0.4)',
-                            border: isCenter ? `1.5px solid ${selectedPreset?.theme?.primary || '#1db954'}` : '1px solid rgba(255,255,255,0.06)'
+                            border: isCenter ? `1.5px solid ${selectedPreset?.theme?.primary || '#b08850'}` : '1px solid rgba(255,255,255,0.06)'
                           }}>
                             <img src={coverImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                           </div>
@@ -1894,7 +1894,7 @@ export default function MobileHomepageBuilderTab() {
                         return (
                           <div key={sid} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 8px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: 6 }}>
                             <span style={{ fontSize: 13, fontWeight: 950, color: rankColor, width: 16, textAlign: 'center', fontFamily: 'Outfit, sans-serif' }}>{i + 1}</span>
-                            <span style={{ fontSize: 6.5, color: '#1db954', marginRight: 2 }}>▲</span>
+                            <span style={{ fontSize: 6.5, color: '#b08850', marginRight: 2 }}>▲</span>
                             <div style={{ width: 26, height: 26, borderRadius: 4, overflow: 'hidden', flexShrink: 0 }}>
                               <img src={coverImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             </div>
@@ -1991,7 +1991,7 @@ export default function MobileHomepageBuilderTab() {
                             <div style={{ flex: 1, minWidth: 0, position: 'relative', background: '#181818', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px 8px 8px 0px', padding: '6px 8px' }}>
                               <div style={{ position: 'absolute', left: -6, bottom: 0, width: 0, height: 0, borderTop: '6px solid transparent', borderRight: '6px solid #181818', borderBottom: '0px solid transparent' }} />
                               <div style={{ fontSize: 8, fontStyle: 'italic', color: '#e5e7eb', lineHeight: 1.2 }}>"I make songs for the quiet dreamers of the night..."</div>
-                              <div style={{ fontSize: 7, fontWeight: 800, color: selectedPreset?.theme?.primary || '#1db954', marginTop: 4, textAlign: 'right' }}>— {artist.name}</div>
+                              <div style={{ fontSize: 7, fontWeight: 800, color: selectedPreset?.theme?.primary || '#b08850', marginTop: 4, textAlign: 'right' }}>— {artist.name}</div>
                             </div>
                           </>
                         );
@@ -2089,13 +2089,13 @@ export default function MobileHomepageBuilderTab() {
                               <img src={coverImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             </div>
                             <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ fontSize: 10, fontWeight: 700, color: isCurrent ? (selectedPreset?.theme?.primary || '#1db954') : '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track?.title || 'Track Name'}</div>
+                              <div style={{ fontSize: 10, fontWeight: 700, color: isCurrent ? (selectedPreset?.theme?.primary || '#b08850') : '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track?.title || 'Track Name'}</div>
                               <div style={{ fontSize: 8, color: selectedPreset?.theme?.textMuted || C.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 1 }}>{track?.artistName || 'Artist Name'}</div>
                             </div>
                             {isCurrent && isPlaying ? (
                               <div style={{ display: 'flex', alignItems: 'flex-end', gap: 1.5, marginRight: 4 }}>
                                 {[1, 2, 3].map(bar => (
-                                  <div key={bar} style={{ width: 1.5, background: selectedPreset?.theme?.primary || '#1db954', height: `${3 + bar * 2}px`, animation: `waveform 0.8s ease-in-out infinite` }} />
+                                  <div key={bar} style={{ width: 1.5, background: selectedPreset?.theme?.primary || '#b08850', height: `${3 + bar * 2}px`, animation: `waveform 0.8s ease-in-out infinite` }} />
                                 ))}
                               </div>
                             ) : (
@@ -2131,8 +2131,8 @@ export default function MobileHomepageBuilderTab() {
                                 height: cardW,
                                 borderRadius: isCircle ? '50%' : (isSquare ? 0 : 6),
                                 overflow: 'hidden',
-                                border: (isSquare || isCircle) ? 'none' : (sec.cardStyle === 'neo' ? `1px solid ${selectedPreset?.theme?.primary || '#1db954'}` : 'none'),
-                                boxShadow: (isSquare || isCircle) ? 'none' : (sec.cardStyle === 'neo' ? `0 0 6px ${selectedPreset?.theme?.primary || '#1db954'}30` : 'none'),
+                                border: (isSquare || isCircle) ? 'none' : (sec.cardStyle === 'neo' ? `1px solid ${selectedPreset?.theme?.primary || '#b08850'}` : 'none'),
+                                boxShadow: (isSquare || isCircle) ? 'none' : (sec.cardStyle === 'neo' ? `0 0 6px ${selectedPreset?.theme?.primary || '#b08850'}30` : 'none'),
                                 position: 'relative',
                                 display: 'flex',
                                 alignItems: 'center',
@@ -2145,13 +2145,13 @@ export default function MobileHomepageBuilderTab() {
                                 <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: isCircle ? '50%' : (isSquare ? 0 : 6) }}>
                                   <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2 }}>
                                     {[1, 2, 3].map(bar => (
-                                      <div key={bar} style={{ width: 2, background: selectedPreset?.theme?.primary || '#1db954', height: `${6 + bar * 4}px`, animation: `waveform 0.8s ease-in-out infinite` }} />
+                                      <div key={bar} style={{ width: 2, background: selectedPreset?.theme?.primary || '#b08850', height: `${6 + bar * 4}px`, animation: `waveform 0.8s ease-in-out infinite` }} />
                                     ))}
                                   </div>
                                 </div>
                               )}
                             </div>
-                            <div style={{ fontSize: 9, fontWeight: 700, color: isCurrent ? (selectedPreset?.theme?.primary || '#1db954') : '#fff', marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            <div style={{ fontSize: 9, fontWeight: 700, color: isCurrent ? (selectedPreset?.theme?.primary || '#b08850') : '#fff', marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                               {track?.title || 'Music Title'}
                             </div>
                             <div style={{ fontSize: 7, color: selectedPreset?.theme?.textMuted || C.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -2262,7 +2262,7 @@ export default function MobileHomepageBuilderTab() {
                       alignItems: 'center',
                       justifyContent: 'space-between',
                       padding: '8px 10px',
-                      background: isAdded ? 'rgba(29, 185, 84, 0.08)' : '#0c0c0c',
+                      background: isAdded ? 'rgba(176, 136, 80, 0.08)' : '#0c0c0c',
                       borderRadius: 6,
                       border: `1px solid ${isAdded ? C.primary : 'transparent'}`
                     }}

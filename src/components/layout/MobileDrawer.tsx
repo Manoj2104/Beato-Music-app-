@@ -47,10 +47,10 @@ export default function MobileDrawer() {
           {/* Backdrop Overlay */}
           <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: 0.6 }}
+            animate={{ opacity: 0.45 }}
             exit={{ opacity: 0 }}
             onClick={() => setMobileDrawerOpen(false)}
-            style={{ position: 'absolute', inset: 0, background: '#000' }}
+            style={{ position: 'absolute', inset: 0, background: 'rgba(43, 34, 26, 0.3)' }}
           />
 
           {/* Drawer Content */}
@@ -64,23 +64,23 @@ export default function MobileDrawer() {
               width: '80%',
               maxWidth: 320,
               height: '100%',
-              background: '#121212',
-              boxShadow: '4px 0 24px rgba(0,0,0,0.5)',
+              background: 'var(--color-ss-surface, #f4eede)',
+              boxShadow: '4px 0 24px rgba(43, 34, 26, 0.08)',
               display: 'flex',
               flexDirection: 'column',
               padding: '24px 20px',
-              color: '#fff',
+              color: 'var(--color-ss-text-primary, #221a15)',
               zIndex: 10001,
             }}
           >
             {/* Header info */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14, paddingBottom: 20, borderBottom: '1px solid rgba(255,255,255,0.08)', marginBottom: 24 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, paddingBottom: 20, borderBottom: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))', marginBottom: 24 }}>
               {/* Avatar circle */}
               <div style={{
                 width: 52,
                 height: 52,
                 borderRadius: '50%',
-                background: '#34d399', // Pink circle matching Manoj's avatar
+                background: 'var(--color-ss-primary, #b08850)',
                 color: '#fff',
                 display: 'flex',
                 alignItems: 'center',
@@ -92,10 +92,10 @@ export default function MobileDrawer() {
                 {user?.name ? user.name[0].toUpperCase() : 'M'}
               </div>
               <div>
-                <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 18, fontWeight: 700, color: '#fff' }}>
+                <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 18, fontWeight: 700, color: 'var(--color-ss-text-primary, #221a15)' }}>
                   {user?.name || 'Manoj lastro'}
                 </p>
-                <Link href="/profile" onClick={() => setMobileDrawerOpen(false)} style={{ textDecoration: 'none', color: '#a3a3a3', fontSize: 12, marginTop: 2, display: 'block' }}>
+                <Link href="/profile" onClick={() => setMobileDrawerOpen(false)} style={{ textDecoration: 'none', color: 'var(--color-ss-text-muted, #87786c)', fontSize: 12, marginTop: 2, display: 'block' }}>
                   View profile
                 </Link>
               </div>
@@ -106,8 +106,8 @@ export default function MobileDrawer() {
               {menuItems.map(item => {
                 const Icon = item.icon;
                 const content = (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 16, cursor: 'pointer', color: '#fff' }}>
-                    <Icon size={24} color="#fff" />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16, cursor: 'pointer', color: 'var(--color-ss-text-primary, #221a15)' }}>
+                    <Icon size={24} color="var(--color-ss-text-primary, #221a15)" />
                     <span style={{ fontSize: 16, fontWeight: 600 }}>{item.label}</span>
                   </div>
                 );
@@ -130,8 +130,8 @@ export default function MobileDrawer() {
               {/* Become an Artist for standard USER */}
               {role === 'USER' && (
                 <Link href="/artist/apply" onClick={() => setMobileDrawerOpen(false)} style={{ textDecoration: 'none' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 16, cursor: 'pointer', color: '#fff' }}>
-                    <Mic2 size={24} color="#fff" />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16, cursor: 'pointer', color: 'var(--color-ss-text-primary, #221a15)' }}>
+                    <Mic2 size={24} color="var(--color-ss-text-primary, #221a15)" />
                     <span style={{ fontSize: 16, fontWeight: 600 }}>Become an Artist</span>
                   </div>
                 </Link>
@@ -142,10 +142,10 @@ export default function MobileDrawer() {
                 <div>
                   <div 
                     onClick={() => setIsArtistPanelOpen(!isArtistPanelOpen)}
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', color: '#fff' }}
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', color: 'var(--color-ss-text-primary, #221a15)' }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                      <Mic2 size={24} color="#fff" />
+                      <Mic2 size={24} color="var(--color-ss-text-primary, #221a15)" />
                       <span style={{ fontSize: 16, fontWeight: 600 }}>Artist Panel</span>
                     </div>
                     <motion.div
@@ -153,7 +153,7 @@ export default function MobileDrawer() {
                       transition={{ duration: 0.2 }}
                       style={{ display: 'flex', alignItems: 'center' }}
                     >
-                      <ChevronDown size={18} color="#a3a3a3" />
+                      <ChevronDown size={18} color="var(--color-ss-text-muted, #87786c)" />
                     </motion.div>
                   </div>
 
@@ -176,9 +176,9 @@ export default function MobileDrawer() {
                               style={{ textDecoration: 'none' }}
                             >
                               <div 
-                                style={{ display: 'flex', alignItems: 'center', gap: 14, color: '#a3a3a3', cursor: 'pointer' }}
-                                onMouseEnter={e => e.currentTarget.style.color = '#fff'}
-                                onMouseLeave={e => e.currentTarget.style.color = '#a3a3a3'}
+                                style={{ display: 'flex', alignItems: 'center', gap: 14, color: 'var(--color-ss-text-secondary, #4d3f35)', cursor: 'pointer' }}
+                                onMouseEnter={e => e.currentTarget.style.color = 'var(--color-ss-text-primary, #221a15)'}
+                                onMouseLeave={e => e.currentTarget.style.color = 'var(--color-ss-text-secondary, #4d3f35)'}
                               >
                                 <SubIcon size={20} />
                                 <span style={{ fontSize: 15, fontWeight: 500 }}>{subItem.label}</span>
@@ -195,8 +195,8 @@ export default function MobileDrawer() {
               {/* Admin Panel for ADMIN or SUPER_ADMIN */}
               {(role === 'ADMIN' || role === 'SUPER_ADMIN') && (
                 <Link href="/admin/dashboard" onClick={() => setMobileDrawerOpen(false)} style={{ textDecoration: 'none' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 16, cursor: 'pointer', color: '#fff' }}>
-                    <Shield size={24} color="#fff" />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16, cursor: 'pointer', color: 'var(--color-ss-text-primary, #221a15)' }}>
+                    <Shield size={24} color="var(--color-ss-text-primary, #221a15)" />
                     <span style={{ fontSize: 16, fontWeight: 600 }}>Admin Panel</span>
                   </div>
                 </Link>
@@ -215,12 +215,12 @@ export default function MobileDrawer() {
                 alignItems: 'center', 
                 gap: 16, 
                 cursor: 'pointer', 
-                color: '#f87171',
+                color: '#ef4444',
                 paddingTop: 20,
-                borderTop: '1px solid rgba(255,255,255,0.08)'
+                borderTop: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))'
               }}
             >
-              <LogOut size={24} color="#f87171" />
+              <LogOut size={24} color="#ef4444" />
               <span style={{ fontSize: 16, fontWeight: 600 }}>Logout</span>
             </div>
           </motion.div>

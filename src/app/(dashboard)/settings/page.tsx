@@ -12,24 +12,24 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 /* ─── Design tokens ─── */
-const G = '#1db954';
-const BG = '#0a0a0a';
-const CARD = '#141414';
-const CARD2 = '#1a1a1a';
-const BORDER = 'rgba(255,255,255,0.08)';
-const BORDER2 = 'rgba(255,255,255,0.05)';
-const MUTED = '#6b6b6b';
-const SOFT = '#a3a3a3';
-const WHITE = '#ffffff';
+const G = '#b08850';
+const BG = 'var(--color-ss-bg, #fbf9f5)';
+const CARD = 'var(--color-ss-elevated, #ffffff)';
+const CARD2 = 'var(--color-ss-surface, #f4eede)';
+const BORDER = 'var(--color-ss-border, rgba(43, 34, 26, 0.08))';
+const BORDER2 = 'var(--color-ss-border, rgba(43, 34, 26, 0.05))';
+const MUTED = 'var(--color-ss-text-muted, #87786c)';
+const SOFT = '#4d3f35';
+const WHITE = 'var(--color-ss-text-primary, #221a15)';
 
-const BANNER_IMG = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&h=600&fit=crop';
+const BANNER_IMG = '/images/settings_banner.png';
 
 /* ─── Reusable Toggle ─── */
 function Toggle({ on, onChange }: { on: boolean; onChange: () => void }) {
   return (
     <button onClick={onChange} style={{
       width: 46, height: 26, borderRadius: 13, position: 'relative',
-      background: on ? G : 'rgba(255,255,255,0.1)', border: 'none',
+      background: on ? G : 'rgba(43,34,26,0.12)', border: 'none',
       cursor: 'pointer', transition: 'background 0.25s', flexShrink: 0, outline: 'none',
     }}>
       <motion.div
@@ -63,13 +63,13 @@ function Input({ value, onChange, placeholder, type = 'text', readOnly = false }
       type={type} readOnly={readOnly} placeholder={placeholder}
       onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
       style={{
-        width: '100%', background: readOnly ? 'rgba(255,255,255,0.02)' : CARD2,
+        width: '100%', background: readOnly ? 'rgba(43,34,26,0.02)' : CARD2,
         border: `1.5px solid ${focused ? G : readOnly ? BORDER2 : BORDER}`,
         borderRadius: 10, padding: '12px 16px',
         color: readOnly ? MUTED : WHITE, fontSize: 14, outline: 'none',
         cursor: readOnly ? 'not-allowed' : 'text', fontFamily: 'Inter, sans-serif',
         boxSizing: 'border-box', transition: 'border-color 0.2s',
-        boxShadow: focused ? `0 0 0 3px rgba(29, 185, 84,0.12)` : 'none',
+        boxShadow: focused ? `0 0 0 3px rgba(176, 136, 80,0.12)` : 'none',
       }}
     />
   );
@@ -193,7 +193,7 @@ export default function SettingsPage() {
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
     toast.success('Settings saved successfully!', {
-      style: { background: '#1a1a1a', color: '#fff', border: '1px solid rgba(29, 185, 84,0.3)', borderRadius: 12 },
+      style: { background: 'var(--color-ss-elevated, #ffffff)', color: 'var(--color-ss-text-primary, #221a15)', border: '1px solid rgba(176, 136, 80,0.3)', borderRadius: 12 },
     });
   };
 
@@ -209,7 +209,7 @@ export default function SettingsPage() {
       }
 
       toast.success('Your account has been permanently deleted.', {
-        style: { background: '#1a1a1a', color: '#fff', border: '1px solid #ef4444', borderRadius: 12 },
+        style: { background: '#ffffff', color: '#ef4444', border: '1px solid #ef4444', borderRadius: 12 },
       });
 
       await logout();
@@ -223,46 +223,77 @@ export default function SettingsPage() {
   };
 
   return (
-    <div style={{ minHeight: '100%', background: BG, display: 'flex', flexDirection: 'column', color: '#fff', position: 'relative' }}>
+    <div style={{ minHeight: '100%', background: BG, display: 'flex', flexDirection: 'column', color: WHITE, position: 'relative' }}>
       
       {/* ─── Cover Header Section ─── */}
-      {isMobile ? (
+      <div style={{
+        position: 'relative',
+        height: isMobile ? 260 : 320,
+        width: '100%',
+        overflow: 'hidden',
+        background: '#000'
+      }}>
+        {/* Banner Cover image */}
+        <img 
+          src={BANNER_IMG} 
+          alt="Settings" 
+          style={{ 
+            width: '100%', 
+            height: '100%', 
+            objectFit: 'cover',
+            opacity: 0.65
+          }} 
+        />
+        
+        {/* Linear Gradient Overlay */}
         <div style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 50,
-          background: '#0a0a0a',
-          paddingTop: 'calc(env(safe-area-inset-top, 24px) + 12px)',
-          paddingBottom: '12px',
-          paddingLeft: '16px',
-          paddingRight: '16px',
-          borderBottom: '1px solid rgba(255,255,255,0.05)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 16
+          position: 'absolute',
+          inset: 0,
+          background: 'linear-gradient(to bottom, rgba(43,34,26,0.15) 0%, rgba(43,34,26,0.85) 100%)',
+          zIndex: 1
+        }} />
+
+        {/* Back Arrow Button (Overlaid top-left) */}
+        <div style={{ 
+          position: 'absolute', 
+          top: isMobile ? 'calc(var(--sat, 0px) + 16px)' : '24px', 
+          left: isMobile ? '16px' : '24px',
+          zIndex: 10
         }}>
           <button 
             onClick={() => router.back()} 
             style={{ 
-              background: 'none', 
+              width: 36, 
+              height: 36, 
+              borderRadius: '50%', 
+              background: 'rgba(0,0,0,0.6)', 
               border: 'none', 
-              color: '#fff', 
               cursor: 'pointer', 
-              padding: 0, 
               display: 'flex', 
-              alignItems: 'center' 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              color: WHITE, 
+              transition: 'background 0.2s' 
             }}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.8)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.6)'}
           >
-            <ChevronLeft size={24} />
+            <ChevronLeft size={22} />
           </button>
-          <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 20, fontWeight: 900, color: '#fff', margin: 0 }}>
-            Settings
-          </h1>
-          <div style={{ marginLeft: 'auto' }}>
-            <Link href="/profile" style={{ textDecoration: 'none' }}>
+        </div>
+
+        {/* Profile Avatar overlay top-right */}
+        <div style={{ 
+          position: 'absolute', 
+          top: isMobile ? 'calc(var(--sat, 0px) + 16px)' : '24px', 
+          right: isMobile ? '16px' : '24px',
+          zIndex: 10
+        }}>
+          <Link href="/profile" style={{ textDecoration: 'none' }}>
+            <div style={{ position: 'relative' }}>
               <div style={{
-                width: 32,
-                height: 32,
+                width: 36,
+                height: 36,
                 borderRadius: '50%',
                 overflow: 'hidden',
                 border: '2px solid rgba(255,255,255,0.2)',
@@ -270,7 +301,7 @@ export default function SettingsPage() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: 900,
                 color: '#000',
               }}>
@@ -279,170 +310,81 @@ export default function SettingsPage() {
                   : (name?.[0] || 'U')
                 }
               </div>
-            </Link>
-          </div>
-        </div>
-      ) : (
-        <div style={{
-          position: 'relative',
-          height: 320,
-          width: '100%',
-          overflow: 'hidden',
-          background: '#000'
-        }}>
-          {/* Banner Cover image */}
-          <img 
-            src={BANNER_IMG} 
-            alt="Settings" 
-            style={{ 
-              width: '100%', 
-              height: '100%', 
-              objectFit: 'cover',
-              opacity: 0.65
-            }} 
-          />
-          
-          {/* Linear Gradient Overlay */}
-          <div style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.85) 100%)',
-            zIndex: 1
-          }} />
-
-          {/* Back Arrow Button (Overlaid top-left) */}
-          <div style={{ 
-            position: 'absolute', 
-            top: '24px', 
-            left: '24px',
-            zIndex: 10
-          }}>
-            <button 
-              onClick={() => router.back()} 
-              style={{ 
-                width: 36, 
-                height: 36, 
-                borderRadius: '50%', 
-                background: 'rgba(0,0,0,0.6)', 
-                border: 'none', 
-                cursor: 'pointer', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                color: '#fff', 
-                transition: 'background 0.2s' 
-              }}
-              onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.8)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.6)'}
-            >
-              <ChevronLeft size={22} />
-            </button>
-          </div>
-
-          {/* Profile Avatar overlay top-right */}
-          <div style={{ 
-            position: 'absolute', 
-            top: '24px', 
-            right: '24px',
-            zIndex: 10
-          }}>
-            <Link href="/profile" style={{ textDecoration: 'none' }}>
-              <div style={{ position: 'relative' }}>
-                <div style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: '50%',
-                  overflow: 'hidden',
-                  border: '2px solid rgba(255,255,255,0.2)',
-                  background: `linear-gradient(135deg, ${G}, #10b981)`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 14,
-                  fontWeight: 900,
-                  color: '#000',
-                }}>
-                  {avatar
-                    ? <img src={avatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    : (name?.[0] || 'U')
-                  }
-                </div>
-                <div style={{
-                  position: 'absolute',
-                  top: 0,
-                  right: 0,
-                  width: 10,
-                  height: 10,
-                  borderRadius: '50%',
-                  background: G,
-                  border: '2px solid #000',
-                }} />
-              </div>
-            </Link>
-          </div>
-
-          {/* Settings Details Overlay (Aligned bottom-left) */}
-          <div style={{
-            position: 'absolute',
-            bottom: '24px',
-            left: '32px',
-            right: '32px',
-            zIndex: 2,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 6
-          }}>
-            {/* Config Badge */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <div style={{
-                width: 16,
-                height: 16,
+                position: 'absolute',
+                top: 0,
+                right: 0,
+                width: 10,
+                height: 10,
                 borderRadius: '50%',
                 background: G,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#000',
-                flexShrink: 0
-              }}>
-                <Check size={10} strokeWidth={4} color="black" />
-              </div>
-              <span style={{ 
-                fontSize: 12, 
-                fontWeight: 700, 
-                color: '#fff',
-                fontFamily: 'Inter, sans-serif'
-              }}>
-                System Preferences
-              </span>
+                border: '2px solid #000',
+              }} />
             </div>
-
-            {/* Page Title */}
-            <h1 style={{ 
-              fontFamily: 'Outfit, sans-serif', 
-              fontSize: 48, 
-              fontWeight: 900, 
-              letterSpacing: '-0.02em', 
-              margin: '0 0 2px 0',
-              color: '#fff',
-              lineHeight: 1.1,
-              textShadow: '0 2px 8px rgba(0,0,0,0.6)'
-            }}>
-              Settings
-            </h1>
-
-            <p style={{ 
-              fontSize: 13.5, 
-              fontWeight: 600, 
-              color: '#d1d5db', 
-              margin: 0,
-              textShadow: '0 1px 4px rgba(0,0,0,0.5)'
-            }}>
-              Manage your account, playback preferences, and display theme.
-            </p>
-          </div>
+          </Link>
         </div>
-      )}
+
+        {/* Settings Details Overlay (Aligned bottom-left) */}
+        <div style={{
+          position: 'absolute',
+          bottom: '24px',
+          left: isMobile ? '16px' : '32px',
+          right: isMobile ? '16px' : '32px',
+          zIndex: 2,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 6
+        }}>
+          {/* Config Badge */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{
+              width: 16,
+              height: 16,
+              borderRadius: '50%',
+              background: G,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#000',
+              flexShrink: 0
+            }}>
+              <Check size={10} strokeWidth={4} color="black" />
+            </div>
+            <span style={{ 
+              fontSize: 12, 
+              fontWeight: 700, 
+              color: WHITE,
+              fontFamily: 'Inter, sans-serif'
+            }}>
+              System Preferences
+            </span>
+          </div>
+
+          {/* Page Title */}
+          <h1 style={{ 
+            fontFamily: 'Outfit, sans-serif', 
+            fontSize: isMobile ? 36 : 48, 
+            fontWeight: 900, 
+            letterSpacing: '-0.02em', 
+            margin: '0 0 2px 0',
+            color: WHITE,
+            lineHeight: 1.1,
+            textShadow: '0 2px 8px rgba(0,0,0,0.6)'
+          }}>
+            Settings
+          </h1>
+
+          <p style={{ 
+            fontSize: isMobile ? 12.5 : 13.5, 
+            fontWeight: 600, 
+            color: '#d1d5db', 
+            margin: 0,
+            textShadow: '0 1px 4px rgba(0,0,0,0.5)'
+          }}>
+            Manage your account, playback preferences, and display theme.
+          </p>
+        </div>
+      </div>
 
       {/* ─── Main Content ─── */}
       <div style={{ 
@@ -465,8 +407,8 @@ export default function SettingsPage() {
             style={{
               padding: '8px 24px',
               borderRadius: 20,
-              background: saved ? 'rgba(29, 185, 84, 0.15)' : G,
-              border: saved ? `1px solid rgba(29, 185, 84,0.4)` : 'none',
+              background: saved ? 'rgba(176, 136, 80, 0.15)' : G,
+              border: saved ? `1px solid rgba(176, 136, 80,0.4)` : 'none',
               color: saved ? G : '#000',
               fontSize: 13,
               fontWeight: 800,
@@ -476,7 +418,7 @@ export default function SettingsPage() {
               alignItems: 'center',
               gap: 6,
               transition: 'all 0.2s',
-              boxShadow: saved ? 'none' : '0 4px 14px rgba(29, 185, 84,0.35)',
+              boxShadow: saved ? 'none' : '0 4px 14px rgba(176, 136, 80,0.35)',
             }}
           >
             {saved ? <Check size={14} /> : <Save size={14} />}
@@ -490,8 +432,8 @@ export default function SettingsPage() {
               padding: '8px 20px',
               borderRadius: 20,
               background: 'transparent',
-              border: '1px solid rgba(255,255,255,0.4)',
-              color: '#fff',
+              border: '1px solid rgba(43, 34, 26, 0.3)',
+              color: WHITE,
               fontSize: 13,
               fontWeight: 700,
               cursor: 'pointer',
@@ -507,9 +449,9 @@ export default function SettingsPage() {
               e.currentTarget.style.color = '#f87171';
             }}
             onMouseLeave={e => {
-              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)';
+              e.currentTarget.style.borderColor = 'rgba(43, 34, 26, 0.3)';
               e.currentTarget.style.background = 'transparent';
-              e.currentTarget.style.color = '#fff';
+              e.currentTarget.style.color = WHITE;
             }}
           >
             <LogOut size={14} />
@@ -528,8 +470,8 @@ export default function SettingsPage() {
               <div style={{ position: 'relative', cursor: 'pointer' }} onClick={() => fileInputRef.current?.click()}>
                 <div style={{
                   width: 96, height: 96, borderRadius: '50%', overflow: 'hidden',
-                  border: `3.5px solid rgba(29, 185, 84,0.5)`,
-                  boxShadow: '0 0 25px rgba(29, 185, 84,0.15)',
+                  border: `3.5px solid rgba(176, 136, 80,0.5)`,
+                  boxShadow: '0 0 25px rgba(176, 136, 80,0.15)',
                   background: `linear-gradient(135deg, ${G}, #10b981)`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: 34, fontWeight: 900, color: '#000', position: 'relative',
@@ -564,12 +506,12 @@ export default function SettingsPage() {
                   onClick={() => fileInputRef.current?.click()}
                   style={{
                     padding: '8px 18px', borderRadius: 8,
-                    background: 'rgba(255,255,255,0.06)', border: `1px solid ${BORDER}`,
+                    background: 'rgba(43, 34, 26, 0.04)', border: `1px solid ${BORDER}`,
                     color: SOFT, fontSize: 12, fontWeight: 700, cursor: 'pointer',
                     fontFamily: 'Inter, sans-serif', transition: 'all 0.15s',
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = WHITE; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = SOFT; }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(43, 34, 26, 0.08)'; e.currentTarget.style.color = WHITE; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(43, 34, 26, 0.04)'; e.currentTarget.style.color = SOFT; }}
                 >
                   Change Photo
                 </button>
@@ -628,7 +570,7 @@ export default function SettingsPage() {
             <div style={{ padding: '16px 18px', borderRadius: 12, background: 'rgba(255,255,255,0.02)', border: `1px solid ${BORDER2}`, marginBottom: 24 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                 <p style={{ fontSize: 14, fontWeight: 600, color: WHITE }}>Crossfade</p>
-                <span style={{ fontSize: 12, fontWeight: 800, color: G, background: 'rgba(29, 185, 84,0.1)', padding: '3px 12px', borderRadius: 20 }}>{crossfade}s</span>
+                <span style={{ fontSize: 12, fontWeight: 800, color: G, background: 'rgba(176, 136, 80,0.1)', padding: '3px 12px', borderRadius: 20 }}>{crossfade}s</span>
               </div>
               <p style={{ fontSize: 12, color: MUTED, marginBottom: 14 }}>Overlap audio when transitioning between tracks.</p>
               <input type="range" min={0} max={12} value={crossfade} onChange={e => setCrossfade(+e.target.value)}
@@ -652,9 +594,9 @@ export default function SettingsPage() {
                   <button key={q.id} onClick={() => setQuality(q.id)} style={{
                     display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px',
                     borderRadius: 12, border: `1.5px solid ${sel ? G : BORDER2}`,
-                    background: sel ? 'rgba(29, 185, 84,0.06)' : 'rgba(255,255,255,0.02)',
+                    background: sel ? 'rgba(176, 136, 80,0.06)' : 'rgba(255,255,255,0.02)',
                     cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s', width: '100%',
-                    boxShadow: sel ? `0 0 0 3px rgba(29, 185, 84,0.1)` : 'none',
+                    boxShadow: sel ? `0 0 0 3px rgba(176, 136, 80,0.1)` : 'none',
                   }}>
                     <div style={{
                       width: 18, height: 18, borderRadius: '50%', flexShrink: 0,
@@ -715,7 +657,7 @@ export default function SettingsPage() {
                         }
                         window.localStorage.setItem('beato_api_url', cleaned);
                         toast.success('Connection settings saved! Reloading...', {
-                          style: { background: '#1a1a1a', color: '#fff', border: '1px solid rgba(29, 185, 84,0.3)', borderRadius: 12 },
+                          style: { background: 'var(--color-ss-elevated, #ffffff)', color: 'var(--color-ss-text-primary, #221a15)', border: '1px solid rgba(176, 136, 80,0.3)', borderRadius: 12 },
                         });
                         setTimeout(() => {
                           window.location.reload();
@@ -734,7 +676,7 @@ export default function SettingsPage() {
                       fontFamily: 'Outfit, sans-serif',
                       transition: 'all 0.2s',
                     }}
-                    onMouseEnter={e => e.currentTarget.style.background = '#1ed760'}
+                    onMouseEnter={e => e.currentTarget.style.background = '#937041'}
                     onMouseLeave={e => e.currentTarget.style.background = G}
                   >
                     Save & Reload
@@ -809,14 +751,14 @@ export default function SettingsPage() {
               transition={{ type: 'spring', damping: 25, stiffness: 350 }}
               style={{
                 position: 'relative',
-                background: '#141414',
+                background: '#ffffff',
                 border: '1px solid rgba(239, 68, 68, 0.25)',
                 borderRadius: 20,
                 padding: '32px',
                 zIndex: 10000,
                 width: 420,
                 maxWidth: '90vw',
-                boxShadow: '0 20px 50px rgba(0,0,0,0.8), 0 0 40px rgba(239, 68, 68, 0.05)',
+                boxShadow: '0 20px 50px rgba(43, 34, 26, 0.15), 0 0 40px rgba(239, 68, 68, 0.05)',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
@@ -827,12 +769,12 @@ export default function SettingsPage() {
                 }}>
                   <Trash2 size={20} color="#f87171" />
                 </div>
-                <div style={{ fontSize: 18, fontWeight: 900, color: '#fff', fontFamily: 'Outfit, sans-serif' }}>
+                <div style={{ fontSize: 18, fontWeight: 900, color: '#221a15', fontFamily: 'Outfit, sans-serif' }}>
                   Delete Account permanently?
                 </div>
               </div>
               
-              <p style={{ fontSize: 13, color: '#a3a3a3', lineHeight: 1.6, marginBottom: 28 }}>
+              <p style={{ fontSize: 13, color: '#4d3f35', lineHeight: 1.6, marginBottom: 28 }}>
                 Are you sure you want to permanently delete your account and profile data? This action <strong>cannot be undone</strong> and you will immediately lose access to your playlists, likes, and music.
               </p>
               
@@ -844,9 +786,9 @@ export default function SettingsPage() {
                     flex: 1,
                     padding: '12px',
                     borderRadius: 10,
-                    border: '1px solid rgba(255,255,255,0.08)',
+                    border: '1px solid rgba(43, 34, 26, 0.15)',
                     background: 'transparent',
-                    color: '#a3a3a3',
+                    color: '#87786c',
                     fontSize: 13,
                     fontWeight: 700,
                     cursor: deleteLoading ? 'not-allowed' : 'pointer',

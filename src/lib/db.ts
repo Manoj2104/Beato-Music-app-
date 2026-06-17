@@ -2767,4 +2767,19 @@ export const db = {
     writeDb(data);
     return true;
   },
+
+  // ⚡ Homepage layout data — uses the cached readDb() so no extra disk read
+  getHomepageData: () => {
+    const data = readDb();
+    const allPromos: any[] = (data as any).promotions || [];
+    return {
+      promotions: allPromos.filter((p: any) => p.status === 'active'),
+      homeLayoutOrder: (data as any).homeLayoutOrder || [],
+      customSections: (data as any).customSections || {},
+      activeTheme: (data as any).activeTheme || null,
+      activePreset: (data as any).activePreset || null,
+      events: (data as any).events || [],
+    };
+  },
 };
+

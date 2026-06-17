@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, ReactNode } from 'react';
+import { useState, useEffect, useRef, ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, ChevronRight, Heart, Music, Sparkles, TrendingUp, Clock, Headphones, Star, Search, X, Plus, Check, Bell } from 'lucide-react';
 import Link from 'next/link';
@@ -15,8 +15,13 @@ import { useDownloadStore } from '@/store/downloadStore';
 import { search, SearchResult } from '@/lib/search';
 import toast from 'react-hot-toast';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
-const GREEN = 'var(--color-ss-primary, #1db954)';
+const GREEN = 'var(--color-ss-primary, #b08850)';
+
+// ⚡ Module-level flag: after first hydration, subsequent tab
+// navigations initialize mounted=true, skipping the spinner flash.
+let _homeHydrated = false;
 
 const greet = () => {
   const h = new Date().getHours();
@@ -105,7 +110,7 @@ function AlbumCardInline({ track, onPlay, isPlaying, isActive, cardStyle = 'clas
   } else if (cardStyle === 'neo') {
     wrapperStyle = {
       ...wrapperStyle,
-      background: 'rgba(29, 185, 84, 0.02)',
+      background: 'rgba(176, 136, 80, 0.02)',
       border: `1px solid var(--theme-primary, ${GREEN})30`,
       padding: defaultPadding,
       borderRadius: '16px',
@@ -116,14 +121,14 @@ function AlbumCardInline({ track, onPlay, isPlaying, isActive, cardStyle = 'clas
   } else if (cardStyle === 'retro') {
     wrapperStyle = {
       ...wrapperStyle,
-      background: '#0e021a',
-      border: '2px solid #ff007f',
+      background: 'var(--color-ss-elevated, #ffffff)',
+      border: '1.5px solid var(--color-ss-primary, #b08850)',
       padding: retroPadding,
-      borderRadius: '8px',
-      boxShadow: hov ? '5px 5px 0px #00ffff' : '2px 2px 0px #00ffff',
-      transform: hov ? 'translate(-3px, -3px)' : 'none',
+      borderRadius: '12px',
+      boxShadow: hov ? '4px 4px 0px var(--color-ss-secondary, #8c6c44)' : '2px 2px 0px var(--color-ss-secondary, #8c6c44)',
+      transform: hov ? 'translate(-2px, -2px)' : 'none',
     };
-    imageContainerStyle.borderRadius = 6;
+    imageContainerStyle.borderRadius = 8;
   } else if (cardStyle === 'gradient') {
     wrapperStyle = {
       ...wrapperStyle,
@@ -192,7 +197,7 @@ function AlbumCardInline({ track, onPlay, isPlaying, isActive, cardStyle = 'clas
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 4px 14px rgba(29, 185, 84,0.5)',
+                boxShadow: '0 4px 14px rgba(176, 136, 80,0.5)',
                 zIndex: 10
               }}>
               {isActive && isPlaying ? (
@@ -205,11 +210,11 @@ function AlbumCardInline({ track, onPlay, isPlaying, isActive, cardStyle = 'clas
         </AnimatePresence>
       </div>
       <div style={{ flex: 1, paddingRight: isBanner ? 12 : 0, minWidth: 0 }}>
-        <p style={{ color: '#fff', fontSize: titleSize, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{track.title}</p>
+        <p style={{ color: '#221a15', fontSize: titleSize, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{track.title}</p>
         <Link href={`/artist/${track.artistId}`} onClick={e => e.stopPropagation()} style={{ textDecoration: 'none', width: '100%', display: 'block' }}>
-          <p style={{ color: '#737373', fontSize: artistSize, marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}
-            onMouseEnter={e => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.textDecoration = 'underline'; }}
-            onMouseLeave={e => { e.currentTarget.style.color = '#737373'; e.currentTarget.style.textDecoration = 'none'; }}>
+          <p style={{ color: '#87786c', fontSize: artistSize, marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}
+            onMouseEnter={e => { e.currentTarget.style.color = '#221a15'; e.currentTarget.style.textDecoration = 'underline'; }}
+            onMouseLeave={e => { e.currentTarget.style.color = '#87786c'; e.currentTarget.style.textDecoration = 'none'; }}>
             {track.artistName}
           </p>
         </Link>
@@ -280,24 +285,21 @@ function AdCard({ config, isMobile }: { config: any; isMobile: boolean }) {
 
 
 function Section({ title, subtitle, link, linkText = 'Show all', children, style }: { title: string; subtitle?: string; link?: string; linkText?: string; children: ReactNode; style?: React.CSSProperties }) {
-  const displayTitle = title.replace(/^[^\w\s]+\s*/, '');
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    setIsMobile(window.innerWidth <= 768);
-  }, []);
+  const displayTitle = title.replace(/^[\W]+\s*/, '');
+  const isMobile = useIsMobile(); // ⚡ shared, no extra resize listener
   return (
-    <motion.section initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+    <motion.section initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.15 }}
       style={{ marginBottom: 12, ...style }}>
       {(title || subtitle || link) && (
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 16 }}>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            {subtitle && <p style={{ color: '#a3a3a3', fontSize: 13, marginBottom: 4 }}>{subtitle}</p>}
-            {title && <h2 style={{ fontFamily: 'Circular, Inter, Outfit, sans-serif', color: '#fff', fontSize: 20, fontWeight: 700, letterSpacing: '-0.02em', margin: 0 }}>{displayTitle}</h2>}
+            {subtitle && <p style={{ color: '#87786c', fontSize: 13, marginBottom: 4 }}>{subtitle}</p>}
+            {title && <h2 style={{ fontFamily: 'Circular, Inter, Outfit, sans-serif', color: '#221a15', fontSize: 20, fontWeight: 700, letterSpacing: '-0.02em', margin: 0 }}>{displayTitle}</h2>}
           </div>
           {link && (
-            <Link href={link} style={{ color: 'rgba(255,255,255,0.4)', fontSize: isMobile ? 12 : 14, fontWeight: 700, textDecoration: 'none', marginBottom: 4 }}
-              onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
-              onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.4)')}>
+            <Link href={link} style={{ color: 'rgba(43,34,26,0.4)', fontSize: isMobile ? 12 : 14, fontWeight: 700, textDecoration: 'none', marginBottom: 4 }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#221a15')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'rgba(43,34,26,0.4)')}>
               {linkText}
             </Link>
           )}
@@ -310,24 +312,18 @@ function Section({ title, subtitle, link, linkText = 'Show all', children, style
 
 export default function HomePage() {
   const isOnline = useNetworkStatus();
-  const [mounted, setMounted] = useState(false);
+  const prevOnlineRef = useRef<boolean | null>(null);
+  const [mounted, setMounted] = useState(_homeHydrated);
   const { currentTrack, isPlaying, playTrack, togglePlay } = usePlayerStore();
   const { user, toggleSavePlaylist, toggleLikeSong, setMobileDrawerOpen } = useAuthStore();
-  const [isMobile, setIsMobile] = useState(false);
+  const isMobile = useIsMobile(); // ⚡ shared single resize listener
   const [hasShownToast, setHasShownToast] = useState(false);
   const [showMobileNotificationDropdown, setShowMobileNotificationDropdown] = useState(false);
   const { getAllTracks, getForYouTracks, uploadedTracks, recentlyPlayed, genreScores, activeArtistIds, fetchTracks } = useMusicStore();
   const { customPlaylists } = usePlaylistStore();
   const { downloadedTracks } = useDownloadStore();
 
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+
 
   const approvedUploadedTracks = uploadedTracks.filter(t => t.status === 'approved');
 
@@ -389,6 +385,7 @@ export default function HomePage() {
   const [cartTracks, setCartTracks] = useState<any[]>([]);
 
   useEffect(() => {
+    _homeHydrated = true;
     setMounted(true);
     fetchTracks();
 
@@ -451,11 +448,31 @@ export default function HomePage() {
         }
       };
       fetchPromos();
-      toast.success('Back online! Syncing latest music... ⚡', { id: 'online-sync' });
+      
+      if (prevOnlineRef.current === false) {
+        toast.success('Back online! Syncing latest music... ⚡', {
+          id: 'online-sync',
+          style: {
+            background: '#ffffff',
+            color: '#221a15',
+            border: '1px solid rgba(43, 34, 26, 0.08)',
+            boxShadow: '0 4px 16px rgba(43, 34, 26, 0.08)',
+            fontFamily: 'Outfit, sans-serif',
+            fontWeight: 600,
+            fontSize: '14px',
+          },
+          iconTheme: {
+            primary: '#b08850',
+            secondary: '#ffffff'
+          }
+        });
+      }
     }
+    
+    prevOnlineRef.current = isOnline;
   }, [isOnline, mounted]);
 
-  // Auto-slider disabled — manual swipe/tap only
+  // Auto-slider disabled — manual swipe/tap only
 
 
   // Real-time data
@@ -498,11 +515,11 @@ export default function HomePage() {
           const isUrl = imgUrl.startsWith('http') || imgUrl.startsWith('data:') || imgUrl.startsWith('/');
           return (
             <motion.div key={track.id} whileHover={{ scale: 1.02 }} onClick={() => playTrack(track, tracksToRender)}
-              style={{ display: 'flex', alignItems: 'center', borderRadius: 4, overflow: 'hidden', background: '#2a2a2a', cursor: 'pointer', position: 'relative', transition: 'background 0.15s', height: 56, minWidth: 0 }}
-              onMouseEnter={e => (e.currentTarget.style.background = '#3e3e3e')}
-              onMouseLeave={e => (e.currentTarget.style.background = '#2a2a2a')}>
+              style={{ display: 'flex', alignItems: 'center', borderRadius: 4, overflow: 'hidden', background: 'var(--theme-card, #ffffff)', border: '1px solid rgba(43, 34, 26, 0.08)', cursor: 'pointer', position: 'relative', transition: 'background 0.15s', height: 56, minWidth: 0 }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'var(--theme-surface, #f4eede)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'var(--theme-card, #ffffff)')}>
               <div style={{ width: 56, height: 56, backgroundImage: isUrl ? `url(${imgUrl})` : 'none', backgroundColor: isUrl ? 'transparent' : undefined, background: isUrl ? undefined : imgUrl, backgroundSize: 'cover', backgroundPosition: 'center', flexShrink: 0 }} />
-              <span style={{ color: '#fff', fontSize: 13, fontWeight: 700, padding: '0 12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, minWidth: 0, fontFamily: 'Circular, Inter, sans-serif' }}>{track.title}</span>
+              <span style={{ color: 'var(--theme-text, #221a15)', fontSize: 13, fontWeight: 700, padding: '0 12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, minWidth: 0, fontFamily: 'Circular, Inter, sans-serif' }}>{track.title}</span>
               {isCurrent && isPlaying && (
                 <div style={{ marginRight: 12, display: 'flex', alignItems: 'flex-end', gap: 2 }}>
                   {[1, 2, 3].map(i => (
@@ -630,12 +647,12 @@ export default function HomePage() {
                   });
                   const data = await res.json();
                   if (data.success) {
-                    toast.success(`🎫 ${data.message}`);
+                    toast.success(`🎟️ ${data.message}`);
                   } else {
                     toast.error(data.error || 'Failed to book ticket');
                   }
                 } catch (err) {
-                  toast.success(`🎫 Ticket booked successfully for ${event.name}!`);
+                  toast.success(`🎟️ Ticket booked successfully for ${event.name}!`);
                 }
               }}
               style={{
@@ -723,12 +740,12 @@ export default function HomePage() {
                         });
                         const data = await res.json();
                         if (data.success) {
-                          toast.success(`🎫 ${data.message}`);
+                          toast.success(`🎟️ ${data.message}`);
                         } else {
                           toast.error(data.error || 'Failed to book ticket');
                         }
                       } catch (err) {
-                        toast.success(`🎫 Ticket booked successfully for ${event.name}!`);
+                        toast.success(`🎟️ Ticket booked successfully for ${event.name}!`);
                       }
                     }}
                     style={{ background: GREEN, color: '#000', border: 'none', borderRadius: 20, padding: '5px 12px', fontSize: 11, fontWeight: 700, cursor: 'pointer', width: isMobile ? 'auto' : 'initial' }}
@@ -788,10 +805,10 @@ export default function HomePage() {
                   FEATURED LIVE SHOW
                 </span>
               </div>
-              <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: isMobile ? 20 : 24, fontWeight: 950, color: '#fff', marginBottom: 4 }}>
+              <h2 className="text-white-force" style={{ fontFamily: 'Outfit, sans-serif', fontSize: isMobile ? 20 : 24, fontWeight: 950, color: '#fff', marginBottom: 4 }}>
                 {event.name}
               </h2>
-              <p style={{ color: '#aaa', fontSize: 12.5, marginBottom: 14 }}>
+              <p className="text-white-muted-force" style={{ color: '#aaa', fontSize: 12.5, marginBottom: 14 }}>
                 👤 {artistName} • 📍 {event.location}
               </p>
               <button
@@ -811,12 +828,12 @@ export default function HomePage() {
                     });
                     const data = await res.json();
                     if (data.success) {
-                      toast.success(`🎫 ${data.message}`);
+                      toast.success(`🎟️ ${data.message}`);
                     } else {
                       toast.error(data.error || 'Failed to book ticket');
                     }
                   } catch (err) {
-                    toast.success(`🎫 Ticket booked successfully for ${event.name}!`);
+                    toast.success(`🎟️ Ticket booked successfully for ${event.name}!`);
                   }
                 }}
                 style={{
@@ -961,12 +978,12 @@ export default function HomePage() {
       return (
         <div key={sectionId} style={{ marginBottom: 28 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-            <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 26, fontWeight: 900, color: '#fff' }}>
+            <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 26, fontWeight: 900, color: '#221a15' }}>
               {displayTitle}{user ? `, ${user.name}` : ''}
             </h1>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               {hasPersonalization && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 100, background: 'rgba(29, 185, 84,0.12)', border: '1px solid rgba(29, 185, 84,0.2)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 100, background: 'rgba(176, 136, 80, 0.12)', border: '1px solid rgba(176, 136, 80, 0.2)' }}>
                   <Sparkles size={12} color={GREEN} />
                   <span style={{ color: GREEN, fontSize: 11, fontWeight: 700 }}>Personalized</span>
                 </div>
@@ -997,26 +1014,49 @@ export default function HomePage() {
               return (
                 <Link key={item.id} href={item.href} style={{ textDecoration: 'none', display: 'block', width: '100%', minWidth: 0 }}>
                   <motion.div whileHover={{ scale: 1.02 }}
-                    style={{ display: 'flex', alignItems: 'center', borderRadius: 4, overflow: 'hidden', background: '#2a2a2a', cursor: 'pointer', position: 'relative', transition: 'background 0.15s', height: 56, minWidth: 0 }}
-                    onMouseEnter={e => (e.currentTarget.style.background = '#3e3e3e')}
-                    onMouseLeave={e => (e.currentTarget.style.background = '#2a2a2a')}>
-                    <div style={{ 
-                      width: 56, 
-                      height: 56, 
-                      backgroundImage: hasImg ? `url(${item.coverImage})` : 'none',
-                      backgroundColor: hasImg ? 'transparent' : undefined,
-                      background: hasImg ? undefined : item.gradient,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
+                    style={{ 
                       display: 'flex', 
                       alignItems: 'center', 
-                      justifyContent: 'center', 
-                      fontSize: 20, 
-                      flexShrink: 0 
+                      borderRadius: 28, 
+                      overflow: 'hidden', 
+                      background: '#ffffff', 
+                      border: '1px solid rgba(176, 136, 80, 0.18)', 
+                      cursor: 'pointer', 
+                      position: 'relative', 
+                      transition: 'background 0.15s, border-color 0.15s', 
+                      height: 56, 
+                      minWidth: 0,
+                      padding: '0 12px 0 6px',
+                      boxShadow: '0 4px 12px rgba(43, 34, 26, 0.04)'
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.background = 'var(--color-ss-surface, #f4eede)';
+                      e.currentTarget.style.borderColor = 'rgba(176, 136, 80, 0.3)';
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.background = '#ffffff';
+                      e.currentTarget.style.borderColor = 'rgba(176, 136, 80, 0.18)';
                     }}>
+                    <div style={{ 
+                       width: 44, 
+                       height: 44, 
+                       borderRadius: '50%',
+                       overflow: 'hidden',
+                       backgroundImage: hasImg ? `url(${item.coverImage})` : 'none',
+                       backgroundColor: hasImg ? 'transparent' : undefined,
+                       background: hasImg ? undefined : item.gradient,
+                       backgroundSize: 'cover',
+                       backgroundPosition: 'center',
+                       display: 'flex', 
+                       alignItems: 'center', 
+                       justifyContent: 'center', 
+                       fontSize: 18, 
+                       flexShrink: 0,
+                       boxShadow: '0 2px 8px rgba(43, 34, 26, 0.08)'
+                     }}>
                       {!hasImg && item.icon}
                     </div>
-                    <span style={{ color: '#fff', fontSize: 13, fontWeight: 700, padding: '0 12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, minWidth: 0, fontFamily: 'Circular, Inter, sans-serif' }}>{item.label}</span>
+                    <span style={{ color: '#221a15', fontSize: 13.5, fontWeight: 750, padding: '0 12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, minWidth: 0, fontFamily: 'Outfit, sans-serif' }}>{item.label}</span>
                     {isCurrent && (
                       <div style={{ marginRight: 12, display: 'flex', alignItems: 'flex-end', gap: 2 }}>
                         {[1, 2, 3].map(i => (
@@ -1035,7 +1075,7 @@ export default function HomePage() {
                           marginRight: 12,
                           background: 'none',
                           border: 'none',
-                          color: isSaved ? GREEN : 'rgba(255,255,255,0.4)',
+                          color: isSaved ? GREEN : 'rgba(43,34,26,0.4)',
                           cursor: 'pointer',
                           display: 'flex',
                           alignItems: 'center',
@@ -1045,11 +1085,11 @@ export default function HomePage() {
                           transition: 'all 0.15s',
                         }}
                         onMouseEnter={e => {
-                          e.currentTarget.style.color = '#fff';
-                          e.currentTarget.style.background = 'rgba(255,255,255,0.12)';
+                          e.currentTarget.style.color = '#221a15';
+                          e.currentTarget.style.background = 'rgba(43,34,26,0.06)';
                         }}
                         onMouseLeave={e => {
-                          e.currentTarget.style.color = isSaved ? GREEN : 'rgba(255,255,255,0.4)';
+                          e.currentTarget.style.color = isSaved ? GREEN : 'rgba(43,34,26,0.4)';
                           e.currentTarget.style.background = 'none';
                         }}
                       >
@@ -1066,9 +1106,9 @@ export default function HomePage() {
               <Link href="/library" style={{ textDecoration: 'none' }}>
                 <button 
                   style={{
-                    background: 'rgba(255,255,255,0.06)',
-                    border: '1px solid rgba(255,255,255,0.15)',
-                    color: '#fff',
+                    background: 'rgba(43,34,26,0.05)',
+                    border: '1px solid rgba(43,34,26,0.1)',
+                    color: '#221a15',
                     borderRadius: 20,
                     padding: '8px 24px',
                     fontSize: 13,
@@ -1080,11 +1120,11 @@ export default function HomePage() {
                     gap: 6
                   }}
                   onMouseEnter={e => {
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.14)';
+                    e.currentTarget.style.background = 'rgba(43,34,26,0.08)';
                     e.currentTarget.style.transform = 'scale(1.02)';
                   }}
                   onMouseLeave={e => {
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+                    e.currentTarget.style.background = 'rgba(43,34,26,0.05)';
                     e.currentTarget.style.transform = 'none';
                   }}
                 >
@@ -1114,24 +1154,24 @@ export default function HomePage() {
         if (likedTracks.length === 0) return null;
         return (
           <motion.div key="liked_songs" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-            style={{ marginBottom: 32, borderRadius: 18, padding: '20px 24px', background: 'linear-gradient(135deg, rgba(67,56,202,0.3), rgba(96,165,250,0.15))', border: '1px solid rgba(67,56,202,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            style={{ marginBottom: 32, borderRadius: 18, padding: '20px 24px', background: 'linear-gradient(135deg, rgba(176,136,80,0.15), rgba(235,220,185,0.2))', border: '1px solid rgba(176,136,80,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <div style={{ width: 52, height: 52, borderRadius: 10, background: 'linear-gradient(135deg, #4338ca, #60a5fa)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: 52, height: 52, borderRadius: 10, background: 'linear-gradient(135deg, #b08850, #ebdcb9)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Heart size={22} color="white" fill="white" />
               </div>
               <div>
-                <p style={{ color: '#fff', fontWeight: 700, fontSize: 16 }}>Liked Songs</p>
-                <p style={{ color: '#a3a3a3', fontSize: 13 }}>{likedTracks.length} song{likedTracks.length !== 1 ? 's' : ''} you love</p>
+                <p style={{ color: '#221a15', fontWeight: 700, fontSize: 16 }}>Liked Songs</p>
+                <p style={{ color: '#87786c', fontSize: 13 }}>{likedTracks.length} song{likedTracks.length !== 1 ? 's' : ''} you love</p>
               </div>
             </div>
             <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
               <button onClick={() => { if (likedTracks.length) playTrack(likedTracks[0], likedTracks.slice(1)); }}
-                style={{ width: 44, height: 44, borderRadius: '50%', background: GREEN, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 16px rgba(29, 185, 84,0.4)' }}>
-                <Play size={18} fill="black" color="black" />
+                style={{ width: 44, height: 44, borderRadius: '50%', background: GREEN, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 16px rgba(176,136,80,0.3)' }}>
+                <Play size={18} fill="white" color="white" />
               </button>
-              <Link href="/library?tab=liked" style={{ color: '#737373', fontSize: 13, textDecoration: 'none' }}
-                onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
-                onMouseLeave={e => (e.currentTarget.style.color = '#737373')}>View all →</Link>
+              <Link href="/library?tab=liked" style={{ color: '#87786c', fontSize: 13, textDecoration: 'none' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#221a15')}
+                onMouseLeave={e => (e.currentTarget.style.color = '#87786c')}>View all →</Link>
             </div>
           </motion.div>
         );
@@ -1156,12 +1196,12 @@ export default function HomePage() {
                     style={{
                       borderRadius: 16,
                       overflow: 'hidden',
-                      background: '#121212',
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                      background: '#ffffff',
+                      border: '1px solid rgba(43, 34, 26, 0.08)',
                       display: 'flex',
                       flexDirection: 'column',
                       width: '100%',
-                      boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+                      boxShadow: '0 8px 24px rgba(43, 34, 26, 0.08)',
                       position: 'relative'
                     }}
                   >
@@ -1175,22 +1215,22 @@ export default function HomePage() {
                         position: 'absolute',
                         top: 12,
                         left: 12,
-                        background: 'rgba(0, 0, 0, 0.6)',
-                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        background: 'rgba(43, 34, 26, 0.06)',
+                        border: '1px solid rgba(43, 34, 26, 0.1)',
                         padding: '4px 8px',
                         borderRadius: 4,
                         fontSize: 10,
                         fontWeight: 700,
-                        color: '#fff',
+                        color: '#221a15',
                         letterSpacing: '0.05em'
                       }}>
                         Featured Campaign
                       </div>
                       <div style={{ position: 'absolute', top: 12, right: 12, display: 'flex', gap: 8 }}>
-                        <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(0, 0, 0, 0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 12 }}>
-                          🔊
+                        <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(255, 255, 255, 0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#221a15', fontSize: 12 }}>
+                          Ã°Å¸â€Å 
                         </div>
-                        <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(0, 0, 0, 0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 12, fontWeight: 'bold' }}>
+                        <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(255, 255, 255, 0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#221a15', fontSize: 12, fontWeight: 'bold' }}>
                           ⋮
                         </div>
                       </div>
@@ -1200,11 +1240,11 @@ export default function HomePage() {
                       alignItems: 'center',
                       justifyContent: 'space-between',
                       padding: '16px 20px',
-                      background: '#121212',
+                      background: '#ffffff',
                     }}>
                       <div style={{ minWidth: 0, flex: 1, marginRight: 16 }}>
                         <h3 style={{
-                          color: '#fff',
+                          color: '#221a15',
                           fontSize: 16,
                           fontWeight: 800,
                           margin: 0,
@@ -1213,7 +1253,7 @@ export default function HomePage() {
                           {promo.title}
                         </h3>
                         <p style={{
-                          color: '#a3a3a3',
+                          color: '#87786c',
                           fontSize: 12,
                           margin: '4px 0 0 0',
                           overflow: 'hidden',
@@ -1225,8 +1265,8 @@ export default function HomePage() {
                       </div>
                       <Link href={`/playlist/${promo.targetId || 'playlist-1'}`}>
                         <button style={{
-                          background: '#fff',
-                          color: '#000',
+                          background: '#221a15',
+                          color: '#fff',
                           border: 'none',
                           borderRadius: 30,
                           padding: '10px 22px',
@@ -1235,7 +1275,7 @@ export default function HomePage() {
                           cursor: 'pointer',
                           fontFamily: 'Outfit, sans-serif',
                           flexShrink: 0,
-                          boxShadow: '0 4px 10px rgba(0,0,0,0.3)'
+                          boxShadow: '0 4px 10px rgba(43, 34, 26, 0.1)'
                         }}>
                           Listen Now
                         </button>
@@ -1254,7 +1294,7 @@ export default function HomePage() {
                 targetPath = promo.targetId.startsWith('/') ? promo.targetId : `/playlist/${promo.targetId}`;
               }
 
-              return (
+               return (
                 <motion.div
                   key={promo.id}
                   initial={{ opacity: 0, y: 10 }}
@@ -1264,15 +1304,16 @@ export default function HomePage() {
                     overflow: 'hidden',
                     position: 'relative',
                     height: 180,
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                    background: '#121212',
+                    border: '1px solid rgba(43, 34, 26, 0.08)',
+                    background: '#ffffff',
+                    boxShadow: '0 8px 24px rgba(43, 34, 26, 0.05)',
                     cursor: 'pointer'
                   }}
                 >
                   {promo.image && (
                     <div style={{ position: 'absolute', inset: 0 }}>
                       <img src={promo.image} alt={promo.title} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.7 }} />
-                      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.55) 100%)' }} />
+                      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(251,249,245,0.85) 0%, rgba(251,249,245,0.2) 60%, rgba(251,249,245,0.65) 100%)' }} />
                     </div>
                   )}
                   <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', padding: '0 28px', zIndex: 2 }}>
@@ -1280,14 +1321,14 @@ export default function HomePage() {
                       <span style={{ color: GREEN, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 6 }}>
                         🔥 Special Promotion • {promo.type}
                       </span>
-                      <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 22, fontWeight: 950, color: '#fff', marginBottom: 4 }}>
+                      <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 22, fontWeight: 950, color: '#221a15', marginBottom: 4 }}>
                         {promo.title}
                       </h2>
-                      <p style={{ color: '#aaa', fontSize: 12, marginBottom: 14, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                      <p style={{ color: '#87786c', fontSize: 12, marginBottom: 14, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
                         {promo.description}
                       </p>
                       <Link href={targetPath}>
-                        <button style={{ padding: '8px 20px', borderRadius: 100, background: GREEN, border: 'none', color: '#000', fontWeight: 700, fontSize: 11, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
+                        <button style={{ padding: '8px 20px', borderRadius: 100, background: GREEN, border: 'none', color: '#fff', fontWeight: 700, fontSize: 11, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
                           Explore Feature
                         </button>
                       </Link>
@@ -1316,26 +1357,26 @@ export default function HomePage() {
       case 'featured_artist':
         return (
           <Section key="featured_artist" title="🎤 Featured Artist">
-            <div style={{ borderRadius: 18, overflow: 'hidden', position: 'relative', height: 220, cursor: 'pointer' }}>
-              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #0d3a1a, #1a1a3a, #2d0f3d)' }} />
-              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 100%)' }} />
+            <div style={{ borderRadius: 18, overflow: 'hidden', position: 'relative', height: 220, border: '1px solid rgba(43, 34, 26, 0.08)', boxShadow: '0 8px 30px rgba(43, 34, 26, 0.05)', cursor: 'pointer' }}>
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #ebdcb9, #f4eede, #fbf9f5)' }} />
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(251,249,245,0.85) 0%, rgba(251,249,245,0.2) 100%)' }} />
               {/* Animated orbs */}
-              <div style={{ position: 'absolute', top: -40, right: -40, width: 200, height: 200, borderRadius: '50%', background: 'rgba(29, 185, 84,0.15)', filter: 'blur(40px)' }} />
-              <div style={{ position: 'absolute', bottom: -40, right: 100, width: 160, height: 160, borderRadius: '50%', background: 'rgba(16, 185, 129,0.15)', filter: 'blur(40px)' }} />
+              <div style={{ position: 'absolute', top: -40, right: -40, width: 200, height: 200, borderRadius: '50%', background: 'rgba(176, 136, 80,0.15)', filter: 'blur(40px)' }} />
+              <div style={{ position: 'absolute', bottom: -40, right: 100, width: 160, height: 160, borderRadius: '50%', background: 'rgba(235, 220, 185,0.15)', filter: 'blur(40px)' }} />
               <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', padding: '0 32px' }}>
                 <div>
                   <span style={{ color: GREEN, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 8 }}>🎵 Featured Artist</span>
-                  <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 40, fontWeight: 900, color: '#fff', marginBottom: 6 }}>{featuredArtist.name}</h2>
-                  <p style={{ color: '#a3a3a3', fontSize: 13, marginBottom: 18 }}>
+                  <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 40, fontWeight: 900, color: '#221a15', marginBottom: 6 }}>{featuredArtist.name}</h2>
+                  <p style={{ color: '#87786c', fontSize: 13, marginBottom: 18 }}>
                     {featuredArtist.genres.join(' · ')} · {(featuredArtist.monthlyListeners / 1_000_000).toFixed(1)}M monthly listeners
                   </p>
                   <div style={{ display: 'flex', gap: 10 }}>
                     <button onClick={() => { const tracks = allTracks.filter(t => t.artistId === featuredArtist.id); if (tracks.length) playTrack(tracks[0], tracks.slice(1)); }}
-                      style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 22px', borderRadius: 100, background: GREEN, border: 'none', color: '#000', fontWeight: 700, fontSize: 14, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
-                      <Play size={16} fill="black" /> Play
+                      style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 22px', borderRadius: 100, background: GREEN, border: 'none', color: '#fff', fontWeight: 700, fontSize: 14, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
+                      <Play size={16} fill="white" /> Play
                     </button>
                     <Link href={`/artist/${featuredArtist.id}`}>
-                      <button style={{ padding: '10px 22px', borderRadius: 100, background: 'transparent', border: '1px solid rgba(255,255,255,0.3)', color: '#fff', fontWeight: 600, fontSize: 14, cursor: 'pointer' }}>
+                      <button style={{ padding: '10px 22px', borderRadius: 100, background: 'transparent', border: '1px solid rgba(43,34,26,0.3)', color: '#221a15', fontWeight: 600, fontSize: 14, cursor: 'pointer' }}>
                         View Artist
                       </button>
                     </Link>
@@ -1377,7 +1418,7 @@ export default function HomePage() {
           <Section key="your_taste" title="🎯 Your Taste" subtitle="Genres you've been exploring">
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
               {topGenres.map(([genre, score]) => (
-                <div key={genre} style={{ padding: '18px 20px', borderRadius: 14, background: `linear-gradient(135deg, ${GENRE_COLORS[genre] || '#1db954'}25, ${GENRE_COLORS[genre] || '#1db954'}10)`, border: `1px solid ${GENRE_COLORS[genre] || '#1db954'}30`, cursor: 'pointer' }}>
+                <div key={genre} style={{ padding: '18px 20px', borderRadius: 14, background: `linear-gradient(135deg, ${GENRE_COLORS[genre] || '#b08850'}25, ${GENRE_COLORS[genre] || '#b08850'}10)`, border: `1px solid ${GENRE_COLORS[genre] || '#b08850'}30`, cursor: 'pointer' }}>
                   <p style={{ color: '#fff', fontWeight: 700, fontSize: 15, marginBottom: 4 }}>{genre}</p>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <div style={{ flex: 1, height: 3, borderRadius: 2, background: 'rgba(255,255,255,0.1)', overflow: 'hidden' }}>
@@ -1409,7 +1450,7 @@ export default function HomePage() {
                 { mood: 'Chill', emoji: '😌', gradient: 'linear-gradient(135deg, #0e7490, #06b6d4)', songs: 41 },
                 { mood: 'Energetic', emoji: '⚡', gradient: 'linear-gradient(135deg, #b91c1c, #f97316)', songs: 56 },
                 { mood: 'Romantic', emoji: '💖', gradient: 'linear-gradient(135deg, #9d174d, #34d399)', songs: 28 },
-                { mood: 'Focus', emoji: '🎯', gradient: 'linear-gradient(135deg, #065f46, #1db954)', songs: 37 },
+                { mood: 'Focus', emoji: '🎯', gradient: 'linear-gradient(135deg, #065f46, #b08850)', songs: 37 },
                 { mood: 'Sad', emoji: '😢', gradient: 'linear-gradient(135deg, #1e3a5f, #6366f1)', songs: 32 },
               ].map(item => {
                 const tracks = mockTracks.slice(0, 4);
@@ -1434,7 +1475,7 @@ export default function HomePage() {
           <Section key="daily_mixes" title="🎵 Your Daily Mixes" subtitle="Personalized for you">
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               {[
-                { title: 'Daily Mix 1', desc: 'Aurora Nightfall, Nyx & Prometheus and more', gradient: 'linear-gradient(135deg, #4c1d95, #7c3aed)', emoji: '🌃' },
+                { title: 'Daily Mix 1', desc: 'Aurora Nightfall, Nyx & Prometheus and more', gradient: 'linear-gradient(135deg, #4c1d95, #7c3aed)', emoji: '🌌' },
                 { title: 'Daily Mix 2', desc: 'Selene Ray, Cipher Nova and more', gradient: 'linear-gradient(135deg, #831843, #34d399)', emoji: '🌸' },
                 { title: 'Daily Mix 3', desc: 'The Velvet Echoes, Marco Santos and more', gradient: 'linear-gradient(135deg, #78350f, #f59e0b)', emoji: '🎸' },
                 { title: 'Daily Mix 4', desc: 'Based on your recent plays', gradient: 'linear-gradient(135deg, #064e3b, #10b981)', emoji: '🌊' },
@@ -1500,10 +1541,10 @@ export default function HomePage() {
                   <span style={{ color: GREEN, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 6 }}>
                     🔥 Special Promotion • {promo.type}
                   </span>
-                  <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 22, fontWeight: 950, color: '#fff', marginBottom: 4 }}>
+                  <h2 className="text-white-force" style={{ fontFamily: 'Outfit, sans-serif', fontSize: 22, fontWeight: 950, color: '#fff', marginBottom: 4 }}>
                     {promo.title}
                   </h2>
-                  <p style={{ color: '#aaa', fontSize: 12, marginBottom: 14, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                  <p className="text-white-muted-force" style={{ color: '#aaa', fontSize: 12, marginBottom: 14, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
                     {promo.description}
                   </p>
                   <Link href={targetPath}>
@@ -1552,8 +1593,8 @@ export default function HomePage() {
             };
 
             if (bgType === 'gradient' || bgType === 'gradient_emerald' || bgType === 'gradient_purple') {
-              containerStyle.background = 'linear-gradient(180deg, rgba(29, 185, 84, 0.08) 0%, rgba(0,0,0,0) 100%)';
-              containerStyle.border = '1px solid rgba(29, 185, 84, 0.08)';
+              containerStyle.background = 'linear-gradient(180deg, rgba(176, 136, 80, 0.08) 0%, rgba(0,0,0,0) 100%)';
+              containerStyle.border = '1px solid rgba(176, 136, 80, 0.08)';
               if (bgType === 'gradient_emerald') containerStyle.border = '1px solid rgba(16,185,129,0.15)';
               if (bgType === 'gradient_purple') containerStyle.border = '1px solid rgba(16, 185, 129,0.15)';
             } else if (bgType === 'solid') {
@@ -1563,14 +1604,14 @@ export default function HomePage() {
               containerStyle.backdropFilter = 'blur(12px)';
               containerStyle.border = '1px solid rgba(255,255,255,0.06)';
             } else if (bgType === 'neon_glow') {
-              containerStyle.background = 'rgba(29, 185, 84,0.03)';
-              containerStyle.border = `1px solid var(--theme-primary, #1db954)25`;
-              containerStyle.boxShadow = '0 0 30px rgba(29, 185, 84,0.08)';
+              containerStyle.background = 'rgba(176, 136, 80,0.03)';
+              containerStyle.border = `1px solid var(--theme-primary, #b08850)25`;
+              containerStyle.boxShadow = '0 0 30px rgba(176, 136, 80,0.08)';
             }
 
             // ── Border Styles ──
             const borderStyle = config.borderStyle;
-            const borderColorVal = config.borderColor || 'var(--theme-primary, #1db954)';
+            const borderColorVal = config.borderColor || 'var(--theme-primary, #b08850)';
 
             if (borderStyle === 'solid' || borderStyle === 'primary') {
               containerStyle.border = `1px solid ${borderColorVal}`;
@@ -1798,8 +1839,8 @@ export default function HomePage() {
           };
 
           if (bgType === 'gradient' || bgType === 'gradient_emerald' || bgType === 'gradient_purple') {
-            containerStyle.background = 'linear-gradient(180deg, rgba(29, 185, 84, 0.08) 0%, rgba(0,0,0,0) 100%)';
-            containerStyle.border = '1px solid rgba(29, 185, 84, 0.08)';
+            containerStyle.background = 'linear-gradient(180deg, rgba(176, 136, 80, 0.08) 0%, rgba(0,0,0,0) 100%)';
+            containerStyle.border = '1px solid rgba(176, 136, 80, 0.08)';
             if (bgType === 'gradient_emerald') containerStyle.border = '1px solid rgba(16,185,129,0.15)';
             if (bgType === 'gradient_purple') containerStyle.border = '1px solid rgba(16, 185, 129,0.15)';
           } else if (bgType === 'solid') {
@@ -1809,14 +1850,14 @@ export default function HomePage() {
             containerStyle.backdropFilter = 'blur(12px)';
             containerStyle.border = '1px solid rgba(255,255,255,0.06)';
           } else if (bgType === 'neon_glow') {
-            containerStyle.background = 'rgba(29, 185, 84,0.03)';
+            containerStyle.background = 'rgba(176, 136, 80,0.03)';
             containerStyle.border = `1px solid var(--theme-primary, ${GREEN})25`;
-            containerStyle.boxShadow = '0 0 30px rgba(29, 185, 84,0.08)';
+            containerStyle.boxShadow = '0 0 30px rgba(176, 136, 80,0.08)';
           }
 
           // ── Border Styles ──
           const borderStyle = config.borderStyle;
-          const borderColorVal = config.borderColor || 'var(--theme-primary, #1db954)';
+          const borderColorVal = config.borderColor || 'var(--theme-primary, #b08850)';
 
           if (borderStyle === 'solid' || borderStyle === 'primary') {
             containerStyle.border = `1px solid ${borderColorVal}`;
@@ -1891,7 +1932,7 @@ export default function HomePage() {
                 )}
 
                 <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%', padding: '0 24px' }}>
-                  <span style={{ color: 'var(--theme-primary, #1db954)', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', display: 'block', marginBottom: 8 }}>
+                  <span style={{ color: 'var(--theme-primary, #b08850)', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', display: 'block', marginBottom: 8 }}>
                     {config.subtitle || 'Beato Special'}
                   </span>
                   <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 32, fontWeight: 950, color: 'var(--theme-text, #fff)', marginBottom: 8, lineHeight: 1.2 }}>
@@ -1902,7 +1943,7 @@ export default function HomePage() {
                   </p>
                   <div>
                     <button onClick={() => { if (tracks.length) playTrack(tracks[0], tracks.slice(1)); }}
-                      style={{ padding: '10px 24px', borderRadius: 100, background: 'var(--theme-primary, #1db954)', border: 'none', color: '#000', fontWeight: 700, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      style={{ padding: '10px 24px', borderRadius: 100, background: 'var(--theme-primary, #b08850)', border: 'none', color: '#000', fontWeight: 700, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
                       <Play size={14} fill="black" /> Listen Now
                     </button>
                   </div>
@@ -1922,18 +1963,18 @@ export default function HomePage() {
               >
                 {backdrop}
                 {!isVideoBg && bgType !== 'image' && (
-                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(29, 185, 84,0.05), rgba(16, 185, 129,0.05))', zIndex: 0 }} />
+                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(176, 136, 80,0.05), rgba(16, 185, 129,0.05))', zIndex: 0 }} />
                 )}
                 <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', height: '100%', padding: '0 24px' }}>
                   <div>
-                    <span style={{ color: 'var(--theme-primary, #1db954)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 8 }}>
+                    <span style={{ color: 'var(--theme-primary, #b08850)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 8 }}>
                       🎤 Spotlight
                     </span>
                     <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 36, fontWeight: 900, color: 'var(--theme-text, #fff)', marginBottom: 6 }}>{config.title}</h2>
                     {subtitleText && <p style={{ color: 'var(--theme-text-muted, #737373)', fontSize: 13, marginBottom: 18 }}>{subtitleText}</p>}
                     <div style={{ display: 'flex', gap: 10 }}>
                       <button onClick={() => { if (tracks.length) playTrack(tracks[0], tracks.slice(1)); }}
-                        style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 22px', borderRadius: 100, background: 'var(--theme-primary, #1db954)', border: 'none', color: '#000', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+                        style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 22px', borderRadius: 100, background: 'var(--theme-primary, #b08850)', border: 'none', color: '#000', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
                         <Play size={14} fill="black" /> Play
                       </button>
                     </div>
@@ -2046,7 +2087,7 @@ export default function HomePage() {
                           height: size,
                           borderRadius: '50%',
                           padding: 3,
-                          background: isCurrent ? 'var(--theme-primary, #1db954)' : 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)',
+                          background: isCurrent ? 'var(--theme-primary, #b08850)' : 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)',
                           boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
                           display: 'flex',
                           alignItems: 'center',
@@ -2059,7 +2100,7 @@ export default function HomePage() {
                         </div>
                         <span style={{
                           fontSize: isMobile ? 11 : 12,
-                          color: isCurrent ? 'var(--theme-primary, #1db954)' : '#fff',
+                          color: isCurrent ? 'var(--theme-primary, #b08850)' : '#fff',
                           fontWeight: 700,
                           marginTop: 6,
                           width: '100%',
@@ -2102,7 +2143,7 @@ export default function HomePage() {
                           position: 'relative',
                           overflow: 'hidden',
                           cursor: 'pointer',
-                          border: isCurrent ? '2px solid var(--theme-primary, #1db954)' : '1px solid rgba(255,255,255,0.08)',
+                          border: isCurrent ? '2px solid var(--theme-primary, #b08850)' : '1px solid rgba(255,255,255,0.08)',
                           boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
                           marginRight: isMobile ? 0 : undefined
                         }}
@@ -2115,7 +2156,7 @@ export default function HomePage() {
                           </div>
                           <span style={{ fontSize: isMobile ? 14 : 16 }}>❤️</span>
                           <span style={{ fontSize: isMobile ? 14 : 16 }}>💬</span>
-                          <span style={{ fontSize: isMobile ? 14 : 16 }}>📤</span>
+                          <span style={{ fontSize: isMobile ? 14 : 16 }}>📨</span>
                         </div>
 
                         <div style={{
@@ -2133,7 +2174,7 @@ export default function HomePage() {
                           justifyContent: 'center',
                           animation: isCurrent && isPlaying ? 'spin 3s linear infinite' : 'none'
                         }}>
-                          <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--theme-primary, #1db954)' }} />
+                          <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--theme-primary, #b08850)' }} />
                         </div>
 
                         <div style={{ position: 'absolute', bottom: 10, left: 10, right: 35, zIndex: 2 }}>
@@ -2175,7 +2216,7 @@ export default function HomePage() {
                           overflow: 'hidden',
                           cursor: 'pointer',
                           boxShadow: isCenter ? '0 12px 28px rgba(0,0,0,0.6)' : '0 6px 14px rgba(0,0,0,0.4)',
-                          border: isCenter ? '2px solid var(--theme-primary, #1db954)' : '1px solid rgba(255,255,255,0.06)'
+                          border: isCenter ? '2px solid var(--theme-primary, #b08850)' : '1px solid rgba(255,255,255,0.06)'
                         }}
                       >
                         <img src={coverImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -2202,7 +2243,7 @@ export default function HomePage() {
                           background: 'rgba(255,255,255,0.02)',
                           borderRadius: 12,
                           padding: 10,
-                          border: isCurrent ? '1.5px solid var(--theme-primary, #1db954)' : '1px solid rgba(255,255,255,0.04)',
+                          border: isCurrent ? '1.5px solid var(--theme-primary, #b08850)' : '1px solid rgba(255,255,255,0.04)',
                           boxShadow: '0 4px 15px rgba(0,0,0,0.15)',
                           cursor: 'pointer'
                         }}
@@ -2210,7 +2251,7 @@ export default function HomePage() {
                         <div style={{ width: '100%', paddingTop: '100%', position: 'relative', borderRadius: 8, overflow: 'hidden' }}>
                           <img src={coverImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
                         </div>
-                        <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: isCurrent ? 'var(--theme-primary, #1db954)' : '#fff', marginTop: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.title}</div>
+                        <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: isCurrent ? 'var(--theme-primary, #b08850)' : '#fff', marginTop: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.title}</div>
                         <div style={{ fontSize: isMobile ? 10 : 11, color: 'var(--theme-text-muted, #737373)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.artistName}</div>
                       </motion.div>
                     );
@@ -2235,7 +2276,7 @@ export default function HomePage() {
                         onClick={() => playTrack(track, tracks)}
                         style={{
                           background: '#0b0410',
-                          border: `2px solid ${isCurrent ? 'var(--theme-primary, #1db954)' : outlineColor}`,
+                          border: `2px solid ${isCurrent ? 'var(--theme-primary, #b08850)' : outlineColor}`,
                           padding: 8,
                           borderRadius: 4,
                           boxShadow: `4px 4px 0px ${outlineColor === '#ff007f' ? '#00f0ff' : '#ff007f'}`,
@@ -2274,16 +2315,16 @@ export default function HomePage() {
                           gap: 16,
                           padding: '8px 16px',
                           background: isCurrent ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.02)',
-                          border: isCurrent ? '1px solid var(--theme-primary, #1db954)30' : '1px solid rgba(255,255,255,0.03)',
+                          border: isCurrent ? '1px solid var(--theme-primary, #b08850)30' : '1px solid rgba(255,255,255,0.03)',
                           borderRadius: 10,
                           cursor: 'pointer'
                         }}
                       >
                         <span style={{ fontSize: isMobile ? 16 : 20, fontWeight: 950, color: rankColor, width: 24, textAlign: 'center', fontFamily: 'Outfit, sans-serif' }}>{i + 1}</span>
-                        <span style={{ fontSize: 10, color: 'var(--theme-primary, #1db954)' }}>▲</span>
+                        <span style={{ fontSize: 10, color: 'var(--theme-primary, #b08850)' }}>▲</span>
                         <img src={coverImg} alt="" style={{ width: isMobile ? 32 : 44, height: isMobile ? 32 : 44, borderRadius: 6, objectFit: 'cover', flexShrink: 0 }} />
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: isMobile ? 13 : 15, fontWeight: 800, color: isCurrent ? 'var(--theme-primary, #1db954)' : '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.title}</div>
+                          <div style={{ fontSize: isMobile ? 13 : 15, fontWeight: 800, color: isCurrent ? 'var(--theme-primary, #b08850)' : '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.title}</div>
                           <div style={{ fontSize: isMobile ? 11 : 12, color: 'var(--theme-text-muted, #737373)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 2 }}>{track.artistName}</div>
                         </div>
                         <span style={{ fontSize: isMobile ? 11 : 12, color: 'var(--theme-text-muted, #737373)', fontWeight: 700 }}>{(4.2 - i * 0.9).toFixed(1)}M plays</span>
@@ -2302,7 +2343,7 @@ export default function HomePage() {
                 <div style={{
                   background: 'linear-gradient(135deg, #1f1235 0%, #0c0617 100%)',
                   borderRadius: 16,
-                  border: isCurrent ? '1.5px solid var(--theme-primary, #1db954)' : '1px solid rgba(16, 185, 129, 0.3)',
+                  border: isCurrent ? '1.5px solid var(--theme-primary, #b08850)' : '1px solid rgba(16, 185, 129, 0.3)',
                   padding: isMobile ? 16 : 24,
                   display: 'flex',
                   alignItems: 'center',
@@ -2398,7 +2439,7 @@ export default function HomePage() {
                   <div style={{ flex: 1, minWidth: 0, position: 'relative', background: 'var(--theme-card, #181818)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px 12px 12px 0px', padding: '12px 16px' }}>
                     <div style={{ position: 'absolute', left: -6, bottom: 0, width: 0, height: 0, borderTop: '6px solid transparent', borderRight: '6px solid var(--theme-card, #181818)', borderBottom: '0px solid transparent' }} />
                     <div style={{ fontSize: isMobile ? 13 : 15, fontStyle: 'italic', color: '#e5e7eb', lineHeight: 1.4 }}>"I make songs for the quiet dreamers of the night..."</div>
-                    <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: 'var(--theme-primary, #1db954)', marginTop: 6, textAlign: 'right' }}>— {artist.name}</div>
+                    <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: 'var(--theme-primary, #b08850)', marginTop: 6, textAlign: 'right' }}>— {artist.name}</div>
                   </div>
                 </div>
               );
@@ -2672,34 +2713,34 @@ export default function HomePage() {
               ];
 
               const gradients = [
-                'linear-gradient(135deg, rgba(29, 185, 84, 0.06) 0%, rgba(15, 23, 18, 0.85) 100%)',
-                'linear-gradient(135deg, rgba(29, 185, 84, 0.06) 0%, rgba(15, 23, 18, 0.85) 100%)',
-                'linear-gradient(135deg, rgba(29, 185, 84, 0.06) 0%, rgba(15, 23, 18, 0.85) 100%)',
-                'linear-gradient(135deg, rgba(29, 185, 84, 0.06) 0%, rgba(15, 23, 18, 0.85) 100%)'
+                'linear-gradient(135deg, var(--color-ss-elevated, #ffffff) 0%, var(--color-ss-surface, #f4eede) 100%)',
+                'linear-gradient(135deg, var(--color-ss-elevated, #ffffff) 0%, var(--color-ss-surface, #f4eede) 100%)',
+                'linear-gradient(135deg, var(--color-ss-elevated, #ffffff) 0%, var(--color-ss-surface, #f4eede) 100%)',
+                'linear-gradient(135deg, var(--color-ss-elevated, #ffffff) 0%, var(--color-ss-surface, #f4eede) 100%)'
               ];
               const borders = [
-                '1px solid rgba(29, 185, 84, 0.18)',
-                '1px solid rgba(29, 185, 84, 0.18)',
-                '1px solid rgba(29, 185, 84, 0.18)',
-                '1px solid rgba(29, 185, 84, 0.18)'
+                '1px solid rgba(176, 136, 80, 0.22)',
+                '1px solid rgba(176, 136, 80, 0.22)',
+                '1px solid rgba(176, 136, 80, 0.22)',
+                '1px solid rgba(176, 136, 80, 0.22)'
               ];
               const badgeBackgrounds = [
-                'rgba(29, 185, 84, 0.12)',
-                'rgba(29, 185, 84, 0.12)',
-                'rgba(29, 185, 84, 0.12)',
-                'rgba(29, 185, 84, 0.12)'
+                'rgba(176, 136, 80, 0.12)',
+                'rgba(176, 136, 80, 0.12)',
+                'rgba(176, 136, 80, 0.12)',
+                'rgba(176, 136, 80, 0.12)'
               ];
               const badgeColors = [
-                '#1db954',
-                '#1db954',
-                '#1db954',
-                '#1db954'
+                '#b08850',
+                '#b08850',
+                '#b08850',
+                '#b08850'
               ];
               const badgeBorders = [
-                '1px solid rgba(29, 185, 84, 0.25)',
-                '1px solid rgba(29, 185, 84, 0.25)',
-                '1px solid rgba(29, 185, 84, 0.25)',
-                '1px solid rgba(29, 185, 84, 0.25)'
+                '1px solid rgba(176, 136, 80, 0.25)',
+                '1px solid rgba(176, 136, 80, 0.25)',
+                '1px solid rgba(176, 136, 80, 0.25)',
+                '1px solid rgba(176, 136, 80, 0.25)'
               ];
 
               return (
@@ -2707,7 +2748,7 @@ export default function HomePage() {
                   {/* 1. Header Banner */}
                   <div style={{
                     borderRadius: 16,
-                    background: 'linear-gradient(135deg, #0b1c10 0%, #050a06 100%)',
+                    background: 'linear-gradient(135deg, var(--color-ss-surface, #f4eede) 0%, var(--color-ss-hover, #ebdcb9) 100%)',
                     padding: isMobile ? '12px' : '20px',
                     position: 'relative',
                     overflow: 'hidden',
@@ -2715,11 +2756,11 @@ export default function HomePage() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     marginBottom: 16,
-                    border: '1px solid rgba(29, 185, 84, 0.25)',
-                    boxShadow: '0 8px 32px 0 rgba(29, 185, 84, 0.15)'
+                    border: '1px solid rgba(176, 136, 80, 0.25)',
+                    boxShadow: '0 6px 20px rgba(43, 34, 26, 0.04)'
                   }}>
-                    <div style={{ position: 'absolute', top: -20, left: -20, width: 80, height: 80, borderRadius: '50%', background: 'rgba(29, 185, 84, 0.18)', filter: 'blur(35px)' }} />
-                    <div style={{ position: 'absolute', bottom: -20, right: -20, width: 80, height: 80, borderRadius: '50%', background: 'rgba(29, 185, 84, 0.22)', filter: 'blur(35px)' }} />
+                    <div style={{ position: 'absolute', top: -20, left: -20, width: 80, height: 80, borderRadius: '50%', background: 'rgba(176, 136, 80, 0.12)', filter: 'blur(35px)' }} />
+                    <div style={{ position: 'absolute', bottom: -20, right: -20, width: 80, height: 80, borderRadius: '50%', background: 'rgba(176, 136, 80, 0.15)', filter: 'blur(35px)' }} />
                     
                     <div style={{ textAlign: 'center', zIndex: 1 }}>
                       <span style={{ color: GREEN, fontSize: isMobile ? 8.5 : 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.15em' }}>
@@ -2730,9 +2771,7 @@ export default function HomePage() {
                         fontSize: isMobile ? 18 : 26,
                         fontWeight: 950,
                         margin: '4px 0 0 0',
-                        background: 'linear-gradient(45deg, #1db954 20%, #34d399 50%, #81f5a2 80%)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
+                        color: 'var(--color-ss-text-primary, #221a15)',
                         letterSpacing: '0.03em'
                       }}>
                         {config.title || "SELF CARE DAYS"}
@@ -2750,8 +2789,8 @@ export default function HomePage() {
                     {/* Left Card: Steal Deals */}
                     <div style={{
                       gridRow: 'span 2',
-                      background: 'linear-gradient(135deg, rgba(29, 185, 84, 0.08) 0%, rgba(15, 23, 18, 0.85) 100%)',
-                      border: '1.5px solid rgba(29, 185, 84, 0.2)',
+                      background: 'linear-gradient(135deg, var(--color-ss-elevated, #ffffff) 0%, var(--color-ss-surface, #f4eede) 100%)',
+                      border: '1.5px solid rgba(176, 136, 80, 0.2)',
                       borderRadius: 14,
                       padding: isMobile ? 10 : 16,
                       display: 'flex',
@@ -2760,13 +2799,13 @@ export default function HomePage() {
                       position: 'relative',
                       overflow: 'hidden',
                       cursor: 'pointer',
-                      boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+                      boxShadow: '0 8px 24px rgba(43, 34, 26, 0.05)',
                       backdropFilter: 'blur(8px)'
                     }}
                     onClick={() => playTrack(mainTrack, tracks)}
                     >
                       <div style={{
-                        background: 'linear-gradient(90deg, #1db954, #128c3e)',
+                        background: 'linear-gradient(90deg, #b08850, #8c6c44)',
                         padding: '4px 8px',
                         borderRadius: 6,
                         fontSize: isMobile ? 9 : 11,
@@ -2774,28 +2813,27 @@ export default function HomePage() {
                         color: '#fff',
                         alignSelf: 'flex-start',
                         letterSpacing: '0.05em',
-                        marginBottom: 10,
-                        boxShadow: '0 0 12px rgba(29, 185, 84, 0.4)'
+                        marginBottom: 10
                       }}>
                         STEAL DEALS
                       </div>
                       
                       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', margin: '10px 0' }}>
-                        <div style={{ position: 'relative', width: isMobile ? 64 : 100, height: isMobile ? 64 : 100, borderRadius: 12, overflow: 'hidden', boxShadow: '0 10px 25px rgba(0,0,0,0.6)' }}>
+                        <div style={{ position: 'relative', width: isMobile ? 64 : 100, height: isMobile ? 64 : 100, borderRadius: 12, overflow: 'hidden', boxShadow: '0 8px 20px rgba(43, 34, 26, 0.15)' }}>
                           <img src={mainTrack.coverImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         </div>
-                        <div style={{ color: '#fff', fontSize: isMobile ? 12 : 15, fontWeight: 900, fontFamily: 'Outfit, sans-serif', marginTop: 10, textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <div style={{ color: 'var(--color-ss-text-primary, #221a15)', fontSize: isMobile ? 12 : 15, fontWeight: 900, fontFamily: 'Outfit, sans-serif', marginTop: 10, textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {mainTrack.title}
                         </div>
-                        <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: isMobile ? 10 : 12, marginTop: 2, textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <div style={{ color: 'var(--color-ss-text-muted, #87786c)', fontSize: isMobile ? 10 : 12, marginTop: 2, textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {mainTrack.artistName || 'Various Artists'}
                         </div>
                       </div>
 
                       <button style={{
-                        background: '#1db954',
+                        background: '#b08850',
                         border: 'none',
-                        color: '#000',
+                        color: '#fff',
                         padding: isMobile ? '6px 10px' : '8px 16px',
                         borderRadius: 20,
                         fontSize: isMobile ? 9.5 : 11,
@@ -2803,7 +2841,7 @@ export default function HomePage() {
                         textAlign: 'center',
                         width: '100%',
                         cursor: 'pointer',
-                        boxShadow: '0 4px 12px rgba(29, 185, 84, 0.3)',
+                        boxShadow: '0 4px 12px rgba(176, 136, 80, 0.3)',
                         textTransform: 'uppercase',
                         letterSpacing: '0.05em'
                       }}>
@@ -2826,18 +2864,18 @@ export default function HomePage() {
                           height: isMobile ? 120 : 160,
                           cursor: 'pointer',
                           position: 'relative',
-                          boxShadow: '0 6px 20px rgba(0, 0, 0, 0.2)'
+                          boxShadow: '0 4px 14px rgba(43, 34, 26, 0.05)'
                         }}
                         onClick={() => playTrack(track, tracks)}
                         >
-                          <div style={{ fontSize: isMobile ? 11 : 14, fontWeight: 800, fontFamily: 'Outfit, sans-serif', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <div style={{ fontSize: isMobile ? 11 : 14, fontWeight: 800, fontFamily: 'Outfit, sans-serif', color: 'var(--color-ss-text-primary, #221a15)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {cardTitles[i]}
                           </div>
 
                           {/* Overlapping cover images in center */}
                           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: isMobile ? '4px 0' : '8px 0', height: isMobile ? 34 : 44 }}>
-                            <img src={track.coverImage} alt="" style={{ width: isMobile ? 30 : 40, height: isMobile ? 30 : 40, borderRadius: 6, objectFit: 'cover', transform: 'rotate(-6deg) translateX(4px)', border: '1.5px solid #121214', boxShadow: '0 4px 10px rgba(0,0,0,0.5)', zIndex: 1 }} />
-                            <img src={prevTrack.coverImage} alt="" style={{ width: isMobile ? 30 : 40, height: isMobile ? 30 : 40, borderRadius: 6, objectFit: 'cover', transform: 'rotate(6deg) translateX(-4px)', border: '1.5px solid #121214', boxShadow: '0 4px 10px rgba(0,0,0,0.5)', zIndex: 2 }} />
+                            <img src={track.coverImage} alt="" style={{ width: isMobile ? 30 : 40, height: isMobile ? 30 : 40, borderRadius: 6, objectFit: 'cover', transform: 'rotate(-6deg) translateX(4px)', border: '1.5px solid var(--color-ss-elevated, #ffffff)', boxShadow: '0 4px 10px rgba(43,34,26,0.15)', zIndex: 1 }} />
+                            <img src={prevTrack.coverImage} alt="" style={{ width: isMobile ? 30 : 40, height: isMobile ? 30 : 40, borderRadius: 6, objectFit: 'cover', transform: 'rotate(6deg) translateX(-4px)', border: '1.5px solid var(--color-ss-elevated, #ffffff)', boxShadow: '0 4px 10px rgba(43,34,26,0.15)', zIndex: 2 }} />
                           </div>
 
                           <div style={{
@@ -2863,29 +2901,29 @@ export default function HomePage() {
 
                   {/* 3. Bottom Banner Strip */}
                   <div style={{
-                    background: 'linear-gradient(90deg, #0d381e 0%, #1db954 100%)',
+                    background: 'linear-gradient(90deg, var(--color-ss-hover, #ebdcb9) 0%, var(--color-ss-surface, #f4eede) 100%)',
                     borderRadius: 14,
                     padding: isMobile ? '8px 14px' : '12px 20px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     marginTop: 14,
-                    border: '1px dashed rgba(29, 185, 84, 0.4)',
-                    boxShadow: '0 8px 24px rgba(29, 185, 84, 0.2)'
+                    border: '1.5px solid var(--color-ss-primary, #b08850)40',
+                    boxShadow: '0 6px 18px rgba(43, 34, 26, 0.04)'
                   }}>
-                    <span style={{ color: '#fff', fontSize: isMobile ? 10 : 13, fontWeight: 800, letterSpacing: '0.01em', fontFamily: 'Outfit, sans-serif' }}>
+                    <span style={{ color: 'var(--color-ss-text-primary, #221a15)', fontSize: isMobile ? 10 : 13, fontWeight: 800, letterSpacing: '0.01em', fontFamily: 'Outfit, sans-serif' }}>
                       🔥 Buy 2 Months of Premium & get 1 Month Free! T&C Apply *
                     </span>
                     <button style={{
-                      background: '#fff',
-                      color: '#000',
+                      background: 'var(--color-ss-primary, #b08850)',
+                      color: '#fff',
                       border: 'none',
                       borderRadius: 20,
                       padding: isMobile ? '6px 12px' : '8px 16px',
                       fontSize: isMobile ? 9.5 : 11.5,
                       fontWeight: 900,
                       cursor: 'pointer',
-                      boxShadow: '0 4px 10px rgba(0,0,0,0.25)'
+                      boxShadow: '0 4px 10px rgba(176, 136, 80, 0.2)'
                     }}>
                       Claim Offer
                     </button>
@@ -2916,20 +2954,20 @@ export default function HomePage() {
                 'Warm Acoustics'
               ];
               const accentColors = [
-                '#1db954', '#10b981', '#10b981', '#ef4444', '#f59e0b', '#34d399'
+                '#b08850', '#8c6c44', '#b08850', '#ef4444', '#f59e0b', '#34d399'
               ];
               const gradFroms = [
-                'rgba(29, 185, 84,0.12)', 'rgba(16, 185, 129,0.12)', 'rgba(16, 185, 129,0.12)',
+                'rgba(176, 136, 80,0.12)', 'rgba(140, 108, 68,0.12)', 'rgba(176, 136, 80,0.12)',
                 'rgba(239,68,68,0.12)', 'rgba(245,158,11,0.12)', 'rgba(52, 211, 153,0.12)'
               ];
               const cardEmojis = ['🏖️', '🌙', '📚', '💪', '🎪', '🎸'];
 
               return (
                 <div key={sectionId} style={{ marginBottom: 32 }}>
-                  {/* 1. Header Banner — premium glass style */}
+                  {/* 1. Header Banner — premium glass style */}
                   <div style={{
                     borderRadius: 20,
-                    background: 'linear-gradient(135deg, #051a0c 0%, #0a1410 50%, #060e07 100%)',
+                    background: 'linear-gradient(135deg, #170e0a 0%, #2b1a0f 50%, #170e0a 100%)',
                     padding: isMobile ? '16px 14px' : '22px 28px',
                     position: 'relative',
                     overflow: 'hidden',
@@ -2937,12 +2975,12 @@ export default function HomePage() {
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     marginBottom: 14,
-                    border: '1px solid rgba(29, 185, 84, 0.3)',
-                    boxShadow: '0 8px 40px rgba(29, 185, 84, 0.18), inset 0 1px 0 rgba(255,255,255,0.04)'
+                    border: '1px solid rgba(176, 136, 80, 0.3)',
+                    boxShadow: '0 8px 40px rgba(176, 136, 80, 0.18), inset 0 1px 0 rgba(255,255,255,0.04)'
                   }}>
-                    <div style={{ position: 'absolute', top: -40, left: -40, width: 140, height: 140, borderRadius: '50%', background: 'rgba(29, 185, 84, 0.15)', filter: 'blur(50px)', pointerEvents: 'none' }} />
-                    <div style={{ position: 'absolute', bottom: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(29, 185, 84, 0.2)', filter: 'blur(45px)', pointerEvents: 'none' }} />
-                    <div style={{ position: 'absolute', top: '30%', right: '25%', width: 60, height: 60, borderRadius: '50%', background: 'rgba(30,215,96,0.08)', filter: 'blur(20px)', pointerEvents: 'none' }} />
+                    <div style={{ position: 'absolute', top: -40, left: -40, width: 140, height: 140, borderRadius: '50%', background: 'rgba(176, 136, 80, 0.15)', filter: 'blur(50px)', pointerEvents: 'none' }} />
+                    <div style={{ position: 'absolute', bottom: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(176, 136, 80, 0.2)', filter: 'blur(45px)', pointerEvents: 'none' }} />
+                    <div style={{ position: 'absolute', top: '30%', right: '25%', width: 60, height: 60, borderRadius: '50%', background: 'rgba(176, 136, 80, 0.08)', filter: 'blur(20px)', pointerEvents: 'none' }} />
                     
                     <div style={{ zIndex: 1 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
@@ -2956,7 +2994,7 @@ export default function HomePage() {
                         fontSize: isMobile ? 20 : 28,
                         fontWeight: 950,
                         margin: 0,
-                        background: 'linear-gradient(90deg, #fff 0%, #b3f0c8 50%, #1db954 100%)',
+                        background: 'linear-gradient(90deg, #ffffff 0%, #ebdcb9 50%, #b08850 100%)',
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
                         letterSpacing: '-0.01em'
@@ -2975,7 +3013,7 @@ export default function HomePage() {
                       fontWeight: 900,
                       letterSpacing: '0.02em',
                       cursor: 'pointer',
-                      boxShadow: '0 4px 16px rgba(29, 185, 84,0.4)',
+                      boxShadow: '0 4px 16px rgba(176, 136, 80,0.4)',
                       whiteSpace: 'nowrap',
                       flexShrink: 0
                     }}>
@@ -2983,7 +3021,7 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  {/* 2. Grid — premium glass cards */}
+                  {/* 2. Grid — premium glass cards */}
                   <div style={{
                     display: 'grid',
                     gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
@@ -3143,7 +3181,7 @@ export default function HomePage() {
                             height: isMobile ? 64 : 80,
                             borderRadius: '50%',
                             background: isActive 
-                              ? 'linear-gradient(135deg, rgba(29, 185, 84, 0.35) 0%, rgba(15, 23, 18, 0.9) 100%)'
+                              ? 'linear-gradient(135deg, rgba(176, 136, 80, 0.35) 0%, rgba(15, 23, 18, 0.9) 100%)'
                               : 'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(15, 23, 18, 0.9) 100%)',
                             border: isActive 
                               ? `2px solid ${GREEN}` 
@@ -3207,7 +3245,7 @@ export default function HomePage() {
                             <img src={track.coverImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             {isCurrent && isPlaying && (
                               <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <span style={{ fontSize: 20 }}>🔊</span>
+                                <span style={{ fontSize: 20 }}>Ã°Å¸â€Å </span>
                               </div>
                             )}
                           </div>
@@ -3235,9 +3273,9 @@ export default function HomePage() {
                   badge: 'NEW HARDWARE',
                   image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=80',
                   actionText: 'Explore Gear',
-                  themeColor: '#1db954',
+                  themeColor: '#b08850',
                   gradient: 'linear-gradient(135deg, #0d381e 0%, #060a08 100%)',
-                  border: '1.5px solid rgba(29, 185, 84, 0.4)'
+                  border: '1.5px solid rgba(176, 136, 80, 0.4)'
                 },
                 {
                   title: "Abel's Midnight Odyssey",
@@ -3280,161 +3318,198 @@ export default function HomePage() {
                 }));
               };
 
-              return (
-                <div key={sectionId} style={{ marginBottom: 32 }}>
-                  <div style={{
-                    background: cur.gradient,
-                    border: cur.border,
-                    borderRadius: 16,
-                    padding: isMobile ? 14 : 24,
-                    position: 'relative',
-                    overflow: 'hidden',
-                    display: 'flex',
-                    flexDirection: isMobile ? 'column' : 'row',
-                    alignItems: 'center',
-                    gap: isMobile ? 12 : 24,
-                    boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
-                    transition: 'all 0.4s ease'
-                  }}>
-                    {/* Background bubble glow */}
-                    <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: `${cur.themeColor}1a`, filter: 'blur(40px)', zIndex: 0 }} />
+              /* ── 3-card peek carousel ── */
+              const PEEK = isMobile ? 54 : 68;  // px visible for side cards
+              const GAP  = 10;
+              const leftIdx  = (slideIndex - 1 + slides.length) % slides.length;
+              const rightIdx = (slideIndex + 1) % slides.length;
 
-                    {/* Left navigation arrow */}
-                    <button onClick={prevSlide} style={{
-                      position: 'absolute',
-                      left: 10,
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      width: 32,
-                      height: 32,
-                      borderRadius: '50%',
-                      background: 'rgba(0,0,0,0.6)',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      color: '#fff',
-                      cursor: 'pointer',
-                      zIndex: 10,
-                      display: isMobile ? 'none' : 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 16
-                    }}>‹</button>
-
-                    {/* Right navigation arrow */}
-                    <button onClick={nextSlide} style={{
-                      position: 'absolute',
-                      right: 10,
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      width: 32,
-                      height: 32,
-                      borderRadius: '50%',
-                      background: 'rgba(0,0,0,0.6)',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      color: '#fff',
-                      cursor: 'pointer',
-                      zIndex: 10,
-                      display: isMobile ? 'none' : 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 16
-                    }}>›</button>
-
-                    {/* Image Showcase */}
-                    <div style={{
-                      position: 'relative',
-                      width: isMobile ? '100%' : '240px',
-                      height: isMobile ? '160px' : '180px',
-                      borderRadius: 12,
+              const renderCard = (slide: typeof slides[0], idx: number, pos: 'left'|'center'|'right') => {
+                const isC = pos === 'center';
+                return (
+                  <div
+                    key={`${idx}-${pos}`}
+                    onClick={() => !isC && setSpotlightSlideIndex(prev => ({ ...prev, [sectionId]: idx }))}
+                    style={{
+                      flex: isC ? '1 1 0' : `0 0 ${PEEK}px`,
+                      minWidth: isC ? 0 : PEEK,
+                      maxWidth: isC ? undefined : PEEK,
+                      height: isC ? (isMobile ? 214 : 232) : (isMobile ? 178 : 196),
+                      borderRadius: isC ? 18 : (pos === 'left' ? '0 14px 14px 0' : '14px 0 0 14px'),
                       overflow: 'hidden',
-                      boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
+                      position: 'relative',
+                      cursor: isC ? 'default' : 'pointer',
+                      opacity: isC ? 1 : 0.52,
+                      transform: isC ? 'scaleY(1)' : 'scaleY(0.92)',
+                      transformOrigin: 'center center',
+                      transition: 'all 0.38s cubic-bezier(0.25,0.46,0.45,0.94)',
+                      boxShadow: isC
+                        ? `0 20px 50px rgba(0,0,0,0.7), 0 0 0 1.5px ${slide.themeColor}45`
+                        : '0 4px 12px rgba(0,0,0,0.25)',
                       flexShrink: 0,
-                      zIndex: 1
+                      alignSelf: 'center',
+                    }}
+                  >
+                    {/* gradient bg */}
+                    <div style={{ position:'absolute', inset:0, background: slide.gradient, zIndex:0 }} />
+
+                    {/* photo — right 50% for center, full bleed for sides */}
+                    <div style={{
+                      position:'absolute', top:0, right:0,
+                      width: isC ? '52%' : '100%',
+                      height:'100%', zIndex:1, overflow:'hidden'
                     }}>
-                      <img src={cur.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      <div style={{
-                        position: 'absolute',
-                        top: 10,
-                        left: 10,
-                        background: cur.themeColor,
-                        padding: '4px 8px',
-                        borderRadius: 6,
-                        color: cur.themeColor === '#1db954' ? '#000' : '#fff',
-                        fontSize: 9,
-                        fontWeight: 900,
-                        letterSpacing: '0.05em',
-                        boxShadow: `0 0 12px ${cur.themeColor}80`
-                      }}>
-                        {cur.badge}
-                      </div>
+                      <img src={slide.image} alt={slide.title} style={{
+                        width:'100%', height:'100%', objectFit:'cover',
+                        filter: isC ? 'brightness(0.8)' : 'brightness(0.35) saturate(0.4)',
+                        transition:'filter 0.4s'
+                      }} />
+                      {isC && (
+                        <div style={{
+                          position:'absolute', inset:0,
+                          background:'linear-gradient(to right, rgba(6,4,2,0.95) 0%, rgba(6,4,2,0.1) 80%, transparent 100%)'
+                        }} />
+                      )}
                     </div>
 
-                    {/* Content Section */}
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', width: '100%', zIndex: 1 }}>
-                      <div>
-                        <span style={{ color: cur.themeColor, fontSize: 9.5, fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                          {cur.subtitle}
-                        </span>
-                        <h2 style={{ color: '#fff', fontSize: isMobile ? 20 : 24, fontFamily: 'Outfit, sans-serif', fontWeight: 950, margin: '4px 0' }}>
-                          {cur.title}
-                        </h2>
-                        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: isMobile ? 11 : 13, margin: '0 0 16px 0', lineHeight: 1.4 }}>
-                          {cur.desc}
-                        </p>
+                    {/* center card: badge + text + button */}
+                    {isC && <>
+                      <div style={{
+                        position:'absolute', top:14, left:14, zIndex:4,
+                        background: slide.themeColor,
+                        color: slide.themeColor === '#b08850' ? '#0d0800' : '#fff',
+                        fontSize:7.5, fontWeight:900, letterSpacing:'0.1em', textTransform:'uppercase',
+                        padding:'3px 10px', borderRadius:20,
+                        boxShadow:`0 2px 10px ${slide.themeColor}55`
+                      }}>
+                        {slide.badge}
                       </div>
 
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <button 
-                          onClick={() => {
-                            if (slideIndex === 1) {
-                              playTrack(tracks[0] || mockTracks[0], tracks);
-                            } else {
-                              toast.success(`Redirecting to ${cur.title} page!`);
-                            }
+                      <div style={{
+                        position:'absolute', inset:0, zIndex:3,
+                        display:'flex', flexDirection:'column', justifyContent:'flex-end',
+                        padding: isMobile ? '12px 12px 18px' : '18px 20px 22px',
+                        width: isMobile ? '60%' : '55%',
+                      }}>
+                        <span style={{
+                          color: slide.themeColor, fontSize:8, fontWeight:800,
+                          textTransform:'uppercase', letterSpacing:'0.14em',
+                          display:'block', marginBottom:5
+                        }}>{slide.subtitle}</span>
+
+                        <h2 style={{
+                          color:'#fff', fontFamily:'Outfit, sans-serif',
+                          fontSize: isMobile ? 18 : 24, fontWeight:900,
+                          lineHeight:1.15, margin:'0 0 8px',
+                          textShadow:'0 2px 10px rgba(0,0,0,0.6)'
+                        }}>{slide.title}</h2>
+
+                        {!isMobile && (
+                          <p style={{
+                            color:'rgba(255,255,255,0.5)', fontSize:10.5,
+                            lineHeight:1.5, margin:'0 0 14px'
+                          }}>{slide.desc}</p>
+                        )}
+
+                        <button
+                          onClick={e => {
+                            e.stopPropagation();
+                            if (idx === 1) playTrack(tracks[0] || mockTracks[0], tracks);
+                            else toast.success(`Opening ${slide.title}…`);
                           }}
                           style={{
-                            background: cur.themeColor,
-                            border: 'none',
-                            color: cur.themeColor === '#1db954' ? '#000' : '#fff',
-                            padding: '8px 20px',
-                            borderRadius: 24,
-                            fontSize: isMobile ? 11 : 12.5,
-                            fontWeight: 900,
-                            cursor: 'pointer',
-                            boxShadow: `0 4px 14px ${cur.themeColor}40`,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 6,
-                            transition: 'transform 0.15s'
+                            alignSelf:'flex-start',
+                            background: slide.themeColor, border:'none',
+                            color: slide.themeColor === '#b08850' ? '#1a0e00' : '#fff',
+                            padding: isMobile ? '6px 14px' : '7px 18px',
+                            borderRadius:24,
+                            fontSize: isMobile ? 10 : 11, fontWeight:900,
+                            cursor:'pointer', letterSpacing:'0.03em',
+                            boxShadow:`0 4px 14px ${slide.themeColor}55`,
+                            display:'flex', alignItems:'center', gap:5,
+                            transition:'transform 0.15s'
                           }}
-                          onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.03)'}
-                          onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-                        >
-                          ▶ {cur.actionText}
-                        </button>
-                        
-                        {/* Dot indicators */}
-                        <div style={{ display: 'flex', gap: 6 }}>
-                          {slides.map((_, i) => (
-                            <div 
-                              key={i} 
-                              onClick={() => setSpotlightSlideIndex(prev => ({ ...prev, [sectionId]: i }))}
-                              style={{ 
-                                width: i === slideIndex ? 20 : 6, 
-                                height: 6, 
-                                borderRadius: 3, 
-                                background: i === slideIndex ? cur.themeColor : 'rgba(255,255,255,0.2)',
-                                cursor: 'pointer',
-                                transition: 'all 0.25s ease'
-                              }} 
-                            />
-                          ))}
-                        </div>
+                          onMouseEnter={e => { e.currentTarget.style.transform='scale(1.05)'; }}
+                          onMouseLeave={e => { e.currentTarget.style.transform='scale(1)'; }}
+                        >▶ {slide.actionText}</button>
                       </div>
+                    </>}
+                  </div>
+                );
+              };
+
+              return (
+                <div key={sectionId} style={{ marginBottom: 32 }}>
+                  {/* outer clips the overflowing side cards */}
+                  <div style={{ position:'relative', overflow:'hidden', paddingTop:6, paddingBottom:4 }}>
+
+                    {/* left arrow — overlays the left peek card */}
+                    <button
+                      onClick={prevSlide}
+                      style={{
+                        position:'absolute', left: PEEK - 18, top:'50%', transform:'translateY(-56%)',
+                        zIndex:30, width:34, height:34, borderRadius:'50%',
+                        background:'rgba(16,10,6,0.78)', backdropFilter:'blur(8px)',
+                        border:'1px solid rgba(176,136,80,0.4)', color:'#d4a96a',
+                        cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center',
+                        fontSize:19, fontWeight:300, lineHeight:1,
+                        boxShadow:'0 4px 14px rgba(0,0,0,0.5)', transition:'all 0.2s'
+                      }}
+                      onMouseEnter={e=>{ e.currentTarget.style.background='#b08850'; e.currentTarget.style.color='#000'; }}
+                      onMouseLeave={e=>{ e.currentTarget.style.background='rgba(16,10,6,0.78)'; e.currentTarget.style.color='#d4a96a'; }}
+                    >‹</button>
+
+                    {/* right arrow */}
+                    <button
+                      onClick={nextSlide}
+                      style={{
+                        position:'absolute', right: PEEK - 18, top:'50%', transform:'translateY(-56%)',
+                        zIndex:30, width:34, height:34, borderRadius:'50%',
+                        background:'rgba(16,10,6,0.78)', backdropFilter:'blur(8px)',
+                        border:'1px solid rgba(176,136,80,0.4)', color:'#d4a96a',
+                        cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center',
+                        fontSize:19, fontWeight:300, lineHeight:1,
+                        boxShadow:'0 4px 14px rgba(0,0,0,0.5)', transition:'all 0.2s'
+                      }}
+                      onMouseEnter={e=>{ e.currentTarget.style.background='#b08850'; e.currentTarget.style.color='#000'; }}
+                      onMouseLeave={e=>{ e.currentTarget.style.background='rgba(16,10,6,0.78)'; e.currentTarget.style.color='#d4a96a'; }}
+                    >›</button>
+
+                    {/* the 3-card row — negative side margins bleed into outer overflow:hidden */}
+                    <div style={{
+                      display:'flex',
+                      alignItems:'center',
+                      gap: GAP,
+                      marginLeft: -(PEEK),   /* pull left card flush with outer edge */
+                      marginRight: -(PEEK),  /* pull right card flush with outer edge */
+                    }}>
+                      {renderCard(slides[leftIdx],  leftIdx,  'left')}
+                      {renderCard(slides[slideIndex], slideIndex, 'center')}
+                      {renderCard(slides[rightIdx], rightIdx, 'right')}
+                    </div>
+
+                    {/* dot indicators */}
+                    <div style={{ display:'flex', justifyContent:'center', gap:6, marginTop:10 }}>
+                      {slides.map((_, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setSpotlightSlideIndex(prev => ({ ...prev, [sectionId]: i }))}
+                          style={{
+                            width: i === slideIndex ? 22 : 6,
+                            height: 6, borderRadius:3,
+                            border:'none', padding:0,
+                            background: i === slideIndex ? slides[slideIndex].themeColor : 'rgba(176,136,80,0.2)',
+                            cursor:'pointer', transition:'all 0.3s ease'
+                          }}
+                        />
+                      ))}
                     </div>
                   </div>
                 </div>
               );
             }
+
+
 
             if (rawLayout === 'brand_artist_collabs') {
               const gridTracks = tracks.slice(0, 4);
@@ -3443,11 +3518,11 @@ export default function HomePage() {
               }
               const brandNames = ['Bose Sound', 'Sony Audio', 'Sennheiser', 'Pioneer DJ'];
               const brandDiscounts = ['Up to 30% Off Gear', 'Exclusive Tiers', '40% Off Studio FLAC', 'DJ Deck Bundles'];
-              const brandIcons = ['🔊', '📻', '🎧', '🎚️'];
-              const brandBorders = ['rgba(29, 185, 84, 0.35)', 'rgba(16, 185, 129, 0.35)', 'rgba(16, 185, 129, 0.35)', 'rgba(52, 211, 153, 0.35)'];
-              const textColors = ['#1db954', '#10b981', '#10b981', '#34d399'];
+              const brandIcons = ['Ã°Å¸â€Å ', '📻', '🎧', '🎚️'];
+              const brandBorders = ['rgba(176, 136, 80, 0.35)', 'rgba(16, 185, 129, 0.35)', 'rgba(16, 185, 129, 0.35)', 'rgba(52, 211, 153, 0.35)'];
+              const textColors = ['#b08850', '#10b981', '#10b981', '#34d399'];
               const brandGrads = [
-                'linear-gradient(145deg, rgba(29, 185, 84,0.08) 0%, rgba(6,6,6,0.95) 100%)',
+                'linear-gradient(145deg, rgba(176, 136, 80,0.08) 0%, rgba(6,6,6,0.95) 100%)',
                 'linear-gradient(145deg, rgba(16, 185, 129,0.08) 0%, rgba(6,6,6,0.95) 100%)',
                 'linear-gradient(145deg, rgba(16, 185, 129,0.08) 0%, rgba(6,6,6,0.95) 100%)',
                 'linear-gradient(145deg, rgba(52, 211, 153,0.08) 0%, rgba(6,6,6,0.95) 100%)'
@@ -3471,7 +3546,7 @@ export default function HomePage() {
                     <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: isMobile ? 11 : 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', marginLeft: 12 }}>See all →</span>
                   </div>
 
-                  {/* 2x2 Grid of partner audio brands — glassmorphic premium */}
+                  {/* 2x2 Grid of partner audio brands — glassmorphic premium */}
                   <div style={{
                     display: 'grid',
                     gridTemplateColumns: 'repeat(2, 1fr)',
@@ -3555,7 +3630,7 @@ export default function HomePage() {
                     whileHover={{ scale: 1.01 }}
                     style={{
                       background: 'linear-gradient(90deg, #111 0%, #1e1e1e 50%, #0d381e 100%)',
-                      border: '1.5px solid rgba(29, 185, 84, 0.35)',
+                      border: '1.5px solid rgba(176, 136, 80, 0.35)',
                       borderRadius: 16,
                       padding: isMobile ? 12 : 20,
                       display: 'flex',
@@ -3574,7 +3649,7 @@ export default function HomePage() {
                         width: isMobile ? 50 : 64,
                         height: isMobile ? 50 : 64,
                         borderRadius: 12,
-                        background: 'linear-gradient(135deg, #1db954 0%, #0a0a0a 100%)',
+                        background: 'linear-gradient(135deg, #b08850 0%, #0a0a0a 100%)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -3584,8 +3659,8 @@ export default function HomePage() {
                       </div>
                       <div style={{ minWidth: 0 }}>
                         <span style={{
-                          background: 'rgba(29, 185, 84, 0.15)',
-                          color: '#1db954',
+                          background: 'rgba(176, 136, 80, 0.15)',
+                          color: '#b08850',
                           fontSize: 9,
                           fontWeight: 900,
                           padding: '2px 6px',
@@ -3606,7 +3681,7 @@ export default function HomePage() {
                       width: 36,
                       height: 36,
                       borderRadius: '50%',
-                      background: '#1db954',
+                      background: '#b08850',
                       border: 'none',
                       color: '#000',
                       display: 'flex',
@@ -3817,9 +3892,9 @@ export default function HomePage() {
                               toast.success(`Showing ${tab}!`);
                             }}
                             style={{
-                              background: isActive ? '#1db954' : 'rgba(255,255,255,0.06)',
+                              background: isActive ? '#b08850' : 'rgba(255,255,255,0.06)',
                               color: isActive ? '#000' : '#fff',
-                              border: isActive ? '1px solid #1db954' : '1px solid rgba(255,255,255,0.1)',
+                              border: isActive ? '1px solid #b08850' : '1px solid rgba(255,255,255,0.1)',
                               borderRadius: 20,
                               padding: '5px 12px',
                               fontSize: isMobile ? 11 : 12,
@@ -3850,8 +3925,8 @@ export default function HomePage() {
                       
                       return (
                         <div key={`${track.id}-deal-${i}`} style={{
-                          background: 'linear-gradient(135deg, rgba(29, 185, 84,0.04) 0%, rgba(15,15,15,0.95) 100%)',
-                          border: '1px solid rgba(29, 185, 84,0.15)',
+                          background: 'linear-gradient(135deg, rgba(176, 136, 80,0.04) 0%, rgba(15,15,15,0.95) 100%)',
+                          border: '1px solid rgba(176, 136, 80,0.15)',
                           borderRadius: 16,
                           padding: isMobile ? 10 : 14,
                           width: isMobile ? 125 : 155,
@@ -3868,7 +3943,7 @@ export default function HomePage() {
                         >
                           {/* Image card wrapper */}
                           <div style={{ position: 'relative', width: '100%', aspectRatio: '1', borderRadius: 12, overflow: 'hidden', marginBottom: 8 }}>
-                            {track.coverImage ? (<img src={track.coverImage} alt="" onError={e => { const p = (e.target as HTMLImageElement).parentElement; if (p) p.style.background = 'linear-gradient(135deg, rgba(29, 185, 84,0.15), #000)'; (e.target as HTMLImageElement).style.display = 'none'; }} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />) : null}
+                            {track.coverImage ? (<img src={track.coverImage} alt="" onError={e => { const p = (e.target as HTMLImageElement).parentElement; if (p) p.style.background = 'linear-gradient(135deg, rgba(176, 136, 80,0.15), #000)'; (e.target as HTMLImageElement).style.display = 'none'; }} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />) : null}
                             
                             {/* Heart/Like Button on top-right of image */}
                             <button
@@ -3937,7 +4012,7 @@ export default function HomePage() {
                                 width: 30,
                                 height: 30,
                                 borderRadius: '50%',
-                                background: isInCart ? '#ef4444' : '#1db954', // green or red matching cart
+                                background: isInCart ? '#ef4444' : '#b08850', // green or red matching cart
                                 border: '2.5px solid #121212', // dark border to look separate
                                 color: '#fff',
                                 display: 'flex',
@@ -4033,15 +4108,15 @@ export default function HomePage() {
                             padding: '16px',
                             display: 'flex',
                             alignItems: 'flex-end',
-                            boxShadow: '0 8px 20px rgba(0,0,0,0.4)',
-                            border: '1px solid rgba(255,255,255,0.06)',
+                            boxShadow: '0 6px 18px rgba(43, 34, 26, 0.12)',
+                            border: '1px solid rgba(176, 136, 80, 0.22)',
                             marginRight: isMobile ? 0 : undefined
                           }}
                         >
                           <div style={{
                             position: 'absolute',
                             inset: 0,
-                            background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)',
+                            background: 'linear-gradient(to top, rgba(34, 26, 21, 0.9) 0%, rgba(34, 26, 21, 0.45) 60%, rgba(34, 26, 21, 0.05) 100%)',
                             zIndex: 0
                           }} />
                           <span style={{
@@ -4092,15 +4167,15 @@ export default function HomePage() {
                             padding: '16px',
                             display: 'flex',
                             alignItems: 'flex-end',
-                            boxShadow: '0 8px 20px rgba(0,0,0,0.4)',
-                            border: '1px solid rgba(255,255,255,0.06)',
+                            boxShadow: '0 6px 18px rgba(43, 34, 26, 0.12)',
+                            border: '1px solid rgba(176, 136, 80, 0.22)',
                             marginRight: isMobile ? 0 : undefined
                           }}
                         >
                           <div style={{
                             position: 'absolute',
                             inset: 0,
-                            background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)',
+                            background: 'linear-gradient(to top, rgba(34, 26, 21, 0.9) 0%, rgba(34, 26, 21, 0.45) 60%, rgba(34, 26, 21, 0.05) 100%)',
                             zIndex: 0
                           }} />
                           <span style={{
@@ -4240,13 +4315,13 @@ export default function HomePage() {
                           width: 12,
                           height: 12,
                           borderRadius: '50%',
-                          background: isActive ? 'var(--theme-primary, #1db954)' : 'rgba(255,255,255,0.2)',
-                          boxShadow: isActive ? '0 0 10px var(--theme-primary, #1db954)' : 'none',
+                          background: isActive ? 'var(--theme-primary, #b08850)' : 'rgba(255,255,255,0.2)',
+                          boxShadow: isActive ? '0 0 10px var(--theme-primary, #b08850)' : 'none',
                           border: '2px solid #000',
                           transition: 'all 0.3s'
                         }} />
 
-                        <div style={{ color: 'var(--theme-primary, #1db954)', fontSize: 11, fontWeight: 700, minWidth: 44 }}>
+                        <div style={{ color: 'var(--theme-primary, #b08850)', fontSize: 11, fontWeight: 700, minWidth: 44 }}>
                           {track.year || '2024'}
                         </div>
 
@@ -4260,7 +4335,7 @@ export default function HomePage() {
                             padding: '12px 16px',
                             background: isActive ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.02)',
                             borderRadius: 12,
-                            border: `1px solid ${isActive ? 'var(--theme-primary, #1db954)30' : 'rgba(255,255,255,0.05)'}`,
+                            border: `1px solid ${isActive ? 'var(--theme-primary, #b08850)30' : 'rgba(255,255,255,0.05)'}`,
                             cursor: 'pointer',
                             transition: 'all 0.2s',
                           }}
@@ -4298,7 +4373,7 @@ export default function HomePage() {
                               justifyContent: 'center',
                               transition: 'all 0.2s',
                             }}
-                            onMouseEnter={e => e.currentTarget.style.background = 'var(--theme-primary, #1db954)'}
+                            onMouseEnter={e => e.currentTarget.style.background = 'var(--theme-primary, #b08850)'}
                             onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
                           >
                             {isPl ? <Pause size={14} color="black" fill="black" /> : <Play size={14} color="white" fill="white" />}
@@ -4337,25 +4412,25 @@ export default function HomePage() {
               const targetUrl = isCustom ? (cur.targetUrl || '#') : '#';
 
               const heroGrads = [
-                'linear-gradient(135deg, #05160e 0%, #0d381e 60%, #030d07 100%)',
-                'linear-gradient(135deg, #10061e 0%, #290d4a 60%, #080210 100%)',
-                'linear-gradient(135deg, #030a1c 0%, #091c42 60%, #020510 100%)',
-                'linear-gradient(135deg, #1f0505 0%, #4a0d0d 60%, #0e0202 100%)',
-                'linear-gradient(135deg, #1c1103 0%, #351f05 60%, #0e0801 100%)',
+                'linear-gradient(135deg, #2b1a0f 0%, #4d3f35 60%, #170e0a 100%)', // Espresso
+                'linear-gradient(135deg, #32251a 0%, #5c4632 60%, #1c140e 100%)', // Coffee
+                'linear-gradient(135deg, #2c1d11 0%, #8c6c44 60%, #180f08 100%)', // Latte
+                'linear-gradient(135deg, #3a2a1d 0%, #b08850 60%, #1f140b 100%)', // Caramel/Gold
+                'linear-gradient(135deg, #221a15 0%, #4d3f35 60%, #000000 100%)', // Dark Chocolate
               ];
               const glowColors = [
-                'rgba(29, 185, 84,0.5)',
-                'rgba(168,85,247,0.5)',
-                'rgba(16, 185, 129,0.5)',
-                'rgba(239,68,68,0.5)',
-                'rgba(245,158,11,0.5)',
+                'rgba(176, 136, 80, 0.5)',
+                'rgba(140, 108, 68, 0.5)',
+                'rgba(212, 178, 133, 0.5)',
+                'rgba(200, 189, 173, 0.5)',
+                'rgba(235, 220, 185, 0.5)',
               ];
               const accentColors = [
-                '#1db954',
-                '#a855f7',
-                '#10b981',
-                '#ef4444',
-                '#f59e0b',
+                '#b08850', // Gold
+                '#8c6c44', // Latte
+                '#d4b285', // Caramel
+                '#c8bdad', // Sandstone
+                '#ebdcb9', // Cream
               ];
               const badgeLabels = [
                 'BEATO ORIGINALS',
@@ -4397,345 +4472,236 @@ export default function HomePage() {
               const badge = subtitle || badgeLabels[safeIdx % badgeLabels.length];
               const desc2 = desc || 'Discover the latest trending tracks and curated playlists.';
 
-              // ── MOBILE: Peek Carousel Slider ──
-              if (isMobile) {
-                const peekId = `peek-slider-${sectionId}`;
-                const cardW = `calc(100vw - 64px)`; // visible card width (leaves 32px peek on each side)
+              // ── MOBILE + DESKTOP: 3-card peek carousel ──
+              return (() => {
+                const PEEK_W = isMobile ? 40 : 70;  // total width of side card
+                const GAP_W  = isMobile ? 8 : 15;
+                const PEEK_OFFSET = isMobile ? 15 : 25; // amount of side card hidden off-screen
+                const leftI  = (safeIdx - 1 + slides.length) % slides.length;
+                const rightI = (safeIdx + 1) % slides.length;
 
-                const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-                  (e.currentTarget as any)._touchStartX = e.touches[0].clientX;
+                const makeTouchHandlers = () => {
+                  let startX = 0;
+                  return {
+                    onTouchStart: (e: React.TouchEvent) => { startX = e.touches[0].clientX; },
+                    onTouchEnd: (e: React.TouchEvent) => {
+                      const dx = e.changedTouches[0].clientX - startX;
+                      if (Math.abs(dx) < 28) return;
+                      if (dx < 0) setIdx((safeIdx + 1) % slides.length);
+                      else        setIdx((safeIdx - 1 + slides.length) % slides.length);
+                    },
+                  };
                 };
-                const handleTouchEnd = (e: React.TouchEvent<HTMLDivElement>, currentI: number, total: number) => {
-                  const startX = (e.currentTarget as any)._touchStartX ?? 0;
-                  const dx = e.changedTouches[0].clientX - startX;
-                  if (Math.abs(dx) < 30) return;
-                  if (dx < 0) setSpotlightSlideIndex(prev => ({ ...prev, [sectionId]: (currentI + 1) % total }));
-                  else setSpotlightSlideIndex(prev => ({ ...prev, [sectionId]: (currentI - 1 + total) % total }));
+                const swipe = makeTouchHandlers();
+
+                const renderSpotlightCard = (slide: any, idx2: number, pos: 'left'|'center'|'right') => {
+                  const isC = pos === 'center';
+                  const ca = accentColors[idx2 % accentColors.length];
+                  const cg = glowColors[idx2 % glowColors.length];
+                  const cbg = heroGrads[idx2 % heroGrads.length];
+                  const img = slide.imageUrl || slide.coverImage || (config.customImage) || '';
+                  const slTitle = slide.title || '';
+                  const slArtist = slide.artistName || desc2;
+                  const slBadge = slide.subtitle || badgeLabels[idx2 % badgeLabels.length];
+                  const slBtn = slide.buttonText || 'Play Now';
+
+                  const cardWidthVal = isC ? (isMobile ? 'calc(100% - 96px)' : 'calc(100% - 170px)') : `${PEEK_W}px`;
+                  return (
+                    <div
+                      key={`${idx2}-${pos}`}
+                      onClick={() => !isC && setIdx(idx2)}
+                      {...(isC ? swipe : {})}
+                      style={{
+                        flex: `0 0 ${cardWidthVal}`,
+                        width: cardWidthVal,
+                        minWidth: cardWidthVal,
+                        maxWidth: cardWidthVal,
+                        height: isC ? (isMobile ? 216 : 280) : (isMobile ? 182 : 248),
+                        borderRadius: isC ? 20 : (pos === 'left' ? '0 16px 16px 0' : '16px 0 0 16px'),
+                        overflow: 'hidden',
+                        position: 'relative',
+                        background: cbg,
+                        cursor: isC ? 'default' : 'pointer',
+                        opacity: isC ? 1 : 0.5,
+                        transform: isC ? 'scaleY(1)' : 'scaleY(0.91)',
+                        transformOrigin: 'center center',
+                        transition: 'all 0.4s cubic-bezier(0.25,0.46,0.45,0.94)',
+                        border: isC ? `1.5px solid ${ca}45` : 'none',
+                        boxShadow: 'none',
+                        flexShrink: 0,
+                        alignSelf: 'center',
+                        WebkitTapHighlightColor: 'transparent',
+                      }}
+                    >
+                      {/* Full-bleed image */}
+                      {img && (
+                        <img
+                          src={img}
+                          alt={slTitle}
+                          onError={e => (e.target as HTMLImageElement).style.display = 'none'}
+                          style={{
+                            position: 'absolute', inset: 0,
+                            width: '100%', height: '100%',
+                            objectFit: 'cover', objectPosition: 'center top',
+                            zIndex: 0,
+                            filter: isC
+                              ? 'brightness(1.15) saturate(1.2) contrast(1.05)'
+                              : 'brightness(0.45) saturate(0.5)',
+                            transition: 'filter 0.4s',
+                          }}
+                        />
+                      )}
+
+                      {/* Bottom scrim — only on center */}
+                      {isC && (
+                        <div style={{
+                          position: 'absolute', inset: 0, zIndex: 1,
+                          background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.5) 35%, rgba(0,0,0,0.05) 65%, transparent 100%)',
+                          pointerEvents: 'none',
+                        }} />
+                      )}
+
+                      {/* Badge — top left, center only */}
+                      {isC && (
+                        <div style={{ position: 'absolute', top: 13, left: 13, zIndex: 5 }}>
+                          <span style={{
+                            display: 'inline-flex', alignItems: 'center', gap: 5,
+                            background: 'rgba(0,0,0,0.42)', color: '#fff',
+                            border: '1px solid rgba(255,255,255,0.28)',
+                            fontSize: 8, fontWeight: 800, textTransform: 'uppercase',
+                            letterSpacing: '0.12em', padding: '4px 10px',
+                            borderRadius: 20, backdropFilter: 'blur(12px)',
+                          }}>
+                            <span style={{
+                              width: 5, height: 5, borderRadius: '50%',
+                              background: ca, display: 'inline-block',
+                              boxShadow: `0 0 6px ${ca}`, flexShrink: 0,
+                            }} />
+                            {slBadge}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Three-dot — top right, center only */}
+                      {isC && (
+                        <button
+                          onClick={e => e.stopPropagation()}
+                          style={{
+                            position: 'absolute', top: 11, right: 11, zIndex: 5,
+                            width: 30, height: 30, borderRadius: '50%',
+                            background: 'rgba(0,0,0,0.38)', backdropFilter: 'blur(10px)',
+                            border: '1px solid rgba(255,255,255,0.2)',
+                            color: '#fff', fontSize: 16, cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1,
+                          }}
+                        >⋮</button>
+                      )}
+
+                      {/* Bottom text + CTA —  center only */}
+                      {isC && (
+                        <div style={{
+                          position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 4,
+                          display: 'flex', flexDirection: 'column',
+                          padding: isMobile ? '0 16px 16px 18px' : '0 24px 22px 28px',
+                        }}>
+                          <style>{`.text-white-force { color: #fff !important; }`}</style>
+                          <h2 className="text-white-force" style={{
+                            fontFamily: 'Outfit, sans-serif',
+                            fontSize: isMobile ? 21 : 34, fontWeight: 950,
+                            color: '#fff', margin: '0 0 3px', lineHeight: 1.15,
+                            letterSpacing: '-0.02em',
+                            textShadow: '0 2px 14px rgba(0,0,0,0.95)',
+                            overflow: 'hidden', display: '-webkit-box',
+                            WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+                            width: '82%',
+                          } as React.CSSProperties}>{slTitle}</h2>
+
+                          <p className="text-white-muted-force" style={{
+                            color: 'rgba(255,255,255,0.65)', fontSize: isMobile ? 10 : 13,
+                            margin: `0 0 ${isMobile ? 10 : 16}px`, fontWeight: 700,
+                            textTransform: 'uppercase', letterSpacing: '0.08em',
+                            textShadow: '0 1px 6px rgba(0,0,0,0.9)',
+                            overflow: 'hidden', display: '-webkit-box',
+                            WebkitLineClamp: 1, WebkitBoxOrient: 'vertical',
+                          } as React.CSSProperties}>{slArtist}</p>
+
+                          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                            <button
+                              onClick={e => { e.stopPropagation(); if (!isCustom) playTrack(slide, slides); else handleAction(e); }}
+                              style={{
+                                background: ca, color: '#000', border: 'none',
+                                borderRadius: 22, padding: isMobile ? '8px 18px' : '10px 24px',
+                                fontSize: isMobile ? 12 : 13.5, fontWeight: 900, cursor: 'pointer',
+                                boxShadow: `0 4px 18px ${ca}70`,
+                                display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0,
+                              }}
+                            >
+                              <Play size={isMobile ? 12 : 14} fill="black" />
+                              {slBtn}
+                            </button>
+                            <button style={{
+                              background: 'rgba(255,255,255,0.16)', color: '#fff',
+                              border: '1.5px solid rgba(255,255,255,0.38)',
+                              borderRadius: 22, padding: isMobile ? '8px 14px' : '10px 20px',
+                              fontSize: isMobile ? 12 : 13.5, fontWeight: 700, cursor: 'pointer',
+                              backdropFilter: 'blur(12px)', flexShrink: 0,
+                            }}>Save</button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
                 };
 
                 return (
-                  <div key={sectionId} style={{ marginTop: 28, marginBottom: 36 }}>
-                    {/* Section title & spacing for mobile */}
+                  <div key={sectionId} style={{ marginBottom: 36 }}>
+                    {/* Section header */}
                     <div style={{ display: 'flex', flexDirection: 'column', marginBottom: 14, paddingLeft: 4 }}>
-                      <span style={{ color: GREEN, fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>
+                      <span style={{ color: accent, fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>
                         {config.subtitle || 'SPOTLIGHT'}
                       </span>
-                      <h3 style={{ margin: 0, color: '#fff', fontSize: 17, fontFamily: 'Outfit, sans-serif', fontWeight: 800 }}>
+                      <h3 style={{ margin: 0, color: 'var(--theme-text, #fff)', fontSize: isMobile ? 17 : 22, fontFamily: 'Outfit, sans-serif', fontWeight: 800 }}>
                         {config.title || 'Beato Spotlight'}
                       </h3>
                     </div>
 
-                    {/* ── Peek track — horizontally scrolls to active card ── */}
-                    <div
-                      id={peekId}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 14,
-                        paddingLeft: 20,
-                        paddingRight: 20,
-                        overflowX: 'visible',
-                        position: 'relative',
-                        touchAction: 'pan-x',
-                      }}
-                      onTouchStart={handleTouchStart}
-                      onTouchEnd={e => handleTouchEnd(e, safeIdx, slides.length)}
-                    >
-                      {slides.map((slide: any, i: number) => {
-                        const isActive = i === safeIdx;
-                        const slideAccent = accentColors[i % accentColors.length];
-                        const slideGlow = glowColors[i % glowColors.length];
-                        const slideHeroBg = heroGrads[i % heroGrads.length];
-                        const slCoverImg = slide.imageUrl || slide.coverImage || '';
-                        const slTitle = slide.title || '';
-                        const slArtist = slide.artistName || desc2;
-                        const slBadge = (slide.subtitle) || badgeLabels[i % badgeLabels.length];
+                    {/* Outer clips side-cards flush at edges */}
+                    <div style={{ position: 'relative', overflow: 'hidden', paddingTop: 6, paddingBottom: 2 }}>
+                      {/* 3-card flex row —  negative margins create the edge-bleed peek */}
+                      <div style={{
+                        display: 'flex', alignItems: 'center',
+                        gap: GAP_W,
+                        marginLeft: -PEEK_OFFSET,
+                        marginRight: -PEEK_OFFSET,
+                      }}>
+                        {renderSpotlightCard(slides[leftI],  leftI,   'left')}
+                        {renderSpotlightCard(slides[safeIdx], safeIdx, 'center')}
+                        {renderSpotlightCard(slides[rightI], rightI,  'right')}
+                      </div>
 
-                        return (
+                      {/* Dot indicators */}
+                      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: 12 }}>
+                        {slides.map((_: any, i: number) => (
                           <div
                             key={i}
-                            onClick={() => {
-                              if (!isActive) {
-                                setSpotlightSlideIndex(prev => ({ ...prev, [sectionId]: i }));
-                              } else {
-                                handleAction({ stopPropagation: () => {} } as any);
-                              }
-                            }}
+                            onClick={() => setIdx(i)}
                             style={{
-                              flexShrink: 0,
-                              width: cardW,
-                              height: isActive ? 210 : 190,
-                              borderRadius: 22,
-                              overflow: 'hidden',
-                              position: 'relative',
-                              background: slideHeroBg,
-                              boxShadow: isActive
-                                ? `0 12px 40px rgba(0,0,0,0.65), 0 0 0 1.5px ${slideAccent}35`
-                                : `0 6px 20px rgba(0,0,0,0.35)`,
+                              width: i === safeIdx ? 22 : 7, height: 7, borderRadius: 4,
+                              background: i === safeIdx ? accentColors[safeIdx % accentColors.length] : 'rgba(176,136,80,0.22)',
+                              transition: 'all 0.35s cubic-bezier(0.4,0,0.2,1)',
                               cursor: 'pointer',
-                              WebkitTapHighlightColor: 'transparent',
-                              transform: isActive ? 'scale(1)' : 'scale(0.94)',
-                              opacity: isActive ? 1 : 0.65,
-                              transition: 'all 0.38s cubic-bezier(0.34,1.2,0.64,1)',
-                              display: 'none', // hide all non-adjacent
+                              boxShadow: i === safeIdx ? `0 0 8px ${accentColors[safeIdx % accentColors.length]}90` : 'none',
                             }}
-                          >
-                            {/* Show only active and neighbours */}
-                            {null}
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    {/* ── Rendered visible slides: prev, active, next ── */}
-                    <div style={{ position: 'relative', overflow: 'hidden' }}>
-                      <div
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 14,
-                          transform: `translateX(calc(-${safeIdx} * (100vw - 50px) + 20px))`,
-                          transition: 'transform 0.42s cubic-bezier(0.4, 0, 0.2, 1)',
-                          paddingLeft: 20,
-                          willChange: 'transform',
-                        }}
-                        onTouchStart={handleTouchStart}
-                        onTouchEnd={e => handleTouchEnd(e, safeIdx, slides.length)}
-                      >
-                        {slides.map((slide: any, i: number) => {
-                          const isActive = i === safeIdx;
-                          const slideAccent = accentColors[i % accentColors.length];
-                          const slideGlow = glowColors[i % glowColors.length];
-                          const slideHeroBg = heroGrads[i % heroGrads.length];
-                          const slCoverImg = slide.imageUrl || slide.coverImage || (config.customImage) || '';
-                          const slTitle = slide.title || '';
-                          const slArtist = slide.artistName || desc2;
-                          const slBadge = slide.subtitle || badgeLabels[i % badgeLabels.length];
-                          const slButtonText = slide.buttonText || 'Play Now';
-
-                          return (
-                            <div
-                              key={i}
-                              onClick={() => {
-                                if (!isActive) {
-                                  setSpotlightSlideIndex(prev => ({ ...prev, [sectionId]: i }));
-                                } else {
-                                  if (!isCustom) playTrack(slide, slides);
-                                }
-                              }}
-                              style={{
-                                flexShrink: 0,
-                                width: 'calc(100vw - 60px)',
-                                height: 205,
-                                borderRadius: 22,
-                                overflow: 'hidden',
-                                position: 'relative',
-                                background: slideHeroBg,
-                                boxShadow: isActive
-                                  ? `0 14px 44px rgba(0,0,0,0.7), 0 0 0 1.5px ${slideAccent}40`
-                                  : `0 4px 16px rgba(0,0,0,0.3)`,
-                                cursor: 'pointer',
-                                WebkitTapHighlightColor: 'transparent',
-                                transform: isActive ? 'scale(1)' : 'scale(0.93)',
-                                opacity: isActive ? 1 : 0.6,
-                                transition: 'transform 0.42s cubic-bezier(0.4,0,0.2,1), opacity 0.42s, box-shadow 0.42s',
-                              }}
-                            >
-                              {/* Full bleed image — max brightness like ref img */}
-                              {slCoverImg && (
-                                <img
-                                  src={slCoverImg}
-                                  alt={slTitle}
-                                  onError={e => (e.target as HTMLImageElement).style.display = 'none'}
-                                  style={{
-                                    position: 'absolute', inset: 0,
-                                    width: '100%', height: '100%',
-                                    objectFit: 'cover',
-                                    objectPosition: 'center top',
-                                    display: 'block', zIndex: 0,
-                                    filter: isActive ? 'brightness(1.22) saturate(1.25) contrast(1.05)' : 'brightness(0.65) saturate(0.8)',
-                                    transition: 'filter 0.42s',
-                                  }}
-                                />
-                              )}
-
-                              {/* Overlay — ONLY a strong bottom-up scrim so image shines through */}
-                              <div style={{
-                                position: 'absolute', inset: 0, zIndex: 1,
-                                background: 'linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.55) 30%, rgba(0,0,0,0.08) 60%, rgba(0,0,0,0) 100%)',
-                                pointerEvents: 'none',
-                              }} />
-
-                              {/* Badge — TOP LEFT like ref img */}
-                              <div style={{
-                                position: 'absolute', top: 14, left: 14, zIndex: 5,
-                                opacity: isActive ? 1 : 0,
-                                transform: isActive ? 'translateY(0)' : 'translateY(-6px)',
-                                transition: 'opacity 0.3s 0.05s, transform 0.3s 0.05s',
-                                pointerEvents: isActive ? 'auto' : 'none',
-                              }}>
-                                <span style={{
-                                  display: 'inline-flex', alignItems: 'center', gap: 5,
-                                  background: 'rgba(0,0,0,0.45)',
-                                  color: '#fff',
-                                  border: '1px solid rgba(255,255,255,0.3)',
-                                  fontSize: 8.5, fontWeight: 800, textTransform: 'uppercase',
-                                  letterSpacing: '0.12em', padding: '5px 11px',
-                                  borderRadius: 20, backdropFilter: 'blur(12px)',
-                                }}>
-                                  <span style={{
-                                    width: 5, height: 5, borderRadius: '50%',
-                                    background: slideAccent, display: 'inline-block',
-                                    boxShadow: `0 0 6px ${slideAccent}`,
-                                    flexShrink: 0,
-                                  }} />
-                                  {slBadge}
-                                </span>
-                              </div>
-
-                              {/* THREE-DOT button — TOP RIGHT like ref img */}
-                              <button
-                                onClick={e => e.stopPropagation()}
-                                style={{
-                                  position: 'absolute', top: 12, right: 12, zIndex: 5,
-                                  width: 32, height: 32, borderRadius: '50%',
-                                  background: 'rgba(0,0,0,0.4)',
-                                  backdropFilter: 'blur(10px)',
-                                  border: '1px solid rgba(255,255,255,0.22)',
-                                  color: '#fff', fontSize: 18, cursor: 'pointer',
-                                  display: isActive ? 'flex' : 'none',
-                                  alignItems: 'center', justifyContent: 'center',
-                                  lineHeight: 1,
-                                  opacity: isActive ? 1 : 0,
-                                  transition: 'opacity 0.3s',
-                                }}>⋮</button>
-
-                              {/* Bottom content — title + artist + CTA pinned to bottom like ref img */}
-                              <div style={{
-                                position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 4,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'flex-start',
-                                padding: '0 16px 16px 18px',
-                                opacity: isActive ? 1 : 0,
-                                transform: isActive ? 'translateY(0)' : 'translateY(8px)',
-                                transition: 'opacity 0.35s 0.05s, transform 0.35s 0.05s',
-                                pointerEvents: isActive ? 'auto' : 'none',
-                              }}>
-                                {/* Title */}
-                                <h2 style={{
-                                  fontFamily: 'Outfit, Inter, sans-serif',
-                                  fontSize: 21, fontWeight: 950,
-                                  color: '#fff', margin: '0 0 3px 0',
-                                  lineHeight: 1.2, letterSpacing: '-0.02em',
-                                  textShadow: '0 2px 12px rgba(0,0,0,0.9)',
-                                  overflow: 'hidden', display: '-webkit-box',
-                                  WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
-                                  width: '80%',
-                                } as React.CSSProperties}>{slTitle}</h2>
-
-                                {/* Artist — small caps like ref img "SPONSORED BY" style */}
-                                <p style={{
-                                  color: 'rgba(255,255,255,0.7)', fontSize: 10,
-                                  margin: '0 0 12px 0', fontWeight: 700,
-                                  textTransform: 'uppercase', letterSpacing: '0.08em',
-                                  textShadow: '0 1px 6px rgba(0,0,0,0.9)',
-                                  overflow: 'hidden', display: '-webkit-box',
-                                  WebkitLineClamp: 1, WebkitBoxOrient: 'vertical',
-                                } as React.CSSProperties}>{slArtist}</p>
-
-                                {/* CTA row — Play button left, Save right */}
-                                <div style={{ display: 'flex', gap: 10, alignItems: 'center', width: '100%' }}>
-                                  <button
-                                    onClick={e => { e.stopPropagation(); if (!isCustom) playTrack(slide, slides); }}
-                                    style={{
-                                      background: slideAccent, color: '#000', border: 'none',
-                                      borderRadius: 22, padding: '9px 20px',
-                                      fontSize: 12.5, fontWeight: 900, cursor: 'pointer',
-                                      boxShadow: `0 4px 18px ${slideAccent}70`,
-                                      display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0,
-                                    }}>
-                                    <Play size={13} fill="black" />
-                                    {slButtonText}
-                                  </button>
-                                  <button style={{
-                                    background: 'rgba(255,255,255,0.18)', color: '#fff',
-                                    border: '1.5px solid rgba(255,255,255,0.4)',
-                                    borderRadius: 22, padding: '9px 16px',
-                                    fontSize: 12.5, fontWeight: 700, cursor: 'pointer',
-                                    backdropFilter: 'blur(12px)', flexShrink: 0,
-                                  }}>Save</button>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
+                          />
+                        ))}
                       </div>
-                    </div>
-
-                    {/* Pill dots */}
-                    <div style={{
-                      display: 'flex', justifyContent: 'center',
-                      alignItems: 'center', gap: 6, marginTop: 12,
-                    }}>
-                      {slides.map((_: any, i: number) => (
-                        <div
-                          key={i}
-                          onClick={() => setSpotlightSlideIndex(prev => ({ ...prev, [sectionId]: i }))}
-                          style={{
-                            width: i === safeIdx ? 22 : 7, height: 7, borderRadius: 4,
-                            background: i === safeIdx ? accentColors[safeIdx % accentColors.length] : 'rgba(255,255,255,0.22)',
-                            transition: 'all 0.35s cubic-bezier(0.4,0,0.2,1)',
-                            cursor: 'pointer',
-                            boxShadow: i === safeIdx ? `0 0 8px ${accentColors[safeIdx % accentColors.length]}90` : 'none',
-                          }}
-                        />
-                      ))}
                     </div>
                   </div>
                 );
-              }
-
-
-
-
-
-              // ── DESKTOP: Keep existing premium 3D design ──
-              return (
-                <div key={sectionId} style={{ marginBottom: 32 }}>
-                  <div style={{ borderRadius: 24, overflow: 'hidden', position: 'relative', height: 280, background: heroBg, cursor: 'pointer', border: `1px solid ${accent}15`, boxShadow: '0 12px 40px rgba(0,0,0,0.5)' }}
-                    onClick={handleAction}>
-                    <div style={{ position: 'absolute', right: '10%', top: '50%', transform: 'translateY(-50%)', width: 280, height: 280, borderRadius: '50%', background: `radial-gradient(circle, ${glow} 0%, rgba(0,0,0,0) 70%)`, filter: 'blur(35px)', zIndex: 1, pointerEvents: 'none' }} />
-                    <button onClick={e => { e.stopPropagation(); setIdx((safeIdx - 1 + slides.length) % slides.length); }} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(10px)', color: '#fff', fontSize: 18, cursor: 'pointer', zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>&#8249;</button>
-                    <button onClick={e => { e.stopPropagation(); setIdx((safeIdx + 1) % slides.length); }} style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(10px)', color: '#fff', fontSize: 18, cursor: 'pointer', zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>&#8250;</button>
-                    <div style={{ display: 'flex', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'space-between', padding: '0 60px 0 50px', position: 'relative', zIndex: 2 }}>
-                      <div style={{ flex: 1, paddingRight: 30, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-start' }}>
-                        <div style={{ display: 'flex', marginBottom: 10 }}>
-                          <span style={{ background: `${accent}18`, color: accent, border: `1.5px solid ${accent}40`, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.12em', padding: '3px 12px', borderRadius: 20, boxShadow: `0 2px 8px ${accent}15` }}>{badge}</span>
-                        </div>
-                        <h2 style={{ fontFamily: 'Outfit,sans-serif', fontSize: 36, fontWeight: 950, color: '#fff', margin: '0 0 8px 0', lineHeight: 1.1, textShadow: '0 2px 16px rgba(0,0,0,0.6)' }}>{title}</h2>
-                        {desc2 && <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 14, margin: '0 0 20px 0', fontWeight: 500 }}>{desc2}</p>}
-                        <div style={{ display: 'flex', gap: 10 }}>
-                          <button onClick={handleAction} style={{ background: accent, color: '#000', border: 'none', borderRadius: 24, padding: '11px 28px', fontSize: 14, fontWeight: 900, cursor: 'pointer', boxShadow: `0 6px 20px ${accent}45`, display: 'flex', alignItems: 'center', gap: 6 }}><Play size={14} fill="black" /> {buttonText}</button>
-                          <button style={{ background: 'rgba(255,255,255,0.08)', color: '#fff', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 24, padding: '11px 24px', fontSize: 14, fontWeight: 700, cursor: 'pointer', backdropFilter: 'blur(10px)' }}>Save</button>
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 2 }}>
-                        <div style={{ width: 170, height: 170, borderRadius: 16, overflow: 'hidden', boxShadow: `0 20px 45px rgba(0,0,0,0.8), 0 0 25px ${accent}30`, border: '1.5px solid rgba(255,255,255,0.15)', transform: 'rotate(8deg) translateY(-5px)', transition: 'transform 0.5s ease', background: '#121212', position: 'relative' }}>
-                          {coverImg && <img src={coverImg} alt="" onError={e => (e.target as HTMLImageElement).style.display = 'none'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
-                          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.3) 100%)', pointerEvents: 'none' }} />
-                        </div>
-                      </div>
-                    </div>
-                    <div style={{ position: 'absolute', bottom: 14, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 6, zIndex: 3 }}>
-                      {slides.map((_: any, i: number) => <div key={i} onClick={e => { e.stopPropagation(); setIdx(i); }} style={{ width: i === safeIdx ? 24 : 7, height: 7, borderRadius: 4, background: i === safeIdx ? accent : 'rgba(255,255,255,0.3)', transition: 'all 0.3s', cursor: 'pointer' }} />)}
-                    </div>
-                  </div>
-                </div>
-              );
+              })()
             }
 
-            // ── 2. CATEGORY QUICK TILES (Zepto category pills) ──
+            // ——— 2. CATEGORY QUICK TILES (Zepto category pills) ———
             if (rawLayout === 'category_quick_tiles') {
               const cats = [
                 { label: 'Pop Hits', emoji: '🎤', color: '#34d399', bg: 'rgba(52, 211, 153,0.12)' },
@@ -4747,7 +4713,7 @@ export default function HomePage() {
                 { label: 'R&B', emoji: '💜', color: '#a855f7', bg: 'rgba(168,85,247,0.12)' },
                 { label: 'Jazz', emoji: '🎷', color: '#f97316', bg: 'rgba(249,115,22,0.12)' },
                 { label: 'Trending', emoji: '🔥', color: '#ef4444', bg: 'rgba(239,68,68,0.12)' },
-                { label: 'New', emoji: '✨', color: GREEN, bg: 'rgba(29, 185, 84,0.12)' },
+                { label: 'New', emoji: '✨', color: GREEN, bg: 'rgba(176, 136, 80,0.12)' },
               ];
               return (
                 <div key={sectionId} style={{ marginBottom: 28 }}>
@@ -4786,7 +4752,7 @@ export default function HomePage() {
                       <span style={{ fontSize: isMobile ? 16 : 20 }}>⚡</span>
                       <div>
                         <div style={{ color: '#fff', fontSize: isMobile ? 14 : 18, fontWeight: 950, fontFamily: 'Outfit,sans-serif' }}>{config.title || 'Flash Deals'}</div>
-                        <div style={{ color: 'rgba(255,255,255,0.55)', fontSize: isMobile ? 10 : 11 }}>Limited time — grab before it&apos;s gone!</div>
+                        <div style={{ color: 'rgba(255,255,255,0.55)', fontSize: isMobile ? 10 : 11 }}>Limited time — grab before it&apos;s gone!</div>
                       </div>
                     </div>
                     <div style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 10, padding: '4px 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -4828,7 +4794,7 @@ export default function HomePage() {
               const launchTracks = tracks.slice(0, 6);
               while (launchTracks.length < 4) launchTracks.push(mockTracks[launchTracks.length % mockTracks.length]);
               const launchBadges = ['JUST DROPPED', 'PRE-SAVE', 'EXCLUSIVE', 'ALBUM', 'SINGLE', 'EP'];
-              const launchColors = ['#1db954', '#10b981', '#10b981', '#f59e0b', '#34d399', '#10b981'];
+              const launchColors = ['#b08850', '#10b981', '#10b981', '#f59e0b', '#34d399', '#10b981'];
               return (
                 <div key={sectionId} style={{ marginBottom: 32 }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
@@ -4880,10 +4846,10 @@ export default function HomePage() {
             // ── 5. FEATURED BRANDS ROW (Flipkart brand logos) ──
             if (rawLayout === 'featured_brands_row') {
               const brandList = [
-                { name: 'Spotify', sub: '30 Days Free', emoji: '🎵', color: '#1db954' },
+                { name: 'Spotify', sub: '30 Days Free', emoji: '🎵', color: '#b08850' },
                 { name: 'Apple Music', sub: '3 Months Free', emoji: '🎶', color: '#fc3c44' },
                 { name: 'YouTube', sub: 'Premium Trial', emoji: '▶', color: '#ff0000' },
-                { name: 'Amazon', sub: 'Prime Music', emoji: '🔊', color: '#ff9900' },
+                { name: 'Amazon', sub: 'Prime Music', emoji: 'Ã°Å¸â€Å ', color: '#ff9900' },
                 { name: 'Tidal', sub: 'HiFi Quality', emoji: '🌊', color: '#00b4ff' },
                 { name: 'Deezer', sub: '90 Days Trial', emoji: '🎧', color: '#a238ff' },
               ];
@@ -4910,19 +4876,19 @@ export default function HomePage() {
                       );
                     })}
                   </div>
-                  <motion.div whileHover={{ scale: 1.01 }} onClick={() => playTrack(featTrack, tracks)} style={{ borderRadius: 16, background: 'linear-gradient(90deg,#111 0%,#1e1e1e 40%,#0d3820 100%)', border: '1.5px solid rgba(29, 185, 84,0.3)', padding: isMobile ? '14px 16px' : '18px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', boxShadow: '0 8px 28px rgba(0,0,0,0.4)', overflow: 'hidden', position: 'relative' }}>
-                    <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(29, 185, 84,0.1)', filter: 'blur(30px)' }} />
+                  <motion.div whileHover={{ scale: 1.01 }} onClick={() => playTrack(featTrack, tracks)} style={{ borderRadius: 16, background: 'linear-gradient(90deg,#111 0%,#1e1e1e 40%,#0d3820 100%)', border: '1.5px solid rgba(176, 136, 80,0.3)', padding: isMobile ? '14px 16px' : '18px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', boxShadow: '0 8px 28px rgba(0,0,0,0.4)', overflow: 'hidden', position: 'relative' }}>
+                    <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(176, 136, 80,0.1)', filter: 'blur(30px)' }} />
                     <div style={{ display: 'flex', alignItems: 'center', gap: 14, zIndex: 1 }}>
-                      <div style={{ width: isMobile ? 44 : 56, height: isMobile ? 44 : 56, borderRadius: 14, background: 'linear-gradient(135deg,#1db954,#0d3820)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <div style={{ width: isMobile ? 44 : 56, height: isMobile ? 44 : 56, borderRadius: 14, background: 'linear-gradient(135deg,#b08850,#0d3820)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <Headphones size={isMobile ? 20 : 26} color="#000" />
                       </div>
                       <div>
-                        <div style={{ background: 'rgba(29, 185, 84,0.15)', color: GREEN, fontSize: 9, fontWeight: 900, padding: '2px 8px', borderRadius: 4, display: 'inline-block', marginBottom: 4 }}>FEATURED PARTNER</div>
+                        <div style={{ background: 'rgba(176, 136, 80,0.15)', color: GREEN, fontSize: 9, fontWeight: 900, padding: '2px 8px', borderRadius: 4, display: 'inline-block', marginBottom: 4 }}>FEATURED PARTNER</div>
                         <h4 style={{ color: '#fff', fontSize: isMobile ? 14 : 17, fontWeight: 900, margin: 0, fontFamily: 'Outfit,sans-serif' }}>Beato Pro Studio Earbuds</h4>
                         <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: isMobile ? 10 : 12 }}>Up to 60% Off for Premium Members</span>
                       </div>
                     </div>
-                    <div style={{ width: 36, height: 36, borderRadius: '50%', background: GREEN, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 18, fontWeight: 900, flexShrink: 0, boxShadow: '0 4px 12px rgba(29, 185, 84,0.4)' }}>&#8594;</div>
+                    <div style={{ width: 36, height: 36, borderRadius: '50%', background: GREEN, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 18, fontWeight: 900, flexShrink: 0, boxShadow: '0 4px 12px rgba(176, 136, 80,0.4)' }}>&#8594;</div>
                   </motion.div>
                 </div>
               );
@@ -4942,7 +4908,7 @@ export default function HomePage() {
                       <span style={{ color: GREEN, fontSize: isMobile ? 9 : 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em', display: 'block', marginBottom: 4 }}>&#128202; {config.subtitle || 'WEEKLY UPDATE'}</span>
                       <h3 style={{ margin: 0, color: '#fff', fontSize: isMobile ? 18 : 22, fontWeight: 950, fontFamily: 'Outfit,sans-serif' }}>{config.title || 'Top Charts'}</h3>
                     </div>
-                    <div style={{ background: 'rgba(29, 185, 84,0.1)', border: '1px solid rgba(29, 185, 84,0.2)', borderRadius: 10, padding: '6px 14px', fontSize: isMobile ? 10 : 12, color: GREEN, fontWeight: 800 }}>This Week</div>
+                    <div style={{ background: 'rgba(176, 136, 80,0.1)', border: '1px solid rgba(176, 136, 80,0.2)', borderRadius: 10, padding: '6px 14px', fontSize: isMobile ? 10 : 12, color: GREEN, fontWeight: 800 }}>This Week</div>
                   </div>
                   <div style={{ background: 'rgba(255,255,255,0.02)', borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.06)' }}>
                     {chartTracks.map((track, i) => {
@@ -4954,7 +4920,7 @@ export default function HomePage() {
                             <span style={{ fontSize: isMobile ? 16 : 20, fontWeight: 950, color: rankColors[i], fontFamily: 'Outfit,sans-serif', lineHeight: 1 }}>{i + 1}</span>
                           </div>
                           <div style={{ fontSize: isMobile ? 9 : 10, color: trendColors[i], fontWeight: 900, width: 28, textAlign: 'center' }}>{trends[i]}</div>
-                          <div style={{ width: isMobile ? 38 : 44, height: isMobile ? 38 : 44, borderRadius: 8, overflow: 'hidden', flexShrink: 0, background: 'linear-gradient(135deg,rgba(29, 185, 84,0.2),#000)' }}>
+                          <div style={{ width: isMobile ? 38 : 44, height: isMobile ? 38 : 44, borderRadius: 8, overflow: 'hidden', flexShrink: 0, background: 'linear-gradient(135deg,rgba(176, 136, 80,0.2),#000)' }}>
                             {coverImg && <img src={coverImg} alt="" onError={e => (e.target as HTMLImageElement).style.display = 'none'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
@@ -5034,27 +5000,27 @@ export default function HomePage() {
               const ogPrices = ['&#8377;199', '&#8377;149', '&#8377;249', '&#8377;99', '&#8377;199', '&#8377;149', '&#8377;99', '&#8377;249'];
               return (
                 <div key={sectionId} style={{ marginBottom: 32 }}>
-                  <div style={{ background: 'linear-gradient(90deg,#0a2010 0%,#050a06 100%)', borderRadius: '16px 16px 0 0', padding: isMobile ? '10px 14px' : '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: '1px solid rgba(29, 185, 84,0.3)', borderBottom: 'none' }}>
+                  <div style={{ background: 'linear-gradient(90deg, var(--color-ss-surface, #f4eede) 0%, var(--color-ss-hover, #ebdcb9) 100%)', borderRadius: '16px 16px 0 0', padding: isMobile ? '10px 14px' : '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: '1px solid rgba(176, 136, 80,0.3)', borderBottom: 'none' }}>
                     <div>
                       <div style={{ color: GREEN, fontSize: isMobile ? 9 : 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 3 }}>DEALS STARTING AT &#8377;0</div>
-                      <div style={{ color: '#fff', fontSize: isMobile ? 15 : 18, fontWeight: 900, fontFamily: 'Outfit,sans-serif' }}>{config.title || 'Claim Premium Tracks'}</div>
+                      <div style={{ color: 'var(--color-ss-text-primary, #221a15)', fontSize: isMobile ? 15 : 18, fontWeight: 900, fontFamily: 'Outfit,sans-serif' }}>{config.title || 'Claim Premium Tracks'}</div>
                     </div>
-                    <div style={{ background: GREEN, color: '#000', fontSize: isMobile ? 10 : 12, fontWeight: 900, padding: isMobile ? '6px 12px' : '8px 16px', borderRadius: 20, cursor: 'pointer', whiteSpace: 'nowrap' }}>Claim All</div>
+                    <div style={{ background: 'var(--color-ss-primary, #b08850)', color: '#fff', fontSize: isMobile ? 10 : 12, fontWeight: 900, padding: isMobile ? '6px 12px' : '8px 16px', borderRadius: 20, cursor: 'pointer', whiteSpace: 'nowrap', boxShadow: '0 4px 10px rgba(176, 136, 80, 0.2)' }}>Claim All</div>
                   </div>
-                  <div style={{ background: 'rgba(5,20,8,0.6)', border: '1px solid rgba(29, 185, 84,0.15)', borderTop: 'none', borderRadius: '0 0 16px 16px', padding: isMobile ? '12px 10px' : '14px 14px', backdropFilter: 'blur(4px)' }}>
+                  <div style={{ background: 'var(--color-ss-elevated, #ffffff)', border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.07))', borderTop: 'none', borderRadius: '0 0 16px 16px', padding: isMobile ? '12px 10px' : '14px 14px', boxShadow: '0 8px 24px rgba(43, 34, 26, 0.04)' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(4, minmax(0, 1fr))' : 'repeat(8, minmax(0, 1fr))', gap: isMobile ? 8 : 12 }}>
                       {dealGrid.map((track, i) => {
                         const coverImg = track.coverImage || '';
                         return (
                           <motion.div key={`${track.id}-free-${i}`} whileHover={{ scale: 1.05, y: -3 }} onClick={() => playTrack(track, dealGrid)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, cursor: 'pointer', minWidth: 0 }}>
-                            <div style={{ position: 'relative', width: '100%', paddingTop: '100%', borderRadius: 10, overflow: 'hidden', background: 'linear-gradient(135deg,rgba(29, 185, 84,0.15),#000)' }}>
+                            <div style={{ position: 'relative', width: '100%', paddingTop: '100%', borderRadius: 10, overflow: 'hidden', background: 'linear-gradient(135deg, var(--color-ss-hover, #ebdcb9) 0%, var(--color-ss-surface, #f4eede) 100%)' }}>
                               {coverImg && <img src={coverImg} alt="" onError={e => (e.target as HTMLImageElement).style.display = 'none'} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />}
-                              <div style={{ position: 'absolute', top: 3, left: 3, background: '#ff007f', color: '#fff', fontSize: isMobile ? 7 : 8, fontWeight: 900, padding: '1px 4px', borderRadius: 4 }}>{offerBadges[i]}</div>
+                              <div style={{ position: 'absolute', top: 3, left: 3, background: '#4d3f35', color: '#fff', fontSize: isMobile ? 7 : 8, fontWeight: 900, padding: '2px 5px', borderRadius: 4 }}>{offerBadges[i]}</div>
                             </div>
                             <div style={{ textAlign: 'center', width: '100%' }}>
                               <div style={{ color: GREEN, fontSize: isMobile ? 11 : 13, fontWeight: 950 }}>FREE</div>
-                              <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: isMobile ? 8 : 9, textDecoration: 'line-through' }} dangerouslySetInnerHTML={{ __html: ogPrices[i] }} />
-                              <div style={{ color: '#fff', fontSize: isMobile ? 9 : 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{track.title}</div>
+                              <div style={{ color: 'var(--color-ss-text-muted, #87786c)', fontSize: isMobile ? 8 : 9, textDecoration: 'line-through' }} dangerouslySetInnerHTML={{ __html: ogPrices[i] }} />
+                              <div style={{ color: 'var(--color-ss-text-primary, #221a15)', fontSize: isMobile ? 9 : 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{track.title}</div>
                             </div>
                           </motion.div>
                         );
@@ -5071,7 +5037,7 @@ export default function HomePage() {
               while (promoTracks.length < 3) promoTracks.push(mockTracks[promoTracks.length % mockTracks.length]);
               const promoNames = ['Bass Drop', 'Weekend Remix', 'Night Anthem'];
               const promoSubs = ['Heavy Bass Tracks', 'Top DJ Remixes', 'Late Night Vibes'];
-              const promoEmojis = ['🔊', '🎛️', '🌙'];
+              const promoEmojis = ['Ã°Å¸â€Å ', '🎛️', '🌙'];
               const promoAccents = ['#ef4444', '#f59e0b', '#10b981'];
               return (
                 <div key={sectionId} style={{ marginBottom: 32 }}>
@@ -5123,8 +5089,8 @@ export default function HomePage() {
                 { label: 'Workout', emoji: '💪', color: '#f59e0b', shine: 'rgba(245,158,11,0.3)' },
                 { label: 'Party', emoji: '🎉', color: '#a855f7', shine: 'rgba(168,85,247,0.3)' },
                 { label: 'Focus', emoji: '🎯', color: '#10b981', shine: 'rgba(16,185,129,0.3)' },
-                { label: 'New', emoji: '✨', color: GREEN, shine: 'rgba(29, 185, 84,0.3)' },
-                { label: 'Top 50', emoji: '🏆', color: '#ffd700', shine: 'rgba(255,215,0,0.3)' },
+                { label: 'New', emoji: '✨', color: GREEN, shine: 'rgba(176, 136, 80,0.3)' },
+                { label: 'Top 50', emoji: 'Ã°Å¸Ââ€ ', color: '#ffd700', shine: 'rgba(255,215,0,0.3)' },
               ];
               return (
                 <div key={sectionId} style={{ marginBottom: 32 }}>
@@ -5148,7 +5114,7 @@ export default function HomePage() {
                       );
                     })}
                   </div>
-                  <div style={{ marginTop: 16, background: 'linear-gradient(90deg,#062412 0%,#1db954 100%)', borderRadius: 12, padding: isMobile ? '10px 16px' : '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: '1px dashed rgba(29, 185, 84,0.5)', boxShadow: '0 4px 20px rgba(29, 185, 84,0.15)' }}>
+                  <div style={{ marginTop: 16, background: 'linear-gradient(90deg,#062412 0%,#b08850 100%)', borderRadius: 12, padding: isMobile ? '10px 16px' : '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: '1px dashed rgba(176, 136, 80,0.5)', boxShadow: '0 4px 20px rgba(176, 136, 80,0.15)' }}>
                     <span style={{ color: '#fff', fontSize: isMobile ? 11 : 13, fontWeight: 800, fontFamily: 'Outfit,sans-serif' }}>&#127925; Get 3 Months Premium FREE with any plan upgrade! T&amp;C Apply</span>
                     <button style={{ background: '#fff', color: '#000', border: 'none', borderRadius: 20, padding: isMobile ? '5px 12px' : '7px 16px', fontSize: isMobile ? 10 : 12, fontWeight: 900, cursor: 'pointer', flexShrink: 0, boxShadow: '0 4px 10px rgba(0,0,0,0.3)' }}>Upgrade</button>
                   </div>
@@ -5200,13 +5166,13 @@ export default function HomePage() {
 
   const layoutToRender = homeLayoutOrder;
 
-  const pageBg = activeTheme ? activeTheme.background : '#0a0a0a';
-  const headerGradient = activeTheme ? activeTheme.gradient : 'linear-gradient(180deg, rgba(29, 185, 84,0.08) 0%, rgba(10,10,10,0) 100%)';
+  const pageBg = activeTheme ? activeTheme.background : '#fbf9f5';
+  const headerGradient = activeTheme ? activeTheme.gradient : 'linear-gradient(180deg, rgba(176, 136, 80, 0.08) 0%, rgba(251, 249, 245, 0) 100%)';
 
   if (!mounted) {
     return (
-      <div style={{ minHeight: '100vh', background: '#0a0a0a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ width: 40, height: 40, borderRadius: '50%', border: '3px solid #1a1a1a', borderTopColor: GREEN, animation: 'spin 1s linear infinite' }} />
+      <div style={{ minHeight: '100vh', background: '#fbf9f5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: 40, height: 40, borderRadius: '50%', border: '3px solid #f4eede', borderTopColor: GREEN, animation: 'spin 1s linear infinite' }} />
       </div>
     );
   }
@@ -5218,13 +5184,13 @@ export default function HomePage() {
       {/* Dynamic Theme Injector */}
       <style>{`
         :root {
-          --theme-primary: ${activeTheme?.primary || '#1db954'};
-          --theme-primary-glow: ${activeTheme?.primaryGlow || 'rgba(29, 185, 84,0.15)'};
-          --theme-bg: ${activeTheme?.background || '#0a0a0a'};
-          --theme-card: ${activeTheme?.card || '#181818'};
-          --theme-surface: ${activeTheme?.surface || '#111111'};
-          --theme-text: ${activeTheme?.text || '#ffffff'};
-          --theme-text-muted: ${activeTheme?.textMuted || '#737373'};
+          --theme-primary: ${activeTheme?.primary || '#b08850'};
+          --theme-primary-glow: ${activeTheme?.primaryGlow || 'rgba(176, 136, 80, 0.15)'};
+          --theme-bg: ${activeTheme?.background || '#fbf9f5'};
+          --theme-card: ${activeTheme?.card || '#ffffff'};
+          --theme-surface: ${activeTheme?.surface || '#f4eede'};
+          --theme-text: ${activeTheme?.text || '#221a15'};
+          --theme-text-muted: ${activeTheme?.textMuted || '#87786c'};
           --theme-font: ${activeTheme?.font || 'Inter, sans-serif'};
         }
         
@@ -5234,15 +5200,23 @@ export default function HomePage() {
           color: var(--theme-text) !important;
         }
 
-        .homepage-themed h1, 
-        .homepage-themed h2, 
-        .homepage-themed h3 {
+        .homepage-themed h1:not(.text-white-force), 
+        .homepage-themed h2:not(.text-white-force), 
+        .homepage-themed h3:not(.text-white-force) {
           color: var(--theme-text) !important;
+        }
+
+        .homepage-themed .text-white-force {
+          color: #ffffff !important;
+        }
+
+        .homepage-themed .text-white-muted-force {
+          color: rgba(255, 255, 255, 0.7) !important;
         }
       `}</style>
 
       {/* ── Hero Gradient header with TopBar ── */}
-      <div style={{ position: 'sticky', top: 0, zIndex: 50, background: isMobile ? '#0a0a0a' : headerGradient, paddingTop: isMobile ? 'calc(env(safe-area-inset-top, 24px) + 12px)' : '20px', paddingRight: isMobile ? '16px' : '24px', paddingBottom: isMobile ? '12px' : '24px', paddingLeft: isMobile ? '16px' : '24px' }}>
+      <div style={{ position: 'sticky', top: 0, zIndex: 50, background: isMobile ? '#fbf9f5' : headerGradient, paddingTop: isMobile ? 'calc(var(--sat, 0px) + 20px)' : '20px', paddingRight: isMobile ? '16px' : '24px', paddingBottom: isMobile ? '12px' : '24px', paddingLeft: isMobile ? '16px' : '24px' }}>
         {isMobile ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
             {/* User Profile Avatar */}
@@ -5252,7 +5226,7 @@ export default function HomePage() {
                 width: 32,
                 height: 32,
                 borderRadius: '50%',
-                background: '#1db954', // Green circle like screenshot
+                background: '#b08850', // Gold circle like theme
                 color: '#fff',
                 display: 'flex',
                 alignItems: 'center',
@@ -5274,8 +5248,8 @@ export default function HomePage() {
                   <button
                     key={chip}
                     style={{
-                      background: active ? '#1db954' : 'rgba(255,255,255,0.1)',
-                      color: active ? '#000' : '#fff',
+                      background: active ? '#b08850' : 'rgba(43,34,26,0.05)',
+                      color: active ? '#fff' : '#221a15',
                       border: 'none',
                       borderRadius: 20,
                       padding: '6px 16px',
@@ -5295,8 +5269,8 @@ export default function HomePage() {
                 <button
                   onClick={() => setShowMobileNotificationDropdown(prev => !prev)}
                   style={{
-                    background: showMobileNotificationDropdown ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.1)',
-                    color: '#fff',
+                    background: showMobileNotificationDropdown ? 'rgba(43,34,26,0.12)' : 'rgba(43,34,26,0.06)',
+                    color: '#221a15',
                     border: 'none',
                     borderRadius: '50%',
                     width: 32,
@@ -5318,9 +5292,9 @@ export default function HomePage() {
                       width: 8,
                       height: 8,
                       borderRadius: '50%',
-                      background: '#ef4444',
-                      border: '1px solid #121212',
-                      boxShadow: '0 0 8px #ef4444'
+                      background: 'var(--color-ss-primary, #b08850)',
+                      border: '1px solid var(--color-ss-bg, #fbf9f5)',
+                      boxShadow: '0 0 8px var(--color-ss-primary, #b08850)'
                     }} />
                   )}
                 </button>
@@ -5337,14 +5311,14 @@ export default function HomePage() {
                       right: 0,
                       zIndex: 1000,
                       width: 290,
-                      background: 'rgba(20, 20, 20, 0.95)',
+                      background: 'rgba(255, 255, 255, 0.95)',
                       backdropFilter: 'blur(20px)',
                       WebkitBackdropFilter: 'blur(20px)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      border: '1px solid rgba(43, 34, 26, 0.08)',
                       borderRadius: 14,
                       padding: 16,
-                      boxShadow: '0 12px 36px rgba(0,0,0,0.6)',
-                      color: '#fff',
+                      boxShadow: '0 12px 36px rgba(43, 34, 26, 0.08)',
+                      color: '#221a15',
                       animation: 'fadeIn 0.18s ease-out',
                       transformOrigin: 'top right'
                     }}>
@@ -5355,9 +5329,9 @@ export default function HomePage() {
                         right: 12,
                         width: 10,
                         height: 10,
-                        background: 'rgba(20, 20, 20, 0.95)',
-                        borderLeft: '1px solid rgba(255, 255, 255, 0.1)',
-                        borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                        background: 'rgba(255, 255, 255, 0.95)',
+                        borderLeft: '1px solid rgba(43, 34, 26, 0.08)',
+                        borderTop: '1px solid rgba(43, 34, 26, 0.08)',
                         transform: 'rotate(45deg)'
                       }} />
 
@@ -5365,21 +5339,21 @@ export default function HomePage() {
                         <div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                             <span style={{ fontSize: 16 }}>🎵</span>
-                            <span style={{ fontWeight: 800, fontSize: 13, color: '#1db954', letterSpacing: '0.02em' }}>New Artist Tracks</span>
+                            <span style={{ fontWeight: 800, fontSize: 13, color: GREEN, letterSpacing: '0.02em' }}>New Artist Tracks</span>
                           </div>
-                          <p style={{ fontSize: 12, margin: 0, color: '#e5e7eb', lineHeight: '1.5', fontFamily: 'Inter, sans-serif' }}>
+                          <p style={{ fontSize: 12, margin: 0, color: '#4d3f35', lineHeight: '1.5', fontFamily: 'Inter, sans-serif' }}>
                             New artist tracks added:{' '}
-                            <span style={{ color: '#fff', fontWeight: 600 }}>
+                            <span style={{ color: '#221a15', fontWeight: 600 }}>
                               {approvedUploadedTracks.slice(0, 3).map(t => t.title).join(', ')}
                               {approvedUploadedTracks.length > 3 ? `...and ${approvedUploadedTracks.length - 3} more` : ''}
                             </span>{' '}
-                            — just uploaded by artists
+                            — just uploaded by artists
                           </p>
                         </div>
                       ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '8px 0' }}>
-                          <span style={{ fontSize: 18, color: '#737373' }}>🔕</span>
-                          <p style={{ fontSize: 12, margin: 0, color: '#a3a3a3', fontWeight: 500 }}>
+                          <span style={{ fontSize: 18, color: '#87786c' }}>🔕</span>
+                          <p style={{ fontSize: 12, margin: 0, color: '#87786c', fontWeight: 500 }}>
                             No new notifications
                           </p>
                         </div>
@@ -5401,10 +5375,10 @@ export default function HomePage() {
         {/* ── Uploaded Tracks Alert ── */}
         {!isMobile && approvedUploadedTracks.length > 0 && (
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
-            style={{ marginBottom: 24, padding: '14px 20px', borderRadius: 14, background: 'rgba(29, 185, 84,0.08)', border: '1px solid rgba(29, 185, 84,0.2)', display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+            style={{ marginBottom: 24, padding: '14px 20px', borderRadius: 14, background: 'rgba(176, 136, 80,0.08)', border: '1px solid rgba(176, 136, 80,0.2)', display: 'flex', alignItems: 'flex-start', gap: 12 }}>
             <Star size={16} color={GREEN} style={{ marginTop: 2, flexShrink: 0 }} />
-            <p style={{ color: '#fff', fontSize: 13, fontWeight: 600, lineHeight: '1.4' }}>
-              🎵 New artist tracks added! <span style={{ color: GREEN }}>{approvedUploadedTracks.slice(0, 3).map(t => t.title).join(', ')}{approvedUploadedTracks.length > 3 ? `...and ${approvedUploadedTracks.length - 3} more` : ''}</span> — just uploaded by artists
+            <p style={{ color: '#221a15', fontSize: 13, fontWeight: 600, lineHeight: '1.4' }}>
+              🎵 New artist tracks added! <span style={{ color: GREEN }}>{approvedUploadedTracks.slice(0, 3).map(t => t.title).join(', ')}{approvedUploadedTracks.length > 3 ? `...and ${approvedUploadedTracks.length - 3} more` : ''}</span> — just uploaded by artists
             </p>
           </motion.div>
         )}
@@ -5454,8 +5428,8 @@ export default function HomePage() {
               width: '90%',
               maxWidth: 480,
               background: '#121212',
-              border: '1.5px solid rgba(29, 185, 84, 0.4)',
-              boxShadow: '0 8px 32px rgba(29, 185, 84, 0.25)',
+              border: '1.5px solid rgba(176, 136, 80, 0.4)',
+              boxShadow: '0 8px 32px rgba(176, 136, 80, 0.25)',
               borderRadius: 16,
               padding: '12px 16px',
               display: 'flex',
@@ -5466,8 +5440,8 @@ export default function HomePage() {
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{
-                background: 'rgba(29, 185, 84, 0.15)',
-                color: '#1db954',
+                background: 'rgba(176, 136, 80, 0.15)',
+                color: '#b08850',
                 padding: '6px 10px',
                 borderRadius: 8,
                 fontSize: 12,
@@ -5494,12 +5468,12 @@ export default function HomePage() {
                     style: {
                       background: '#0a0a0a',
                       color: '#fff',
-                      border: '1px solid rgba(29, 185, 84, 0.5)'
+                      border: '1px solid rgba(176, 136, 80, 0.5)'
                     }
                   });
                 }}
                 style={{
-                  background: '#1db954', // Green cart button like screenshot
+                  background: '#b08850', // Green cart button like screenshot
                   color: '#fff',
                   border: 'none',
                   padding: '8px 16px',
@@ -5508,7 +5482,7 @@ export default function HomePage() {
                   fontWeight: 900,
                   fontFamily: 'Outfit, sans-serif',
                   cursor: 'pointer',
-                  boxShadow: '0 4px 12px rgba(29,185,84,0.3)',
+                  boxShadow: '0 4px 12px rgba(176, 136, 80,0.3)',
                   transition: 'transform 0.15s'
                 }}
                 onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.03)'}

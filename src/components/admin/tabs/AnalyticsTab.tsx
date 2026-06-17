@@ -10,8 +10,8 @@ import toast from 'react-hot-toast';
 
 // ─── Local Styling Helpers ──────────────────────────────────────────────────
 const COLORS = {
-  primary: '#1db954',
-  primaryBg: 'rgba(29, 185, 84, 0.15)',
+  primary: '#b08850',
+  primaryBg: 'rgba(176, 136, 80, 0.15)',
   blue: '#10b981',
   purple: '#10b981',
   orange: '#f59e0b',
@@ -388,7 +388,7 @@ export default function AnalyticsTab() {
         
         {/* ─── Real-Time Glowing Live Counter Ticker ─── */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-          style={{ background: 'linear-gradient(135deg, rgba(29, 185, 84,0.1) 0%, rgba(18,18,18,1) 100%)', border: `1px solid ${COLORS.primary}33`, borderRadius: 16, padding: '16px 20px', marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+          style={{ background: 'linear-gradient(135deg, rgba(176, 136, 80,0.1) 0%, rgba(18,18,18,1) 100%)', border: `1px solid ${COLORS.primary}33`, borderRadius: 16, padding: '16px 20px', marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             <motion.span 
               animate={{ opacity: [0.3, 1, 0.3], scale: [0.9, 1.1, 0.9] }}

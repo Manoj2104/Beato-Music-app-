@@ -27,8 +27,8 @@ import {
 
 // ─── Palette & Design System ──────────────────────────────────────────────────
 const C = {
-  primary: '#1db954',
-  primaryDim: 'rgba(29, 185, 84,0.12)',
+  primary: '#b08850',
+  primaryDim: 'rgba(176, 136, 80,0.12)',
   bg: '#0a0a0a',
   surface: '#111111',
   card: '#161616',
@@ -278,7 +278,7 @@ export default function HomepageBuilderTab() {
         elStyle: defStyle(), animation: defAnim(),
         button: {
           label: sec.buttonText, href: sec.targetUrl || '#',
-          bgColor: '#1db954', textColor: '#000000',
+          bgColor: '#b08850', textColor: '#000000',
           borderRadius: 20, fontSize: 12, fontWeight: 700, fontFamily: 'Inter',
           paddingX: 20, paddingY: 10,
         },
@@ -341,7 +341,7 @@ export default function HomepageBuilderTab() {
   const [settBgValue, setSettBgValue] = useState('');
   const [settAnimation, setSettAnimation] = useState<SectionConfig['animation']>('fade');
   const [settBorder, setSettBorder] = useState<SectionConfig['borderStyle']>('none');
-  const [settBorderColor, setSettBorderColor] = useState('#1db954');
+  const [settBorderColor, setSettBorderColor] = useState('#b08850');
   const [settAudience, setSettAudience] = useState<'all' | 'premium' | 'free'>('all');
   const [settPadding, setSettPadding] = useState<SectionConfig['padding']>('md');
   const [settStartDate, setSettStartDate] = useState('');
@@ -547,7 +547,7 @@ export default function HomepageBuilderTab() {
     setSettBgValue(sec.background?.value || '');
     setSettAnimation(sec.animation || 'fade');
     setSettBorder(sec.borderStyle || 'none');
-    setSettBorderColor(sec.borderColor || '#1db954');
+    setSettBorderColor(sec.borderColor || '#b08850');
     setSettAudience(sec.audience || 'all');
     setSettPadding(sec.padding || 'md');
     setSettStartDate(sec.startDate || '');
@@ -1054,7 +1054,7 @@ export default function HomepageBuilderTab() {
       const containerH = 320 * scale;
       
       const D = {
-        primary: '#1db954',
+        primary: '#b08850',
         border: '#242424',
         text: '#ffffff',
         muted: '#606060',
@@ -1349,7 +1349,7 @@ export default function HomepageBuilderTab() {
             <div style={{
               width: 42, height: 42, borderRadius: '50%', background: C.primary,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 4px 12px rgba(29, 185, 84,0.3)'
+              boxShadow: '0 4px 12px rgba(176, 136, 80,0.3)'
             }}>
               <span style={{ color: '#000', fontSize: 16, fontWeight: 900, marginLeft: 2 }}>▶</span>
             </div>
@@ -1551,7 +1551,7 @@ export default function HomepageBuilderTab() {
             return (
               <div key={sid} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '6px 12px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: 8 }}>
                 <span style={{ fontSize: isLaptopMode ? 16 : 13, fontWeight: 950, color: rankColor, width: 20, textAlign: 'center', fontFamily: 'Outfit, sans-serif' }}>{i + 1}</span>
-                <span style={{ fontSize: 8, color: '#1db954', marginRight: 2 }}>▲</span>
+                <span style={{ fontSize: 8, color: '#b08850', marginRight: 2 }}>▲</span>
                 <div style={{ width: isLaptopMode ? 36 : 28, height: isLaptopMode ? 36 : 28, borderRadius: 4, overflow: 'hidden', flexShrink: 0 }}>
                   <img src={coverImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
@@ -2035,34 +2035,34 @@ export default function HomepageBuilderTab() {
       ];
 
       const gradients = [
-        'linear-gradient(135deg, rgba(29, 185, 84, 0.06) 0%, rgba(15, 23, 18, 0.85) 100%)',
-        'linear-gradient(135deg, rgba(29, 185, 84, 0.06) 0%, rgba(15, 23, 18, 0.85) 100%)',
-        'linear-gradient(135deg, rgba(29, 185, 84, 0.06) 0%, rgba(15, 23, 18, 0.85) 100%)',
-        'linear-gradient(135deg, rgba(29, 185, 84, 0.06) 0%, rgba(15, 23, 18, 0.85) 100%)'
+        'linear-gradient(135deg, rgba(176, 136, 80, 0.06) 0%, rgba(15, 23, 18, 0.85) 100%)',
+        'linear-gradient(135deg, rgba(176, 136, 80, 0.06) 0%, rgba(15, 23, 18, 0.85) 100%)',
+        'linear-gradient(135deg, rgba(176, 136, 80, 0.06) 0%, rgba(15, 23, 18, 0.85) 100%)',
+        'linear-gradient(135deg, rgba(176, 136, 80, 0.06) 0%, rgba(15, 23, 18, 0.85) 100%)'
       ];
       const borders = [
-        '1px solid rgba(29, 185, 84, 0.18)',
-        '1px solid rgba(29, 185, 84, 0.18)',
-        '1px solid rgba(29, 185, 84, 0.18)',
-        '1px solid rgba(29, 185, 84, 0.18)'
+        '1px solid rgba(176, 136, 80, 0.18)',
+        '1px solid rgba(176, 136, 80, 0.18)',
+        '1px solid rgba(176, 136, 80, 0.18)',
+        '1px solid rgba(176, 136, 80, 0.18)'
       ];
       const badgeBackgrounds = [
-        'rgba(29, 185, 84, 0.12)',
-        'rgba(29, 185, 84, 0.12)',
-        'rgba(29, 185, 84, 0.12)',
-        'rgba(29, 185, 84, 0.12)'
+        'rgba(176, 136, 80, 0.12)',
+        'rgba(176, 136, 80, 0.12)',
+        'rgba(176, 136, 80, 0.12)',
+        'rgba(176, 136, 80, 0.12)'
       ];
       const badgeColors = [
-        '#1db954',
-        '#1db954',
-        '#1db954',
-        '#1db954'
+        '#b08850',
+        '#b08850',
+        '#b08850',
+        '#b08850'
       ];
       const badgeBorders = [
-        '1px solid rgba(29, 185, 84, 0.25)',
-        '1px solid rgba(29, 185, 84, 0.25)',
-        '1px solid rgba(29, 185, 84, 0.25)',
-        '1px solid rgba(29, 185, 84, 0.25)'
+        '1px solid rgba(176, 136, 80, 0.25)',
+        '1px solid rgba(176, 136, 80, 0.25)',
+        '1px solid rgba(176, 136, 80, 0.25)',
+        '1px solid rgba(176, 136, 80, 0.25)'
       ];
 
       return (
@@ -2078,11 +2078,11 @@ export default function HomepageBuilderTab() {
             alignItems: 'center',
             justifyContent: 'center',
             marginBottom: 12,
-            border: '1px solid rgba(29, 185, 84, 0.25)',
-            boxShadow: '0 8px 32px 0 rgba(29, 185, 84, 0.15)'
+            border: '1px solid rgba(176, 136, 80, 0.25)',
+            boxShadow: '0 8px 32px 0 rgba(176, 136, 80, 0.15)'
           }}>
-            <div style={{ position: 'absolute', top: -15, left: -15, width: 50, height: 50, borderRadius: '50%', background: 'rgba(29, 185, 84, 0.18)', filter: 'blur(25px)' }} />
-            <div style={{ position: 'absolute', bottom: -15, right: -15, width: 50, height: 50, borderRadius: '50%', background: 'rgba(29, 185, 84, 0.22)', filter: 'blur(25px)' }} />
+            <div style={{ position: 'absolute', top: -15, left: -15, width: 50, height: 50, borderRadius: '50%', background: 'rgba(176, 136, 80, 0.18)', filter: 'blur(25px)' }} />
+            <div style={{ position: 'absolute', bottom: -15, right: -15, width: 50, height: 50, borderRadius: '50%', background: 'rgba(176, 136, 80, 0.22)', filter: 'blur(25px)' }} />
             
             <div style={{ textAlign: 'center', zIndex: 1 }}>
               <span style={{ color: C.primary, fontSize: isLaptopMode ? 9 : 7.5, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
@@ -2093,7 +2093,7 @@ export default function HomepageBuilderTab() {
                 fontSize: isLaptopMode ? 20 : 13,
                 fontWeight: 950,
                 margin: '2px 0 0 0',
-                background: 'linear-gradient(45deg, #1db954 20%, #34d399 50%, #81f5a2 80%)',
+                background: 'linear-gradient(45deg, #b08850 20%, #34d399 50%, #81f5a2 80%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 letterSpacing: '0.03em'
@@ -2113,8 +2113,8 @@ export default function HomepageBuilderTab() {
             {/* Left Card: Steal Deals */}
             <div style={{
               gridRow: 'span 2',
-              background: 'linear-gradient(135deg, rgba(29, 185, 84, 0.08) 0%, rgba(15, 23, 18, 0.85) 100%)',
-              border: '1.5px solid rgba(29, 185, 84, 0.2)',
+              background: 'linear-gradient(135deg, rgba(176, 136, 80, 0.08) 0%, rgba(15, 23, 18, 0.85) 100%)',
+              border: '1.5px solid rgba(176, 136, 80, 0.2)',
               borderRadius: 12,
               padding: isLaptopMode ? 14 : 8,
               display: 'flex',
@@ -2126,7 +2126,7 @@ export default function HomepageBuilderTab() {
               backdropFilter: 'blur(8px)'
             }}>
               <div style={{
-                background: 'linear-gradient(90deg, #1db954, #128c3e)',
+                background: 'linear-gradient(90deg, #b08850, #128c3e)',
                 padding: '3px 6px',
                 borderRadius: 4,
                 fontSize: isLaptopMode ? 9.5 : 7,
@@ -2134,7 +2134,7 @@ export default function HomepageBuilderTab() {
                 color: '#fff',
                 alignSelf: 'flex-start',
                 letterSpacing: '0.05em',
-                boxShadow: '0 0 12px rgba(29, 185, 84, 0.4)'
+                boxShadow: '0 0 12px rgba(176, 136, 80, 0.4)'
               }}>
                 STEAL DEALS
               </div>
@@ -2152,7 +2152,7 @@ export default function HomepageBuilderTab() {
               </div>
 
               <button style={{
-                background: '#1db954',
+                background: '#b08850',
                 border: 'none',
                 color: '#000',
                 padding: isLaptopMode ? '6px 12px' : '4px 8px',
@@ -2162,7 +2162,7 @@ export default function HomepageBuilderTab() {
                 textAlign: 'center',
                 width: '100%',
                 cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(29, 185, 84, 0.3)',
+                boxShadow: '0 4px 12px rgba(176, 136, 80, 0.3)',
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em'
               }}>
@@ -2218,15 +2218,15 @@ export default function HomepageBuilderTab() {
 
           {/* 3. Bottom Banner Strip */}
           <div style={{
-            background: 'linear-gradient(90deg, #0d381e 0%, #1db954 100%)',
+            background: 'linear-gradient(90deg, #0d381e 0%, #b08850 100%)',
             borderRadius: 12,
             padding: isLaptopMode ? '8px 16px' : '6px 10px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             marginTop: 12,
-            border: '1px dashed rgba(29, 185, 84, 0.4)',
-            boxShadow: '0 8px 24px rgba(29, 185, 84, 0.2)'
+            border: '1px dashed rgba(176, 136, 80, 0.4)',
+            boxShadow: '0 8px 24px rgba(176, 136, 80, 0.2)'
           }}>
             <span style={{ color: '#fff', fontSize: isLaptopMode ? 10 : 7.5, fontWeight: 800, letterSpacing: '0.01em', fontFamily: 'Outfit, sans-serif' }}>
               🔥 Buy 2 Months of Premium & get 1 Month Free! T&C Apply *
@@ -2267,7 +2267,7 @@ export default function HomepageBuilderTab() {
         'Warm Acoustics'
       ];
       const cardColors = [
-        'rgba(29, 185, 84, 0.05)',
+        'rgba(176, 136, 80, 0.05)',
         'rgba(16, 185, 129, 0.05)',
         'rgba(16, 185, 129, 0.05)',
         'rgba(239, 68, 68, 0.05)',
@@ -2275,7 +2275,7 @@ export default function HomepageBuilderTab() {
         'rgba(52, 211, 153, 0.05)'
       ];
       const borderColors = [
-        'rgba(29, 185, 84, 0.2)',
+        'rgba(176, 136, 80, 0.2)',
         'rgba(16, 185, 129, 0.2)',
         'rgba(16, 185, 129, 0.2)',
         'rgba(239, 68, 68, 0.2)',
@@ -2296,11 +2296,11 @@ export default function HomepageBuilderTab() {
             alignItems: 'center',
             justifyContent: 'center',
             marginBottom: 12,
-            border: '1px solid rgba(29, 185, 84, 0.25)',
-            boxShadow: '0 8px 32px 0 rgba(29, 185, 84, 0.15)'
+            border: '1px solid rgba(176, 136, 80, 0.25)',
+            boxShadow: '0 8px 32px 0 rgba(176, 136, 80, 0.15)'
           }}>
-            <div style={{ position: 'absolute', top: -15, left: -15, width: 55, height: 55, borderRadius: '50%', background: 'rgba(29, 185, 84, 0.18)', filter: 'blur(25px)' }} />
-            <div style={{ position: 'absolute', bottom: -15, right: -15, width: 55, height: 55, borderRadius: '50%', background: 'rgba(29, 185, 84, 0.22)', filter: 'blur(25px)' }} />
+            <div style={{ position: 'absolute', top: -15, left: -15, width: 55, height: 55, borderRadius: '50%', background: 'rgba(176, 136, 80, 0.18)', filter: 'blur(25px)' }} />
+            <div style={{ position: 'absolute', bottom: -15, right: -15, width: 55, height: 55, borderRadius: '50%', background: 'rgba(176, 136, 80, 0.22)', filter: 'blur(25px)' }} />
             
             <div style={{ textAlign: 'center', zIndex: 1 }}>
               <span style={{ color: C.primary, fontSize: isLaptopMode ? 9 : 7.5, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
@@ -2311,7 +2311,7 @@ export default function HomepageBuilderTab() {
                 fontSize: isLaptopMode ? 20 : 13,
                 fontWeight: 950,
                 margin: '2px 0 0 0',
-                background: 'linear-gradient(45deg, #1db954 20%, #34d399 50%, #81f5a2 80%)',
+                background: 'linear-gradient(45deg, #b08850 20%, #34d399 50%, #81f5a2 80%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 letterSpacing: '0.03em'
@@ -2426,7 +2426,7 @@ export default function HomepageBuilderTab() {
                     height: isLaptopMode ? 52 : 36,
                     borderRadius: '50%',
                     background: isActive
-                      ? 'linear-gradient(135deg, rgba(29, 185, 84, 0.35) 0%, rgba(15, 23, 18, 0.9) 100%)'
+                      ? 'linear-gradient(135deg, rgba(176, 136, 80, 0.35) 0%, rgba(15, 23, 18, 0.9) 100%)'
                       : 'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(15, 23, 18, 0.9) 100%)',
                     border: isActive ? `1.5px solid ${C.primary}` : '1.5px solid rgba(255, 255, 255, 0.1)',
                     display: 'flex',
@@ -2480,7 +2480,7 @@ export default function HomepageBuilderTab() {
         <div style={{ width: '100%', marginBottom: 12 }}>
           <div style={{
             background: 'linear-gradient(135deg, #0d381e 0%, #060a08 100%)',
-            border: '1.5px solid rgba(29, 185, 84, 0.4)',
+            border: '1.5px solid rgba(176, 136, 80, 0.4)',
             borderRadius: 12,
             padding: isLaptopMode ? 16 : 8,
             position: 'relative',
@@ -2506,14 +2506,14 @@ export default function HomepageBuilderTab() {
                 position: 'absolute',
                 top: 4,
                 left: 4,
-                background: '#1db954',
+                background: '#b08850',
                 padding: '2px 4px',
                 borderRadius: 4,
                 color: '#000',
                 fontSize: 6,
                 fontWeight: 900,
                 letterSpacing: '0.05em',
-                boxShadow: '0 0 8px rgba(29, 185, 84, 0.5)'
+                boxShadow: '0 0 8px rgba(176, 136, 80, 0.5)'
               }}>
                 NEW HARDWARE
               </div>
@@ -2535,14 +2535,14 @@ export default function HomepageBuilderTab() {
 
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <button style={{
-                  background: '#1db954',
+                  background: '#b08850',
                   border: 'none',
                   color: '#000',
                   padding: isLaptopMode ? '4px 12px' : '3px 6px',
                   borderRadius: 16,
                   fontSize: isLaptopMode ? 9 : 7,
                   fontWeight: 900,
-                  boxShadow: '0 4px 10px rgba(29, 185, 84,0.4)',
+                  boxShadow: '0 4px 10px rgba(176, 136, 80,0.4)',
                   display: 'flex',
                   alignItems: 'center',
                   gap: 3
@@ -2551,7 +2551,7 @@ export default function HomepageBuilderTab() {
                 </button>
                 <div style={{ display: 'flex', gap: 3 }}>
                   {[1, 2, 3].map(i => (
-                    <div key={i} style={{ width: 4, height: 4, borderRadius: '50%', background: i === 1 ? '#1db954' : 'rgba(255,255,255,0.2)' }} />
+                    <div key={i} style={{ width: 4, height: 4, borderRadius: '50%', background: i === 1 ? '#b08850' : 'rgba(255,255,255,0.2)' }} />
                   ))}
                 </div>
               </div>
@@ -2565,8 +2565,8 @@ export default function HomepageBuilderTab() {
       const gridTracks = mockTracks.slice(0, 4);
       const brandNames = ['Bose Sound', 'Sony Audio', 'Sennheiser', 'Pioneer DJ'];
       const brandDiscounts = ['Up to 30% Off Gear', 'Exclusive Tiers', '40% Off Studio FLAC', 'DJ Deck Bundles'];
-      const brandBorders = ['rgba(29, 185, 84, 0.25)', 'rgba(16, 185, 129, 0.25)', 'rgba(16, 185, 129, 0.25)', 'rgba(52, 211, 153, 0.25)'];
-      const textColors = ['#1db954', '#10b981', '#10b981', '#34d399'];
+      const brandBorders = ['rgba(176, 136, 80, 0.25)', 'rgba(16, 185, 129, 0.25)', 'rgba(16, 185, 129, 0.25)', 'rgba(52, 211, 153, 0.25)'];
+      const textColors = ['#b08850', '#10b981', '#10b981', '#34d399'];
 
       return (
         <div style={{ width: '100%', marginBottom: 12 }}>
@@ -2614,7 +2614,7 @@ export default function HomepageBuilderTab() {
           {/* Wide brand partner promo banner in admin preview */}
           <div style={{
             background: 'linear-gradient(90deg, #111 0%, #1e1e1e 50%, #0d381e 100%)',
-            border: '1.5px solid rgba(29, 185, 84, 0.35)',
+            border: '1.5px solid rgba(176, 136, 80, 0.35)',
             borderRadius: 10,
             padding: isLaptopMode ? 12 : 8,
             display: 'flex',
@@ -2623,7 +2623,7 @@ export default function HomepageBuilderTab() {
             boxShadow: '0 6px 16px rgba(0,0,0,0.3)'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 0 }}>
-              <div style={{ width: 28, height: 28, borderRadius: 6, background: 'linear-gradient(135deg, #1db954 0%, #0a0a0a 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: 28, height: 28, borderRadius: 6, background: 'linear-gradient(135deg, #b08850 0%, #0a0a0a 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <span style={{ fontSize: 14 }}>🎧</span>
               </div>
               <div style={{ minWidth: 0 }}>
@@ -2753,8 +2753,8 @@ export default function HomepageBuilderTab() {
           }} className="no-scrollbar">
             {sliderTracks.map((track, i) => (
               <div key={`${track.id}-deal-${i}`} style={{
-                background: 'linear-gradient(135deg, rgba(29, 185, 84,0.04) 0%, rgba(15,15,15,0.95) 100%)',
-                border: '1px solid rgba(29, 185, 84,0.15)',
+                background: 'linear-gradient(135deg, rgba(176, 136, 80,0.04) 0%, rgba(15,15,15,0.95) 100%)',
+                border: '1px solid rgba(176, 136, 80,0.15)',
                 borderRadius: 10,
                 padding: isLaptopMode ? 8 : 4,
                 width: isLaptopMode ? 90 : 64,
@@ -3096,7 +3096,7 @@ export default function HomepageBuilderTab() {
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: 6,
-                      background: 'rgba(29, 185, 84,0.12)',
+                      background: 'rgba(176, 136, 80,0.12)',
                       border: `1px solid ${C.primary}`,
                       color: C.primary,
                       transition: 'all 0.2s',
@@ -3106,7 +3106,7 @@ export default function HomepageBuilderTab() {
                       e.currentTarget.style.color = '#000';
                     }}
                     onMouseLeave={e => {
-                      e.currentTarget.style.background = 'rgba(29, 185, 84,0.12)';
+                      e.currentTarget.style.background = 'rgba(176, 136, 80,0.12)';
                       e.currentTarget.style.color = C.primary;
                     }}
                   >
@@ -3314,7 +3314,7 @@ export default function HomepageBuilderTab() {
                     <div style={{
                       flex: 1,
                       overflowY: 'auto',
-                      background: 'linear-gradient(180deg, rgba(29, 185, 84,0.08) 0%, #0a0a0a 35%)',
+                      background: 'linear-gradient(180deg, rgba(176, 136, 80,0.08) 0%, #0a0a0a 35%)',
                       display: 'flex',
                       flexDirection: 'column',
                       gap: 16,
@@ -3416,7 +3416,7 @@ export default function HomepageBuilderTab() {
                         
                         {/* Top Gradient Header Area */}
                         <div style={{
-                          background: 'linear-gradient(180deg, rgba(29, 185, 84,0.08) 0%, rgba(10,10,10,0) 100%)',
+                          background: 'linear-gradient(180deg, rgba(176, 136, 80,0.08) 0%, rgba(10,10,10,0) 100%)',
                           padding: '20px 20px 10px 20px',
                           display: 'flex',
                           flexDirection: 'column',
@@ -3717,7 +3717,7 @@ export default function HomepageBuilderTab() {
                                   <div style={{ display: 'flex', gap: 4, marginTop: 6, flexWrap: 'wrap' }}>
                                     {[
                                       { name: 'Default', hex: '#161616' },
-                                      { name: 'Spotify', hex: '#1db954' },
+                                      { name: 'Spotify', hex: '#b08850' },
                                       { name: 'Purple', hex: '#120720' },
                                       { name: 'Navy', hex: '#051122' },
                                       { name: 'Charcoal', hex: '#242424' },
@@ -4403,7 +4403,7 @@ export default function HomepageBuilderTab() {
         <Suspense fallback={
           <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: '#070707', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
             <div style={{ fontSize: 40 }}>🎨</div>
-            <div style={{ fontSize: 14, color: '#1db954', fontWeight: 700, fontFamily: 'Outfit' }}>Loading Advanced Designer…</div>
+            <div style={{ fontSize: 14, color: '#b08850', fontWeight: 700, fontFamily: 'Outfit' }}>Loading Advanced Designer…</div>
             <div style={{ width: 200, height: 3, background: '#222', borderRadius: 2, overflow: 'hidden' }}>
               <div style={{ width: '60%', height: '100%', background: 'linear-gradient(90deg, #10b981, #34d399)', borderRadius: 2 }} />
             </div>

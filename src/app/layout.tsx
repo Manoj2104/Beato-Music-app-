@@ -41,7 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${inter.variable} ${outfit.variable}`} suppressHydrationWarning>
       <head />
-      <body className="bg-ss-bg text-white antialiased">
+      <body className="bg-ss-bg text-ss-text-primary antialiased">
         <CapacitorInit />
         <OfflineBanner />
         {children}

@@ -19,13 +19,13 @@ export function wrapInDesignedHTMLLayout(opts: {
   color?: string;
   type?: string;
 }): string {
-  const gradient = opts.color || 'linear-gradient(135deg,#1db954,#0d6b31)';
+  const gradient = opts.color || 'linear-gradient(135deg,#b08850,#0d6b31)';
   const typeLabel = opts.type ? opts.type.toUpperCase() : 'NOTIFICATION';
   
   // Format body text with br tags and styling for brackets
   const bodyHtml = opts.bodyText
     .replace(/\n/g, '<br/>')
-    .replace(/\{\{(\w+)\}\}/g, '<strong style="color: #1db954; font-weight: 700;">{{$1}}</strong>');
+    .replace(/\{\{(\w+)\}\}/g, '<strong style="color: #b08850; font-weight: 700;">{{$1}}</strong>');
 
   return `<!DOCTYPE html>
 <html>
@@ -86,8 +86,8 @@ export function wrapInDesignedHTMLLayout(opts: {
       font-size: 10px;
       font-weight: 800;
       letter-spacing: 0.08em;
-      background: rgba(29, 185, 84, 0.15);
-      color: #1db954;
+      background: rgba(176, 136, 80, 0.15);
+      color: #b08850;
       padding: 4px 10px;
       border-radius: 12px;
       text-transform: uppercase;
@@ -98,7 +98,7 @@ export function wrapInDesignedHTMLLayout(opts: {
       margin: 30px 0 10px 0;
     }
     .btn {
-      background-color: #1db954;
+      background-color: #b08850;
       color: #000000 !important;
       text-decoration: none;
       padding: 12px 36px;
@@ -107,7 +107,7 @@ export function wrapInDesignedHTMLLayout(opts: {
       font-size: 14px;
       display: inline-block;
       letter-spacing: 0.05em;
-      box-shadow: 0 4px 15px rgba(29, 185, 84, 0.35);
+      box-shadow: 0 4px 15px rgba(176, 136, 80, 0.35);
     }
     .divider {
       height: 1px;
@@ -124,7 +124,7 @@ export function wrapInDesignedHTMLLayout(opts: {
       line-height: 1.5;
     }
     .footer a {
-      color: #1db954;
+      color: #b08850;
       text-decoration: none;
       font-weight: 600;
     }

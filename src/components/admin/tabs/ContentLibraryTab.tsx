@@ -41,7 +41,7 @@ interface ContentItem {
 }
 
 const STATUS_STYLE: Record<ContentStatus, { bg: string; color: string }> = {
-  Approved: { bg: '#1a3a27', color: '#1db954' },
+  Approved: { bg: '#1a3a27', color: '#b08850' },
   Pending: { bg: '#2a2a10', color: '#f59e0b' },
   Rejected: { bg: '#3a1a1a', color: '#ff4d4d' },
 };
@@ -336,7 +336,7 @@ export default function ContentLibraryTab() {
           <h3 style={{ fontSize: 14, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 1, margin: 0 }}>⭐ Featured Content</h3>
           <button 
             onClick={() => setAddFeatureModal(true)}
-            style={{ padding: '6px 12px', borderRadius: 8, border: 'none', background: '#1db954', color: '#000', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+            style={{ padding: '6px 12px', borderRadius: 8, border: 'none', background: '#b08850', color: '#000', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
           >
             ➕ Add Featured
           </button>
@@ -370,11 +370,11 @@ export default function ContentLibraryTab() {
           <div style={{ display: 'flex', gap: 10 }}>
             {trending.slice(0, 5).map((item, i) => (
               <div key={item.id} style={{ background: '#121212', borderRadius: 10, border: '1px solid #1e1e1e', padding: '10px 14px', flex: 1, display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ fontSize: 16, fontWeight: 800, color: i === 0 ? '#1db954' : '#4b5563', minWidth: 20 }}>#{i + 1}</span>
+                <span style={{ fontSize: 16, fontWeight: 800, color: i === 0 ? '#b08850' : '#4b5563', minWidth: 20 }}>#{i + 1}</span>
                 <div style={{ width: 32, height: 32, borderRadius: 6, background: item.color.startsWith('linear-gradient') ? item.color : `url(${item.color}) center/cover`, flexShrink: 0 }} />
                 <div style={{ minWidth: 0 }}>
                   <div style={{ fontSize: 12, fontWeight: 700, color: '#e5e7eb', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.title}</div>
-                  <div style={{ fontSize: 11, color: '#1db954' }}>{formatPlays(item.plays)} plays</div>
+                  <div style={{ fontSize: 11, color: '#b08850' }}>{formatPlays(item.plays)} plays</div>
                 </div>
               </div>
             ))}
@@ -410,7 +410,7 @@ export default function ContentLibraryTab() {
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
           {(['list', 'grid'] as ViewMode[]).map(v => (
             <button key={v} onClick={() => setView(v)}
-              style={{ width: 34, height: 34, borderRadius: 8, border: 'none', background: view === v ? '#1db954' : '#1e1e1e', color: view === v ? '#000' : '#6b7280', cursor: 'pointer', fontSize: 14 }}>
+              style={{ width: 34, height: 34, borderRadius: 8, border: 'none', background: view === v ? '#b08850' : '#1e1e1e', color: view === v ? '#000' : '#6b7280', cursor: 'pointer', fontSize: 14 }}>
               {v === 'list' ? '☰' : '⊞'}
             </button>
           ))}
@@ -423,7 +423,7 @@ export default function ContentLibraryTab() {
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
             style={{ background: '#1a2a3a', borderRadius: 10, padding: '10px 16px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 12, border: '1px solid #1e3a5f', flexWrap: 'wrap' }}>
             <span style={{ fontSize: 13, color: '#60a5fa', fontWeight: 700 }}>{selected.size} selected</span>
-            <button onClick={() => bulkAction('approve')} style={{ padding: '5px 13px', borderRadius: 7, border: 'none', background: '#1a3a27', color: '#1db954', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>✓ Approve All</button>
+            <button onClick={() => bulkAction('approve')} style={{ padding: '5px 13px', borderRadius: 7, border: 'none', background: '#1a3a27', color: '#b08850', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>✓ Approve All</button>
             <button onClick={() => bulkAction('reject')} style={{ padding: '5px 13px', borderRadius: 7, border: 'none', background: '#3a1a1a', color: '#ff4d4d', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>✗ Reject All</button>
             <button onClick={() => bulkAction('feature')} style={{ padding: '5px 13px', borderRadius: 7, border: 'none', background: '#2a2010', color: '#f59e0b', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>⭐ Feature All</button>
             <button onClick={() => bulkAction('unfeature')} style={{ padding: '5px 13px', borderRadius: 7, border: 'none', background: '#2a1a1a', color: '#ffaa44', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>⭐ Unfeature All</button>
@@ -438,7 +438,7 @@ export default function ContentLibraryTab() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr style={{ background: '#161616', borderBottom: '1px solid #1e1e1e' }}>
-                <th style={{ padding: '12px 14px' }}><input type="checkbox" checked={allSelected} onChange={toggleAll} style={{ accentColor: '#1db954', cursor: 'pointer' }} /></th>
+                <th style={{ padding: '12px 14px' }}><input type="checkbox" checked={allSelected} onChange={toggleAll} style={{ accentColor: '#b08850', cursor: 'pointer' }} /></th>
                 {['Cover', 'Title', 'Artist', 'Type', 'Genre', 'Duration', 'Plays', 'Status', 'Uploaded', 'Actions'].map(h => (
                   <th key={h} style={{ padding: '12px 12px', textAlign: 'left', color: '#6b7280', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.7, whiteSpace: 'nowrap' }}>{h}</th>
                 ))}
@@ -458,8 +458,8 @@ export default function ContentLibraryTab() {
                   const ss = STATUS_STYLE[item.status] || { bg: '#111', color: '#888' };
                   const isExpanded = expandedItemId === item.id;
                   return (
-                    <tr key={item.id} style={{ borderBottom: '1px solid #1a1a1a', background: selected.has(item.id) ? 'rgba(29, 185, 84,0.04)' : 'transparent' }}>
-                      <td style={{ padding: '10px 14px' }}><input type="checkbox" checked={selected.has(item.id)} onChange={() => toggleOne(item.id)} style={{ accentColor: '#1db954', cursor: 'pointer' }} /></td>
+                    <tr key={item.id} style={{ borderBottom: '1px solid #1a1a1a', background: selected.has(item.id) ? 'rgba(176, 136, 80,0.04)' : 'transparent' }}>
+                      <td style={{ padding: '10px 14px' }}><input type="checkbox" checked={selected.has(item.id)} onChange={() => toggleOne(item.id)} style={{ accentColor: '#b08850', cursor: 'pointer' }} /></td>
                       
                       {/* Click cover to preview audio */}
                       <td style={{ padding: '10px 12px' }}>
@@ -492,7 +492,7 @@ export default function ContentLibraryTab() {
                       <td style={{ padding: '10px 12px', color: '#6b7280' }}>{item.type}</td>
                       <td style={{ padding: '10px 12px', color: '#6b7280' }}>{item.genre}</td>
                       <td style={{ padding: '10px 12px', color: '#4b5563', whiteSpace: 'nowrap' }}>{item.duration}</td>
-                      <td style={{ padding: '10px 12px', color: '#1db954', fontWeight: 700 }}>
+                      <td style={{ padding: '10px 12px', color: '#b08850', fontWeight: 700 }}>
                         {formatPlays(item.plays)}
                         {milestoneBadge(item.plays)}
                       </td>
@@ -503,7 +503,7 @@ export default function ContentLibraryTab() {
                       <td style={{ padding: '10px 12px' }}>
                         <div style={{ display: 'flex', gap: 5 }}>
                           <button onClick={() => openEditModal(item)} style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid #2a2a2a', background: '#1a1a1a', color: '#9ca3af', fontSize: 10, cursor: 'pointer' }} title="Edit Metadata">✎</button>
-                          {item.status !== 'Approved' && <button onClick={() => approveItem(item.id, item.title)} style={{ padding: '4px 8px', borderRadius: 6, border: 'none', background: '#1a3a27', color: '#1db954', fontSize: 10, fontWeight: 700, cursor: 'pointer' }} title="Approve">✓</button>}
+                          {item.status !== 'Approved' && <button onClick={() => approveItem(item.id, item.title)} style={{ padding: '4px 8px', borderRadius: 6, border: 'none', background: '#1a3a27', color: '#b08850', fontSize: 10, fontWeight: 700, cursor: 'pointer' }} title="Approve">✓</button>}
                           {item.status !== 'Rejected' && <button onClick={() => rejectItem(item.id, item.title)} style={{ padding: '4px 8px', borderRadius: 6, border: 'none', background: '#3a1a1a', color: '#ff4d4d', fontSize: 10, fontWeight: 700, cursor: 'pointer' }} title="Reject">✗</button>}
                           <button onClick={() => toggleFeature(item.id, item.title, item.featured)} style={{ padding: '4px 8px', borderRadius: 6, border: 'none', background: item.featured ? '#2a2010' : '#1e1e1e', color: item.featured ? '#f59e0b' : '#4b5563', fontSize: 10, cursor: 'pointer' }} title="Toggle Feature">⭐</button>
                           <button onClick={() => deleteItem(item.id, item.title)} style={{ padding: '4px 8px', borderRadius: 6, border: 'none', background: '#ef444422', color: '#ef4444', fontSize: 10, cursor: 'pointer' }} title="Delete">🗑</button>
@@ -556,7 +556,7 @@ export default function ContentLibraryTab() {
               <div style={{ display: 'flex', gap: 6 }}>
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
                   <button key={p} onClick={() => setPage(p)}
-                    style={{ width: 30, height: 30, borderRadius: 7, border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: 13, background: page === p ? '#1db954' : '#1e1e1e', color: page === p ? '#000' : '#6b7280' }}>
+                    style={{ width: 30, height: 30, borderRadius: 7, border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: 13, background: page === p ? '#b08850' : '#1e1e1e', color: page === p ? '#000' : '#6b7280' }}>
                     {p}
                   </button>
                 ))}
@@ -577,28 +577,28 @@ export default function ContentLibraryTab() {
                 const ss = STATUS_STYLE[item.status] || { bg: '#111', color: '#888' };
                 return (
                   <motion.div key={item.id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.05 }}
-                    style={{ background: '#121212', borderRadius: 13, border: `1px solid ${selected.has(item.id) ? '#1db95440' : '#1e1e1e'}`, overflow: 'hidden' }}>
+                    style={{ background: '#121212', borderRadius: 13, border: `1px solid ${selected.has(item.id) ? '#b0885040' : '#1e1e1e'}`, overflow: 'hidden' }}>
                     <div 
                       onClick={() => { if (item.type === 'Track') setPreviewTrack(item); }}
                       style={{ height: 100, background: item.color.startsWith('linear-gradient') ? item.color : `url(${item.color}) center/cover`, position: 'relative', cursor: item.type === 'Track' ? 'pointer' : 'default' }}
                     >
                       {item.featured && <span style={{ position: 'absolute', top: 8, right: 8, background: '#f59e0b', borderRadius: 20, padding: '2px 8px', fontSize: 10, fontWeight: 700, color: '#000' }}>Featured</span>}
                       {item.explicit && <span style={{ position: 'absolute', bottom: 8, left: 8, background: '#000', borderRadius: 4, padding: '2px 6px', fontSize: 9, fontWeight: 800, color: '#fff' }}>EXPLICIT</span>}
-                      {selected.has(item.id) && <div style={{ position: 'absolute', inset: 0, background: 'rgba(29, 185, 84,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32 }}>✓</div>}
+                      {selected.has(item.id) && <div style={{ position: 'absolute', inset: 0, background: 'rgba(176, 136, 80,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32 }}>✓</div>}
                     </div>
                     <div style={{ padding: '12px 14px' }}>
                       <div style={{ fontWeight: 700, fontSize: 13, color: '#e5e7eb', marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.title}</div>
                       <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 8 }}>{item.artist} · {item.type}</div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                         <span style={{ background: ss.bg, color: ss.color, borderRadius: 20, padding: '2px 8px', fontSize: 10, fontWeight: 700 }}>{item.status}</span>
-                        <span style={{ color: '#1db954', fontSize: 12, fontWeight: 700 }}>
+                        <span style={{ color: '#b08850', fontSize: 12, fontWeight: 700 }}>
                           {formatPlays(item.plays)}
                           {milestoneBadge(item.plays)}
                         </span>
                       </div>
                       <div style={{ display: 'flex', gap: 5, marginTop: 8 }}>
                         <button onClick={() => openEditModal(item)} style={{ flex: 1, padding: '5px 0', borderRadius: 6, border: '1px solid #2a2a2a', background: '#1a1a1a', color: '#9ca3af', fontSize: 11, cursor: 'pointer' }}>✎ Edit</button>
-                        {item.status !== 'Approved' && <button onClick={() => approveItem(item.id, item.title)} style={{ flex: 1, padding: '5px 0', borderRadius: 6, border: 'none', background: '#1a3a27', color: '#1db954', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>✓ Approve</button>}
+                        {item.status !== 'Approved' && <button onClick={() => approveItem(item.id, item.title)} style={{ flex: 1, padding: '5px 0', borderRadius: 6, border: 'none', background: '#1a3a27', color: '#b08850', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>✓ Approve</button>}
                         <button onClick={() => deleteItem(item.id, item.title)} style={{ padding: '5px 8px', borderRadius: 6, border: 'none', background: '#ef444422', color: '#ef4444', fontSize: 11, cursor: 'pointer' }}>🗑</button>
                       </div>
                     </div>
@@ -619,12 +619,12 @@ export default function ContentLibraryTab() {
             exit={{ opacity: 0, y: 50 }}
             style={{ 
               position: 'fixed', bottom: 20, right: 20, zIndex: 1000, 
-              background: '#121212', border: '1px solid #1db954', borderRadius: 12, 
+              background: '#121212', border: '1px solid #b08850', borderRadius: 12, 
               padding: '14px 20px', width: 320, boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-              <div style={{ fontSize: 11, color: '#1db954', fontWeight: 800 }}>Now Previewing</div>
+              <div style={{ fontSize: 11, color: '#b08850', fontWeight: 800 }}>Now Previewing</div>
               <button 
                 onClick={() => setPreviewTrack(null)} 
                 style={{ background: 'transparent', border: 'none', color: '#6b7280', cursor: 'pointer', padding: 0 }}
@@ -698,14 +698,14 @@ export default function ContentLibraryTab() {
 
                 <div>
                   <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, color: '#e5e7eb', marginTop: 6 }}>
-                    <input type="checkbox" checked={editForm.explicit} onChange={e => setEditForm(p => ({ ...p, explicit: e.target.checked }))} style={{ accentColor: '#1db954' }} />
+                    <input type="checkbox" checked={editForm.explicit} onChange={e => setEditForm(p => ({ ...p, explicit: e.target.checked }))} style={{ accentColor: '#b08850' }} />
                     Mark as Explicit Content
                   </label>
                 </div>
 
                 <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 12 }}>
                   <button onClick={() => setEditingItem(null)} style={{ background: '#1a1a1a', border: 'none', borderRadius: 8, color: '#9ca3af', padding: '10px 18px', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
-                  <button onClick={handleSaveEdit} style={{ background: '#1db954', border: 'none', borderRadius: 8, color: '#000', padding: '10px 20px', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Save Changes</button>
+                  <button onClick={handleSaveEdit} style={{ background: '#b08850', border: 'none', borderRadius: 8, color: '#000', padding: '10px 20px', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Save Changes</button>
                 </div>
               </div>
             </motion.div>
@@ -744,7 +744,7 @@ export default function ContentLibraryTab() {
                         <div style={{ fontSize: 11, color: '#6b7280' }}>{item.artist}</div>
                       </div>
                       <button onClick={() => { toggleFeature(item.id, item.title, false); }}
-                        style={{ padding: '5px 11px', borderRadius: 7, border: 'none', background: '#1db954', color: '#000', fontSize: 11, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                        style={{ padding: '5px 11px', borderRadius: 7, border: 'none', background: '#b08850', color: '#000', fontSize: 11, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
                         + Feature
                       </button>
                     </div>

@@ -8,7 +8,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useArtistApplicationStore } from '@/store/artistApplicationStore';
 import toast from 'react-hot-toast';
 
-const GREEN = '#1db954';
+const GREEN = '#b08850';
 
 export default function AccessDeniedPage() {
   const router = useRouter();

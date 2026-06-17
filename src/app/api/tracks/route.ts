@@ -27,12 +27,16 @@ export async function GET(request: NextRequest) {
     const activeTracks = uniqueTracks.filter(
       (t) => activeArtistIds.has(t.artistId)
     );
-    
-    return NextResponse.json({
+
+    // ⚡ Cache for 20 seconds, stale-while-revalidate for another 10s
+    // This dramatically speeds up repeated fetches from the client throttle window
+    const response = NextResponse.json({
       success: true,
       tracks: activeTracks,
       activeArtistIds: Array.from(activeArtistIds),
     });
+    response.headers.set('Cache-Control', 's-maxage=20, stale-while-revalidate=10');
+    return response;
   } catch (e: any) {
     return NextResponse.json(
       { error: 'Failed to fetch tracks from database' },

@@ -17,7 +17,7 @@ const incidents = [
 ];
 
 const sevColors: Record<string, string> = { major: '#ef4444', minor: '#f59e0b', info: '#10b981' };
-const statusColors: Record<string, string> = { operational: '#1db954', degraded: '#f59e0b', down: '#ef4444' };
+const statusColors: Record<string, string> = { operational: '#b08850', degraded: '#f59e0b', down: '#ef4444' };
 
 const card = (style?: React.CSSProperties): React.CSSProperties => ({
   background: '#121212', border: '1px solid #1a1a1a', borderRadius: 14, padding: 20, ...style,
@@ -89,7 +89,7 @@ export default function SystemHealthTab() {
     <div style={{ color: '#fff', fontFamily: 'Inter, sans-serif' }}>
       {/* Overall Status */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ ...card(), marginBottom: 24, display: 'flex', alignItems: 'center', gap: 14 }}>
-        <div style={{ width: 14, height: 14, borderRadius: '50%', background: allOk ? '#1db954' : '#f59e0b', boxShadow: `0 0 12px ${allOk ? '#1db954' : '#f59e0b'}` }} />
+        <div style={{ width: 14, height: 14, borderRadius: '50%', background: allOk ? '#b08850' : '#f59e0b', boxShadow: `0 0 12px ${allOk ? '#b08850' : '#f59e0b'}` }} />
         <div>
           <p style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>
             {services.length === 0 ? 'Connecting...' : allOk ? 'All Systems Operational' : `${services.filter(s => s.status !== 'operational').length} Systems Degraded / Down`}
@@ -114,7 +114,7 @@ export default function SystemHealthTab() {
                   <span style={{ background: (statusColors[s.status] || '#888') + '22', color: statusColors[s.status] || '#888', fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 4, textTransform: 'uppercase' }}>{s.status}</span>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 12 }}>
-                  <div><p style={{ margin: 0, fontSize: 10, color: '#6b7280' }}>Uptime</p><p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#1db954' }}>{s.uptime}%</p></div>
+                  <div><p style={{ margin: 0, fontSize: 10, color: '#6b7280' }}>Uptime</p><p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#b08850' }}>{s.uptime}%</p></div>
                   <div><p style={{ margin: 0, fontSize: 10, color: '#6b7280' }}>Response</p><p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#fff' }}>{s.respMs}ms</p></div>
                   <div style={{ gridColumn: '1/-1' }}><p style={{ margin: 0, fontSize: 10, color: '#6b7280' }}>Req/min</p><p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#9ca3af' }}>{(s.rpm || 0).toLocaleString()}</p></div>
                 </div>
@@ -160,7 +160,7 @@ export default function SystemHealthTab() {
           <h3 style={{ margin: '0 0 16px', fontSize: 14, fontWeight: 700 }}>Server Metrics</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {[
-              { label: 'CPU Usage', value: metrics.cpu, unit: '%', color: metrics.cpu > 80 ? '#ef4444' : '#1db954' },
+              { label: 'CPU Usage', value: metrics.cpu, unit: '%', color: metrics.cpu > 80 ? '#ef4444' : '#b08850' },
               { label: 'Memory Usage', value: metrics.memory, unit: '%', color: metrics.memory > 85 ? '#ef4444' : '#10b981' },
               { label: 'Disk I/O', value: metrics.disk, unit: '%', color: '#f59e0b' },
               { label: 'Network', value: metrics.network, unit: ' GB/s', color: '#10b981' },
@@ -206,7 +206,7 @@ export default function SystemHealthTab() {
               <span style={{ background: sevColors[inc.severity] + '22', color: sevColors[inc.severity], fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 4, textTransform: 'uppercase' }}>{inc.severity}</span>
               <span style={{ fontSize: 13, color: '#e5e7eb', fontWeight: 600, flex: 1 }}>{inc.title}</span>
               <span style={{ fontSize: 11, color: '#6b7280' }}>Duration: {inc.duration}</span>
-              <span style={{ fontSize: 11, color: '#1db954' }}>✓ Resolved {inc.resolved}</span>
+              <span style={{ fontSize: 11, color: '#b08850' }}>✓ Resolved {inc.resolved}</span>
             </div>
           ))}
         </div>

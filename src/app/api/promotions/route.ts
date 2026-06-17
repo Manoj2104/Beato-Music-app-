@@ -1,41 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
-
-import { getDbFilePath } from '@/lib/dbPath';
+import { db } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
-const DB_FILE = getDbFilePath();
-
-function readRawDb() {
-  if (!fs.existsSync(DB_FILE)) return { promotions: [], homeLayoutOrder: [] };
-  try {
-    const raw = fs.readFileSync(DB_FILE, 'utf-8');
-    return JSON.parse(raw);
-  } catch (e) {
-    return { promotions: [], homeLayoutOrder: [] };
-  }
-}
-
 export async function GET(req: NextRequest) {
   try {
-    const dbData = readRawDb();
-    
-    // Filter active promotions for the client
-    const allPromos = dbData.promotions || [];
-    const activePromos = allPromos.filter((p: any) => p.status === 'active');
-    
-    const layoutOrder = dbData.homeLayoutOrder || [];
+    // ⚡ Uses in-memory cached db — no extra disk reads on repeat requests
+    const homeData = db.getHomepageData();
 
     return NextResponse.json({
       success: true,
-      promotions: activePromos,
-      homeLayoutOrder: layoutOrder,
-      customSections: dbData.customSections || {},
-      activeTheme: dbData.activeTheme || null,
-      activePreset: dbData.activePreset || null,
-      events: dbData.events || []
+      promotions: homeData.promotions,
+      homeLayoutOrder: homeData.homeLayoutOrder,
+      customSections: homeData.customSections,
+      activeTheme: homeData.activeTheme,
+      activePreset: homeData.activePreset,
+      events: homeData.events,
     });
   } catch (e: any) {
     console.error('Public Promotions GET error:', e);

@@ -61,6 +61,9 @@ interface AuthStore {
   setMobileDrawerOpen: (open: boolean) => void;
 }
 
+let activeSessionPromise: Promise<void> | null = null;
+let lastSessionInitTime = 0;
+
 export const useAuthStore = create<AuthStore>()(
   persist(
     (set, get) => ({
@@ -433,35 +436,46 @@ export const useAuthStore = create<AuthStore>()(
         }
       },
 
+      // ⚡ Module-level variables to throttle and deduplicate session checks
       initializeSession: async () => {
-        try {
-          const res = await fetch('/api/auth/me');
-          const text = await res.text();
-          let data;
-          try {
-            data = JSON.parse(text);
-          } catch (e) {
-            // Not a JSON response, keep whatever is in local storage (offline fallback)
-            console.warn('API returned non-JSON response in initializeSession, keeping local session.');
-            return;
-          }
-
-          if (res.ok && data.success) {
-            set({
-              user: data.user,
-              isAuthenticated: true,
-              token: data.token || get().token || 'secure-session-active',
-            });
-          } else {
-            // Only clear the session if the server explicitly tells us the user is unauthorized (401 or 403)
-            if (res.status === 401 || res.status === 403) {
-              set({ user: null, isAuthenticated: false, token: null });
-            }
-          }
-        } catch (e) {
-          // Network error or offline: DO NOT clear the session! Just keep whatever is in local storage.
-          console.warn('Network error or offline during session init, keeping persisted session:', e);
+        const now = Date.now();
+        if (get().isAuthenticated && get().user && now - lastSessionInitTime < 15000) {
+          return;
         }
+        if (activeSessionPromise) {
+          return activeSessionPromise;
+        }
+        activeSessionPromise = (async () => {
+          try {
+            const res = await fetch('/api/auth/me');
+            const text = await res.text();
+            let data;
+            try {
+              data = JSON.parse(text);
+            } catch (e) {
+              console.warn('API returned non-JSON response in initializeSession, keeping local session.');
+              return;
+            }
+
+            if (res.ok && data.success) {
+              set({
+                user: data.user,
+                isAuthenticated: true,
+                token: data.token || get().token || 'secure-session-active',
+              });
+              lastSessionInitTime = Date.now();
+            } else {
+              if (res.status === 401 || res.status === 403) {
+                set({ user: null, isAuthenticated: false, token: null });
+              }
+            }
+          } catch (e) {
+            console.warn('Network error or offline during session init, keeping persisted session:', e);
+          } finally {
+            activeSessionPromise = null;
+          }
+        })();
+        return activeSessionPromise;
       },
 
       updateUser: (updates) =>

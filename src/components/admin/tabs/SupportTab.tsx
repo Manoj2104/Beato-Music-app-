@@ -16,7 +16,7 @@ const COLORS = {
   card: 'rgba(255, 255, 255, 0.03)',
   card2: 'rgba(255, 255, 255, 0.05)',
   border: 'rgba(255, 255, 255, 0.08)',
-  green: '#1db954',
+  green: '#b08850',
   text: '#ffffff',
   muted: '#888888',
   urgent: '#ef4444',
@@ -386,7 +386,7 @@ export default function SupportTab() {
   if (loading) {
     return (
       <div style={{ padding: '40px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
-        <div style={{ width: 40, height: 40, border: '3.5px solid rgba(29, 185, 84, 0.1)', borderTopColor: COLORS.green, borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+        <div style={{ width: 40, height: 40, border: '3.5px solid rgba(176, 136, 80, 0.1)', borderTopColor: COLORS.green, borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
         <div style={{ color: '#888', fontSize: 13, fontWeight: 500, fontFamily: 'Inter, sans-serif' }}>Synchronizing Support Operations...</div>
       </div>
     );
@@ -411,7 +411,7 @@ export default function SupportTab() {
       {selectedTicketIds.length > 0 && (
         <fm.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
           style={{
-            background: 'rgba(29, 185, 84, 0.1)', border: `1px solid ${COLORS.green}33`,
+            background: 'rgba(176, 136, 80, 0.1)', border: `1px solid ${COLORS.green}33`,
             borderRadius: 12, padding: '12px 20px', marginBottom: 18,
             display: 'flex', justifyContent: 'space-between', alignItems: 'center'
           }}>
@@ -447,7 +447,7 @@ export default function SupportTab() {
               style={{ 
                 padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer', textTransform: 'capitalize', transition: 'all 0.2s',
                 border: `1px solid ${filter === f ? COLORS.green : COLORS.border}`, 
-                background: filter === f ? 'rgba(29, 185, 84, 0.12)' : 'transparent', 
+                background: filter === f ? 'rgba(176, 136, 80, 0.12)' : 'transparent', 
                 color: filter === f ? COLORS.green : COLORS.muted 
               }}>
               {f}
@@ -563,8 +563,8 @@ export default function SupportTab() {
                             View
                           </button>
                           <button onClick={() => setSelectedTicket(t)} 
-                            style={{ padding: '4px 10px', borderRadius: 6, border: `1px solid ${COLORS.green}33`, background: 'rgba(29, 185, 84,0.08)', color: COLORS.green, cursor: 'pointer', fontSize: 11, fontWeight: 700 }}
-                            onMouseEnter={e => e.currentTarget.style.background = 'rgba(29, 185, 84,0.18)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(29, 185, 84,0.08)'}>
+                            style={{ padding: '4px 10px', borderRadius: 6, border: `1px solid ${COLORS.green}33`, background: 'rgba(176, 136, 80,0.08)', color: COLORS.green, cursor: 'pointer', fontSize: 11, fontWeight: 700 }}
+                            onMouseEnter={e => e.currentTarget.style.background = 'rgba(176, 136, 80,0.18)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(176, 136, 80,0.08)'}>
                             Reply
                           </button>
                           {t.status !== 'closed' && (
@@ -711,8 +711,8 @@ export default function SupportTab() {
                             {isSupport ? 'S' : msg.sender[0]}
                           </div>
                           <div style={{ 
-                            background: isSupport ? 'rgba(29, 185, 84,0.05)' : 'rgba(255,255,255,0.02)', 
-                            border: `1px solid ${isSupport ? 'rgba(29, 185, 84,0.15)' : 'rgba(255,255,255,0.04)'}`, 
+                            background: isSupport ? 'rgba(176, 136, 80,0.05)' : 'rgba(255,255,255,0.02)', 
+                            border: `1px solid ${isSupport ? 'rgba(176, 136, 80,0.15)' : 'rgba(255,255,255,0.04)'}`, 
                             borderRadius: isSupport ? '12px 0px 12px 12px' : '0 12px 12px 12px', 
                             padding: 12, maxWidth: '80%' 
                           }}>

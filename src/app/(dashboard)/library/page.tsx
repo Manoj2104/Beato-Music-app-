@@ -22,7 +22,7 @@ import { useAuthStore } from '@/store/authStore';
 import { usePlayerStore } from '@/store/playerStore';
 import { usePlaylistStore } from '@/store/playlistStore';
 
-const G = '#1db954';
+const G = '#b08850';
 
 // ─── Gradient Presets ──────────────────────────────────────────────────────────
 const GRADIENTS = [
@@ -182,7 +182,7 @@ function LibraryPlaylistCard({ playlist, pinned, onPin, onDelete, isCustom }: {
               onClick={e => { e.preventDefault(); e.stopPropagation(); isActive ? togglePlay() : tracks.length > 0 && playTrack(tracks[0], tracks); }}
               whileHover={{ scale: 1.12 }} whileTap={{ scale: 0.92 }}
               animate={{ scale: hov ? 1 : 0.7, opacity: hov ? 1 : 0 }}
-              style={{ width: 44, height: 44, borderRadius: '50%', background: G, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 16px rgba(29, 185, 84,0.5)' }}
+              style={{ width: 44, height: 44, borderRadius: '50%', background: G, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 16px rgba(176, 136, 80,0.5)' }}
             >
               {isActive && isPlaying ? <Pause size={18} fill="black" color="black" /> : <Play size={18} fill="black" color="black" />}
             </motion.button>
@@ -280,7 +280,7 @@ function ArtistRow({ artist, index }: { artist: any; index: number }) {
         <motion.button
           onClick={e => { e.preventDefault(); e.stopPropagation(); tracks.length > 0 && playTrack(tracks[0], tracks); }}
           animate={{ opacity: hov ? 1 : 0, scale: hov ? 1 : 0.8 }}
-          style={{ width: 36, height: 36, borderRadius: '50%', background: G, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(29, 185, 84,0.4)', flexShrink: 0 }}
+          style={{ width: 36, height: 36, borderRadius: '50%', background: G, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(176, 136, 80,0.4)', flexShrink: 0 }}
         >
           <Play size={14} fill="black" color="black" />
         </motion.button>
@@ -313,7 +313,7 @@ function AlbumRow({ album, index }: { album: any; index: number }) {
         <motion.button
           onClick={e => { e.preventDefault(); e.stopPropagation(); tracks.length > 0 && playTrack(tracks[0], tracks); }}
           animate={{ opacity: hov ? 1 : 0, scale: hov ? 1 : 0.8 }}
-          style={{ width: 36, height: 36, borderRadius: '50%', background: G, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(29, 185, 84,0.4)', flexShrink: 0 }}
+          style={{ width: 36, height: 36, borderRadius: '50%', background: G, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(176, 136, 80,0.4)', flexShrink: 0 }}
         >
           <Play size={14} fill="black" color="black" />
         </motion.button>
@@ -353,7 +353,7 @@ function AlbumGridCard({ album }: { album: any }) {
           {album.coverImage && <img src={album.coverImage} alt={album.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
           <motion.button onClick={e => { e.preventDefault(); e.stopPropagation(); tracks.length > 0 && playTrack(tracks[0], tracks); }}
             animate={{ opacity: hov ? 1 : 0, scale: hov ? 1 : 0.7, y: hov ? 0 : 8 }}
-            style={{ position: 'absolute', bottom: 10, right: 10, width: 40, height: 40, borderRadius: '50%', background: G, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 14px rgba(29, 185, 84,0.5)' }}>
+            style={{ position: 'absolute', bottom: 10, right: 10, width: 40, height: 40, borderRadius: '50%', background: G, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 14px rgba(176, 136, 80,0.5)' }}>
             <Play size={16} fill="black" color="black" />
           </motion.button>
         </div>
@@ -406,7 +406,7 @@ function MobileLibraryView({
   const { setMobileDrawerOpen } = useAuthStore();
   const { currentTrack, isPlaying, togglePlay } = usePlayerStore();
   const router = useRouter();
-  const G = '#1db954';
+  const G = '#b08850';
   const SORT_OPTS = [
     { v: 'recents', l: 'Recently Added' },
     { v: 'az',      l: 'A → Z' },
@@ -425,97 +425,86 @@ function MobileLibraryView({
     <div>
       {/* Mobile Spotify-Style Header */}
       {activeTab === 'Liked' ? null : (
-        <div style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 50,
-          background: '#080808',
-          paddingTop: 'calc(env(safe-area-inset-top, 24px) + 12px)',
-          paddingBottom: '12px',
-          marginLeft: '-16px',
-          marginRight: '-16px',
-          paddingLeft: '16px',
-          paddingRight: '16px',
-          borderBottom: '1px solid rgba(255,255,255,0.05)',
-          marginBottom: '20px'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-            <div
-              onClick={() => setMobileDrawerOpen(true)}
-              style={{
-                width: 32,
-                height: 32,
-                borderRadius: '50%',
-                background: '#1db954', // Green circle
-                color: '#fff',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: 800,
-                fontSize: 14,
-                fontFamily: 'Outfit, sans-serif',
-                cursor: 'pointer'
-              }}
-            >
-              {user?.name ? user.name[0].toUpperCase() : 'M'}
-            </div>
-            <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 24, fontWeight: 900, color: '#fff', margin: 0 }}>Your Library</h1>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginLeft: 'auto' }}>
-              <Search size={22} color="#fff" style={{ cursor: 'pointer' }} onClick={() => {
-                toast('Search library…', { icon: '🔍' });
-              }} />
-              <Plus size={24} color="#fff" style={{ cursor: 'pointer' }} onClick={() => setShowAddMenu(true)} />
-            </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+          <div
+            onClick={() => setMobileDrawerOpen(true)}
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: '50%',
+              background: '#b08850', // Green circle
+              color: '#fff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: 800,
+              fontSize: 14,
+              fontFamily: 'Outfit, sans-serif',
+              cursor: 'pointer'
+            }}
+          >
+            {user?.name ? user.name[0].toUpperCase() : 'M'}
           </div>
+          <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 24, fontWeight: 900, color: '#fff' }}>Your Library</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginLeft: 'auto' }}>
+            <Search size={22} color="#fff" style={{ cursor: 'pointer' }} onClick={() => {
+              toast('Search library…', { icon: '🔍' });
+            }} />
+            <Plus size={24} color="#fff" style={{ cursor: 'pointer' }} onClick={() => setShowAddMenu(true)} />
+          </div>
+        </div>
+      )}
 
-          {/* Horizontally Scrolling Pills/Chips */}
-          <div style={{ 
-            display: 'flex', 
-            gap: 8, 
-            overflowX: 'auto', 
-            scrollbarWidth: 'none', 
-            msOverflowStyle: 'none', 
-            WebkitOverflowScrolling: 'touch'
-          }} className="hide-scrollbar">
-            <style>{`
-              .hide-scrollbar::-webkit-scrollbar {
-                display: none;
-              }
-            `}</style>
-            {[
-              { id: 'Playlists', label: 'Playlists' },
-              { id: 'Artists', label: 'Artists' },
-              { id: 'Albums', label: 'Albums' },
-            ].map(chip => {
-              const active = activeTab === chip.id;
-              return (
-                <button
-                  key={chip.id}
-                  onClick={() => {
-                    if (active) {
-                      setActiveTab('overview');
-                    } else {
-                      setActiveTab(chip.id);
-                    }
-                  }}
-                  style={{
-                    padding: '6px 16px',
-                    borderRadius: 20,
-                    background: active ? G : 'rgba(255,255,255,0.08)',
-                    color: active ? '#000' : '#fff',
-                    fontSize: 12.5,
-                    fontWeight: 600,
-                    border: 'none',
-                    cursor: 'pointer',
-                    whiteSpace: 'nowrap',
-                    transition: 'all 0.15s'
-                  }}
-                >
-                  {chip.label}
-                </button>
-              );
-            })}
-          </div>
+      {/* Horizontally Scrolling Pills/Chips */}
+      {activeTab !== 'Liked' && (
+        <div style={{ 
+          display: 'flex', 
+          gap: 8, 
+          overflowX: 'auto', 
+          scrollbarWidth: 'none', 
+          msOverflowStyle: 'none', 
+          paddingBottom: 4,
+          marginBottom: 16,
+          WebkitOverflowScrolling: 'touch'
+        }} className="hide-scrollbar">
+          <style>{`
+            .hide-scrollbar::-webkit-scrollbar {
+              display: none;
+            }
+          `}</style>
+          {[
+            { id: 'Playlists', label: 'Playlists' },
+            { id: 'Artists', label: 'Artists' },
+            { id: 'Albums', label: 'Albums' },
+          ].map(chip => {
+            const active = activeTab === chip.id;
+            return (
+              <button
+                key={chip.id}
+                onClick={() => {
+                  if (active) {
+                    setActiveTab('overview');
+                  } else {
+                    setActiveTab(chip.id);
+                  }
+                }}
+                style={{
+                  padding: '6px 16px',
+                  borderRadius: 20,
+                  background: active ? G : 'rgba(255,255,255,0.08)',
+                  color: active ? '#000' : '#fff',
+                  fontSize: 12.5,
+                  fontWeight: 600,
+                  border: 'none',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  transition: 'all 0.15s'
+                }}
+              >
+                {chip.label}
+              </button>
+            );
+          })}
         </div>
       )}
 
@@ -614,32 +603,14 @@ function MobileLibraryView({
       {/* Mobile Main Content */}
       {activeTab === 'Liked' ? (
         /* Liked Songs mobile detail view */
-        <div style={{ margin: '0 -16px 0 -16px', paddingBottom: 20 }}>
+        <div style={{ margin: '-16px -16px 0 -16px', paddingBottom: 20 }}>
           {/* Beautiful fading top banner gradient background */}
           <div style={{ 
-            background: 'linear-gradient(180deg, rgba(29, 185, 84, 0.45) 0%, rgba(13, 27, 20, 0.15) 50%, rgba(8, 8, 8, 0) 100%)',
-            padding: '0 16px 20px 16px',
+            background: 'linear-gradient(180deg, rgba(176, 136, 80, 0.45) 0%, rgba(13, 27, 20, 0.15) 50%, rgba(8, 8, 8, 0) 100%)',
+            padding: '24px 16px 20px 16px',
           }}>
             {/* Nav row */}
-            <div style={{ 
-              position: 'sticky', 
-              top: 0, 
-              zIndex: 50, 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: 12, 
-              marginBottom: 24, 
-              paddingTop: 'calc(env(safe-area-inset-top, 24px) + 12px)',
-              paddingBottom: '12px',
-              marginLeft: '-16px',
-              marginRight: '-16px',
-              paddingLeft: '16px',
-              paddingRight: '16px',
-              background: 'rgba(7, 31, 17, 0.85)',
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)',
-              borderBottom: '1px solid rgba(255,255,255,0.05)'
-            }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
               <button onClick={() => setActiveTab('overview')} style={{ background: 'rgba(255,255,255,0.08)', border: 'none', color: '#fff', cursor: 'pointer', padding: 8, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 38, height: 38 }}>
                 <ChevronLeft size={22} />
               </button>
@@ -673,7 +644,7 @@ function MobileLibraryView({
               </h1>
               
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center' }}>
-                <div style={{ width: 20, height: 20, borderRadius: '50%', background: '#1db954', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 800 }}>
+                <div style={{ width: 20, height: 20, borderRadius: '50%', background: '#b08850', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 800 }}>
                   {user?.name ? user.name[0].toUpperCase() : 'M'}
                 </div>
                 <span style={{ color: '#fff', fontSize: 13, fontWeight: 700 }}>
@@ -1274,7 +1245,7 @@ function LibraryPageContent() {
   const GENRES_AVAIL = ['Pop', 'Hip-Hop', 'Electronic', 'R&B', 'Indie', 'Rock', 'Ambient'];
 
   return (
-    <div style={{ minHeight: '100%', background: '#080808', padding: isMobile ? '0 16px 80px' : 0 }}>
+    <div className="library-themed-container" style={{ minHeight: '100%', background: 'var(--color-ss-bg, #fbf9f5)', padding: isMobile ? 'calc(var(--sat, 0px) + 20px) 16px 80px' : 0 }}>
       {isMobile ? (
         <MobileLibraryView
           activeTab={activeTab}
@@ -1295,7 +1266,7 @@ function LibraryPageContent() {
           user={user}
         />
       ) : (
-        <div style={{ minHeight: '100%', background: '#0a0a0a', position: 'relative' }}>
+        <div className="library-themed-container" style={{ minHeight: '100%', background: 'var(--color-ss-bg, #fbf9f5)', position: 'relative' }}>
           <TopBar />
           {/* Redesigned Clean Header (Simple, premium, like mobile collection view) */}
           <div style={{ 
@@ -1303,12 +1274,12 @@ function LibraryPageContent() {
             display: 'flex',
             flexDirection: 'column',
             gap: 20,
-            background: 'linear-gradient(180deg, rgba(29, 185, 84,0.06) 0%, transparent 100%)',
+            background: 'linear-gradient(180deg, rgba(176, 136, 80,0.06) 0%, transparent 100%)',
             position: 'relative',
             overflow: 'hidden'
           }}>
             {/* Ambient background light */}
-            <div style={{ position: 'absolute', top: -80, left: -60, width: 380, height: 380, borderRadius: '50%', background: 'radial-gradient(circle, rgba(29, 185, 84,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', top: -80, left: -60, width: 380, height: 380, borderRadius: '50%', background: 'radial-gradient(circle, rgba(176, 136, 80,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
             {/* Top Header Row: Title, Search, and Action Buttons */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20, zIndex: 1 }}>
@@ -1324,7 +1295,7 @@ function LibraryPageContent() {
                     width: 48, 
                     height: 48, 
                     borderRadius: '50%', 
-                    background: 'linear-gradient(135deg, #1db954, #10b981)', 
+                    background: 'linear-gradient(135deg, #b08850, #10b981)', 
                     display: 'flex', 
                     alignItems: 'center', 
                     justifyContent: 'center', 
@@ -1779,8 +1750,8 @@ function LibraryPageContent() {
                     <div style={{ position: 'absolute', bottom: -40, left: 200, width: 200, height: 200, borderRadius: '50%', background: 'rgba(16,185,129,0.2)', filter: 'blur(40px)' }} />
                     <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
-                        <div style={{ width: 64, height: 64, borderRadius: 16, background: 'rgba(29,185,84,0.25)', border: '1px solid rgba(29,185,84,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 24px rgba(29,185,84,0.3)' }}>
-                          <Heart size={28} color="#1db954" fill="#1db954" />
+                        <div style={{ width: 64, height: 64, borderRadius: 16, background: 'rgba(176, 136, 80,0.25)', border: '1px solid rgba(176, 136, 80,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 24px rgba(176, 136, 80,0.3)' }}>
+                          <Heart size={28} color="#b08850" fill="#b08850" />
                         </div>
                         <div>
                           <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>Your Collection</p>
@@ -1798,7 +1769,7 @@ function LibraryPageContent() {
                         </button>
                         <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
                           onClick={() => likedTracks.length && playTrack(likedTracks[0], likedTracks)}
-                          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 26px', borderRadius: 100, background: G, border: 'none', color: '#000', fontSize: 14, fontWeight: 800, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', boxShadow: '0 4px 20px rgba(29, 185, 84,0.4)' }}>
+                          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 26px', borderRadius: 100, background: G, border: 'none', color: '#000', fontSize: 14, fontWeight: 800, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', boxShadow: '0 4px 20px rgba(176, 136, 80,0.4)' }}>
                           <Play size={17} fill="black" /> Play All
                         </motion.button>
                       </div>
@@ -1827,8 +1798,8 @@ function LibraryPageContent() {
           {activeTab === 'Downloads' && (
             <motion.div key="downloads" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
               {/* Premium hero */}
-              <div style={{ position: 'relative', borderRadius: 24, overflow: 'hidden', background: 'linear-gradient(135deg, #0c0a1e 0%, #1a1040 40%, #0f1a0a 100%)', border: '1px solid rgba(29, 185, 84,0.15)', padding: '52px 40px', marginBottom: 24, textAlign: 'center' }}>
-                <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 20%, rgba(29, 185, 84,0.1) 0%, transparent 60%)' }} />
+              <div style={{ position: 'relative', borderRadius: 24, overflow: 'hidden', background: 'linear-gradient(135deg, #0c0a1e 0%, #1a1040 40%, #0f1a0a 100%)', border: '1px solid rgba(176, 136, 80,0.15)', padding: '52px 40px', marginBottom: 24, textAlign: 'center' }}>
+                <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 20%, rgba(176, 136, 80,0.1) 0%, transparent 60%)' }} />
                 <div style={{ position: 'absolute', top: -30, right: '20%', width: 200, height: 200, borderRadius: '50%', background: 'rgba(16, 185, 129,0.08)', filter: 'blur(50px)' }} />
 
                 <div style={{ position: 'relative', display: 'inline-flex', marginBottom: 24 }}>
@@ -1838,8 +1809,8 @@ function LibraryPageContent() {
                       top: i === 1 ? -8 : i === 2 ? -16 : undefined,
                       left: i === 1 ? 8 : i === 2 ? 16 : undefined,
                       width: 80, height: 80, borderRadius: '50%',
-                      background: i === 0 ? 'rgba(29, 185, 84,0.15)' : `rgba(29, 185, 84,${0.06 - i * 0.02})`,
-                      border: `1px solid rgba(29, 185, 84,${0.3 - i * 0.08})`,
+                      background: i === 0 ? 'rgba(176, 136, 80,0.15)' : `rgba(176, 136, 80,${0.06 - i * 0.02})`,
+                      border: `1px solid rgba(176, 136, 80,${0.3 - i * 0.08})`,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       backdropFilter: 'blur(8px)',
                     }}>
@@ -1903,10 +1874,10 @@ function LibraryPageContent() {
       <AnimatePresence>
         {showCreateModal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            style={{ position: 'fixed', inset: 0, background: '#121212', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(251, 249, 245, 0.96)', backdropFilter: 'blur(16px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}
           >
             <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: 400 }}>
-              <h2 style={{ color: '#fff', fontSize: 20, fontWeight: 700, marginBottom: 32, textAlign: 'center', fontFamily: 'var(--font-inter), sans-serif' }}>
+              <h2 style={{ color: 'var(--color-ss-text-primary, #221a15)', fontSize: 20, fontWeight: 700, marginBottom: 32, textAlign: 'center', fontFamily: 'var(--font-inter), sans-serif' }}>
                 Give your playlist a name
               </h2>
               
@@ -1925,14 +1896,14 @@ function LibraryPageContent() {
                     background: 'transparent',
                     border: 'none',
                     outline: 'none',
-                    color: '#fff',
+                    color: 'var(--color-ss-text-primary, #221a15)',
                     fontSize: 28,
                     fontWeight: 700,
                     textAlign: 'center',
                     fontFamily: 'var(--font-inter), sans-serif',
                   }}
                 />
-                <div style={{ width: '90%', height: 1, background: 'rgba(255, 255, 255, 0.3)', marginTop: 8 }} />
+                <div style={{ width: '90%', height: 1, background: 'rgba(43, 34, 26, 0.15)', marginTop: 8 }} />
               </div>
 
               <div style={{ display: 'flex', gap: 16 }}>
@@ -1942,9 +1913,9 @@ function LibraryPageContent() {
                   style={{
                     padding: '10px 24px',
                     borderRadius: 24,
-                    border: '1.5px solid rgba(255,255,255,0.4)',
+                    border: '1.5px solid rgba(43, 34, 26, 0.25)',
                     background: 'transparent',
-                    color: '#fff',
+                    color: 'var(--color-ss-text-primary, #221a15)',
                     fontSize: 14,
                     fontWeight: 700,
                     cursor: 'pointer',
@@ -1960,8 +1931,8 @@ function LibraryPageContent() {
                     padding: '10px 28px',
                     borderRadius: 24,
                     border: 'none',
-                    background: newTitle.trim() ? G : 'rgba(29, 185, 84, 0.4)',
-                    color: '#000',
+                    background: newTitle.trim() ? G : 'rgba(176, 136, 80, 0.25)',
+                    color: '#fff',
                     fontSize: 14,
                     fontWeight: 700,
                     cursor: newTitle.trim() ? 'pointer' : 'not-allowed',
@@ -1987,7 +1958,7 @@ function LibraryPageContent() {
               transition={{ type: 'spring', stiffness: 380, damping: 30 }}
               style={{ width: '100%', maxWidth: 460, background: '#141414', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 22, overflow: 'hidden', boxShadow: '0 40px 100px rgba(0,0,0,0.8)' }}
             >
-              <div style={{ height: 3, background: 'linear-gradient(90deg, #1db954, #10b981)' }} />
+              <div style={{ height: 3, background: 'linear-gradient(90deg, #b08850, #10b981)' }} />
               <div style={{ padding: '22px 24px 24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -2054,12 +2025,13 @@ function LibraryPageContent() {
                 bottom: 0,
                 left: 0,
                 right: 0,
-                background: '#282828',
+                background: 'var(--color-ss-elevated, #ffffff)',
                 borderTopLeftRadius: 24,
                 borderTopRightRadius: 24,
                 padding: '12px 20px 40px',
                 zIndex: 1000,
-                boxShadow: '0 -10px 40px rgba(0,0,0,0.6)',
+                boxShadow: '0 -10px 40px var(--color-ss-border, rgba(43, 34, 26, 0.08))',
+                borderTop: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
                 maxWidth: '100%',
                 boxSizing: 'border-box'
               }}
@@ -2069,7 +2041,7 @@ function LibraryPageContent() {
                 width: 36,
                 height: 4,
                 borderRadius: 2,
-                background: 'rgba(255,255,255,0.2)',
+                background: 'var(--color-ss-border, rgba(43, 34, 26, 0.15))',
                 margin: '0 auto 24px',
               }} />
 
@@ -2131,17 +2103,17 @@ function LibraryPageContent() {
                         width: 48,
                         height: 48,
                         borderRadius: '50%',
-                        background: 'rgba(255,255,255,0.08)',
+                        background: 'var(--color-ss-surface, #f4eede)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         flexShrink: 0
                       }}>
-                        <Icon size={20} color="#fff" />
+                        <Icon size={20} color="var(--color-ss-primary, #b08850)" />
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{ color: '#fff', fontSize: 16, fontWeight: 700, margin: 0 }}>{item.title}</p>
-                        <p style={{ color: '#a3a3a3', fontSize: 12, margin: '3px 0 0', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.desc}</p>
+                        <p style={{ color: 'var(--color-ss-text-primary, #221a15)', fontSize: 16, fontWeight: 700, margin: 0 }}>{item.title}</p>
+                        <p style={{ color: 'var(--color-ss-text-muted, #87786c)', fontSize: 12, margin: '3px 0 0', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.desc}</p>
                       </div>
                     </div>
                   );
@@ -2187,7 +2159,7 @@ function CreateCard({ onClick }: { onClick: () => void }) {
   const [hov, setHov] = useState(false);
   return (
     <motion.div whileHover={{ y: -6 }} onClick={onClick} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
-      style={{ borderRadius: 16, overflow: 'hidden', cursor: 'pointer', background: hov ? 'rgba(29, 185, 84,0.06)' : 'rgba(255,255,255,0.02)', border: `1px dashed ${hov ? G + '60' : 'rgba(255,255,255,0.1)'}`, transition: 'all 0.22s' }}>
+      style={{ borderRadius: 16, overflow: 'hidden', cursor: 'pointer', background: hov ? 'rgba(176, 136, 80,0.06)' : 'rgba(255,255,255,0.02)', border: `1px dashed ${hov ? G + '60' : 'rgba(255,255,255,0.1)'}`, transition: 'all 0.22s' }}>
       <div style={{ aspectRatio: '1', display: 'flex', alignItems: 'center', justifyContent: 'center', background: hov ? `${G}0d` : 'rgba(255,255,255,0.02)' }}>
         <div style={{ width: 52, height: 52, borderRadius: '50%', background: hov ? `${G}20` : 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', boxShadow: hov ? `0 0 20px ${G}30` : 'none' }}>
           <Plus size={24} color={hov ? G : '#525252'} />

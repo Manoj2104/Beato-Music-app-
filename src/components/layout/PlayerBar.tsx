@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, Repeat1,
   Volume2, VolumeX, Volume1, Maximize2, ListMusic, Mic2, Heart,
-  MoreHorizontal, Laptop2, Music2, Clock, Gauge, Sliders, Headphones, Download, X
+  MoreHorizontal, Laptop2, Music2, Clock, Gauge, Sliders, Headphones, Download, X, Plus
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -20,7 +20,7 @@ import { formatDuration } from '@/lib/mockData';
 import { socketManager, useSocket } from '@/lib/socket';
 import FullscreenPlayer from './FullscreenPlayer';
 
-const GREEN = '#1db954';
+const GREEN = '#b08850';
 
 const EQ_PRESETS = {
   'Flat': [50, 50, 50, 50, 50],
@@ -41,7 +41,7 @@ function PlayerTrackImage({ coverImage, title }: { coverImage: string; title: st
   if (!coverImage || hasError || coverImage === 'undefined' || coverImage === 'null') {
     return (
       <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Music2 size={20} color="rgba(255,255,255,0.5)" />
+        <Music2 size={20} color="rgba(34,26,21,0.35)" />
       </div>
     );
   }
@@ -51,7 +51,7 @@ function PlayerTrackImage({ coverImage, title }: { coverImage: string; title: st
   if (!isValidUrl) {
     return (
       <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Music2 size={20} color="rgba(255,255,255,0.5)" />
+        <Music2 size={20} color="rgba(34,26,21,0.35)" />
       </div>
     );
   }
@@ -112,13 +112,13 @@ export default function PlayerBar() {
             }}>
               {currentTrack.coverImage && <img src={currentTrack.coverImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
             </div>
-            <span style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#221a15' }}>
               {isLiked ? 'Already in Liked Songs' : 'Added to Liked Songs'}
             </span>
           </div>
           <button
             onClick={(ev) => { ev.stopPropagation(); toast.dismiss(t.id); setShowPlaylistPicker(true); }}
-            style={{ background: 'none', border: 'none', color: '#1db954', fontSize: 13, fontWeight: 700, cursor: 'pointer', flexShrink: 0, padding: '2px 0' }}
+            style={{ background: 'none', border: 'none', color: GREEN, fontSize: 13, fontWeight: 700, cursor: 'pointer', flexShrink: 0, padding: '2px 0' }}
           >
             Change
           </button>
@@ -128,13 +128,14 @@ export default function PlayerBar() {
         id: 'liked-toast',
         duration: 2500,
         style: {
-          background: '#282828',
-          color: '#fff',
+          background: '#ffffff',
+          color: '#221a15',
           borderRadius: '8px',
-          border: '1px solid rgba(255,255,255,0.08)',
+          border: '1px solid rgba(43, 34, 26, 0.08)',
           padding: '10px 14px',
           maxWidth: 340,
           fontSize: 13,
+          boxShadow: '0 4px 12px rgba(43, 34, 26, 0.05)',
         },
       }
     );
@@ -637,11 +638,19 @@ export default function PlayerBar() {
 
   const btnStyle = (active?: boolean): React.CSSProperties => ({
     background: 'none', border: 'none', cursor: 'pointer', padding: 4, borderRadius: 4,
-    color: active ? GREEN : '#a3a3a3', transition: 'color 0.15s',
+    color: active ? GREEN : '#87786c', transition: 'color 0.15s',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   });
 
   if (!currentTrack) return null;
+
+  // Progress circle geometry math for mobile player (matching second ref image capsule layout)
+  const circleRadius = 23;
+  const strokeWidth = 2.5;
+  const normalizedRadius = circleRadius - strokeWidth / 2;
+  const circumference = normalizedRadius * 2 * Math.PI;
+  const currentProgress = localProgress || 0;
+  const strokeDashoffset = duration > 0 ? circumference - (currentProgress / duration) * circumference : circumference;
 
   return (
     <div className="app-player">
@@ -655,7 +664,7 @@ export default function PlayerBar() {
           <div style={{
             width: 56, height: 56, borderRadius: 8, overflow: 'hidden', flexShrink: 0, position: 'relative',
             background: `hsl(${(currentTrack.id.charCodeAt(0) * 37) % 360}, 50%, 25%)`,
-            boxShadow: isPlaying ? `0 0 20px rgba(29,185,84,0.4), 0 4px 20px rgba(0,0,0,0.5)` : '0 4px 16px rgba(0,0,0,0.4)',
+            boxShadow: isPlaying ? `0 0 20px rgba(176,136,80,0.3), 0 4px 20px rgba(43,34,26,0.1)` : '0 4px 16px rgba(43,34,26,0.1)',
             transition: 'box-shadow 0.4s',
           }}>
             <PlayerTrackImage coverImage={currentTrack.coverImage} title={currentTrack.title} />
@@ -663,7 +672,7 @@ export default function PlayerBar() {
             {isPlaying && (
               <div style={{
                 position: 'absolute', inset: 0, borderRadius: 8,
-                background: 'radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.25) 100%)',
+                background: 'radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.15) 100%)',
                 animation: 'spin 4s linear infinite',
               }} />
             )}
@@ -671,7 +680,7 @@ export default function PlayerBar() {
 
           <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
             <Link href={`/album/${currentTrack.albumId}`} style={{ textDecoration: 'none' }}>
-              <p style={{ color: '#fff', fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'pointer', margin: 0 }}
+              <p style={{ color: '#221a15', fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'pointer', margin: 0 }}
                 onMouseEnter={e => (e.currentTarget.style.textDecoration = 'underline')}
                 onMouseLeave={e => (e.currentTarget.style.textDecoration = 'none')}>
                 {currentTrack.title}
@@ -679,9 +688,9 @@ export default function PlayerBar() {
             </Link>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
               <Link href={`/artist/${currentTrack.artistId}`} style={{ textDecoration: 'none', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                <span style={{ color: '#a3a3a3', fontSize: 12, cursor: 'pointer' }}
-                  onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
-                  onMouseLeave={e => (e.currentTarget.style.color = '#a3a3a3')}>
+                <span style={{ color: '#87786c', fontSize: 12, cursor: 'pointer' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = '#221a15')}
+                  onMouseLeave={e => (e.currentTarget.style.color = '#87786c')}>
                   {currentTrack.artistName}
                 </span>
               </Link>
@@ -690,10 +699,10 @@ export default function PlayerBar() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
               <span style={{
                 width: 6, height: 6, borderRadius: '50%', backgroundColor: GREEN,
-                boxShadow: '0 0 8px #1db954', display: 'inline-block',
+                boxShadow: '0 0 8px ' + GREEN, display: 'inline-block',
                 animation: 'pulse 1.5s ease-in-out infinite'
               }} />
-              <span style={{ color: '#1db954', fontSize: 11, fontWeight: 500, fontVariantNumeric: 'tabular-nums' }}>
+              <span style={{ color: GREEN, fontSize: 11, fontWeight: 500, fontVariantNumeric: 'tabular-nums' }}>
                 {(liveListeners[currentTrack.id] || 0).toLocaleString()} live
               </span>
             </div>
@@ -701,14 +710,14 @@ export default function PlayerBar() {
 
           <button onClick={() => currentTrack && toggleLikeSong(currentTrack.id)}
             style={{ ...btnStyle(!!isLiked), flexShrink: 0 }}
-            onMouseEnter={e => (e.currentTarget.style.color = isLiked ? GREEN : '#fff')}
-            onMouseLeave={e => (e.currentTarget.style.color = isLiked ? GREEN : '#a3a3a3')}>
+            onMouseEnter={e => (e.currentTarget.style.color = isLiked ? GREEN : '#221a15')}
+            onMouseLeave={e => (e.currentTarget.style.color = isLiked ? GREEN : '#87786c')}>
             <Heart size={16} fill={isLiked ? GREEN : 'none'} color={isLiked ? GREEN : undefined} />
           </button>
 
           <button style={{ ...btnStyle(), flexShrink: 0 }}
-            onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
-            onMouseLeave={e => (e.currentTarget.style.color = '#a3a3a3')}>
+            onMouseEnter={e => (e.currentTarget.style.color = '#221a15')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#87786c')}>
             <MoreHorizontal size={16} />
           </button>
         </div>
@@ -718,44 +727,44 @@ export default function PlayerBar() {
           {/* Buttons */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
             <button onClick={toggleShuffle} style={btnStyle(shuffle)} title="Shuffle"
-              onMouseEnter={e => (e.currentTarget.style.color = shuffle ? GREEN : '#fff')}
-              onMouseLeave={e => (e.currentTarget.style.color = shuffle ? GREEN : '#a3a3a3')}>
+              onMouseEnter={e => (e.currentTarget.style.color = shuffle ? GREEN : '#221a15')}
+              onMouseLeave={e => (e.currentTarget.style.color = shuffle ? GREEN : '#87786c')}>
               <Shuffle size={16} />
             </button>
 
             <button onClick={() => usePlayerStore.getState().playPrevious()} style={btnStyle()}
-              onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
-              onMouseLeave={e => (e.currentTarget.style.color = '#a3a3a3')}>
+              onMouseEnter={e => (e.currentTarget.style.color = '#221a15')}
+              onMouseLeave={e => (e.currentTarget.style.color = '#87786c')}>
               <SkipBack size={20} fill="currentColor" />
             </button>
 
             <motion.button whileTap={{ scale: 0.9 }} onClick={togglePlay}
               style={{
-                width: 38, height: 38, borderRadius: '50%', background: '#fff',
+                width: 38, height: 38, borderRadius: '50%', background: '#221a15',
                 border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 2px 10px rgba(0,0,0,0.4)', transition: 'transform 0.15s',
+                boxShadow: '0 4px 12px rgba(43, 34, 26, 0.15)', transition: 'transform 0.15s',
               }}
               onMouseEnter={e => ((e.currentTarget as HTMLElement).style.transform = 'scale(1.06)')}
               onMouseLeave={e => ((e.currentTarget as HTMLElement).style.transform = 'scale(1)')}>
-              {isPlaying ? <Pause size={18} fill="black" color="black" /> : <Play size={18} fill="black" color="black" />}
+              {isPlaying ? <Pause size={18} fill="white" color="white" /> : <Play size={18} fill="white" color="white" />}
             </motion.button>
 
             <button onClick={() => usePlayerStore.getState().playNext()} style={btnStyle()}
-              onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
-              onMouseLeave={e => (e.currentTarget.style.color = '#a3a3a3')}>
+              onMouseEnter={e => (e.currentTarget.style.color = '#221a15')}
+              onMouseLeave={e => (e.currentTarget.style.color = '#87786c')}>
               <SkipForward size={20} fill="currentColor" />
             </button>
 
             <button onClick={cycleRepeat} style={btnStyle(repeat !== 'none')} title="Repeat"
-              onMouseEnter={e => (e.currentTarget.style.color = repeat !== 'none' ? GREEN : '#fff')}
-              onMouseLeave={e => (e.currentTarget.style.color = repeat !== 'none' ? GREEN : '#a3a3a3')}>
+              onMouseEnter={e => (e.currentTarget.style.color = repeat !== 'none' ? GREEN : '#221a15')}
+              onMouseLeave={e => (e.currentTarget.style.color = repeat !== 'none' ? GREEN : '#87786c')}>
               {repeat === 'one' ? <Repeat1 size={16} /> : <Repeat size={16} />}
             </button>
           </div>
 
           {/* Progress Bar */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%' }}>
-            <span style={{ color: '#737373', fontSize: 11, fontVariantNumeric: 'tabular-nums', width: 32, textAlign: 'right', flexShrink: 0 }}>
+            <span style={{ color: '#87786c', fontSize: 11, fontVariantNumeric: 'tabular-nums', width: 32, textAlign: 'right', flexShrink: 0 }}>
               {formatDuration(localProgress)}
             </span>
             <div style={{ flex: 1, position: 'relative', height: 20, display: 'flex', alignItems: 'center' }}>
@@ -777,7 +786,7 @@ export default function PlayerBar() {
                 className="progress-bar"
                 style={{ '--progress': `${progressPercent}%`, width: '100%' } as React.CSSProperties} />
             </div>
-            <span style={{ color: '#737373', fontSize: 11, fontVariantNumeric: 'tabular-nums', width: 32, flexShrink: 0 }}>
+            <span style={{ color: '#87786c', fontSize: 11, fontVariantNumeric: 'tabular-nums', width: 32, flexShrink: 0 }}>
               {formatDuration(duration || currentTrack.duration)}
             </span>
           </div>
@@ -795,8 +804,8 @@ export default function PlayerBar() {
               }}
               style={btnStyle(currentSpeed !== 1)}
               title="Playback Speed"
-              onMouseEnter={e => (e.currentTarget.style.color = currentSpeed !== 1 ? GREEN : '#fff')}
-              onMouseLeave={e => (e.currentTarget.style.color = currentSpeed !== 1 ? GREEN : '#a3a3a3')}
+              onMouseEnter={e => (e.currentTarget.style.color = currentSpeed !== 1 ? GREEN : '#221a15')}
+              onMouseLeave={e => (e.currentTarget.style.color = currentSpeed !== 1 ? GREEN : '#87786c')}
             >
               <Gauge size={16} />
               <span style={{ fontSize: 10, fontWeight: 700, marginLeft: 2 }}>{currentSpeed}x</span>
@@ -812,15 +821,15 @@ export default function PlayerBar() {
                     position: 'absolute',
                     bottom: 'calc(100% + 12px)',
                     right: 0,
-                    background: '#1a1a1a',
-                    border: '1px solid #282828',
+                    background: '#ffffff',
+                    border: '1px solid rgba(43, 34, 26, 0.08)',
                     borderRadius: 8,
                     overflow: 'hidden',
                     zIndex: 100,
                     display: 'flex',
                     flexDirection: 'column',
                     width: 90,
-                    boxShadow: '0 8px 24px rgba(0,0,0,0.5)'
+                    boxShadow: '0 8px 24px rgba(43,34,26,0.1)'
                   }}
                 >
                   {[0.5, 0.75, 1, 1.25, 1.5, 2].map((s) => (
@@ -834,17 +843,17 @@ export default function PlayerBar() {
                       style={{
                         background: 'none',
                         border: 'none',
-                        color: currentSpeed === s ? GREEN : '#fff',
+                        color: currentSpeed === s ? GREEN : '#221a15',
                         padding: '8px 12px',
                         fontSize: 12,
                         fontWeight: 600,
                         cursor: 'pointer',
                         textAlign: 'center',
-                        backgroundColor: currentSpeed === s ? 'rgba(29,185,84,0.1)' : 'transparent',
+                        backgroundColor: currentSpeed === s ? 'rgba(176,136,80,0.1)' : 'transparent',
                         transition: 'background 0.2s'
                       }}
                       onMouseEnter={e => {
-                        if (currentSpeed !== s) e.currentTarget.style.backgroundColor = '#282828';
+                        if (currentSpeed !== s) e.currentTarget.style.backgroundColor = 'rgba(43, 34, 26, 0.05)';
                       }}
                       onMouseLeave={e => {
                         if (currentSpeed !== s) e.currentTarget.style.backgroundColor = 'transparent';
@@ -868,8 +877,8 @@ export default function PlayerBar() {
               }}
               style={btnStyle(sleepTimer !== null)}
               title="Sleep Timer"
-              onMouseEnter={e => (e.currentTarget.style.color = sleepTimer !== null ? GREEN : '#fff')}
-              onMouseLeave={e => (e.currentTarget.style.color = sleepTimer !== null ? GREEN : '#a3a3a3')}
+              onMouseEnter={e => (e.currentTarget.style.color = sleepTimer !== null ? GREEN : '#221a15')}
+              onMouseLeave={e => (e.currentTarget.style.color = sleepTimer !== null ? GREEN : '#87786c')}
             >
               <Clock size={16} />
               {sleepTimer && <span style={{ fontSize: 10, fontWeight: 700, marginLeft: 2 }}>{sleepTimer}m</span>}
@@ -885,18 +894,18 @@ export default function PlayerBar() {
                     position: 'absolute',
                     bottom: 'calc(100% + 12px)',
                     right: 0,
-                    background: '#1a1a1a',
-                    border: '1px solid #282828',
+                    background: '#ffffff',
+                    border: '1px solid rgba(43, 34, 26, 0.08)',
                     borderRadius: 8,
                     overflow: 'hidden',
                     zIndex: 100,
                     display: 'flex',
                     flexDirection: 'column',
                     width: 140,
-                    boxShadow: '0 8px 24px rgba(0,0,0,0.5)'
+                    boxShadow: '0 8px 24px rgba(43,34,26,0.1)'
                   }}
                 >
-                  <span style={{ fontSize: 10, color: '#525252', padding: '6px 12px', fontWeight: 600, borderBottom: '1px solid #282828', textTransform: 'uppercase' }}>
+                  <span style={{ fontSize: 10, color: '#87786c', padding: '6px 12px', fontWeight: 600, borderBottom: '1px solid rgba(43, 34, 26, 0.08)', textTransform: 'uppercase' }}>
                     Sleep Timer
                   </span>
                   {[
@@ -916,17 +925,17 @@ export default function PlayerBar() {
                       style={{
                         background: 'none',
                         border: 'none',
-                        color: sleepTimer === t.val ? GREEN : '#fff',
+                        color: sleepTimer === t.val ? GREEN : '#221a15',
                         padding: '8px 12px',
                         fontSize: 12,
                         fontWeight: 600,
                         cursor: 'pointer',
                         textAlign: 'left',
-                        backgroundColor: sleepTimer === t.val ? 'rgba(29,185,84,0.1)' : 'transparent',
+                        backgroundColor: sleepTimer === t.val ? 'rgba(176,136,80,0.1)' : 'transparent',
                         transition: 'background 0.2s'
                       }}
                       onMouseEnter={e => {
-                        if (sleepTimer !== t.val) e.currentTarget.style.backgroundColor = '#282828';
+                        if (sleepTimer !== t.val) e.currentTarget.style.backgroundColor = 'rgba(43, 34, 26, 0.05)';
                       }}
                       onMouseLeave={e => {
                         if (sleepTimer !== t.val) e.currentTarget.style.backgroundColor = 'transparent';
@@ -950,8 +959,8 @@ export default function PlayerBar() {
               }}
               style={btnStyle(showSettings)}
               title="Playback Settings"
-              onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
-              onMouseLeave={e => (e.currentTarget.style.color = showSettings ? GREEN : '#a3a3a3')}
+              onMouseEnter={e => (e.currentTarget.style.color = '#221a15')}
+              onMouseLeave={e => (e.currentTarget.style.color = showSettings ? GREEN : '#87786c')}
             >
               <Sliders size={16} />
             </button>
@@ -966,8 +975,8 @@ export default function PlayerBar() {
                     position: 'absolute',
                     bottom: 'calc(100% + 12px)',
                     right: 0,
-                    background: '#1a1a1a',
-                    border: '1px solid #282828',
+                    background: '#ffffff',
+                    border: '1px solid rgba(43, 34, 26, 0.08)',
                     borderRadius: 10,
                     padding: 16,
                     zIndex: 100,
@@ -975,11 +984,11 @@ export default function PlayerBar() {
                     display: 'flex',
                     flexDirection: 'column',
                     gap: 12,
-                    boxShadow: '0 8px 24px rgba(0,0,0,0.5)'
+                    boxShadow: '0 8px 24px rgba(43,34,26,0.1)'
                   }}
                 >
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: '#a3a3a3', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#87786c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                       Crossfade: {crossfade} seconds
                     </span>
                     <input
@@ -994,15 +1003,15 @@ export default function PlayerBar() {
                         cursor: 'pointer'
                       }}
                     />
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#737373', marginTop: -4 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#87786c', marginTop: -4 }}>
                       <span>0s (Off)</span>
                       <span>12s</span>
                     </div>
                   </div>
 
                   {/* Equalizer Section */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, borderTop: '1px solid #282828', paddingTop: 12 }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: '#a3a3a3', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, borderTop: '1px solid rgba(43, 34, 26, 0.08)', paddingTop: 12 }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#87786c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                       Equalizer
                     </span>
                     <select
@@ -1015,17 +1024,18 @@ export default function PlayerBar() {
                           icon: '🎚️',
                           style: {
                             borderRadius: '8px',
-                            background: '#1a1a1a',
-                            color: '#fff',
-                            border: '1px solid rgba(29, 185, 84, 0.2)',
+                            background: '#ffffff',
+                            color: '#221a15',
+                            border: '1px solid rgba(176, 136, 80, 0.2)',
                             fontSize: '12px',
+                            boxShadow: '0 4px 12px rgba(43, 34, 26, 0.05)',
                           },
                         });
                       }}
                       style={{
-                        background: '#282828',
-                        color: '#fff',
-                        border: '1px solid #3e3e3e',
+                        background: '#f4eede',
+                        color: '#221a15',
+                        border: '1px solid rgba(43, 34, 26, 0.1)',
                         borderRadius: 6,
                         padding: '6px 10px',
                         fontSize: 12,
@@ -1036,7 +1046,7 @@ export default function PlayerBar() {
                       }}
                     >
                       {Object.keys(EQ_PRESETS).map(presetName => (
-                        <option key={presetName} value={presetName} style={{ background: '#181818' }}>
+                        <option key={presetName} value={presetName} style={{ background: '#ffffff' }}>
                           {presetName}
                         </option>
                       ))}
@@ -1048,10 +1058,10 @@ export default function PlayerBar() {
                       justifyContent: 'space-between',
                       alignItems: 'flex-end',
                       height: 38,
-                      background: '#121212',
+                      background: '#fbf9f5',
                       borderRadius: 6,
                       padding: '8px 14px',
-                      border: '1px solid rgba(255,255,255,0.04)',
+                      border: '1px solid rgba(43, 34, 26, 0.08)',
                       marginTop: 4
                     }}>
                       {EQ_PRESETS[eqPreset].map((level, i) => (
@@ -1067,9 +1077,9 @@ export default function PlayerBar() {
                           } : { duration: 0.3 }}
                           style={{
                             width: 12,
-                            background: `linear-gradient(0deg, ${GREEN} 0%, #2ecc71 100%)`,
+                            background: `linear-gradient(0deg, ${GREEN} 0%, #ebdcb9 100%)`,
                             borderRadius: 2,
-                            boxShadow: `0 0 6px rgba(29,185,84,0.15)`
+                            boxShadow: `0 0 6px rgba(176, 136, 80, 0.15)`
                           }}
                         />
                       ))}
@@ -1081,28 +1091,28 @@ export default function PlayerBar() {
           </div>
 
           <button onClick={toggleLyrics} style={btnStyle(showLyrics)} title="Lyrics"
-            onMouseEnter={e => (e.currentTarget.style.color = showLyrics ? GREEN : '#fff')}
-            onMouseLeave={e => (e.currentTarget.style.color = showLyrics ? GREEN : '#a3a3a3')}>
+            onMouseEnter={e => (e.currentTarget.style.color = showLyrics ? GREEN : '#221a15')}
+            onMouseLeave={e => (e.currentTarget.style.color = showLyrics ? GREEN : '#87786c')}>
             <Mic2 size={16} />
           </button>
 
           <button onClick={toggleQueue} style={btnStyle(showQueue)} title="Queue"
-            onMouseEnter={e => (e.currentTarget.style.color = showQueue ? GREEN : '#fff')}
-            onMouseLeave={e => (e.currentTarget.style.color = showQueue ? GREEN : '#a3a3a3')}>
+            onMouseEnter={e => (e.currentTarget.style.color = showQueue ? GREEN : '#221a15')}
+            onMouseLeave={e => (e.currentTarget.style.color = showQueue ? GREEN : '#87786c')}>
             <ListMusic size={16} />
           </button>
 
           <button style={btnStyle()} title="Devices"
-            onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
-            onMouseLeave={e => (e.currentTarget.style.color = '#a3a3a3')}>
+            onMouseEnter={e => (e.currentTarget.style.color = '#221a15')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#87786c')}>
             <Laptop2 size={16} />
           </button>
 
           {/* Volume */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <button onClick={toggleMute} style={btnStyle()}
-              onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
-              onMouseLeave={e => (e.currentTarget.style.color = '#a3a3a3')}>
+              onMouseEnter={e => (e.currentTarget.style.color = '#221a15')}
+              onMouseLeave={e => (e.currentTarget.style.color = '#87786c')}>
               <VolumeIcon size={16} />
             </button>
             <div style={{ width: 90, position: 'relative', height: 20, display: 'flex', alignItems: 'center' }}>
@@ -1114,8 +1124,8 @@ export default function PlayerBar() {
           </div>
 
           <button onClick={() => setIsFullscreen(true)} style={btnStyle()} title="Fullscreen"
-            onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
-            onMouseLeave={e => (e.currentTarget.style.color = '#a3a3a3')}>
+            onMouseEnter={e => (e.currentTarget.style.color = '#221a15')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#87786c')}>
             <Maximize2 size={14} />
           </button>
         </div>
@@ -1127,64 +1137,76 @@ export default function PlayerBar() {
         onClick={() => setIsFullscreen(true)}
         style={{ cursor: 'pointer' }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: 1 }}>
-          {/* Album Cover Art */}
-          <div style={{ width: 38, height: 38, borderRadius: 4, overflow: 'hidden', flexShrink: 0, position: 'relative' }}>
-            <PlayerTrackImage coverImage={currentTrack.coverImage} title={currentTrack.title} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0, flex: 1 }}>
+          {/* Circular Album Cover Art with progress ring (48px outer, 38px inner) */}
+          <div style={{ position: 'relative', width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <svg height={48} width={48} style={{ position: 'absolute', transform: 'rotate(-90deg)', zIndex: 1, pointerEvents: 'none' }}>
+              <circle
+                stroke="rgba(176, 136, 80, 0.15)"
+                fill="transparent"
+                strokeWidth={2}
+                r={normalizedRadius}
+                cx={24}
+                cy={24}
+              />
+              <circle
+                stroke="var(--color-ss-secondary, #8c6c44)"
+                fill="transparent"
+                strokeWidth={strokeWidth}
+                strokeDasharray={circumference + ' ' + circumference}
+                style={{ strokeDashoffset, transition: 'stroke-dashoffset 0.1s linear' }}
+                strokeLinecap="round"
+                r={normalizedRadius}
+                cx={24}
+                cy={24}
+              />
+            </svg>
+            <div style={{ width: 38, height: 38, borderRadius: '50%', overflow: 'hidden', position: 'relative', zIndex: 2, border: '1px solid rgba(176, 136, 80, 0.15)' }}>
+              <PlayerTrackImage coverImage={currentTrack.coverImage} title={currentTrack.title} />
+            </div>
           </div>
 
-          {/* Title & Active Device */}
-          <div style={{ minWidth: 0 }}>
+          {/* Title & Artist */}
+          <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
             <p style={{
-              color: '#ffffff',
-              fontWeight: '700',
-              fontSize: 13,
+              color: '#221a15',
+              fontWeight: '800',
+              fontSize: 14,
               margin: 0,
               overflow: 'hidden',
               textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
-            }}>{currentTrack.title} • {currentTrack.artistName}</p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 1 }}>
-              {activeDevice.toLowerCase().includes('head') || activeDevice.toLowerCase().includes('buds') || activeDevice.toLowerCase().includes('airpod') || activeDevice.toLowerCase().includes('bluetooth') ? (
-                <Headphones size={11} color="#1DB954" style={{ opacity: 0.9 }} />
-              ) : (
-                <Laptop2 size={11} color="#1DB954" style={{ opacity: 0.9 }} />
-              )}
-              <span style={{
-                color: '#1DB954',
-                fontSize: 11,
-                fontWeight: '600',
-                opacity: 0.9
-              }}>{activeDevice}</span>
-            </div>
+              whiteSpace: 'nowrap',
+              fontFamily: 'Outfit, sans-serif'
+            }}>{currentTrack.title}</p>
+            <p style={{
+              color: '#87786c',
+              fontWeight: '500',
+              fontSize: 12,
+              margin: 0,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              fontFamily: 'Outfit, sans-serif'
+            }}>{currentTrack.artistName}</p>
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }} onClick={e => e.stopPropagation()}>
-          {/* Headphones device switcher */}
+        {/* Action Buttons (Playback Skip & Play/Pause controls + Plus & Download symbols) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }} onClick={e => e.stopPropagation()}>
+          {/* Plus / Add to Playlist Button */}
           <button
-            onClick={() => {
-              if (availableDevices.length > 0) {
-                const currentIdx = availableDevices.findIndex(d => d.id === activeDeviceId);
-                const nextIdx = (currentIdx + 1) % availableDevices.length;
-                const nextDevice = availableDevices[nextIdx];
-                setActiveDeviceId(nextDevice.id);
-                setActiveDevice(nextDevice.label);
-                toast.success(`Switched to: ${nextDevice.label} 🔊`, {
-                  id: 'device-toast',
-                  style: { borderRadius: '8px', background: '#1a1a1a', color: '#fff', border: '1px solid rgba(29,185,84,0.2)', fontSize: '12px' }
-                });
-              }
-            }}
-            style={{ background: 'transparent', border: 'none', padding: 4, cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+            onClick={e => { e.stopPropagation(); setShowPlaylistPicker(true); }}
+            style={{ background: 'transparent', border: 'none', padding: 4, cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#87786c', transition: 'color 0.15s' }}
+            title="Add to Playlist"
+            onMouseEnter={e => (e.currentTarget.style.color = '#221a15')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#87786c')}
           >
-            <Headphones size={18} color="#1DB954" />
+            <Plus size={18} strokeWidth={1.8} />
           </button>
 
-          {/* Add to Liked Songs / Change playlist button */}
+          {/* Download Button */}
           <button
-            onClick={handleAddToLikedSongs}
+            onClick={handleDownloadClick}
             style={{
               background: 'transparent',
               border: 'none',
@@ -1192,65 +1214,59 @@ export default function PlayerBar() {
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
+              color: downloading ? 'var(--color-ss-secondary, #8c6c44)' : downloaded ? 'var(--color-ss-secondary, #8c6c44)' : '#87786c',
+              transition: 'color 0.15s',
+              position: 'relative'
             }}
-            title="Add to Liked Songs"
-          >
-            {isLiked ? (
-              <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }}>
-                <div style={{
-                  width: 20, height: 20, borderRadius: '50%',
-                  background: '#1DB954', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  boxShadow: '0 0 8px rgba(29,185,84,0.4)'
-                }}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                </div>
-              </motion.div>
-            ) : (
-              <div style={{
-                width: 20, height: 20, borderRadius: '50%',
-                border: '2px solid #a3a3a3', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#a3a3a3" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="12" y1="5" x2="12" y2="19" />
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                </svg>
-              </div>
-            )}
-          </button>
-
-          {/* Download button */}
-          <button
-            onClick={handleDownloadClick}
-            disabled={downloading}
-            style={{
-              background: 'transparent', border: 'none', padding: 4,
-              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}
-            title={downloaded ? 'Downloaded' : 'Download for offline'}
+            title={downloaded ? "Remove download" : downloading ? "Downloading..." : "Download"}
+            onMouseEnter={e => { if (!downloaded && !downloading) e.currentTarget.style.color = '#221a15'; }}
+            onMouseLeave={e => { if (!downloaded && !downloading) e.currentTarget.style.color = '#87786c'; }}
           >
             {downloading ? (
-              <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} style={{ display: 'flex' }}>
-                <div style={{ width: 18, height: 18, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.2)', borderTopColor: '#1DB954' }} />
-              </motion.div>
-            ) : downloaded ? (
-              <Download size={18} color="#1DB954" />
+              <div style={{
+                width: 18, height: 18, border: '2px solid rgba(176,136,80,0.2)', borderTop: '2px solid var(--color-ss-secondary, #8c6c44)',
+                borderRadius: '50%', animation: 'spin 0.7s linear infinite'
+              }} />
             ) : (
-              <Download size={18} color="#a3a3a3" />
+              <Download size={18} strokeWidth={1.8} />
             )}
           </button>
 
-          {/* Play / Pause */}
+          {/* Previous Button */}
           <button
-            onClick={togglePlay}
-            style={{
-              background: 'transparent', border: 'none', padding: 4,
-              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
-            }}
+            onClick={e => { e.stopPropagation(); usePlayerStore.getState().playPrevious(); }}
+            style={{ background: 'transparent', border: 'none', padding: 4, cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#221a15', transition: 'color 0.15s' }}
+            title="Previous"
+            onMouseEnter={e => (e.currentTarget.style.color = 'var(--color-ss-secondary, #8c6c44)')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#221a15')}
           >
-            {isPlaying ? <Pause size={20} fill="#ffffff" color="#ffffff" /> : <Play size={20} fill="#ffffff" color="#ffffff" />}
+            <SkipBack size={18} strokeWidth={1.8} fill="none" />
+          </button>
+
+          {/* Play/Pause Button */}
+          <button
+            onClick={e => { e.stopPropagation(); togglePlay(); }}
+            style={{ background: 'transparent', border: 'none', padding: 4, cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#221a15', transition: 'color 0.15s' }}
+            title={isPlaying ? "Pause" : "Play"}
+            onMouseEnter={e => (e.currentTarget.style.color = 'var(--color-ss-secondary, #8c6c44)')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#221a15')}
+          >
+            {isPlaying ? (
+              <Pause size={20} strokeWidth={1.8} fill="none" />
+            ) : (
+              <Play size={20} strokeWidth={1.8} fill="none" />
+            )}
+          </button>
+
+          {/* Next Button */}
+          <button
+            onClick={e => { e.stopPropagation(); playNext(); }}
+            style={{ background: 'transparent', border: 'none', padding: 4, cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#221a15', transition: 'color 0.15s' }}
+            title="Next"
+            onMouseEnter={e => (e.currentTarget.style.color = 'var(--color-ss-secondary, #8c6c44)')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#221a15')}
+          >
+            <SkipForward size={18} strokeWidth={1.8} fill="none" />
           </button>
         </div>
       </div>
@@ -1264,7 +1280,8 @@ export default function PlayerBar() {
             exit={{ opacity: 0 }}
             onClick={() => { setShowPlaylistPicker(false); setSearchQuery(''); }}
             style={{
-              position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)',
+              position: 'fixed', inset: 0, background: 'rgba(43,34,26,0.3)',
+              backdropFilter: 'blur(4px)',
               zIndex: 20000, display: 'flex', alignItems: 'flex-end',
             }}
           >
@@ -1275,19 +1292,19 @@ export default function PlayerBar() {
               transition={{ type: 'spring', damping: 30, stiffness: 250 }}
               onClick={e => e.stopPropagation()}
               style={{
-                width: '100%', background: '#121212',
+                width: '100%', background: '#ffffff',
                 borderRadius: '24px 24px 0 0', padding: '8px 0 32px',
                 display: 'flex', flexDirection: 'column', gap: 0,
-                boxShadow: '0 -10px 40px rgba(0,0,0,0.8)',
+                boxShadow: '0 -10px 40px rgba(43,34,26,0.08)',
                 maxHeight: '80vh', overflow: 'hidden',
               }}
             >
               {/* Drag Handle Indicator */}
-              <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.2)', margin: '8px auto 16px', flexShrink: 0 }} />
+              <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(43,34,26,0.1)', margin: '8px auto 16px', flexShrink: 0 }} />
 
               {/* Header */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px 16px', flexShrink: 0 }}>
-                <span style={{ fontSize: 18, fontWeight: 800, color: '#fff', fontFamily: 'Outfit, sans-serif' }}>Saved in</span>
+                <span style={{ fontSize: 18, fontWeight: 800, color: '#221a15', fontFamily: 'Outfit, sans-serif' }}>Saved in</span>
                 <button
                   onClick={() => {
                     const title = prompt("Enter playlist title:");
@@ -1312,14 +1329,14 @@ export default function PlayerBar() {
                     addPlaylist(newPlaylist);
                     toast.success(`Created playlist "${title}" and added song`, { id: 'playlist-create' });
                   }}
-                  style={{ background: 'none', border: 'none', color: '#1db954', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
+                  style={{ background: 'none', border: 'none', color: GREEN, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
                 >
                   New playlist
                 </button>
               </div>
 
               {/* Liked Songs Row (Current saved state indicator) */}
-              <div style={{ padding: '0 24px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
+              <div style={{ padding: '0 24px 16px', borderBottom: '1px solid rgba(43,34,26,0.08)', flexShrink: 0 }}>
                 <button
                   onClick={() => {
                     toggleLikeSong(currentTrack.id);
@@ -1330,30 +1347,30 @@ export default function PlayerBar() {
                     background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left',
                     padding: '12px 16px', borderRadius: 8, transition: 'background 0.15s',
                   }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(43,34,26,0.04)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'none'}
                 >
                   <div style={{
                     width: 44, height: 44, borderRadius: 6, flexShrink: 0,
-                    background: 'linear-gradient(135deg, #4338ca, #60a5fa)',
+                    background: 'linear-gradient(135deg, #b08850, #ebdcb9)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>
                     <Heart size={20} fill="#fff" color="#fff" />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <p style={{ color: '#fff', fontSize: 14, fontWeight: 600, margin: 0 }}>Liked Songs</p>
+                    <p style={{ color: '#221a15', fontSize: 14, fontWeight: 600, margin: 0 }}>Liked Songs</p>
                   </div>
                   {isLiked ? (
                     <div style={{
-                      width: 22, height: 22, borderRadius: '50%', background: '#1db954',
+                      width: 22, height: 22, borderRadius: '50%', background: GREEN,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
                         <polyline points="20 6 9 17 4 12" />
                       </svg>
                     </div>
                   ) : (
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(43,34,26,0.4)" strokeWidth="2">
                       <circle cx="12" cy="12" r="10" />
                       <line x1="12" y1="8" x2="12" y2="16" />
                       <line x1="8" y1="12" x2="16" y2="12" />
@@ -1365,20 +1382,20 @@ export default function PlayerBar() {
               {/* Search Bar */}
               <div style={{ display: 'flex', gap: 10, padding: '16px 24px', flexShrink: 0 }}>
                 <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center' }}>
-                  <svg style={{ position: 'absolute', left: 12, color: 'rgba(255,255,255,0.4)' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <svg style={{ position: 'absolute', left: 12, color: 'rgba(43,34,26,0.4)' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                   <input
                     type="text"
                     placeholder="Find playlist"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     style={{
-                      width: '100%', background: '#282828', border: 'none',
+                      width: '100%', background: '#f4eede', border: 'none',
                       borderRadius: '8px', padding: '10px 12px 10px 38px',
-                      color: '#fff', fontSize: '14px', outline: 'none',
+                      color: '#221a15', fontSize: '14px', outline: 'none',
                     }}
                   />
                 </div>
-                <button style={{ background: '#282828', border: 'none', borderRadius: '8px', padding: '0 16px', color: '#fff', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+                <button style={{ background: '#f4eede', border: 'none', borderRadius: '8px', padding: '0 16px', color: '#221a15', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
                   Sort
                 </button>
               </div>
@@ -1386,7 +1403,7 @@ export default function PlayerBar() {
               {/* Scrollable Playlists list */}
               <div style={{ overflowY: 'auto', flex: 1, padding: '0 12px' }}>
                 {customPlaylists.filter(pl => pl.title.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 ? (
-                  <div style={{ padding: '32px 24px', textAlign: 'center', color: '#737373', fontSize: 14 }}>
+                  <div style={{ padding: '32px 24px', textAlign: 'center', color: '#87786c', fontSize: 14 }}>
                     No playlists found.
                   </div>
                 ) : (
@@ -1412,12 +1429,12 @@ export default function PlayerBar() {
                             background: 'none', border: 'none', cursor: 'pointer',
                             textAlign: 'left', transition: 'background 0.15s',
                           }}
-                          onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                          onMouseEnter={e => e.currentTarget.style.background = 'rgba(43,34,26,0.04)'}
                           onMouseLeave={e => e.currentTarget.style.background = 'none'}
                         >
                           <div style={{
                             width: 44, height: 44, borderRadius: 6, flexShrink: 0,
-                            background: pl.gradientCss || 'linear-gradient(135deg,#1e3a5f,#0ea5e9)',
+                            background: pl.gradientCss || 'linear-gradient(135deg,#b08850,#ebdcb9)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
                           }}>
                             {pl.coverImage ? (
@@ -1427,20 +1444,20 @@ export default function PlayerBar() {
                             )}
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <p style={{ color: alreadyAdded ? '#1db954' : '#fff', fontSize: 14, fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pl.title}</p>
-                            <p style={{ color: '#737373', fontSize: 12, margin: '2px 0 0', }}>{pl.tracks.length === 0 ? 'Empty' : `${pl.tracks.length} song${pl.tracks.length === 1 ? '' : 's'}`}</p>
+                            <p style={{ color: alreadyAdded ? GREEN : '#221a15', fontSize: 14, fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pl.title}</p>
+                            <p style={{ color: '#87786c', fontSize: 12, margin: '2px 0 0', }}>{pl.tracks.length === 0 ? 'Empty' : `${pl.tracks.length} song${pl.tracks.length === 1 ? '' : 's'}`}</p>
                           </div>
                           {alreadyAdded ? (
                             <div style={{
-                              width: 22, height: 22, borderRadius: '50%', background: '#1db954',
+                              width: 22, height: 22, borderRadius: '50%', background: GREEN,
                               display: 'flex', alignItems: 'center', justifyContent: 'center',
                             }}>
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
                                 <polyline points="20 6 9 17 4 12" />
                               </svg>
                             </div>
                           ) : (
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(43,34,26,0.4)" strokeWidth="2">
                               <circle cx="12" cy="12" r="10" />
                               <line x1="12" y1="8" x2="12" y2="16" />
                               <line x1="8" y1="12" x2="16" y2="12" />
@@ -1483,20 +1500,20 @@ export default function PlayerBar() {
                     textAlign: 'left', transition: 'background 0.15s',
                     marginTop: 4,
                   }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(43,34,26,0.04)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'none'}
                 >
                   <div style={{
                     width: 44, height: 44, borderRadius: 6, flexShrink: 0,
-                    background: '#282828', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: '#f4eede', display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2.5">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(43,34,26,0.6)" strokeWidth="2.5">
                       <line x1="12" y1="5" x2="12" y2="19" />
                       <line x1="5" y1="12" x2="19" y2="12" />
                     </svg>
                   </div>
                   <div style={{ flex: 1 }}>
-                    <p style={{ color: '#fff', fontSize: 14, fontWeight: 600, margin: 0 }}>New playlist</p>
+                    <p style={{ color: '#221a15', fontSize: 14, fontWeight: 600, margin: 0 }}>New playlist</p>
                   </div>
                 </button>
               </div>

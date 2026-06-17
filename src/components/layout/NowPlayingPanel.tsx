@@ -19,7 +19,7 @@ interface NowPlayingPanelProps {
   onClose: () => void;
 }
 
-const GREEN = '#1db954';
+const GREEN = '#b08850';
 
 function SafeTrackImage({ src, alt, size = 20, style = {}, borderRadius = '0px' }: { src?: string; alt: string; size?: number; style?: React.CSSProperties; borderRadius?: string }) {
   const [hasError, setHasError] = useState(false);
@@ -68,7 +68,7 @@ const MiniTrackCard = ({ track, onPlay, isCurrent, isPlaying }: { track: Track; 
         borderRadius: 6,
         cursor: 'pointer',
         width: '100%',
-        background: isCurrent ? 'rgba(29, 185, 84, 0.08)' : 'transparent',
+        background: isCurrent ? 'rgba(176, 136, 80, 0.08)' : 'transparent',
         transition: 'background 0.2s',
       }}
       onMouseEnter={e => {
@@ -350,7 +350,7 @@ export default function NowPlayingPanel({ onClose }: NowPlayingPanelProps) {
           aspectRatio: '1',
           maxWidth: 260,
           borderRadius: '50%',
-          boxShadow: isPlaying ? '0 16px 36px rgba(29, 185, 84,0.15), 0 10px 24px rgba(0,0,0,0.6)' : '0 10px 24px rgba(0,0,0,0.5)',
+          boxShadow: isPlaying ? '0 16px 36px rgba(176, 136, 80,0.15), 0 10px 24px rgba(0,0,0,0.6)' : '0 10px 24px rgba(0,0,0,0.5)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -465,10 +465,10 @@ export default function NowPlayingPanel({ onClose }: NowPlayingPanelProps) {
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8 }}>
               <span style={{
                 width: 6, height: 6, borderRadius: '50%', backgroundColor: GREEN,
-                boxShadow: '0 0 8px #1db954', display: 'inline-block',
+                boxShadow: '0 0 8px #b08850', display: 'inline-block',
                 animation: 'pulse 1.5s ease-in-out infinite'
               }} />
-              <span style={{ color: '#1db954', fontSize: 12, fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
+              <span style={{ color: '#b08850', fontSize: 12, fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
                 {listenerCount.toLocaleString()} listening now
               </span>
             </div>
@@ -702,7 +702,7 @@ export default function NowPlayingPanel({ onClose }: NowPlayingPanelProps) {
                 Listening Party Chat
               </span>
             </div>
-            <span style={{ fontSize: 10, color: '#1db954', fontWeight: 600 }}>
+            <span style={{ fontSize: 10, color: '#b08850', fontWeight: 600 }}>
               {listenerCount.toLocaleString()} online
             </span>
           </div>

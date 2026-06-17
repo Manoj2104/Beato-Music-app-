@@ -5,44 +5,26 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '@/store/authStore';
 import { Monitor, Smartphone, ArrowLeft } from 'lucide-react';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { user, isAuthenticated } = useAuthStore();
+  const isMobile = useIsMobile(); // ⚡ shared single resize listener
   const [isChecking, setIsChecking] = useState(true);
-  const [mounted, setMounted] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
-
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-
-    const timer = setTimeout(() => {
-      if (!isAuthenticated || !user) {
-        router.push('/login');
-        return;
-      }
-      if (user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN') {
-        router.push('/403');
-        return;
-      }
-      setIsChecking(false);
-    }, 100);
-
-    return () => {
-      window.removeEventListener('resize', checkMobile);
-      clearTimeout(timer);
-    };
-  }, [mounted, isAuthenticated, user, router]);
+    // ⚡ Synchronous auth check — no timer delay
+    if (!isAuthenticated || !user) {
+      router.push('/login');
+      return;
+    }
+    if (user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN') {
+      router.push('/403');
+      return;
+    }
+    setIsChecking(false);
+  }, [isAuthenticated, user, router]);
 
   if (isChecking) {
     return (
@@ -60,7 +42,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             height: 40,
             borderRadius: '50%',
             border: '3px solid #1a1a1a',
-            borderTopColor: '#1db954',
+            borderTopColor: '#b08850',
           }}
         />
       </div>
@@ -196,7 +178,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               width: '100%',
               padding: '12px 24px',
               borderRadius: '8px',
-              background: 'linear-gradient(135deg, #1db954, #10b981)',
+              background: 'linear-gradient(135deg, #b08850, #10b981)',
               border: 'none',
               color: '#000',
               fontWeight: 700,
@@ -207,15 +189,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               justifyContent: 'center',
               gap: '8px',
               transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-              boxShadow: '0 4px 12px rgba(29, 185, 84, 0.25)',
+              boxShadow: '0 4px 12px rgba(176, 136, 80, 0.25)',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 6px 20px rgba(29, 185, 84, 0.4)';
+              e.currentTarget.style.boxShadow = '0 6px 20px rgba(176, 136, 80, 0.4)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'none';
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(29, 185, 84, 0.25)';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(176, 136, 80, 0.25)';
             }}
           >
             <ArrowLeft size={16} />

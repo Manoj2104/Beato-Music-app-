@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
         bookingContact: profile?.bookingContact || '',
         pressContact: profile?.pressContact || '',
         businessContact: profile?.businessContact || '',
-        brandColor: profile?.brandColor || '#1db954',
+        brandColor: profile?.brandColor || '#b08850',
         brandFont: profile?.brandFont || 'Inter',
         socialLinks: profile?.socialLinks || {},
         socialFollowers: profile?.socialFollowers || {},

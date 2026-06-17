@@ -35,10 +35,14 @@ class SocketManager {
   private channel: BroadcastChannel | null = null;
   private supabaseClient: SupabaseClient | null = null;
   private supabaseChannel: RealtimeChannel | null = null;
+  private initialized = false;
   private intervalIds: ReturnType<typeof setInterval>[] = [];
   private isSimulating = false;
 
-  constructor() {
+  private init() {
+    if (this.initialized) return;
+    this.initialized = true;
+
     if (typeof window !== 'undefined') {
       // 1. Setup local browser tab broadcasting
       try {
@@ -81,6 +85,7 @@ class SocketManager {
   }
 
   on(event: SocketEvent, handler: EventHandler): () => void {
+    this.init();
     if (!this.handlers.has(event)) this.handlers.set(event, []);
     this.handlers.get(event)!.push(handler);
     return () => this.off(event, handler);
@@ -92,6 +97,7 @@ class SocketManager {
   }
 
   emit(event: SocketEvent, payload: any): void {
+    this.init();
     const message: SocketMessage = {
       event, payload,
       timestamp: Date.now(),

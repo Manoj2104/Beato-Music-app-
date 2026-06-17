@@ -52,8 +52,8 @@ export default function RootPage() {
           width: '40px',
           height: '40px',
           borderRadius: '50%',
-          border: '3px solid rgba(29, 185, 84, 0.1)',
-          borderTopColor: '#1db954',
+          border: '3px solid rgba(176, 136, 80, 0.1)',
+          borderTopColor: '#b08850',
           animation: 'spin 1s linear infinite'
         }} />
         <style>{`

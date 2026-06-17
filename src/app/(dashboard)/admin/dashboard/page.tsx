@@ -97,7 +97,7 @@ function KpiCard({
           <div style={{
             fontSize: 12,
             fontWeight: 700,
-            color: trend >= 0 ? '#1db954' : '#ef4444',
+            color: trend >= 0 ? '#b08850' : '#ef4444',
             display: 'flex',
             alignItems: 'center',
             gap: 3,
@@ -119,17 +119,17 @@ function KpiCard({
 
 function StatusBadge({ status }: { status: string }) {
   const colorMap: Record<string, { bg: string; color: string; text: string }> = {
-    approved: { bg: 'rgba(29, 185, 84,0.12)', color: '#1db954', text: 'Approved' },
+    approved: { bg: 'rgba(176, 136, 80,0.12)', color: '#b08850', text: 'Approved' },
     pending: { bg: 'rgba(245,158,11,0.12)', color: '#f59e0b', text: 'Pending' },
     rejected: { bg: 'rgba(239,68,68,0.12)', color: '#ef4444', text: 'Rejected' },
-    active: { bg: 'rgba(29, 185, 84,0.12)', color: '#1db954', text: 'Active' },
+    active: { bg: 'rgba(176, 136, 80,0.12)', color: '#b08850', text: 'Active' },
     suspended: { bg: 'rgba(239,68,68,0.12)', color: '#ef4444', text: 'Suspended' },
     resolved: { bg: 'rgba(107,114,128,0.12)', color: '#9ca3af', text: 'Resolved' },
     investigating: { bg: 'rgba(16, 185, 129,0.12)', color: '#10b981', text: 'Investigating' },
     high: { bg: 'rgba(245,158,11,0.12)', color: '#f59e0b', text: 'High' },
     critical: { bg: 'rgba(239,68,68,0.2)', color: '#ef4444', text: 'Critical' },
     medium: { bg: 'rgba(251,191,36,0.12)', color: '#fbbf24', text: 'Medium' },
-    low: { bg: 'rgba(29, 185, 84,0.12)', color: '#1db954', text: 'Low' },
+    low: { bg: 'rgba(176, 136, 80,0.12)', color: '#b08850', text: 'Low' },
   };
   const c = colorMap[status] || { bg: '#2a2a2a', color: '#9ca3af', text: status };
   return (
@@ -155,8 +155,8 @@ function ActionButton({
   variant: 'approve' | 'reject' | 'suspend' | 'activate' | 'investigate' | 'dismiss';
 }) {
   const colorMap = {
-    approve: { bg: 'rgba(29, 185, 84,0.15)', color: '#1db954', hover: 'rgba(29, 185, 84,0.25)' },
-    activate: { bg: 'rgba(29, 185, 84,0.15)', color: '#1db954', hover: 'rgba(29, 185, 84,0.25)' },
+    approve: { bg: 'rgba(176, 136, 80,0.15)', color: '#b08850', hover: 'rgba(176, 136, 80,0.25)' },
+    activate: { bg: 'rgba(176, 136, 80,0.15)', color: '#b08850', hover: 'rgba(176, 136, 80,0.25)' },
     reject: { bg: 'rgba(239,68,68,0.12)', color: '#ef4444', hover: 'rgba(239,68,68,0.22)' },
     suspend: { bg: 'rgba(239,68,68,0.12)', color: '#ef4444', hover: 'rgba(239,68,68,0.22)' },
     investigate: { bg: 'rgba(16, 185, 129,0.12)', color: '#10b981', hover: 'rgba(16, 185, 129,0.22)' },
@@ -421,7 +421,7 @@ function OverviewTab({
           label="Total Users"
           value={formatCompact(stats?.totalUsers || 0)}
           sub={`+${(monthlyData?.[monthlyData.length - 1]?.users || 0).toLocaleString()} this month`}
-          color="#1db954"
+          color="#b08850"
           trend={8.4}
           icon="👥"
         />
@@ -477,8 +477,8 @@ function OverviewTab({
             <AreaChart data={streamData}>
               <defs>
                 <linearGradient id="streamGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#1db954" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="#1db954" stopOpacity={0} />
+                  <stop offset="0%" stopColor="#b08850" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="#b08850" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#1a1a1a" />
@@ -488,7 +488,7 @@ function OverviewTab({
                 contentStyle={{ background: '#1a1a1a', border: '1px solid #2a2a2a', borderRadius: 10, color: '#fff', fontSize: 12 }}
                 formatter={(v: any) => [formatStreamsTooltip(Number(v)), 'Streams']}
               />
-              <Area type="monotone" dataKey="streams" stroke="#1db954" strokeWidth={2.5} fill="url(#streamGrad)" />
+              <Area type="monotone" dataKey="streams" stroke="#b08850" strokeWidth={2.5} fill="url(#streamGrad)" />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -581,7 +581,7 @@ function OverviewTab({
                         initial={{ width: 0 }}
                         animate={{ width: `${pct}%` }}
                         transition={{ duration: 0.8, delay: i * 0.1 }}
-                        style={{ height: '100%', background: '#1db954', borderRadius: 2 }}
+                        style={{ height: '100%', background: '#b08850', borderRadius: 2 }}
                       />
                     </div>
                   </div>
@@ -825,7 +825,7 @@ function ArtistsTab() {
         title={`${confirmApp.action === 'approve' ? 'Approve' : 'Reject'} Artist Application`}
         message={`Are you sure you want to ${confirmApp.action} "${confirmApp.name}"'s artist application? ${confirmApp.action === 'reject' ? 'They will remain a regular USER and can reapply later.' : 'Their account role will instantly upgrade to ARTIST.'}`}
         confirmLabel={confirmApp.action === 'approve' ? '✓ Approve' : '✗ Reject'}
-        confirmColor={confirmApp.action === 'approve' ? '#1db954' : '#ef4444'}
+        confirmColor={confirmApp.action === 'approve' ? '#b08850' : '#ef4444'}
         onConfirm={confirmAppAction}
         onCancel={() => setConfirmApp((p) => ({ ...p, open: false }))}
       />
@@ -848,7 +848,7 @@ function ArtistsTab() {
             ? '🗑️ Remove Artist'
             : '✓ Reactivate'
         }
-        confirmColor={confirmAction.action === 'activate' ? '#1db954' : '#ef4444'}
+        confirmColor={confirmAction.action === 'activate' ? '#b08850' : '#ef4444'}
         onConfirm={triggerArtistAction}
         onCancel={() => setConfirmAction((p) => ({ ...p, open: false }))}
       />
@@ -984,7 +984,7 @@ function ArtistsTab() {
             disabled={createLoading}
             style={{
               padding: '12px',
-              background: '#1db954',
+              background: '#b08850',
               border: 'none',
               borderRadius: 10,
               color: '#000',
@@ -1125,7 +1125,7 @@ function ArtistsTab() {
             disabled={songLoading}
             style={{
               padding: '12px',
-              background: '#1db954',
+              background: '#b08850',
               border: 'none',
               borderRadius: 10,
               color: '#000',
@@ -1151,8 +1151,8 @@ function ArtistsTab() {
               padding: '10px 18px',
               borderRadius: 8,
               border: 'none',
-              background: subTab === 'directory' ? 'rgba(29, 185, 84, 0.12)' : 'transparent',
-              color: subTab === 'directory' ? '#1db954' : '#9ca3af',
+              background: subTab === 'directory' ? 'rgba(176, 136, 80, 0.12)' : 'transparent',
+              color: subTab === 'directory' ? '#b08850' : '#9ca3af',
               fontSize: 13,
               fontWeight: 700,
               cursor: 'pointer',
@@ -1164,7 +1164,7 @@ function ArtistsTab() {
           >
             📂 Artist Directory
             <span style={{
-              background: subTab === 'directory' ? '#1db954' : '#2a2a2a',
+              background: subTab === 'directory' ? '#b08850' : '#2a2a2a',
               color: subTab === 'directory' ? '#000' : '#9ca3af',
               padding: '2px 8px',
               borderRadius: 20,
@@ -1181,8 +1181,8 @@ function ArtistsTab() {
               padding: '10px 18px',
               borderRadius: 8,
               border: 'none',
-              background: subTab === 'applications' ? 'rgba(29, 185, 84, 0.12)' : 'transparent',
-              color: subTab === 'applications' ? '#1db954' : '#9ca3af',
+              background: subTab === 'applications' ? 'rgba(176, 136, 80, 0.12)' : 'transparent',
+              color: subTab === 'applications' ? '#b08850' : '#9ca3af',
               fontSize: 13,
               fontWeight: 700,
               cursor: 'pointer',
@@ -1213,8 +1213,8 @@ function ArtistsTab() {
               padding: '10px 18px',
               borderRadius: 8,
               border: 'none',
-              background: subTab === 'verifications' ? 'rgba(29, 185, 84, 0.12)' : 'transparent',
-              color: subTab === 'verifications' ? '#1db954' : '#9ca3af',
+              background: subTab === 'verifications' ? 'rgba(176, 136, 80, 0.12)' : 'transparent',
+              color: subTab === 'verifications' ? '#b08850' : '#9ca3af',
               fontSize: 13,
               fontWeight: 700,
               cursor: 'pointer',
@@ -1265,12 +1265,12 @@ function ArtistsTab() {
                   }}
                 />
                 <motion.button
-                  whileHover={{ background: 'rgba(29, 185, 84, 0.95)' }}
+                  whileHover={{ background: 'rgba(176, 136, 80, 0.95)' }}
                   whileTap={{ scale: 0.97 }}
                   onClick={() => setCreateArtistModal(true)}
                   style={{
                     padding: '9px 16px',
-                    background: '#1db954',
+                    background: '#b08850',
                     border: 'none',
                     borderRadius: 10,
                     color: '#000',
@@ -1342,8 +1342,8 @@ function ArtistsTab() {
                           borderRadius: 20,
                           fontSize: 10,
                           fontWeight: 700,
-                          background: art.isActive ? 'rgba(29, 185, 84, 0.12)' : 'rgba(239, 68, 68, 0.12)',
-                          color: art.isActive ? '#1db954' : '#ef4444',
+                          background: art.isActive ? 'rgba(176, 136, 80, 0.12)' : 'rgba(239, 68, 68, 0.12)',
+                          color: art.isActive ? '#b08850' : '#ef4444',
                           letterSpacing: '0.04em',
                         }}>
                           {art.isActive ? 'ACTIVE' : 'SUSPENDED'}
@@ -1433,7 +1433,7 @@ function ArtistsTab() {
                       padding: '8px 14px',
                       borderRadius: 8,
                       border: 'none',
-                      background: appFilter === f ? '#1db954' : '#1a1a1a',
+                      background: appFilter === f ? '#b08850' : '#1a1a1a',
                       color: appFilter === f ? '#fff' : '#9ca3af',
                       fontSize: 12,
                       fontWeight: 600,
@@ -1496,7 +1496,7 @@ function ArtistsTab() {
                     <div style={{ fontSize: 12, color: '#9ca3af', display: 'flex', flexDirection: 'column', gap: 2 }}>
                       {app.socialLinks.instagram && <span>IG: {app.socialLinks.instagram}</span>}
                       {app.socialLinks.twitter && <span>TW: {app.socialLinks.twitter}</span>}
-                      {app.socialLinks.website && <a href={`https://${app.socialLinks.website}`} target="_blank" rel="noreferrer" style={{ color: '#1db954', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 2 }}>Web <span style={{ fontSize: 10 }}>↗</span></a>}
+                      {app.socialLinks.website && <a href={`https://${app.socialLinks.website}`} target="_blank" rel="noreferrer" style={{ color: '#b08850', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 2 }}>Web <span style={{ fontSize: 10 }}>↗</span></a>}
                       {!app.socialLinks.instagram && !app.socialLinks.twitter && !app.socialLinks.website && <span>—</span>}
                     </div>
                     <div><StatusBadge status={app.status.toLowerCase()} /></div>
@@ -1508,7 +1508,7 @@ function ArtistsTab() {
                         </>
                       )}
                       {app.status === 'APPROVED' && (
-                        <span style={{ fontSize: 12, color: '#1db954', fontWeight: 600 }}>Approved</span>
+                        <span style={{ fontSize: 12, color: '#b08850', fontWeight: 600 }}>Approved</span>
                       )}
                       {app.status === 'REJECTED' && (
                         <span style={{ fontSize: 12, color: '#ef4444', fontWeight: 600 }}>Rejected</span>
@@ -1575,7 +1575,7 @@ function ArtistVerificationPanel({ onUpdate }: { onUpdate: () => void }) {
 
   const statusColor: Record<string, string> = {
     under_review: '#f59e0b',
-    approved: '#1db954',
+    approved: '#b08850',
     rejected: '#ef4444',
   };
   const statusLabel: Record<string, string> = {
@@ -1600,7 +1600,7 @@ function ArtistVerificationPanel({ onUpdate }: { onUpdate: () => void }) {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
         {[
           { label: 'Pending Requests', count: requests.filter(r => r.status === 'under_review').length, color: '#f59e0b' },
-          { label: 'Approved', count: requests.filter(r => r.status === 'approved').length, color: '#1db954' },
+          { label: 'Approved', count: requests.filter(r => r.status === 'approved').length, color: '#b08850' },
           { label: 'Rejected', count: requests.filter(r => r.status === 'rejected').length, color: '#ef4444' },
         ].map(s => (
           <div key={s.label} style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${s.color}25`, borderRadius: 12, padding: '12px 16px' }}>
@@ -1624,7 +1624,7 @@ function ArtistVerificationPanel({ onUpdate }: { onUpdate: () => void }) {
               <div style={{ padding: 32, textAlign: 'center', color: '#a3a3a3' }}>
                 <div style={{ fontSize: 48, marginBottom: 12 }}>📄</div>
                 <p>PDF document uploaded</p>
-                <a href={viewDoc} download='proof.pdf' style={{ color: '#1db954', fontSize: 13 }}>Download PDF</a>
+                <a href={viewDoc} download='proof.pdf' style={{ color: '#b08850', fontSize: 13 }}>Download PDF</a>
               </div>
             )}
           </div>
@@ -1676,7 +1676,7 @@ function ArtistVerificationPanel({ onUpdate }: { onUpdate: () => void }) {
                       type="button"
                       disabled={processing === req.artistId}
                       onClick={() => act(req.artistId, 'approve')}
-                      style={{ background: 'rgba(29, 185, 84,0.15)', border: '1px solid rgba(29, 185, 84,0.3)', color: '#1db954', borderRadius: 8, padding: '6px 12px', fontSize: 11.5, cursor: 'pointer', fontWeight: 700 }}
+                      style={{ background: 'rgba(176, 136, 80,0.15)', border: '1px solid rgba(176, 136, 80,0.3)', color: '#b08850', borderRadius: 8, padding: '6px 12px', fontSize: 11.5, cursor: 'pointer', fontWeight: 700 }}
                     >
                       Verify
                     </button>
@@ -1865,7 +1865,7 @@ function SongsTab() {
         title={`${confirm.action === 'approve' ? 'Approve' : 'Reject'} Track`}
         message={`${confirm.action === 'approve' ? 'Approve' : 'Reject'} "${confirm.title}"? ${confirm.action === 'reject' ? 'This will prevent the track from appearing on the platform.' : 'The track will go live immediately.'}`}
         confirmLabel={confirm.action === 'approve' ? '✓ Approve Track' : '✗ Reject Track'}
-        confirmColor={confirm.action === 'approve' ? '#1db954' : '#ef4444'}
+        confirmColor={confirm.action === 'approve' ? '#b08850' : '#ef4444'}
         onConfirm={confirmAction}
         onCancel={() => setConfirm((p) => ({ ...p, open: false }))}
       />
@@ -1875,8 +1875,8 @@ function SongsTab() {
         {/* Currently Playing Song Widget */}
         {currentTrack && (
           <div style={{
-            background: 'linear-gradient(135deg, rgba(29, 185, 84, 0.1) 0%, rgba(20, 20, 20, 0.6) 100%)',
-            border: '1px solid rgba(29, 185, 84, 0.2)',
+            background: 'linear-gradient(135deg, rgba(176, 136, 80, 0.1) 0%, rgba(20, 20, 20, 0.6) 100%)',
+            border: '1px solid rgba(176, 136, 80, 0.2)',
             borderRadius: 16,
             padding: '16px 20px',
             display: 'flex',
@@ -1904,7 +1904,7 @@ function SongsTab() {
               </div>
             )}
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 11, color: '#1db954', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>Currently Playing</div>
+              <div style={{ fontSize: 11, color: '#b08850', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>Currently Playing</div>
               <div style={{ fontSize: 15, fontWeight: 700, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentTrack.title}</div>
               <div style={{ fontSize: 12, color: '#a3a3a3', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentTrack.artistName} · {currentTrack.genre}</div>
             </div>
@@ -1928,7 +1928,7 @@ function SongsTab() {
                 onClick={() => toggleLikeSong(currentTrack.id)}
                 style={{
                   background: 'none', border: 'none', cursor: 'pointer', fontSize: 24, padding: 6,
-                  color: (user?.likedSongs || []).includes(currentTrack.id) ? '#1db954' : '#6b7280',
+                  color: (user?.likedSongs || []).includes(currentTrack.id) ? '#b08850' : '#6b7280',
                   display: 'flex', alignItems: 'center', justifyContent: 'center'
                 }}
               >
@@ -1949,7 +1949,7 @@ function SongsTab() {
                 padding: '8px 14px',
                 borderRadius: 8,
                 border: 'none',
-                background: filter === f ? '#1db954' : '#1a1a1a',
+                background: filter === f ? '#b08850' : '#1a1a1a',
                 color: filter === f ? '#fff' : '#9ca3af',
                 fontSize: 12,
                 fontWeight: 600,
@@ -2028,15 +2028,15 @@ function SongsTab() {
                   padding: '8px 14px',
                   borderRadius: 8,
                   border: 'none',
-                  background: 'rgba(29, 185, 84, 0.12)',
-                  color: '#1db954',
+                  background: 'rgba(176, 136, 80, 0.12)',
+                  color: '#b08850',
                   fontSize: 12,
                   fontWeight: 700,
                   cursor: 'pointer',
                   transition: 'background 0.2s',
                 }}
-                onMouseEnter={e => e.currentTarget.style.background = 'rgba(29, 185, 84, 0.2)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'rgba(29, 185, 84, 0.12)'}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(176, 136, 80, 0.2)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'rgba(176, 136, 80, 0.12)'}
               >
                 ✓ Approve All
               </button>
@@ -2125,7 +2125,7 @@ function SongsTab() {
                     onClick={() => toggleLikeSong(song.id)}
                     style={{
                       background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, padding: 4,
-                      color: (user?.likedSongs || []).includes(song.id) ? '#1db954' : '#4b5563',
+                      color: (user?.likedSongs || []).includes(song.id) ? '#b08850' : '#4b5563',
                       transition: 'color 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center',
                       marginRight: 8,
                     }}
@@ -2143,7 +2143,7 @@ function SongsTab() {
                       <div style={{ fontSize: 10, color: '#f59e0b' }}>{song.copyrightIssue}</div>
                     </div>
                   ) : (
-                    <div style={{ fontSize: 12, color: '#1db954' }}>✓ {song.copyrightScore}% clean</div>
+                    <div style={{ fontSize: 12, color: '#b08850' }}>✓ {song.copyrightScore}% clean</div>
                   )}
                 </div>
                 <div><StatusBadge status={song.status} /></div>
@@ -2200,7 +2200,7 @@ function SongsTab() {
                       width: 28,
                       height: 28,
                       borderRadius: 6,
-                      background: currentPage === idx + 1 ? '#1db954' : 'transparent',
+                      background: currentPage === idx + 1 ? '#b08850' : 'transparent',
                       color: currentPage === idx + 1 ? '#000' : '#9ca3af',
                       border: 'none',
                       cursor: 'pointer',
@@ -2272,7 +2272,7 @@ function ReportsTab() {
                 padding: '8px 14px',
                 borderRadius: 8,
                 border: 'none',
-                background: filter === f ? '#1db954' : '#1a1a1a',
+                background: filter === f ? '#b08850' : '#1a1a1a',
                 color: filter === f ? '#fff' : '#9ca3af',
                 fontSize: 12,
                 fontWeight: 600,
@@ -2502,7 +2502,7 @@ function AdminDashboardContent() {
         flexWrap: 'nowrap',
       }}>
         {[
-          { label: 'Live Streams', value: liveStats.liveStreams.toLocaleString(), color: '#1db954' },
+          { label: 'Live Streams', value: liveStats.liveStreams.toLocaleString(), color: '#b08850' },
           { label: 'Total Plays', value: liveStats.totalPlays.toLocaleString(), color: '#10b981' },
           { label: 'Active Now', value: `${liveStats.activeNow.toLocaleString()} users`, color: '#06b6d4' },
           { label: 'Pending Review', value: `${pendingReviewCount}`, color: '#f59e0b' },
@@ -2527,9 +2527,9 @@ function AdminDashboardContent() {
           <motion.div
             animate={{ scale: [1, 1.4, 1], opacity: [1, 0.5, 1] }}
             transition={{ duration: 1.5, repeat: Infinity }}
-            style={{ width: 8, height: 8, borderRadius: '50%', background: '#1db954' }}
+            style={{ width: 8, height: 8, borderRadius: '50%', background: '#b08850' }}
           />
-          <span style={{ fontSize: 12, color: '#1db954', fontWeight: 700 }}>LIVE</span>
+          <span style={{ fontSize: 12, color: '#b08850', fontWeight: 700 }}>LIVE</span>
         </div>
       </div>
 

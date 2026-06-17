@@ -5,35 +5,35 @@ import { socketManager } from '@/lib/socket';
 
 // ─── Genre Color Map ───────────────────────────────
 export const GENRE_COLORS: Record<string, string> = {
-  'Indie Electronic': '#10b981',
-  'Dream Pop': '#34d399',
-  'Synth Wave': '#14b8a6',
-  'Hip-Hop': '#84cc16',
-  'Electronic': '#059669',
-  'Future Bass': '#22c55e',
-  'Pop': '#1db954',
-  'R&B': '#4d7c0f',
-  'Dance Pop': '#a3e635',
-  'Indie Rock': '#4f6357',
-  'Alternative': '#6b8e23',
-  'Ambient': '#0f766e',
-  'Techno': '#022c22',
-  'Jazz': '#16a34a',
-  'Classical': '#15803d',
-  'default': '#1db954',
+  'Indie Electronic': '#a68a64',
+  'Dream Pop': '#b89d7c',
+  'Synth Wave': '#8c6c44',
+  'Hip-Hop': '#b08850',
+  'Electronic': '#937041',
+  'Future Bass': '#7a5a30',
+  'Pop': '#b08850',
+  'R&B': '#4d3f35',
+  'Dance Pop': '#ebdcb9',
+  'Indie Rock': '#87786c',
+  'Alternative': '#a18b76',
+  'Ambient': '#c8bdad',
+  'Techno': '#221a15',
+  'Jazz': '#b08850',
+  'Classical': '#8c6c44',
+  'default': '#b08850',
 };
 
 // ─── Album art gradient generator ─────────────────
 export function trackGradient(trackId: string): string {
   const colors = [
-    ['#1db954', '#064e3b'],
-    ['#10b981', '#064e3b'],
-    ['#34d399', '#022c22'],
-    ['#84cc16', '#14532d'],
-    ['#a3e635', '#0f5132'],
-    ['#059669', '#022c22'],
-    ['#06b6d4', '#0f766e'],
-    ['#22c55e', '#14532d'],
+    ['#b08850', '#4d3f35'], // Gold to Espresso
+    ['#ebdcb9', '#8c6c44'], // Cream to Latte
+    ['#d4b285', '#221a15'], // Soft gold to Chocolate
+    ['#f4eede', '#b08850'], // Warm latte to Gold
+    ['#c8bdad', '#4d3f35'], // Sandstone to Espresso
+    ['#ebdcb9', '#b08850'], // Cream to Gold
+    ['#8c6c44', '#221a15'], // Latte to Chocolate
+    ['#b08850', '#8c6c44'], // Gold to Latte
   ];
   const idx = trackId.charCodeAt(trackId.length - 1) % colors.length;
   return `linear-gradient(135deg, ${colors[idx][0]}, ${colors[idx][1]})`;
@@ -137,6 +137,16 @@ export const useMusicStore = create<MusicStore>()(
         })),
 
       fetchTracks: async () => {
+        // ⚡ Throttle: skip if already loaded & fetched < 20s ago
+        if (typeof window !== 'undefined') {
+          const now = Date.now();
+          const existing = get().allTracks;
+          const lastFetch = (window as any).__beatoLastTracksFetch ?? 0;
+          if (existing.length > 0 && now - lastFetch < 20000) {
+            return;
+          }
+          (window as any).__beatoLastTracksFetch = now;
+        }
         try {
           // Resolve absolute URL for native/APK (static export) mode
           const isLocalFile = typeof window !== 'undefined' && (
@@ -148,10 +158,10 @@ export const useMusicStore = create<MusicStore>()(
           const apiBase = (isLocalFile || customApiUrl)
             ? (customApiUrl || 'https://beato-music-app.vercel.app').replace(/\/$/, '')
             : '';
-          const res = await fetch(`${apiBase}/api/tracks?t=${Date.now()}`, { cache: 'no-store' });
+          const res = await fetch(`${apiBase}/api/tracks`, { cache: 'no-store' });
           const data = await res.json();
           if (data.success) {
-          const dbTracks = data.tracks.filter((t: Track) => t.status !== 'rejected');
+            const dbTracks = data.tracks.filter((t: Track) => t.status !== 'rejected');
             set({
               allTracks: data.tracks,
               uploadedTracks: dbTracks,

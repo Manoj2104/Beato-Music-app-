@@ -25,7 +25,7 @@ const planConfigs: Record<string, {
     color: '#94a3b8',
   },
   premium: {
-    color: '#1db954',
+    color: '#b08850',
     badgeText: 'Most Popular',
   },
   family: {
@@ -73,22 +73,86 @@ export default function PremiumPage() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', width: '100%', minHeight: '100%', paddingBottom: '64px', background: '#0a0a0a' }}>
+    <div className="premium-themed-container" style={{ display: 'flex', flexDirection: 'column', width: '100%', minHeight: '100%', paddingBottom: '64px', background: 'var(--color-ss-bg, #fbf9f5)' }}>
+      <style>{`
+        .premium-themed-container h1,
+        .premium-themed-container h2,
+        .premium-themed-container h3,
+        .premium-themed-container h4,
+        .premium-themed-container p,
+        .premium-themed-container span,
+        .premium-themed-container label {
+          color: var(--color-ss-text-primary, #221a15) !important;
+          text-shadow: none !important;
+        }
+        .premium-themed-container div[style*="background: linear-gradient(180deg"],
+        .premium-themed-container div[style*="rgba(255,255,255,0.02)"],
+        .premium-themed-container div[style*="rgba(255,255,255,0.03)"],
+        .premium-themed-container div[style*="rgba(255, 255, 255, 0.02)"],
+        .premium-themed-container div[style*="rgba(255, 255, 255, 0.03)"] {
+          background: var(--color-ss-elevated, #ffffff) !important;
+          border-color: var(--color-ss-border, rgba(43,34,26,0.08)) !important;
+          box-shadow: 0 10px 30px rgba(43, 34, 26, 0.04) !important;
+        }
+        .premium-themed-container button:not(.text-white-force) {
+          color: var(--color-ss-text-primary, #221a15) !important;
+        }
+        /* Style billing toggle knob */
+        .premium-themed-container div[style*="width: 56px"] {
+          background: var(--color-ss-surface, #f4eede) !important;
+          border-color: var(--color-ss-border, rgba(43,34,26,0.08)) !important;
+        }
+        /* Style billing yearly discount tag */
+        .premium-themed-container button span[style*="background-color: #b08850"] {
+          color: #000 !important;
+        }
+        /* Plan card features list items */
+        .premium-themed-container svg {
+          color: var(--color-ss-text-primary, #221a15) !important;
+        }
+        /* Keep checkmark icons gold/green */
+        .premium-themed-container svg[style*="color: rgb(16, 185, 129)"],
+        .premium-themed-container svg[style*="color: #10b981"] {
+          color: #10b981 !important;
+        }
+        .premium-themed-container svg[style*="color: rgb(176, 136, 80)"],
+        .premium-themed-container svg[style*="color: #b08850"] {
+          color: #b08850 !important;
+        }
+        /* Plan card headers features */
+        .premium-themed-container div[style*="background-color: rgba(176, 136, 80"] {
+          background-color: rgba(176, 136, 80, 0.1) !important;
+        }
+        /* Style standard plan button */
+        .premium-themed-container button[style*="background-color: rgba(255, 255, 255, 0.08)"],
+        .premium-themed-container button[style*="background-color: rgba(255,255,255,0.08)"] {
+          background-color: rgba(43, 34, 26, 0.08) !important;
+          color: var(--color-ss-text-primary, #221a15) !important;
+          border: none !important;
+        }
+        /* Style current plan button */
+        .premium-themed-container button[style*="background-color: rgba(255, 255, 255, 0.06)"],
+        .premium-themed-container button[style*="background-color: rgba(255,255,255,0.06)"] {
+          background-color: rgba(43, 34, 26, 0.04) !important;
+          color: rgba(43, 34, 26, 0.35) !important;
+          border: none !important;
+        }
+      `}</style>
       <TopBar />
 
       {/* Main Content Layout with explicit vertical flow flexbox */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '64px', width: '100%', padding: '0 24px 32px' }}>
         
         {/* Hero Section */}
-        <div style={{ position: 'relative', overflow: 'hidden', borderRadius: '24px', padding: '64px 24px', textAlign: 'center', background: 'radial-gradient(circle at top, rgba(29, 185, 84, 0.15) 0%, transparent 70%)' }}>
+        <div style={{ position: 'relative', overflow: 'hidden', borderRadius: '24px', padding: '64px 24px', textAlign: 'center', background: 'radial-gradient(circle at top, rgba(176, 136, 80, 0.15) 0%, transparent 70%)' }}>
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', borderRadius: '100px', backgroundColor: 'rgba(29, 185, 84,0.12)', border: '1px solid rgba(29, 185, 84,0.25)', marginBottom: '24px' }}>
-              <Crown size={15} style={{ color: '#1db954' }} />
-              <span style={{ color: '#1db954', fontWeight: 700, fontSize: '12.5px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Beato Premium</span>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', borderRadius: '100px', backgroundColor: 'rgba(176, 136, 80,0.12)', border: '1px solid rgba(176, 136, 80,0.25)', marginBottom: '24px' }}>
+              <Crown size={15} style={{ color: '#b08850' }} />
+              <span style={{ color: '#b08850', fontWeight: 700, fontSize: '12.5px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Beato Premium</span>
             </div>
             <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '48px', fontWeight: 950, color: '#fff', letterSpacing: '-0.02em', marginBottom: '16px', textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
               Music without limits
@@ -121,8 +185,8 @@ export default function PremiumPage() {
                 width: '56px',
                 height: '28px',
                 borderRadius: '100px',
-                background: billing === 'yearly' ? 'rgba(29, 185, 84, 0.2)' : 'rgba(255, 255, 255, 0.08)',
-                border: `1.5px solid ${billing === 'yearly' ? '#1db954' : 'rgba(255,255,255,0.1)'}`,
+                background: billing === 'yearly' ? 'rgba(176, 136, 80, 0.2)' : 'rgba(255, 255, 255, 0.08)',
+                border: `1.5px solid ${billing === 'yearly' ? '#b08850' : 'rgba(255,255,255,0.1)'}`,
                 position: 'relative',
                 cursor: 'pointer',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -136,7 +200,7 @@ export default function PremiumPage() {
                   width: '20px',
                   height: '20px',
                   borderRadius: '50%',
-                  background: billing === 'yearly' ? '#1db954' : '#ffffff',
+                  background: billing === 'yearly' ? '#b08850' : '#ffffff',
                   transform: billing === 'yearly' ? 'translateX(28px)' : 'translateX(0)',
                   transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s',
                   boxShadow: '0 2px 6px rgba(0,0,0,0.4)'
@@ -160,7 +224,7 @@ export default function PremiumPage() {
               }}
             >
               Yearly
-              <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '100px', backgroundColor: '#1db954', color: '#000', fontWeight: 850, textTransform: 'uppercase', letterSpacing: '0.05em' }}>-20%</span>
+              <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '100px', backgroundColor: '#b08850', color: '#000', fontWeight: 850, textTransform: 'uppercase', letterSpacing: '0.05em' }}>-20%</span>
             </button>
           </div>
         </div>

@@ -47,6 +47,8 @@ export default function DownloadsPage() {
     }
   };
 
+  const [scrolled, setScrolled] = useState(false);
+
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 768);
@@ -54,6 +56,17 @@ export default function DownloadsPage() {
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    const el = document.querySelector('.app-main');
+    if (!el) return;
+    const handler = () => {
+      setScrolled(el.scrollTop > 5);
+    };
+    el.addEventListener('scroll', handler, { passive: true });
+    handler(); // initial check
+    return () => el.removeEventListener('scroll', handler);
   }, []);
 
   const handlePlayAll = () => {
@@ -129,60 +142,14 @@ export default function DownloadsPage() {
   const freePercent = (freeSpaceGB / totalSpaceGB) * 100;
 
   return (
-    <div style={{ 
+    <div className="library-themed-container" style={{ 
       minHeight: '100%', 
-      background: '#0a0a0a', 
+      background: 'var(--color-ss-bg, #fbf9f5)', 
       padding: isMobile ? '0 16px 32px' : '0px 0px 100px',
-      position: 'relative',
-      overflowX: 'hidden'
+      position: 'relative'
     }}>
       {/* Universal TopBar component - Only rendered on Desktop */}
       {!isMobile && <TopBar />}
-
-      {isMobile && (
-        <div style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 50,
-          background: '#0a0a0a',
-          paddingTop: 'calc(env(safe-area-inset-top, 24px) + 12px)',
-          paddingBottom: '12px',
-          marginLeft: '-16px',
-          marginRight: '-16px',
-          paddingLeft: '16px',
-          paddingRight: '16px',
-          borderBottom: '1px solid rgba(255,255,255,0.05)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 12,
-          marginBottom: '16px'
-        }}>
-          {/* User Profile Avatar */}
-          <div
-            onClick={() => setMobileDrawerOpen(true)}
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: '50%',
-              background: '#1db954',
-              color: '#fff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: 800,
-              fontSize: 14,
-              fontFamily: 'Outfit, sans-serif',
-              cursor: 'pointer'
-            }}
-          >
-            {user?.name ? user.name[0].toUpperCase() : 'M'}
-          </div>
-          <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 24, fontWeight: 900, color: '#fff', margin: 0 }}>
-            Downloads
-          </h1>
-          <Camera size={22} color="#fff" style={{ cursor: 'pointer', marginLeft: 'auto' }} />
-        </div>
-      )}
 
       {/* Dynamic Keyframes Injection */}
       <style dangerouslySetInnerHTML={{ __html: `
@@ -199,6 +166,166 @@ export default function DownloadsPage() {
           50% { height: 95%; }
         }
       ` }} />
+
+      {/* Sticky Top Bar on Mobile */}
+      {isMobile && downloadedTracks.length > 0 && (
+        <div style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 50,
+          background: scrolled ? 'rgba(251, 249, 245, 0.85)' : 'var(--color-ss-bg, #fbf9f5)',
+          backdropFilter: scrolled ? 'blur(20px)' : 'none',
+          WebkitBackdropFilter: scrolled ? 'blur(20px)' : 'none',
+          borderBottom: scrolled ? '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))' : '1px solid transparent',
+          paddingTop: 'calc(var(--sat, 0px) + 20px)',
+          paddingBottom: '16px',
+          margin: '0 -16px 16px -16px',
+          paddingLeft: '16px',
+          paddingRight: '16px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px',
+          transition: 'background-color 0.25s, border-color 0.25s, backdrop-filter 0.25s',
+        }}>
+          {/* 1. Header Row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            {/* User Profile Avatar */}
+            <div
+              onClick={() => setMobileDrawerOpen(true)}
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: '50%',
+                background: 'var(--color-ss-primary, #b08850)',
+                color: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 800,
+                fontSize: 14,
+                fontFamily: 'Outfit, sans-serif',
+                cursor: 'pointer'
+              }}
+            >
+              {user?.name ? user.name[0].toUpperCase() : 'M'}
+            </div>
+            <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 24, fontWeight: 900, color: 'var(--color-ss-text-primary, #221a15)', margin: 0 }}>
+              Downloads
+            </h1>
+            <Camera size={22} color="var(--color-ss-text-primary, #221a15)" style={{ cursor: 'pointer', marginLeft: 'auto' }} />
+          </div>
+
+          {/* 2. Search Bar Input (Mobile View) */}
+          <div style={{ position: 'relative', width: '100%' }}>
+            <Search 
+              size={18} 
+              color="#525252" 
+              style={{ 
+                position: 'absolute', 
+                left: 16, 
+                top: '50%', 
+                transform: 'translateY(-50%)',
+                pointerEvents: 'none'
+              }} 
+            />
+            <input
+              type="text"
+              placeholder="What do you want to listen to offline?"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                width: '100%',
+                background: '#fff',
+                border: 'none',
+                borderRadius: 8,
+                padding: '12px 40px 12px 44px',
+                fontSize: '14px',
+                color: '#000',
+                outline: 'none',
+                fontFamily: 'inherit',
+                transition: 'all 0.2s ease',
+                boxSizing: 'border-box'
+              }}
+            />
+            {searchQuery && (
+              <button 
+                onClick={() => setSearchQuery('')}
+                style={{
+                  position: 'absolute',
+                  right: 16,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  color: '#000',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '4px'
+                }}
+              >
+                <X size={18} />
+              </button>
+            )}
+          </div>
+
+          {/* 3. Dynamic Filter Pills Row (Mobile View) */}
+          <div style={{ 
+            display: 'flex', 
+            gap: '8px', 
+            overflowX: 'auto', 
+            scrollbarWidth: 'none',
+            paddingBottom: '2px',
+            flexWrap: 'nowrap'
+          }}>
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={handlePlayAll}
+              style={{
+                background: '#b08850',
+                color: '#000',
+                border: 'none',
+                borderRadius: '100px',
+                padding: '7px 18px',
+                fontSize: '13px',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                whiteSpace: 'nowrap',
+                boxShadow: '0 4px 12px rgba(176, 136, 80, 0.2)'
+              }}
+            >
+              <Play size={12} fill="black" /> Play All
+            </motion.button>
+
+            {genres.map(genre => (
+              <motion.button
+                key={genre}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => setSelectedGenre(genre)}
+                style={{
+                  background: selectedGenre === genre ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)',
+                  color: '#fff',
+                  border: '1px solid ' + (selectedGenre === genre ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.06)'),
+                  borderRadius: '100px',
+                  padding: '7px 18px',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {genre}
+              </motion.button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Main Content Area */}
       <div style={{
@@ -219,7 +346,7 @@ export default function DownloadsPage() {
               left: 0,
               right: 0,
               height: '240px',
-              background: 'linear-gradient(180deg, rgba(29, 185, 84, 0.14) 0%, rgba(29, 185, 84, 0.02) 60%, rgba(0, 0, 0, 0) 100%)',
+              background: 'linear-gradient(180deg, rgba(176, 136, 80, 0.14) 0%, rgba(176, 136, 80, 0.02) 60%, rgba(0, 0, 0, 0) 100%)',
               pointerEvents: 'none',
               zIndex: 0,
             }} />
@@ -229,7 +356,7 @@ export default function DownloadsPage() {
               left: '10%',
               width: '350px',
               height: '350px',
-              background: 'radial-gradient(circle, rgba(29, 185, 84, 0.18) 0%, rgba(29, 185, 84, 0.03) 60%, transparent 100%)',
+              background: 'radial-gradient(circle, rgba(176, 136, 80, 0.18) 0%, rgba(176, 136, 80, 0.03) 60%, transparent 100%)',
               filter: 'blur(80px)',
               pointerEvents: 'none',
               zIndex: 0,
@@ -237,42 +364,73 @@ export default function DownloadsPage() {
           </>
         )}
 
-        {/* 1. Header Row (Matches Search layout on mobile, dashboard header on desktop) */}
-        {!isMobile &&
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'space-between', 
-            gap: '16px', 
-            position: 'relative', 
-            zIndex: 2,
-            borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-            paddingBottom: '16px',
-            marginTop: '4px'
-          }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <h2 style={{ margin: 0, fontSize: '24px', fontWeight: 800, fontFamily: 'Outfit, sans-serif', letterSpacing: '-0.02em', color: '#fff' }}>
-                  Offline Downloads
-                </h2>
-                <span style={{ 
-                  background: 'rgba(29, 185, 84, 0.15)', 
-                  color: '#1db954', 
-                  fontSize: '11px', 
-                  fontWeight: 700, 
-                  padding: '2px 8px', 
-                  borderRadius: '100px',
-                  border: '1px solid rgba(29, 185, 84, 0.2)'
-                }}>
-                  {downloadedTracks.length} tracks
-                </span>
+        {/* Normal Flow Header */}
+        {(!isMobile || downloadedTracks.length === 0) && (
+          <>
+            {isMobile ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4, paddingTop: 'calc(var(--sat, 0px) + 20px)' }}>
+                {/* User Profile Avatar */}
+                <div
+                  onClick={() => setMobileDrawerOpen(true)}
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: '50%',
+                    background: '#b08850',
+                    color: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 800,
+                    fontSize: 14,
+                    fontFamily: 'Outfit, sans-serif',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {user?.name ? user.name[0].toUpperCase() : 'M'}
+                </div>
+                <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 24, fontWeight: 900, color: '#fff', margin: 0 }}>
+                  Downloads
+                </h1>
+                <Camera size={22} color="#fff" style={{ cursor: 'pointer', marginLeft: 'auto' }} />
               </div>
-              <p style={{ margin: '4px 0 0 0', color: 'rgba(255, 255, 255, 0.45)', fontSize: '13px', fontWeight: 500 }}>
-                High-fidelity audio saved locally for offline listening.
-              </p>
-            </div>
-          </div>
-        }
+            ) : (
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'space-between', 
+                gap: '16px', 
+                position: 'relative', 
+                zIndex: 2,
+                borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+                paddingBottom: '16px',
+                marginTop: '4px'
+              }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <h2 style={{ margin: 0, fontSize: '24px', fontWeight: 800, fontFamily: 'Outfit, sans-serif', letterSpacing: '-0.02em', color: '#fff' }}>
+                      Offline Downloads
+                    </h2>
+                    <span style={{ 
+                      background: 'rgba(176, 136, 80, 0.15)', 
+                      color: '#b08850', 
+                      fontSize: '11px', 
+                      fontWeight: 700, 
+                      padding: '2px 8px', 
+                      borderRadius: '100px',
+                      border: '1px solid rgba(176, 136, 80, 0.2)'
+                    }}>
+                      {downloadedTracks.length} tracks
+                    </span>
+                  </div>
+                  <p style={{ margin: '4px 0 0 0', color: 'rgba(255, 255, 255, 0.45)', fontSize: '13px', fontWeight: 500 }}>
+                    High-fidelity audio saved locally for offline listening.
+                  </p>
+                </div>
+              </div>
+            )}
+          </>
+        )}
 
         {/* Empty State vs Loaded Content */}
         {downloadedTracks.length === 0 ? (
@@ -291,8 +449,8 @@ export default function DownloadsPage() {
               background: 'rgba(255, 255, 255, 0.02)',
               backdropFilter: 'blur(16px)',
               borderRadius: '24px',
-              border: '1px solid rgba(29, 185, 84, 0.2)',
-              boxShadow: '0 12px 40px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(29, 185, 84, 0.05)',
+              border: '1px solid rgba(176, 136, 80, 0.2)',
+              boxShadow: '0 12px 40px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(176, 136, 80, 0.05)',
               marginTop: '10px',
               position: 'relative',
               zIndex: 2
@@ -303,20 +461,20 @@ export default function DownloadsPage() {
                 width: '70px',
                 height: '70px',
                 borderRadius: '50%',
-                background: 'linear-gradient(135deg, rgba(29, 185, 84, 0.2) 0%, rgba(29, 185, 84, 0.05) 100%)',
+                background: 'linear-gradient(135deg, rgba(176, 136, 80, 0.2) 0%, rgba(176, 136, 80, 0.05) 100%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#1db954',
-                boxShadow: '0 8px 24px rgba(29, 185, 84, 0.15)',
-                border: '1px solid rgba(29, 185, 84, 0.3)'
+                color: '#b08850',
+                boxShadow: '0 8px 24px rgba(176, 136, 80, 0.15)',
+                border: '1px solid rgba(176, 136, 80, 0.3)'
               }}
             >
               <Download size={32} />
             </div>
             <div>
-              <h3 style={{ margin: 0, fontSize: '20px', fontWeight: 800, fontFamily: 'Outfit, sans-serif', color: '#fff' }}>No downloaded music</h3>
-              <p style={{ margin: '8px 0 0 0', color: 'rgba(255,255,255,0.5)', maxWidth: '340px', fontSize: '13.5px', lineHeight: 1.6 }}>
+              <h3 style={{ margin: 0, fontSize: '20px', fontWeight: 800, fontFamily: 'Outfit, sans-serif', color: 'var(--color-ss-text-primary, #221a15)' }}>No downloaded music</h3>
+              <p style={{ margin: '8px 0 0 0', color: 'var(--color-ss-text-muted, #87786c)', maxWidth: '340px', fontSize: '13.5px', lineHeight: 1.6 }}>
                 Add songs to your library offline by tapping the download icon on any song page or playback drawer.
               </p>
             </div>
@@ -326,7 +484,7 @@ export default function DownloadsPage() {
                 whileTap={{ scale: 0.96 }}
                 onClick={() => router.push('/home')}
                 style={{
-                  background: '#1db954',
+                  background: '#b08850',
                   color: '#000',
                   border: 'none',
                   borderRadius: '100px',
@@ -342,13 +500,13 @@ export default function DownloadsPage() {
             ) : (
               <p style={{ 
                 margin: 0, 
-                color: '#1db954', 
+                color: '#b08850', 
                 fontSize: '13px', 
                 fontWeight: 700,
-                background: 'rgba(29, 185, 84, 0.1)',
+                background: 'rgba(176, 136, 80, 0.1)',
                 padding: '8px 18px',
                 borderRadius: '20px',
-                border: '1px solid rgba(29, 185, 84, 0.2)'
+                border: '1px solid rgba(176, 136, 80, 0.2)'
               }}>
                 📶 Connect to the internet to download tracks
               </p>
@@ -357,128 +515,129 @@ export default function DownloadsPage() {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '16px' : '20px', position: 'relative', zIndex: 2 }}>
             
-            {/* 2. Search Bar Input (White background on mobile matching the Search Page) */}
-            <div style={{ position: 'relative', width: '100%' }}>
-              <Search 
-                size={18} 
-                color={isMobile ? '#525252' : '#737373'} 
-                style={{ 
-                  position: 'absolute', 
-                  left: 16, 
-                  top: '50%', 
-                  transform: 'translateY(-50%)',
-                  pointerEvents: 'none'
-                }} 
-              />
-              <input
-                type="text"
-                placeholder={isMobile ? "What do you want to listen to offline?" : "Filter downloads..."}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                style={{
-                  width: '100%',
-                  background: isMobile ? '#fff' : 'rgba(255, 255, 255, 0.05)',
-                  border: isMobile ? 'none' : '1px solid rgba(255, 255, 255, 0.08)',
-                  borderRadius: isMobile ? 8 : 100,
-                  padding: isMobile ? '12px 40px 12px 44px' : '10px 16px 10px 42px',
-                  fontSize: '14px',
-                  color: isMobile ? '#000' : '#fff',
-                  outline: 'none',
-                  fontFamily: 'inherit',
-                  transition: 'all 0.2s ease',
-                  boxSizing: 'border-box'
-                }}
-                onFocus={(e) => {
-                  if (!isMobile) {
-                    e.currentTarget.style.borderColor = 'rgba(29, 185, 84, 0.4)';
-                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.06)';
-                  }
-                }}
-                onBlur={(e) => {
-                  if (!isMobile) {
-                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)';
-                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-                  }
-                }}
-              />
-              {searchQuery && (
-                <button 
-                  onClick={() => setSearchQuery('')}
-                  style={{
-                    position: 'absolute',
-                    right: 16,
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 'none',
-                    color: isMobile ? '#000' : 'rgba(255,255,255,0.4)',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    padding: '4px'
-                  }}
-                >
-                  <X size={18} />
-                </button>
-              )}
-            </div>
+            {/* Desktop Only: Search Bar & Filter Pills (Rendered in sticky top bar on mobile) */}
+            {!isMobile && (
+              <>
+                {/* 2. Search Bar Input */}
+                <div style={{ position: 'relative', width: '100%' }}>
+                  <Search 
+                    size={18} 
+                    color="#737373" 
+                    style={{ 
+                      position: 'absolute', 
+                      left: 16, 
+                      top: '50%', 
+                      transform: 'translateY(-50%)',
+                      pointerEvents: 'none'
+                    }} 
+                  />
+                  <input
+                    type="text"
+                    placeholder="Filter downloads..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    style={{
+                      width: '100%',
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                      borderRadius: 100,
+                      padding: '10px 16px 10px 42px',
+                      fontSize: '14px',
+                      color: '#fff',
+                      outline: 'none',
+                      fontFamily: 'inherit',
+                      transition: 'all 0.2s ease',
+                      boxSizing: 'border-box'
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = 'rgba(176, 136, 80, 0.4)';
+                      e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.06)';
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+                      e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+                    }}
+                  />
+                  {searchQuery && (
+                    <button 
+                      onClick={() => setSearchQuery('')}
+                      style={{
+                        position: 'absolute',
+                        right: 16,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'none',
+                        border: 'none',
+                        color: 'rgba(255,255,255,0.4)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '4px'
+                      }}
+                    >
+                      <X size={18} />
+                    </button>
+                  )}
+                </div>
 
-            {/* 3. Dynamic Filter Pills Row (Play All + Genres) */}
-            <div style={{ 
-              display: 'flex', 
-              gap: '8px', 
-              overflowX: 'auto', 
-              scrollbarWidth: 'none',
-              paddingBottom: '2px',
-              flexWrap: 'nowrap'
-            }}>
-              {/* Play All Button styled as the prominent first pill */}
-              <motion.button
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                onClick={handlePlayAll}
-                style={{
-                  background: '#1db954',
-                  color: '#000',
-                  border: 'none',
-                  borderRadius: '100px',
-                  padding: '7px 18px',
-                  fontSize: '13px',
-                  fontWeight: 800,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  whiteSpace: 'nowrap',
-                  boxShadow: '0 4px 12px rgba(29, 185, 84, 0.2)'
-                }}
-              >
-                <Play size={12} fill="black" /> Play All
-              </motion.button>
+                {/* 3. Dynamic Filter Pills Row */}
+                <div style={{ 
+                  display: 'flex', 
+                  gap: '8px', 
+                  overflowX: 'auto', 
+                  scrollbarWidth: 'none',
+                  paddingBottom: '2px',
+                  flexWrap: 'nowrap'
+                }}>
+                  {/* Play All Button */}
+                  <motion.button
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={handlePlayAll}
+                    style={{
+                      background: '#b08850',
+                      color: '#000',
+                      border: 'none',
+                      borderRadius: '100px',
+                      padding: '7px 18px',
+                      fontSize: '13px',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      whiteSpace: 'nowrap',
+                      boxShadow: '0 4px 12px rgba(176, 136, 80, 0.2)'
+                    }}
+                  >
+                    <Play size={12} fill="black" /> Play All
+                  </motion.button>
 
-              {genres.map(genre => (
-                <motion.button
-                  key={genre}
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => setSelectedGenre(genre)}
-                  style={{
-                    background: selectedGenre === genre ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)',
-                    color: '#fff',
-                    border: '1px solid ' + (selectedGenre === genre ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.06)'),
-                    borderRadius: '100px',
-                    padding: '7px 18px',
-                    fontSize: '13px',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {genre}
-                </motion.button>
-              ))}
-            </div>
+                  {genres.map(genre => (
+                    <motion.button
+                      key={genre}
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => setSelectedGenre(genre)}
+                      style={{
+                        background: selectedGenre === genre ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)',
+                        color: '#fff',
+                        border: '1px solid ' + (selectedGenre === genre ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.06)'),
+                        borderRadius: '100px',
+                        padding: '7px 18px',
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {genre}
+                    </motion.button>
+                  ))}
+                </div>
+              </>
+            )}
 
             {/* Table Headers - Desktop only */}
             {!isMobile && (
@@ -533,13 +692,13 @@ export default function DownloadsPage() {
                         display: 'flex',
                         alignItems: 'center',
                         padding: isMobile ? '10px 14px' : '10px 20px',
-                        background: isCurrent ? 'rgba(29, 185, 84, 0.05)' : 'rgba(255, 255, 255, 0.01)',
-                        border: '1px solid ' + (isCurrent ? 'rgba(29, 185, 84, 0.2)' : 'rgba(255,255,255,0.03)'),
+                        background: isCurrent ? 'rgba(176, 136, 80, 0.05)' : 'rgba(255, 255, 255, 0.01)',
+                        border: '1px solid ' + (isCurrent ? 'rgba(176, 136, 80, 0.2)' : 'rgba(255,255,255,0.03)'),
                         borderRadius: '12px',
                         cursor: 'pointer',
                         gap: '14px',
                         transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                        boxShadow: isCurrent ? '0 4px 15px rgba(29, 185, 84, 0.05)' : 'none',
+                        boxShadow: isCurrent ? '0 4px 15px rgba(176, 136, 80, 0.05)' : 'none',
                         position: 'relative'
                       }}
                     >
@@ -551,9 +710,9 @@ export default function DownloadsPage() {
                           top: '20%',
                           bottom: '20%',
                           width: '3px',
-                          background: '#1db954',
+                          background: '#b08850',
                           borderRadius: '0 4px 4px 0',
-                          boxShadow: '0 0 10px #1db954'
+                          boxShadow: '0 0 10px #b08850'
                         }} />
                       )}
 
@@ -563,27 +722,27 @@ export default function DownloadsPage() {
                         display: 'flex', 
                         justifyContent: 'center', 
                         alignItems: 'center',
-                        color: isCurrent ? '#1db954' : 'rgba(255,255,255,0.4)', 
+                        color: isCurrent ? '#b08850' : 'rgba(255,255,255,0.4)', 
                         fontSize: '14px', 
                         fontWeight: 700 
                       }}>
                         {isHovered ? (
                           isCurrent && isPlaying ? (
-                            <Pause size={14} fill="#1db954" color="#1db954" />
+                            <Pause size={14} fill="#b08850" color="#b08850" />
                           ) : (
-                            <Play size={14} fill={isCurrent ? '#1db954' : 'white'} color={isCurrent ? '#1db954' : 'white'} />
+                            <Play size={14} fill={isCurrent ? '#b08850' : 'white'} color={isCurrent ? '#b08850' : 'white'} />
                           )
                         ) : (
                           isCurrent && isPlaying ? (
                             /* Premium Mini Visualizer Bars */
                             <div style={{ display: 'flex', alignItems: 'flex-end', gap: '3px', height: '14px', width: '12px' }}>
-                              <div className="visualizer-bar" style={{ width: '2px', background: '#1db954', height: '40%', animation: 'visualizer1 0.8s ease-in-out infinite' }} />
-                              <div className="visualizer-bar" style={{ width: '2px', background: '#1db954', height: '80%', animation: 'visualizer2 0.6s ease-in-out infinite' }} />
-                              <div className="visualizer-bar" style={{ width: '2px', background: '#1db954', height: '60%', animation: 'visualizer3 0.7s ease-in-out infinite' }} />
+                              <div className="visualizer-bar" style={{ width: '2px', background: '#b08850', height: '40%', animation: 'visualizer1 0.8s ease-in-out infinite' }} />
+                              <div className="visualizer-bar" style={{ width: '2px', background: '#b08850', height: '80%', animation: 'visualizer2 0.6s ease-in-out infinite' }} />
+                              <div className="visualizer-bar" style={{ width: '2px', background: '#b08850', height: '60%', animation: 'visualizer3 0.7s ease-in-out infinite' }} />
                             </div>
                           ) : (
                             isCurrent ? (
-                              <Volume2 size={16} color="#1db954" />
+                              <Volume2 size={16} color="#b08850" />
                             ) : (
                               idx + 1
                             )
@@ -620,7 +779,7 @@ export default function DownloadsPage() {
                             margin: 0,
                             fontSize: '15px',
                             fontWeight: 700,
-                            color: isCurrent ? '#1db954' : '#fff',
+                            color: isCurrent ? '#b08850' : '#fff',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap',
@@ -633,7 +792,7 @@ export default function DownloadsPage() {
                           style={{
                             margin: '3px 0 0 0',
                             fontSize: '13px',
-                            color: isCurrent ? 'rgba(29, 185, 84, 0.7)' : 'rgba(255,255,255,0.5)',
+                            color: isCurrent ? 'rgba(176, 136, 80, 0.7)' : 'rgba(255,255,255,0.5)',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap',
@@ -715,11 +874,10 @@ export default function DownloadsPage() {
           }}>
             <h2 style={{ 
               fontFamily: 'Outfit, sans-serif', 
-              color: '#fff', 
+              color: 'var(--color-ss-text-primary, #221a15)', 
               fontSize: isMobile ? '18px' : '22px', 
               fontWeight: 850, 
-              marginBottom: '16px',
-              textShadow: '0 2px 8px rgba(0,0,0,0.5)'
+              marginBottom: '16px'
             }}>
               Discover something new
             </h2>
@@ -750,13 +908,13 @@ export default function DownloadsPage() {
                     position: 'relative', 
                     flexShrink: 0, 
                     cursor: 'pointer', 
-                    boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)'
+                    boxShadow: 'none',
+                    border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))'
                   }}
                 >
                   <img src={item.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0) 100%)' }} />
-                  <span style={{ 
+                  <span className="discover-tag" style={{ 
                     position: 'absolute', 
                     bottom: '12px', 
                     left: '10px', 
@@ -765,7 +923,6 @@ export default function DownloadsPage() {
                     fontSize: '11.5px', 
                     fontWeight: 800, 
                     fontFamily: 'Inter, sans-serif', 
-                    textShadow: '0 1.5px 3px rgba(0,0,0,0.8)', 
                     overflow: 'hidden', 
                     textOverflow: 'ellipsis', 
                     whiteSpace: 'nowrap' 
@@ -788,11 +945,10 @@ export default function DownloadsPage() {
         }}>
           <h2 style={{ 
             fontFamily: 'Outfit, sans-serif', 
-            color: '#fff', 
+            color: 'var(--color-ss-text-primary, #221a15)', 
             fontSize: isMobile ? '18px' : '22px', 
             fontWeight: 850, 
-            marginBottom: '4px',
-            textShadow: '0 2px 8px rgba(0,0,0,0.5)'
+            marginBottom: '4px'
           }}>
             Storage & Preferences
           </h2>
@@ -811,7 +967,7 @@ export default function DownloadsPage() {
               display: 'flex',
               flexDirection: 'column',
               gap: '14px',
-              boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+              boxShadow: 'none',
               backdropFilter: 'blur(12px)'
             }}>
               <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>Storage Space</p>
@@ -836,7 +992,7 @@ export default function DownloadsPage() {
                   {/* Beato Storage (Green) */}
                   <div style={{
                     width: `${Math.max(beatoPercent, 1.5)}%`,
-                    background: '#1db954',
+                    background: '#b08850',
                     height: '100%',
                     transition: 'width 0.3s ease'
                   }} />
@@ -853,7 +1009,7 @@ export default function DownloadsPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '12.5px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#1db954' }} />
+                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#b08850' }} />
                     <span style={{ color: 'rgba(255,255,255,0.7)', fontWeight: 500 }}>Beato Music</span>
                   </div>
                   <span style={{ color: '#fff', fontWeight: 600 }}>{beatoSizeMB >= 1024 ? `${(beatoSizeMB/1024).toFixed(2)} GB` : `${beatoSizeMB.toFixed(1)} MB`}</span>
@@ -887,7 +1043,7 @@ export default function DownloadsPage() {
               flexDirection: 'column',
               justifyContent: 'space-between',
               gap: '16px',
-              boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+              boxShadow: 'none',
               backdropFilter: 'blur(12px)'
             }}>
               {/* Option 1: Cellular Toggle */}
@@ -909,7 +1065,7 @@ export default function DownloadsPage() {
                     width: '42px',
                     height: '24px',
                     borderRadius: '100px',
-                    background: downloadOverCellular ? '#1db954' : 'rgba(255, 255, 255, 0.1)',
+                    background: downloadOverCellular ? '#b08850' : 'rgba(255, 255, 255, 0.1)',
                     position: 'relative',
                     cursor: 'pointer',
                     transition: 'background-color 0.2s',
@@ -953,7 +1109,7 @@ export default function DownloadsPage() {
                     border: '1px solid rgba(255,255,255,0.1)',
                     borderRadius: '100px',
                     padding: '6px 14px',
-                    color: '#1db954',
+                    color: '#b08850',
                     fontSize: '12.5px',
                     fontWeight: 750,
                     cursor: 'pointer',

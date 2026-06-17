@@ -176,7 +176,7 @@ export function getPersonalityScore(profile: MoodProfile, likedCount: number): P
     { name: 'Focused', value: scores.focused, color: '#10b981' },
     { name: 'Joyful', value: scores.happy, color: '#22c55e' },
     { name: 'Mindful', value: scores.relaxed, color: '#059669' },
-    { name: 'Driven', value: scores.motivated, color: '#1db954' },
+    { name: 'Driven', value: scores.motivated, color: '#b08850' },
   ];
 
   return { overall, label, traits };
@@ -255,7 +255,7 @@ export function getInsightCards(profile: MoodProfile, likedCount: number, recent
       icon: '🎵',
       title: 'Active Listener',
       body: `You've played ${recentCount} tracks recently. Engagement has increased by 35% compared to last week.`,
-      color: '#1db954',
+      color: '#b08850',
       trend: 'up',
       trendValue: '+35% engagement',
     });
@@ -301,10 +301,10 @@ function getMoodEmoji(mood: MoodType): string {
 
 function getMoodColor(mood: MoodType): string {
   const map: Record<MoodType, string> = {
-    happy: '#a3e635', sad: '#0f766e', romantic: '#34d399', energetic: '#1db954',
-    focused: '#10b981', relaxed: '#22c55e', motivated: '#84cc16', workout: '#1db954', travel: '#14b8a6', sleep: '#047857',
+    happy: '#a3e635', sad: '#0f766e', romantic: '#34d399', energetic: '#b08850',
+    focused: '#10b981', relaxed: '#22c55e', motivated: '#84cc16', workout: '#b08850', travel: '#14b8a6', sleep: '#047857',
   };
-  return map[mood] || '#1db954';
+  return map[mood] || '#b08850';
 }
 
 function getGenreHint(mood: MoodType): string {

@@ -13,15 +13,15 @@ import {
 } from 'lucide-react';
 
 const COLORS = {
-  bg: '#0a0a0a',
-  card: 'rgba(18, 18, 18, 0.7)',
-  card2: '#161616',
-  cardHover: 'rgba(30, 30, 30, 0.85)',
-  border: 'rgba(255, 255, 255, 0.08)',
-  borderActive: 'rgba(29, 185, 84, 0.3)',
-  green: '#1db954',
-  text: '#ffffff',
-  muted: '#a0a0a0',
+  bg: 'var(--color-ss-bg, #fbf9f5)',
+  card: 'var(--color-ss-elevated, #ffffff)',
+  card2: 'var(--color-ss-surface, #f4eede)',
+  cardHover: 'var(--color-ss-hover, #ebdcb9)',
+  border: 'var(--color-ss-border, rgba(43, 34, 26, 0.08))',
+  borderActive: 'rgba(176, 136, 80, 0.3)',
+  green: '#b08850',
+  text: 'var(--color-ss-text-primary, #221a15)',
+  muted: 'var(--color-ss-text-muted, #87786c)',
   yellow: '#eab308',
   blue: '#10b981',
   red: '#ef4444',
@@ -327,7 +327,7 @@ export default function RevenuePage() {
     let label = status;
 
     if (status === 'completed' || status === 'paid') {
-      bg = 'rgba(29, 185, 84, 0.1)';
+      bg = 'rgba(176, 136, 80, 0.1)';
       color = COLORS.green;
       label = '✓ Settled';
     } else if (status === 'failed' || status === 'rejected') {
@@ -449,10 +449,10 @@ export default function RevenuePage() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 28 }}>
           {/* Main Available Balance Card with Glowing Button */}
           <div style={{ 
-            background: 'linear-gradient(135deg, rgba(29, 185, 84,0.08) 0%, rgba(18,18,18,0.7) 100%)', 
+            background: 'linear-gradient(135deg, rgba(176, 136, 80,0.08) 0%, rgba(18,18,18,0.7) 100%)', 
             border: `1.5px solid ${isEligibleToWithdraw ? COLORS.green + '40' : COLORS.border}`, 
             borderRadius: 16, padding: '22px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            boxShadow: isEligibleToWithdraw ? '0 8px 30px rgba(29, 185, 84, 0.08)' : 'none'
+            boxShadow: isEligibleToWithdraw ? '0 8px 30px rgba(176, 136, 80, 0.08)' : 'none'
           }}>
             <div>
               <span style={{ fontSize: 11, color: COLORS.muted, textTransform: 'uppercase', letterSpacing: 0.8 }}>Available Balance</span>
@@ -468,7 +468,7 @@ export default function RevenuePage() {
                 color: isEligibleToWithdraw ? '#000' : COLORS.muted, 
                 fontWeight: 800, fontFamily: fontOutfit, fontSize: 13, 
                 cursor: isEligibleToWithdraw ? 'pointer' : 'default',
-                boxShadow: isEligibleToWithdraw ? '0 4px 20px rgba(29, 185, 84, 0.3)' : 'none',
+                boxShadow: isEligibleToWithdraw ? '0 4px 20px rgba(176, 136, 80, 0.3)' : 'none',
                 transition: '0.2s'
               }}
               onMouseEnter={e => { if (isEligibleToWithdraw) e.currentTarget.style.transform = 'scale(1.03)'; }}
@@ -776,7 +776,7 @@ export default function RevenuePage() {
                         <span style={{ fontSize: 11, color: COLORS.muted, fontFamily: 'monospace' }}>{disp.id}</span>
                         <span style={{ 
                           fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 10,
-                          background: disp.status === 'resolved' ? 'rgba(29, 185, 84, 0.1)' : 'rgba(234, 179, 8, 0.1)',
+                          background: disp.status === 'resolved' ? 'rgba(176, 136, 80, 0.1)' : 'rgba(234, 179, 8, 0.1)',
                           color: disp.status === 'resolved' ? COLORS.green : COLORS.yellow
                         }}>
                           {disp.status.toUpperCase()}

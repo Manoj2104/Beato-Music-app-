@@ -74,7 +74,7 @@ export default function ClientToaster() {
                   style={{
                     background: 'none',
                     border: 'none',
-                    color: 'rgba(255, 255, 255, 0.5)',
+                    color: t.style?.background === '#ffffff' || t.style?.background === '#fff' ? 'rgba(43, 34, 26, 0.4)' : 'rgba(255, 255, 255, 0.5)',
                     cursor: 'pointer',
                     padding: '4px',
                     marginLeft: '8px',
@@ -85,11 +85,11 @@ export default function ClientToaster() {
                     transition: 'color 0.15s, background-color 0.15s',
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#fff';
-                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
+                    e.currentTarget.style.color = t.style?.background === '#ffffff' || t.style?.background === '#fff' ? '#221a15' : '#fff';
+                    e.currentTarget.style.backgroundColor = t.style?.background === '#ffffff' || t.style?.background === '#fff' ? 'rgba(43, 34, 26, 0.06)' : 'rgba(255, 255, 255, 0.08)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.color = 'rgba(255, 255, 255, 0.5)';
+                    e.currentTarget.style.color = t.style?.background === '#ffffff' || t.style?.background === '#fff' ? 'rgba(43, 34, 26, 0.4)' : 'rgba(255, 255, 255, 0.5)';
                     e.currentTarget.style.backgroundColor = 'transparent';
                   }}
                   aria-label="Dismiss notification"

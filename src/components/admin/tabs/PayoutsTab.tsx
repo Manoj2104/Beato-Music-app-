@@ -17,8 +17,8 @@ const COLORS = {
   card2: '#161616',
   cardHover: 'rgba(30, 30, 30, 0.85)',
   border: 'rgba(255, 255, 255, 0.08)',
-  borderActive: 'rgba(29, 185, 84, 0.3)',
-  green: '#1db954',
+  borderActive: 'rgba(176, 136, 80, 0.3)',
+  green: '#b08850',
   text: '#ffffff',
   muted: '#a0a0a0',
   yellow: '#eab308',
@@ -324,7 +324,7 @@ export default function PayoutsTab() {
     let icon = <Clock size={11} style={{ marginRight: 4 }} />;
 
     if (status === 'completed' || status === 'paid') {
-      bg = 'rgba(29, 185, 84, 0.1)';
+      bg = 'rgba(176, 136, 80, 0.1)';
       color = COLORS.green;
       icon = <CheckCircle size={11} style={{ marginRight: 4 }} />;
     } else if (status === 'failed' || status === 'rejected') {
@@ -358,7 +358,7 @@ export default function PayoutsTab() {
   };
 
   const getRiskBadge = (score: number) => {
-    let bg = 'rgba(29, 185, 84, 0.1)';
+    let bg = 'rgba(176, 136, 80, 0.1)';
     let color = COLORS.green;
     let label = 'Low';
     let icon = <Shield size={11} style={{ marginRight: 4 }} />;
@@ -481,7 +481,7 @@ export default function PayoutsTab() {
       
       {/* ─── STUNNING GLASSMORPHIC HEADER ACTION CARD ─── */}
       <div style={{ 
-        background: 'linear-gradient(135deg, rgba(29, 185, 84,0.06) 0%, rgba(18,18,18,0.7) 100%)', 
+        background: 'linear-gradient(135deg, rgba(176, 136, 80,0.06) 0%, rgba(18,18,18,0.7) 100%)', 
         border: `1px solid ${COLORS.borderActive}`, borderRadius: 16, padding: '24px 28px', marginBottom: 28,
         display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16
       }}>
@@ -514,7 +514,7 @@ export default function PayoutsTab() {
               display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px', borderRadius: 8, 
               border: 'none', background: COLORS.green, color: '#000', 
               fontWeight: 700, cursor: isScheduling ? 'default' : 'pointer', fontSize: 13,
-              boxShadow: '0 4px 14px rgba(29, 185, 84, 0.25)', transition: '0.2s'
+              boxShadow: '0 4px 14px rgba(176, 136, 80, 0.25)', transition: '0.2s'
             }}
             onMouseEnter={e => { if(!isScheduling) e.currentTarget.style.opacity = '0.9'; }}
             onMouseLeave={e => { if(!isScheduling) e.currentTarget.style.opacity = '1'; }}
@@ -645,7 +645,7 @@ export default function PayoutsTab() {
           >
             {t.label}
             <span style={{ 
-              fontSize: 10, background: activeTab === t.id ? 'rgba(29, 185, 84, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+              fontSize: 10, background: activeTab === t.id ? 'rgba(176, 136, 80, 0.15)' : 'rgba(255, 255, 255, 0.05)',
               color: activeTab === t.id ? COLORS.green : COLORS.muted, padding: '2px 6px', borderRadius: 10, fontWeight: 700
             }}>{t.count}</span>
           </button>
@@ -965,7 +965,7 @@ export default function PayoutsTab() {
                         <td style={{ padding: '14px 16px' }}>
                           <span style={{ 
                             padding: '3px 8px', borderRadius: 20, fontSize: 11, fontWeight: 700,
-                            background: d.status === 'resolved' ? 'rgba(29, 185, 84, 0.1)' : d.status === 'open' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(234, 179, 8, 0.1)',
+                            background: d.status === 'resolved' ? 'rgba(176, 136, 80, 0.1)' : d.status === 'open' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(234, 179, 8, 0.1)',
                             color: d.status === 'resolved' ? COLORS.green : d.status === 'open' ? COLORS.red : COLORS.yellow
                           }}>
                             {d.status.toUpperCase()}
@@ -1210,7 +1210,7 @@ export default function PayoutsTab() {
                       onClick={() => setDisputeStatusAction(actionType)}
                       style={{
                         flex: 1, padding: '8px', borderRadius: 6, border: `1.5px solid ${disputeStatusAction === actionType ? COLORS.green : COLORS.border}`,
-                        background: disputeStatusAction === actionType ? 'rgba(29, 185, 84, 0.1)' : 'transparent',
+                        background: disputeStatusAction === actionType ? 'rgba(176, 136, 80, 0.1)' : 'transparent',
                         color: disputeStatusAction === actionType ? COLORS.green : COLORS.muted, fontSize: 11, fontWeight: 700, cursor: 'pointer', textTransform: 'capitalize'
                       }}
                     >

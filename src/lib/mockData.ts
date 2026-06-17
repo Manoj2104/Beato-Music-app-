@@ -685,7 +685,7 @@ export const subscriptionPlans: SubscriptionPlan[] = [
     price: 9.99,
     currency: 'USD',
     period: 'monthly',
-    color: '#1db954',
+    color: '#b08850',
     highlighted: true,
     features: [
       'Everything in Free',

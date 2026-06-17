@@ -20,6 +20,7 @@ import { useMusicStore } from '@/store/musicStore';
 import toast from 'react-hot-toast';
 import { Artist, Track } from '@/types';
 import { formatDuration } from '@/lib/mockData';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 function fmt(n: number) {
@@ -216,7 +217,7 @@ function WaveBar() {
       {[4, 10, 7, 13, 9, 6, 11].map((h, i) => (
         <span key={i} style={{
           display: 'block', width: 2, height: h,
-          background: '#1db954', borderRadius: 1,
+          background: '#b08850', borderRadius: 1,
           animation: `waveformH ${0.4 + i * 0.09}s ease-in-out infinite alternate`,
         }} />
       ))}
@@ -239,17 +240,17 @@ function TrackRow({ track, idx, active, playing, onPlay }: {
       onMouseLeave={() => setHov(false)}
       className="grid grid-cols-[24px_40px_1fr_auto_40px] md:grid-cols-[32px_48px_1fr_auto_80px_52px] gap-2.5 md:gap-3 px-3 md:px-4 py-2 md:py-2.5 items-center rounded-lg cursor-pointer transition-colors"
       style={{
-        background: active ? 'rgba(29, 185, 84,0.07)' : hov ? 'rgba(255,255,255,0.05)' : 'transparent',
+        background: active ? 'rgba(176, 136, 80,0.07)' : hov ? 'rgba(255,255,255,0.05)' : 'transparent',
       }}
     >
       {/* Index / play indicator */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         {hov || (active && playing) ? (
-          <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#1db954', display: 'flex', alignItems: 'center' }}>
-            {active && playing ? <WaveBar /> : <Play size={14} fill="#1db954" color="#1db954" style={{ transform: 'translateX(1px)' }} />}
+          <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#b08850', display: 'flex', alignItems: 'center' }}>
+            {active && playing ? <WaveBar /> : <Play size={14} fill="#b08850" color="#b08850" style={{ transform: 'translateX(1px)' }} />}
           </button>
         ) : (
-          <span style={{ fontSize: 12, fontWeight: 700, color: active ? '#1db954' : 'rgba(255,255,255,0.25)', fontVariantNumeric: 'tabular-nums' }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: active ? '#b08850' : 'rgba(255,255,255,0.25)', fontVariantNumeric: 'tabular-nums' }}>
             {idx + 1}
           </span>
         )}
@@ -273,7 +274,7 @@ function TrackRow({ track, idx, active, playing, onPlay }: {
 
       {/* Title + album/plays */}
       <div style={{ minWidth: 0 }}>
-        <p style={{ color: active ? '#1db954' : '#fff', fontSize: 15, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: 1.3 }}>
+        <p style={{ color: active ? '#b08850' : '#fff', fontSize: 15, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: 1.3 }}>
           {track.title}
         </p>
         <p className="block md:hidden text-white/50 text-[12px] mt-0.5">
@@ -289,14 +290,14 @@ function TrackRow({ track, idx, active, playing, onPlay }: {
         onClick={e => { e.stopPropagation(); toggleLikeSong(track.id); }}
         style={{
           background: 'none', border: 'none', cursor: 'pointer',
-          color: liked ? '#1db954' : 'rgba(255,255,255,0.2)',
+          color: liked ? '#b08850' : 'rgba(255,255,255,0.2)',
           display: 'flex', alignItems: 'center',
           opacity: hov || liked ? 1 : 0,
           transition: 'opacity 0.15s, color 0.15s',
           padding: 4,
         }}
       >
-        <Heart size={14} fill={liked ? '#1db954' : 'none'} />
+        <Heart size={14} fill={liked ? '#b08850' : 'none'} />
       </button>
 
       {/* Plays (Desktop only) */}
@@ -336,45 +337,66 @@ function ArtistMobileView({
 }: any) {
   const [mobileTab, setMobileTab] = useState<'Music' | 'About'>('Music');
   const router = useRouter();
-  const [scrollTop, setScrollTop] = useState(0);
-
-  useEffect(() => {
-    const el = document.querySelector('.app-main');
-    if (!el) return;
-    const handler = () => {
-      setScrollTop(el.scrollTop);
-    };
-    el.addEventListener('scroll', handler, { passive: true });
-    handler();
-    return () => el.removeEventListener('scroll', handler);
-  }, []);
 
   // Color theme accent
   const hue = (artist.id.split('').reduce((a: number, c: string) => a + c.charCodeAt(0), 0) * 37) % 360;
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0d0d0d', color: '#fff', fontFamily: 'Inter, sans-serif', paddingBottom: 120 }}>
-      {/* Sticky/Fixed Mobile Header */}
-      <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 100,
-        display: 'flex',
-        alignItems: 'center',
-        gap: 12,
-        paddingLeft: 16,
-        paddingRight: 16,
-        paddingTop: 'calc(env(safe-area-inset-top, 24px) + 12px)',
-        paddingBottom: '12px',
-        background: scrollTop > 150 ? '#0d0d0d' : 'transparent',
-        borderBottom: scrollTop > 150 ? '1px solid rgba(255,255,255,0.05)' : '1px solid transparent',
-        transition: 'background 0.2s, border-bottom 0.2s',
-      }}>
+    <div className="artist-themed-container" style={{ minHeight: '100vh', background: 'var(--color-ss-bg, #fbf9f5)', color: 'var(--color-ss-text-primary, #221a15)', fontFamily: 'Inter, sans-serif', paddingBottom: 120 }}>
+      <style>{`
+        .artist-themed-container {
+          background-color: var(--color-ss-bg, #fbf9f5) !important;
+          color: var(--color-ss-text-primary, #221a15) !important;
+        }
+        .artist-themed-container h1:not(.text-white-force),
+        .artist-themed-container h2:not(.text-white-force),
+        .artist-themed-container h3:not(.text-white-force),
+        .artist-themed-container h4:not(.text-white-force) {
+          color: var(--color-ss-text-primary, #221a15) !important;
+        }
+        .artist-themed-container p:not(.text-white-force),
+        .artist-themed-container span:not(.text-white-force),
+        .artist-themed-container label:not(.text-white-force) {
+          color: var(--color-ss-text-primary, #221a15) !important;
+        }
+        .artist-themed-container .text-ss-text-muted,
+        .artist-themed-container p[style*="color: rgba(255,255,255,0.5)"],
+        .artist-themed-container p[style*="color: rgba(255,255,255,0.7)"],
+        .artist-themed-container p[style*="color: rgb(163, 163, 163)"],
+        .artist-themed-container span[style*="color: rgb(163, 163, 163)"],
+        .artist-themed-container p[style*="color: #a3a3a3"],
+        .artist-themed-container span[style*="color: #a3a3a3"] {
+          color: var(--color-ss-text-muted, #87786c) !important;
+        }
+        .artist-themed-container div[style*="background: rgba(255, 255, 255, 0.04)"],
+        .artist-themed-container div[style*="background: rgba(255,255,255,0.04)"],
+        .artist-themed-container div[style*="background: rgba(255, 255, 255, 0.03)"],
+        .artist-themed-container div[style*="background: rgba(255,255,255,0.03)"] {
+          background: var(--color-ss-surface, #f4eede) !important;
+          border: 1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08)) !important;
+          box-shadow: none !important;
+        }
+        .artist-themed-container button:not(.play-btn-force):not(.text-white-force) {
+          color: var(--color-ss-text-primary, #221a15) !important;
+          border-color: rgba(43, 34, 26, 0.2) !important;
+        }
+        .artist-themed-container div[style*="background: #0d0d0d"],
+        .artist-themed-container div[style*="background: rgb(13, 13, 13)"] {
+          background: var(--color-ss-bg, #fbf9f5) !important;
+        }
+        .artist-themed-container div[style*="border-bottom: 1px solid rgba(255,255,255,0.05)"] {
+          border-bottom: 1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08)) !important;
+        }
+      `}</style>
+      {/* ── HERO BANNER ── */}
+      <div style={{ position: 'relative', height: 320, overflow: 'hidden' }}>
+        {/* Back Button */}
         <button onClick={() => router.back()} style={{
-          width: 32,
-          height: 32,
+          position: 'absolute',
+          top: 'calc(var(--sat, 0px) + 16px)',
+          left: 16,
+          width: 38,
+          height: 38,
           borderRadius: '50%',
           background: 'rgba(0,0,0,0.5)',
           display: 'flex',
@@ -382,25 +404,11 @@ function ArtistMobileView({
           justifyContent: 'center',
           border: 'none',
           color: '#fff',
-          cursor: 'pointer'
+          cursor: 'pointer',
+          zIndex: 50
         }}>
-          <ArrowLeft size={18} color="#fff" />
+          <ArrowLeft size={20} color="#fff" />
         </button>
-        {scrollTop > 150 && (
-          <h1 style={{
-            fontFamily: 'Outfit, sans-serif',
-            fontSize: 18,
-            fontWeight: 800,
-            color: '#fff',
-            margin: 0,
-          }}>
-            {artist.name}
-          </h1>
-        )}
-      </div>
-
-      {/* ── HERO BANNER ── */}
-      <div style={{ position: 'relative', height: 320, overflow: 'hidden' }}>
 
         {/* Background Image */}
         {artist.coverImage || artist.image ? (
@@ -434,18 +442,18 @@ function ArtistMobileView({
                 width: 14, 
                 height: 14, 
                 borderRadius: '50%', 
-                background: '#1db954', 
+                background: '#b08850', 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center'
               }}>
                 <CheckCircle2 size={10} color="black" strokeWidth={4} />
               </div>
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#fff', textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}>Verified by Spotify</span>
+              <span className="text-white-force" style={{ fontSize: 11, fontWeight: 700, color: '#fff', textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}>Verified by Spotify</span>
             </div>
           )}
           
-          <h1 style={{
+          <h1 className="text-white-force" style={{
             fontFamily: 'Outfit, sans-serif',
             fontSize: 38,
             fontWeight: 900,
@@ -456,7 +464,7 @@ function ArtistMobileView({
             textShadow: '0 2px 10px rgba(0,0,0,0.8)'
           }}>{artist.name}</h1>
           
-          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', fontWeight: 600, margin: 0, textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}>
+          <p className="text-white-force" style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', fontWeight: 600, margin: 0, textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}>
             {fmt(currentMonthlyListeners)} monthly listeners
           </p>
         </div>
@@ -468,7 +476,7 @@ function ArtistMobileView({
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '12px 16px',
-        background: '#0d0d0d'
+        background: 'var(--color-ss-bg, #fbf9f5)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           {/* Small circular profile pic */}
@@ -519,7 +527,7 @@ function ArtistMobileView({
             onClick={doShuffle}
             style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4 }}
           >
-            <Shuffle size={20} color="#1db954" />
+            <Shuffle size={20} color="#b08850" />
           </button>
 
           {/* Solid Green Play Button */}
@@ -529,13 +537,13 @@ function ArtistMobileView({
               width: 50,
               height: 50,
               borderRadius: '50%',
-              background: '#1db954',
+              background: '#b08850',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               border: 'none',
               cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(29, 185, 84,0.4)'
+              boxShadow: '0 4px 12px rgba(176, 136, 80,0.4)'
             }}
           >
             {currentTrack?.artistId === artist.id && isPlaying ? (
@@ -607,7 +615,7 @@ function ArtistMobileView({
                 left: 16,
                 right: 16,
                 height: 2,
-                background: '#1db954'
+                background: '#b08850'
               }} />
             )}
           </button>
@@ -645,11 +653,11 @@ function ArtistMobileView({
                         {isTrackPlaying ? (
                           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 12 }}>
                             {[1, 2, 3].map(i => (
-                              <div key={i} style={{ width: 2, background: '#1db954', borderRadius: 1, height: `${4 + i * 2}px`, animation: `waveformH ${0.5 + i * 0.15}s ease-in-out infinite` }} />
+                              <div key={i} style={{ width: 2, background: '#b08850', borderRadius: 1, height: `${4 + i * 2}px`, animation: `waveformH ${0.5 + i * 0.15}s ease-in-out infinite` }} />
                             ))}
                           </div>
                         ) : (
-                          <span style={{ fontSize: 13, fontWeight: 700, color: isTrackActive ? '#1db954' : 'rgba(255,255,255,0.4)' }}>
+                          <span style={{ fontSize: 13, fontWeight: 700, color: isTrackActive ? '#b08850' : 'rgba(255,255,255,0.4)' }}>
                             {index + 1}
                           </span>
                         )}
@@ -669,7 +677,7 @@ function ArtistMobileView({
                       {/* Title + plays */}
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <p style={{
-                          color: isTrackActive ? '#1db954' : '#fff',
+                          color: isTrackActive ? '#b08850' : '#fff',
                           fontSize: 14,
                           fontWeight: 600,
                           margin: '0 0 3px',
@@ -688,12 +696,12 @@ function ArtistMobileView({
 
                       {/* Checkmark icon for liked tracks */}
                       {isTrackLiked && (
-                        <div style={{ color: '#1db954', padding: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <div style={{ color: '#b08850', padding: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           <div style={{ 
                             width: 16, 
                             height: 16, 
                             borderRadius: '50%', 
-                            background: '#1db954', 
+                            background: '#b08850', 
                             display: 'flex', 
                             alignItems: 'center', 
                             justifyContent: 'center',
@@ -771,7 +779,7 @@ function ArtistMobileView({
 
           {/* Biography Text Box */}
           <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 12, padding: 16, border: '1px solid rgba(255,255,255,0.05)' }}>
-            <h5 style={{ color: '#1db954', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', margin: '0 0 10px', letterSpacing: '0.1em' }}>Biography</h5>
+            <h5 style={{ color: '#b08850', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', margin: '0 0 10px', letterSpacing: '0.1em' }}>Biography</h5>
             <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, lineHeight: 1.6, margin: 0 }}>
               {artist.bio || `${artist.name} is a composer and artist on Beato.`}
             </p>
@@ -785,7 +793,7 @@ function ArtistMobileView({
               { label: 'Live Now', val: currentListeningNow }
             ].map((item) => (
               <div key={item.label} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 12, padding: 12, border: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
-                <p style={{ color: '#1db954', fontSize: 20, fontWeight: 900, margin: '0 0 4px' }}>{fmt(item.val)}</p>
+                <p style={{ color: '#b08850', fontSize: 20, fontWeight: 900, margin: '0 0 4px' }}>{fmt(item.val)}</p>
                 <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 9, fontWeight: 700, textTransform: 'uppercase', margin: 0 }}>{item.label}</p>
               </div>
             ))}
@@ -841,15 +849,7 @@ export default function ArtistPage({ params }: { params: Promise<{ id: string }>
     listeningNow: number;
   } | null>(null);
 
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+  const isMobile = useIsMobile(); // ⚡ shared single resize listener
 
   useEffect(() => {
     let alive = true;
@@ -890,7 +890,7 @@ export default function ArtistPage({ params }: { params: Promise<{ id: string }>
     };
 
     fetchLiveStats();
-    const iv = setInterval(fetchLiveStats, 3500);
+    const iv = setInterval(fetchLiveStats, 10000); // ⚡ 10s instead of 3.5s — reduces server load
     return () => clearInterval(iv);
   }, [artist?.id]);
 
@@ -906,7 +906,7 @@ export default function ArtistPage({ params }: { params: Promise<{ id: string }>
   // ── loading state ──────────────────────────────────────────────────────────
   if (loading) return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', background: '#0d0d0d', gap: 16 }}>
-      <div style={{ width: 48, height: 48, borderRadius: '50%', border: '2px solid rgba(29, 185, 84,0.2)', borderTopColor: '#1db954', animation: 'spin 0.8s linear infinite' }} />
+      <div style={{ width: 48, height: 48, borderRadius: '50%', border: '2px solid rgba(176, 136, 80,0.2)', borderTopColor: '#b08850', animation: 'spin 0.8s linear infinite' }} />
       <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 13, letterSpacing: 1 }}>Loading artist…</p>
     </div>
   );
@@ -915,7 +915,7 @@ export default function ArtistPage({ params }: { params: Promise<{ id: string }>
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', background: '#0d0d0d', gap: 16 }}>
       <MicVocal size={40} color="rgba(255,255,255,0.15)" />
       <p style={{ color: '#fff', fontWeight: 700, fontSize: 18 }}>Artist not found</p>
-      <Link href="/search" style={{ padding: '10px 24px', borderRadius: 100, background: '#1db954', color: '#000', fontWeight: 700, textDecoration: 'none', fontSize: 13 }}>Browse Artists</Link>
+      <Link href="/search" style={{ padding: '10px 24px', borderRadius: 100, background: '#b08850', color: '#000', fontWeight: 700, textDecoration: 'none', fontSize: 13 }}>Browse Artists</Link>
     </div>
   );
 
@@ -988,7 +988,63 @@ export default function ArtistPage({ params }: { params: Promise<{ id: string }>
   }
 
   return (
-    <div ref={mainRef} style={{ minHeight: '100%', background: '#0d0d0d', position: 'relative' }}>
+    <div ref={mainRef} className="artist-themed-container" style={{ minHeight: '100%', background: 'var(--color-ss-bg, #fbf9f5)', position: 'relative' }}>
+      <style>{`
+        .artist-themed-container {
+          background-color: var(--color-ss-bg, #fbf9f5) !important;
+          color: var(--color-ss-text-primary, #221a15) !important;
+        }
+        .artist-themed-container h1:not(.text-white-force),
+        .artist-themed-container h2:not(.text-white-force),
+        .artist-themed-container h3:not(.text-white-force),
+        .artist-themed-container h4:not(.text-white-force) {
+          color: var(--color-ss-text-primary, #221a15) !important;
+        }
+        .artist-themed-container p:not(.text-white-force),
+        .artist-themed-container span:not(.text-white-force),
+        .artist-themed-container label:not(.text-white-force) {
+          color: var(--color-ss-text-primary, #221a15) !important;
+        }
+        .artist-themed-container .text-ss-text-muted,
+        .artist-themed-container p[style*="color: rgba(255,255,255,0.5)"],
+        .artist-themed-container p[style*="color: rgba(255,255,255,0.7)"],
+        .artist-themed-container p[style*="color: rgb(163, 163, 163)"],
+        .artist-themed-container span[style*="color: rgb(163, 163, 163)"],
+        .artist-themed-container p[style*="color: #a3a3a3"],
+        .artist-themed-container span[style*="color: #a3a3a3"] {
+          color: var(--color-ss-text-muted, #87786c) !important;
+        }
+        .artist-themed-container div[style*="background: rgba(255, 255, 255, 0.04)"],
+        .artist-themed-container div[style*="background: rgba(255,255,255,0.04)"],
+        .artist-themed-container div[style*="background: rgba(255, 255, 255, 0.03)"],
+        .artist-themed-container div[style*="background: rgba(255,255,255,0.03)"],
+        .artist-themed-container div[style*="background: rgba(255, 255, 255, 0.02)"],
+        .artist-themed-container div[style*="background: rgba(255,255,255,0.02)"] {
+          background: var(--color-ss-surface, #f4eede) !important;
+          border-color: var(--color-ss-border, rgba(43, 34, 26, 0.08)) !important;
+          box-shadow: none !important;
+        }
+        .artist-themed-container button:not(.play-btn-force):not(.text-white-force) {
+          color: var(--color-ss-text-primary, #221a15) !important;
+          border-color: rgba(43, 34, 26, 0.2) !important;
+        }
+        .artist-themed-container div[style*="background: #0d0d0d"],
+        .artist-themed-container div[style*="background: rgb(13, 13, 13)"] {
+          background: var(--color-ss-bg, #fbf9f5) !important;
+        }
+        .artist-themed-container div[style*="border-bottom: 1px solid rgba(255,255,255,0.05)"],
+        .artist-themed-container div[style*="border-bottom: 1px solid rgba(255,255,255,0.08)"],
+        .artist-themed-container div[style*="border-bottom: 1px solid rgba(255,255,255,0.07)"] {
+          border-bottom: 1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08)) !important;
+        }
+        .artist-themed-container div[style*="border-top: 1px solid rgba(255,255,255,0.08)"],
+        .artist-themed-container div[style*="border-top: 1px solid rgba(255,255,255,0.07)"] {
+          border-top: 1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08)) !important;
+        }
+        .artist-themed-container div[style*="border-bottom: 2px solid #fff"] {
+          border-bottom: 2px solid var(--color-ss-primary, #b08850) !important;
+        }
+      `}</style>
 
       {/* ════════════════════════════════════════════
           HERO
@@ -1003,13 +1059,13 @@ export default function ArtistPage({ params }: { params: Promise<{ id: string }>
         ) : (
           <div style={{
             position: 'absolute', inset: 0,
-            background: `linear-gradient(135deg, hsl(${hue},60%,12%) 0%, hsl(${(hue+40)%360},50%,8%) 50%, #0d0d0d 100%)`,
+            background: `linear-gradient(135deg, hsl(${hue},60%,12%) 0%, hsl(${(hue+40)%360},50%,8%) 50%, var(--color-ss-bg, #fbf9f5) 100%)`,
           }} />
         )}
 
         {/* Overlay gradients */}
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(13,13,13,0.05) 0%, rgba(13,13,13,0.4) 50%, rgba(13,13,13,1) 100%)' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(13,13,13,0.75) 0%, rgba(13,13,13,0.1) 60%, transparent 100%)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(43,34,26,0.05) 0%, rgba(43,34,26,0.4) 50%, var(--color-ss-bg, #fbf9f5) 100%)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(43,34,26,0.75) 0%, rgba(43,34,26,0.1) 60%, transparent 100%)' }} />
         {/* Subtle color glow */}
         <div style={{ position: 'absolute', top: 0, right: '15%', width: 400, height: 400, borderRadius: '50%', background: `hsl(${hue},70%,50%)`, opacity: 0.07, filter: 'blur(80px)' }} />
 
@@ -1032,9 +1088,9 @@ export default function ArtistPage({ params }: { params: Promise<{ id: string }>
             >
               <div style={{
                 width: 148, height: 148, borderRadius: '50%', overflow: 'hidden',
-                border: followed ? '3px solid #1db954' : '2px solid rgba(255,255,255,0.12)',
+                border: followed ? '3px solid #b08850' : '2px solid rgba(255,255,255,0.12)',
                 boxShadow: followed
-                  ? '0 0 0 4px rgba(29, 185, 84,0.18), 0 12px 40px rgba(0,0,0,0.7)'
+                  ? '0 0 0 4px rgba(176, 136, 80,0.18), 0 12px 40px rgba(0,0,0,0.7)'
                   : '0 12px 40px rgba(0,0,0,0.7)',
                 transition: 'border-color 0.3s, box-shadow 0.3s',
               }}>
@@ -1066,7 +1122,7 @@ export default function ArtistPage({ params }: { params: Promise<{ id: string }>
               className="block md:hidden flex-1 min-w-0"
             >
               {/* Name */}
-              <h1 style={{
+              <h1 className="text-white-force" style={{
                 fontFamily: 'Outfit, sans-serif',
                 fontWeight: 900,
                 color: '#fff',
@@ -1082,13 +1138,13 @@ export default function ArtistPage({ params }: { params: Promise<{ id: string }>
               {/* Verified by Spotify */}
               {artist.verified && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-                  <CheckCircle2 size={16} color="#fff" fill="#1db954" />
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#fff', textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>Verified by Spotify</span>
+                  <CheckCircle2 size={16} color="#fff" fill="#b08850" />
+                  <span className="text-white-force" style={{ fontSize: 13, fontWeight: 700, color: '#fff', textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>Verified by Spotify</span>
                 </div>
               )}
 
               {/* Monthly Listeners */}
-              <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', fontWeight: 500, margin: 0, textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
+              <p className="text-white-force" style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', fontWeight: 500, margin: 0, textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
                 {fmt(currentMonthlyListeners)} monthly listeners
               </p>
             </motion.div>
@@ -1103,9 +1159,9 @@ export default function ArtistPage({ params }: { params: Promise<{ id: string }>
               {/* Badges */}
               <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, marginBottom: 10 }}>
                 {artist.verified && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 12px', borderRadius: 100, background: 'rgba(29, 185, 84,0.14)', border: '1px solid rgba(29, 185, 84,0.3)' }}>
-                    <CheckCircle2 size={10} color="#1db954" />
-                    <span style={{ fontSize: 10, fontWeight: 800, color: '#1db954', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Verified Artist</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 12px', borderRadius: 100, background: 'rgba(176, 136, 80,0.14)', border: '1px solid rgba(176, 136, 80,0.3)' }}>
+                    <CheckCircle2 size={10} color="#b08850" />
+                    <span style={{ fontSize: 10, fontWeight: 800, color: '#b08850', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Verified Artist</span>
                   </div>
                 )}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 12px', borderRadius: 100, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
@@ -1120,7 +1176,7 @@ export default function ArtistPage({ params }: { params: Promise<{ id: string }>
               </div>
 
               {/* Name */}
-              <h1 style={{
+              <h1 className="text-white-force" style={{
                 fontFamily: 'Outfit, sans-serif',
                 fontWeight: 900,
                 color: '#fff',
@@ -1135,15 +1191,15 @@ export default function ArtistPage({ params }: { params: Promise<{ id: string }>
       {/* Stats row */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
                 {[
-                  { icon: <Users size={12} color="#1db954" />, val: fmt(currentFollowers), label: 'followers' },
+                  { icon: <Users size={12} color="#b08850" />, val: fmt(currentFollowers), label: 'followers' },
                   { icon: <Headphones size={12} color="rgba(255,255,255,0.4)" />, val: fmt(currentMonthlyListeners), label: 'monthly listeners' },
                   ...(artistTracks.length ? [{ icon: <Music size={12} color="rgba(255,255,255,0.4)" />, val: String(artistTracks.length), label: 'tracks' }] : []),
                 ].map((s, i) => (
                   <span key={i} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     {i > 0 && <span style={{ color: 'rgba(255,255,255,0.15)', margin: '0 4px' }}>·</span>}
-                    {s.icon}
-                    <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{s.val}</span>
-                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>{s.label}</span>
+                     {s.icon}
+                     <span className="text-white-force" style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{s.val}</span>
+                     <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>{s.label}</span>
                   </span>
                 ))}
               </div>
@@ -1156,9 +1212,9 @@ export default function ArtistPage({ params }: { params: Promise<{ id: string }>
       <div 
         className="sticky top-0 z-50 px-4 md:px-8 py-3.5 flex items-center justify-between md:justify-start gap-4 md:gap-5"
         style={{
-          background: scrolled ? 'rgba(13,13,13,0.96)' : 'transparent',
+          background: scrolled ? 'rgba(251, 249, 245, 0.96)' : 'transparent',
           backdropFilter: scrolled ? 'blur(24px)' : 'none',
-          borderBottom: scrolled ? '1px solid rgba(255,255,255,0.05)' : 'none',
+          borderBottom: scrolled ? '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))' : 'none',
           transition: 'background 0.35s, backdrop-filter 0.35s',
         }}
       >
@@ -1204,7 +1260,7 @@ export default function ArtistPage({ params }: { params: Promise<{ id: string }>
             onClick={doShuffle}
             className="w-9 h-9 rounded-full flex items-center justify-center text-ss-primary hover:bg-white/5 transition-colors border-none bg-transparent cursor-pointer"
           >
-            <Shuffle size={18} color="#1db954" />
+            <Shuffle size={18} color="#b08850" />
           </motion.button>
 
           {/* Play */}
@@ -1269,7 +1325,7 @@ export default function ArtistPage({ params }: { params: Promise<{ id: string }>
               {t}
               {tab === t && (
                 <motion.div layoutId="tabUnderline"
-                  style={{ position: 'absolute', bottom: -1, left: 20, right: 20, height: 2, background: '#1db954', borderRadius: 2 }}
+                  style={{ position: 'absolute', bottom: -1, left: 20, right: 20, height: 2, background: '#b08850', borderRadius: 2 }}
                 />
               )}
             </button>
@@ -1291,7 +1347,7 @@ export default function ArtistPage({ params }: { params: Promise<{ id: string }>
             >
               {/* Stats – 4 cards */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-                <StatsCard index={0} label="Followers" value={currentFollowers} color="#1db954" icon={<Users size={15} />} isLive />
+                <StatsCard index={0} label="Followers" value={currentFollowers} color="#b08850" icon={<Users size={15} />} isLive />
                 <StatsCard index={1} label="Monthly Listeners" value={currentMonthlyListeners} color="#a78bfa" icon={<Headphones size={15} />} isLive />
                 <StatsCard index={2} label="Listening Now" value={currentListeningNow} color="#34d399" icon={<Radio size={15} />} isLive />
                 <StatsCard index={3} label="Tracks" value={artistTracks.length} color="#fb923c" icon={<Music size={15} />} />
@@ -1301,7 +1357,7 @@ export default function ArtistPage({ params }: { params: Promise<{ id: string }>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
                   <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 20, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <TrendingUp size={18} color="#1db954" /> Popular Tracks
+                    <TrendingUp size={18} color="#b08850" /> Popular Tracks
                   </h2>
                   {artistTracks.length > 5 && (
                     <button onClick={() => setTab('Popular')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.3)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: 3 }}
@@ -1353,13 +1409,13 @@ export default function ArtistPage({ params }: { params: Promise<{ id: string }>
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(13,13,13,0.98) 0%, rgba(13,13,13,0.4) 55%, transparent 100%)' }} />
                   <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 24 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
-                      <Mic2 size={12} color="#1db954" />
-                      <span style={{ fontSize: 9, fontWeight: 800, color: '#1db954', textTransform: 'uppercase', letterSpacing: '0.15em' }}>Artist Bio</span>
+                      <Mic2 size={12} color="#b08850" />
+                      <span style={{ fontSize: 9, fontWeight: 800, color: '#b08850', textTransform: 'uppercase', letterSpacing: '0.15em' }}>Artist Bio</span>
                     </div>
                     <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, lineHeight: 1.7, fontWeight: 300, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                       {artist.bio || `${artist.name} is a verified creator delivering dynamic music on Beato.`}
                     </p>
-                    <button onClick={() => setTab('About')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#1db954', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4, marginTop: 10, padding: 0 }}>
+                    <button onClick={() => setTab('About')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#b08850', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4, marginTop: 10, padding: 0 }}>
                       Read more <ChevronRight size={12} />
                     </button>
                   </div>
@@ -1484,7 +1540,7 @@ export default function ArtistPage({ params }: { params: Promise<{ id: string }>
               {/* Bio card */}
               <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 16, padding: '22px 24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                  <Mic2 size={14} color="#1db954" />
+                  <Mic2 size={14} color="#b08850" />
                   <span style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.15em' }}>About the Artist</span>
                 </div>
                 <p style={{ color: 'rgba(255,255,255,0.62)', fontSize: 14, lineHeight: 1.75, fontWeight: 300 }}>
@@ -1495,7 +1551,7 @@ export default function ArtistPage({ params }: { params: Promise<{ id: string }>
               {/* Stats 3-col */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
                 {[
-                  { label: 'Followers', v: currentFollowers, color: '#1db954' },
+                  { label: 'Followers', v: currentFollowers, color: '#b08850' },
                   { label: 'Monthly Listeners', v: currentMonthlyListeners, color: '#a78bfa' },
                   { label: 'Listening Now', v: currentListeningNow, color: '#34d399' },
                 ].map(({ label, v, color }) => (
@@ -1512,7 +1568,7 @@ export default function ArtistPage({ params }: { params: Promise<{ id: string }>
                 <p style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 14 }}>Genres</p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                   {artist.genres.map(g => (
-                    <span key={g} style={{ padding: '8px 18px', borderRadius: 100, background: 'rgba(29, 185, 84,0.1)', border: '1px solid rgba(29, 185, 84,0.22)', color: '#1db954', fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{g}</span>
+                    <span key={g} style={{ padding: '8px 18px', borderRadius: 100, background: 'rgba(176, 136, 80,0.1)', border: '1px solid rgba(176, 136, 80,0.22)', color: '#b08850', fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{g}</span>
                   ))}
                 </div>
               </div>
@@ -1534,7 +1590,7 @@ export default function ArtistPage({ params }: { params: Promise<{ id: string }>
                     {artist.socialLinks?.website && (
                       <a href={`https://${artist.socialLinks.website}`} target="_blank" rel="noopener noreferrer"
                         style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', textDecoration: 'none', transition: 'all 0.15s' }}
-                        onMouseEnter={e => { const el = e.currentTarget; el.style.background = 'rgba(29, 185, 84,0.06)'; el.style.borderColor = 'rgba(29, 185, 84,0.2)'; }}
+                        onMouseEnter={e => { const el = e.currentTarget; el.style.background = 'rgba(176, 136, 80,0.06)'; el.style.borderColor = 'rgba(176, 136, 80,0.2)'; }}
                         onMouseLeave={e => { const el = e.currentTarget; el.style.background = 'rgba(255,255,255,0.03)'; el.style.borderColor = 'rgba(255,255,255,0.05)'; }}>
                         <Globe size={15} color="rgba(255,255,255,0.3)" />
                         <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.6)', flex: 1 }}>{artist.socialLinks.website}</span>
