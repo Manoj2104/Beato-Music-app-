@@ -52,7 +52,7 @@ export default function AppSplashScreen() {
         position: 'fixed',
         inset: 0,
         zIndex: 999999, // Render on top of everything, including modals
-        backgroundColor: '#16120e', // Premium dark background
+        backgroundColor: '#fbf9f5', // Warm light beige matching the Home page
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -65,9 +65,9 @@ export default function AppSplashScreen() {
     >
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes splashPulse {
-          0% { transform: scale(0.95); opacity: 0.8; box-shadow: 0 0 0 0 rgba(176, 136, 80, 0.3); }
-          50% { transform: scale(1.05); opacity: 1; box-shadow: 0 0 35px 15px rgba(176, 136, 80, 0.5); }
-          100% { transform: scale(0.95); opacity: 0.8; box-shadow: 0 0 0 0 rgba(176, 136, 80, 0.3); }
+          0% { transform: scale(0.95); opacity: 0.8; box-shadow: 0 0 0 0 rgba(176, 136, 80, 0.2); }
+          50% { transform: scale(1.05); opacity: 1; box-shadow: 0 0 35px 15px rgba(176, 136, 80, 0.4); }
+          100% { transform: scale(0.95); opacity: 0.8; box-shadow: 0 0 0 0 rgba(176, 136, 80, 0.2); }
         }
         @keyframes float {
           0% { transform: translateY(0px); }
@@ -93,13 +93,13 @@ export default function AppSplashScreen() {
           width: 80,
           height: 80,
           borderRadius: '50%',
-          background: 'linear-gradient(135deg, #b08850 0%, #8c6633 100%)',
+          background: 'linear-gradient(135deg, #b08850 0%, #ebdcb9 100%)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           animation: 'splashPulse 2.5s infinite ease-in-out',
         }}>
-          <Music size={40} color="#000000" strokeWidth={2.5} />
+          <Music size={40} color="#fbf9f5" strokeWidth={2.5} />
         </div>
 
         {/* Text Details */}
@@ -107,17 +107,17 @@ export default function AppSplashScreen() {
           <h1 style={{
             fontSize: 36,
             fontWeight: 900,
-            color: '#fbf9f5',
+            color: 'var(--color-ss-text-primary, #221a15)',
             margin: 0,
             letterSpacing: '0.05em',
-            textShadow: '0 2px 10px rgba(176, 136, 80, 0.3)',
+            textShadow: '0 2px 10px rgba(176, 136, 80, 0.15)',
           }}>
             BEATO
           </h1>
           <p style={{
             fontSize: 13,
             fontWeight: 600,
-            color: '#87786c',
+            color: 'var(--color-ss-text-muted, #87786c)',
             margin: '6px 0 0',
             letterSpacing: '0.15em',
             textTransform: 'uppercase',
@@ -134,7 +134,7 @@ export default function AppSplashScreen() {
         width: 140,
         height: 3,
         borderRadius: 10,
-        background: 'rgba(255, 255, 255, 0.08)',
+        background: 'rgba(43, 34, 26, 0.08)',
         overflow: 'hidden',
       }}>
         <div style={{
