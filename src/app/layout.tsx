@@ -3,6 +3,7 @@ import { Inter, Outfit } from 'next/font/google';
 import ClientToaster from '@/components/layout/ClientToaster';
 import CapacitorInit from '@/components/layout/CapacitorInit';
 import OfflineBanner from '@/components/layout/OfflineBanner';
+import AppSplashScreen from '@/components/layout/AppSplashScreen';
 import './globals.css';
 
 const inter = Inter({
@@ -42,6 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${inter.variable} ${outfit.variable}`} suppressHydrationWarning>
       <head />
       <body className="bg-ss-bg text-ss-text-primary antialiased">
+        <AppSplashScreen />
         <CapacitorInit />
         <OfflineBanner />
         {children}
