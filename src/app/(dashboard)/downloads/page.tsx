@@ -173,7 +173,7 @@ export default function DownloadsPage() {
           position: 'sticky',
           top: 0,
           zIndex: 50,
-          background: scrolled ? 'rgba(251, 249, 245, 0.85)' : 'var(--color-ss-bg, #fbf9f5)',
+          background: 'var(--color-ss-bg, #fbf9f5)',
           backdropFilter: scrolled ? 'blur(20px)' : 'none',
           WebkitBackdropFilter: scrolled ? 'blur(20px)' : 'none',
           borderBottom: scrolled ? '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))' : '1px solid transparent',
