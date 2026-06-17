@@ -1024,7 +1024,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
             <div style={{
               fontSize: 14,
               fontWeight: 600,
-              color: 'rgba(255,255,255,0.9)',
+              color: 'var(--color-ss-text-muted, #87786c)',
               marginBottom: 8,
               height: 20,
               overflow: 'hidden',
@@ -1037,16 +1037,16 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
           
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: 16 }}>
             <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
-              <h1 style={{ fontSize: 22, fontWeight: 800, color: '#fff', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <h1 style={{ fontSize: 22, fontWeight: 800, color: 'var(--color-ss-text-primary, #221a15)', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {currentTrack.title}
               </h1>
-              <p style={{ fontSize: 15, fontWeight: 500, color: 'rgba(255,255,255,0.6)', margin: '4px 0 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <p style={{ fontSize: 15, fontWeight: 500, color: 'var(--color-ss-text-muted, #87786c)', margin: '4px 0 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {currentTrack.artistName}
               </p>
             </div>
             
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexShrink: 0 }}>
-              {/* Add to playlist / Liked Songs */}
+              {/* Add to playlist / Liked Songs (Heart Icon) */}
               <button
                 onClick={handleAddToLikedSongs}
                 style={{
@@ -1057,26 +1057,12 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: isLiked ? '#b08850' : 'rgba(255,255,255,0.6)',
+                  color: isLiked ? '#b08850' : 'rgba(43,34,26,0.6)',
                 }}
               >
-                {isLiked ? (
-                  <div style={{
-                    width: 24,
-                    height: 24,
-                    borderRadius: '50%',
-                    background: '#b08850',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
-                    <Check size={14} color="#000" strokeWidth={4} />
-                  </div>
-                ) : (
-                  <PlusCircle size={24} />
-                )}
+                <Heart size={24} fill={isLiked ? '#b08850' : 'none'} color={isLiked ? '#b08850' : 'rgba(43,34,26,0.6)'} />
               </button>
-
+ 
               {/* Download for offline */}
               <button
                 onClick={handleDownloadClick}
@@ -1092,12 +1078,12 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
               >
                 {downloading ? (
                   <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} style={{ display: 'flex' }}>
-                    <div style={{ width: 20, height: 20, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.2)', borderTopColor: '#b08850' }} />
+                    <div style={{ width: 20, height: 20, borderRadius: '50%', border: '2px solid var(--color-ss-border, rgba(43,34,26,0.15))', borderTopColor: '#b08850' }} />
                   </motion.div>
                 ) : downloaded ? (
                   <Download size={22} color="#b08850" />
                 ) : (
-                  <Download size={22} color="rgba(255,255,255,0.6)" />
+                  <Download size={22} color="rgba(43,34,26,0.6)" />
                 )}
               </button>
             </div>
