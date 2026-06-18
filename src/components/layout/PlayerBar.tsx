@@ -452,7 +452,10 @@ export default function PlayerBar() {
     try {
       const artUrl = currentTrack.coverImage || '';
       const isUrl = artUrl.startsWith('data:') || artUrl.startsWith('http:') || artUrl.startsWith('https:') || artUrl.startsWith('/');
-      const displayArt = isUrl && artUrl !== 'undefined' && artUrl !== 'null' ? artUrl : 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=512&auto=format&fit=crop&q=80';
+      let displayArt = isUrl && artUrl !== 'undefined' && artUrl !== 'null' ? artUrl : 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=512&auto=format&fit=crop&q=80';
+      if (displayArt.startsWith('/')) {
+        displayArt = 'https://beato-music-app.vercel.app' + displayArt;
+      }
       
       navigator.mediaSession.metadata = new MediaMetadata({
         title: currentTrack.title,
