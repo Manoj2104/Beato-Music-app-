@@ -19,6 +19,12 @@ import { usePlaylistStore } from '@/store/playlistStore';
 import { formatDuration } from '@/lib/mockData';
 import { socketManager, useSocket } from '@/lib/socket';
 import FullscreenPlayer from './FullscreenPlayer';
+import {
+  updateMediaMetadata,
+  updateMediaPlaybackState,
+  updateMediaPositionState,
+  registerMediaActionHandlers
+} from '@/lib/mediaSessionHelper';
 
 const GREEN = '#b08850';
 
@@ -445,94 +451,56 @@ export default function PlayerBar() {
     };
   }, [currentTrack?.id, isPlaying, volume, isMuted, currentSpeed, setProgress, setIsPlaying, setDuration]);
 
-  // Media Session API for Lock Screen & Status Bar controls
+  // Media Session API for Lock Screen & Status Bar controls (Web + Native via @capgo/capacitor-media-session)
   useEffect(() => {
-    if (typeof window === 'undefined' || !('mediaSession' in navigator) || !currentTrack) return;
-
-    try {
-      const artUrl = currentTrack.coverImage || '';
-      const isUrl = artUrl.startsWith('data:') || artUrl.startsWith('http:') || artUrl.startsWith('https:') || artUrl.startsWith('/');
-      let displayArt = isUrl && artUrl !== 'undefined' && artUrl !== 'null' ? artUrl : 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=512&auto=format&fit=crop&q=80';
-      if (displayArt.startsWith('/')) {
-        displayArt = 'https://beato-music-app.vercel.app' + displayArt;
-      }
-      
-      navigator.mediaSession.metadata = new MediaMetadata({
-        title: currentTrack.title,
-        artist: currentTrack.artistName,
-        album: currentTrack.albumName || 'Beato',
-        artwork: [
-          { src: displayArt, sizes: '96x96', type: 'image/png' },
-          { src: displayArt, sizes: '128x128', type: 'image/png' },
-          { src: displayArt, sizes: '192x192', type: 'image/png' },
-          { src: displayArt, sizes: '256x256', type: 'image/png' },
-          { src: displayArt, sizes: '384x384', type: 'image/png' },
-          { src: displayArt, sizes: '512x512', type: 'image/png' },
-        ],
-      });
-    } catch (err) {
-      console.warn('MediaSession metadata creation failed:', err);
-    }
+    if (!currentTrack) return;
+    updateMediaMetadata({
+      title: currentTrack.title,
+      artistName: currentTrack.artistName,
+      albumName: currentTrack.albumName,
+      coverImage: currentTrack.coverImage
+    });
   }, [currentTrack]);
 
-  // Update Media Session Playback State
+  // Update Media Session Playback State (Web + Native)
   useEffect(() => {
-    if (typeof window === 'undefined' || !('mediaSession' in navigator)) return;
-    navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
+    updateMediaPlaybackState(isPlaying);
   }, [isPlaying]);
 
-  // Update Media Session Position/Progress State
+  // Update Media Session Position/Progress State (Web + Native)
   useEffect(() => {
-    if (typeof window === 'undefined' || !('mediaSession' in navigator) || !('setPositionState' in navigator.mediaSession) || !currentTrack) return;
-    try {
-      navigator.mediaSession.setPositionState({
-        duration: duration || currentTrack.duration || 0,
-        playbackRate: currentSpeed || 1,
-        position: localProgress || 0
-      });
-    } catch (err) {
-      console.debug('MediaSession setPositionState failed:', err);
-    }
+    if (!currentTrack) return;
+    updateMediaPositionState({
+      duration: duration || currentTrack.duration || 0,
+      position: localProgress || 0,
+      playbackRate: currentSpeed || 1
+    });
   }, [localProgress, duration, currentSpeed, currentTrack]);
 
-  // Register Media Session Action Handlers
+  // Register Media Session Action Handlers (Web + Native via @capgo/capacitor-media-session)
   useEffect(() => {
-    if (typeof window === 'undefined' || !('mediaSession' in navigator)) return;
+    let cleanup: (() => void) | undefined;
 
-    const session = navigator.mediaSession;
-
-    try {
-      session.setActionHandler('play', () => {
-        setIsPlaying(true);
-      });
-      session.setActionHandler('pause', () => {
-        setIsPlaying(false);
-      });
-      session.setActionHandler('previoustrack', () => {
-        usePlayerStore.getState().playPrevious();
-      });
-      session.setActionHandler('nexttrack', () => {
-        usePlayerStore.getState().playNext();
-      });
-      session.setActionHandler('seekto', (details) => {
-        if (details.seekTime !== undefined && audioRef.current) {
-          audioRef.current.currentTime = details.seekTime;
-          setProgress(details.seekTime);
-          setLocalProgress(details.seekTime);
+    const setup = async () => {
+      cleanup = await registerMediaActionHandlers({
+        onPlay: () => setIsPlaying(true),
+        onPause: () => setIsPlaying(false),
+        onPrevious: () => usePlayerStore.getState().playPrevious(),
+        onNext: () => usePlayerStore.getState().playNext(),
+        onSeekTo: (time: number) => {
+          if (audioRef.current) {
+            audioRef.current.currentTime = time;
+          }
+          setProgress(time);
+          setLocalProgress(time);
         }
       });
-    } catch (err) {
-      console.warn('Failed to set MediaSession action handlers:', err);
-    }
+    };
+
+    setup();
 
     return () => {
-      try {
-        session.setActionHandler('play', null);
-        session.setActionHandler('pause', null);
-        session.setActionHandler('previoustrack', null);
-        session.setActionHandler('nexttrack', null);
-        session.setActionHandler('seekto', null);
-      } catch (err) {}
+      cleanup?.();
     };
   }, [setIsPlaying, setProgress]);
 
