@@ -320,6 +320,7 @@ function Section({ title, subtitle, link, linkText = 'Show all', children, style
 }
 
 export default function HomePage() {
+  const router = useRouter();
   const isOnline = useNetworkStatus();
   const prevOnlineRef = useRef<boolean | null>(null);
   const [mounted, setMounted] = useState(_homeHydrated);
@@ -1336,11 +1337,12 @@ export default function HomePage() {
                       <p style={{ color: '#87786c', fontSize: 12, marginBottom: 14, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
                         {promo.description}
                       </p>
-                      <Link href={targetPath}>
-                        <button style={{ padding: '8px 20px', borderRadius: 100, background: GREEN, border: 'none', color: '#fff', fontWeight: 700, fontSize: 11, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
-                          Explore Feature
-                        </button>
-                      </Link>
+                      <button
+                        onClick={() => router.push(targetPath)}
+                        style={{ padding: '8px 20px', borderRadius: 100, background: GREEN, border: 'none', color: '#fff', fontWeight: 700, fontSize: 11, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}
+                      >
+                        Explore Feature
+                      </button>
                     </div>
                   </div>
                 </motion.div>
@@ -1384,11 +1386,12 @@ export default function HomePage() {
                       style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 22px', borderRadius: 100, background: GREEN, border: 'none', color: '#fff', fontWeight: 700, fontSize: 14, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
                       <Play size={16} fill="white" /> Play
                     </button>
-                    <Link href={`/artist/${featuredArtist.id}`}>
-                      <button style={{ padding: '10px 22px', borderRadius: 100, background: 'transparent', border: '1px solid rgba(43,34,26,0.3)', color: '#221a15', fontWeight: 600, fontSize: 14, cursor: 'pointer' }}>
-                        View Artist
-                      </button>
-                    </Link>
+                    <button
+                      onClick={() => router.push(`/artist/${featuredArtist.id}`)}
+                      style={{ padding: '10px 22px', borderRadius: 100, background: 'transparent', border: '1px solid rgba(43,34,26,0.3)', color: '#221a15', fontWeight: 600, fontSize: 14, cursor: 'pointer' }}
+                    >
+                      View Artist
+                    </button>
                   </div>
                 </div>
               </div>

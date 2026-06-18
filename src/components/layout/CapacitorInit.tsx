@@ -24,8 +24,18 @@ export default function CapacitorInit() {
     if (typeof window !== 'undefined') {
       if (Capacitor.isNativePlatform()) {
         if (Capacitor.getPlatform() === 'android') {
+          // Initial safe defaults
           document.documentElement.style.setProperty('--sat', '44px');
           document.documentElement.style.setProperty('--sab', '0px');
+          
+          // Query dynamic status bar height
+          StatusBar.getInfo().then(info => {
+            if (info && typeof info.height === 'number' && info.height > 0) {
+              document.documentElement.style.setProperty('--sat', `${info.height}px`);
+            }
+          }).catch(err => {
+            console.warn('Failed to get dynamic status bar height:', err);
+          });
         } else {
           document.documentElement.style.setProperty('--sat', 'env(safe-area-inset-top, 44px)');
           document.documentElement.style.setProperty('--sab', 'env(safe-area-inset-bottom, 0px)');
