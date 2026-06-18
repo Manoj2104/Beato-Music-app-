@@ -1162,142 +1162,85 @@ export default function PlayerBar() {
           </div>
         </div>
 
-
-        {/* ── Row 1 action buttons: Like + Plus + Download + Play/Pause ── */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 2 }} onClick={e => e.stopPropagation()}>
-          {/* Like / Heart Button */}
-          <button
-            onClick={e => { e.stopPropagation(); currentTrack && toggleLikeSong(currentTrack.id); }}
-            style={{
-              background: 'transparent', border: 'none', padding: 7, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: isLiked ? GREEN : '#87786c', transition: 'all 0.18s', borderRadius: 8
-            }}
-            title={isLiked ? 'Unlike' : 'Like'}
-          >
-            <Heart size={19} fill={isLiked ? GREEN : 'none'} color={isLiked ? GREEN : '#87786c'} strokeWidth={1.8} />
-          </button>
-
+        {/* Action Buttons (Playback Skip & Play/Pause controls + Plus & Download symbols) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }} onClick={e => e.stopPropagation()}>
           {/* Plus / Add to Playlist Button */}
           <button
             onClick={e => { e.stopPropagation(); setShowPlaylistPicker(true); }}
-            style={{
-              background: 'transparent', border: 'none', padding: 7, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#87786c', transition: 'all 0.18s', borderRadius: 8
-            }}
+            style={{ background: 'transparent', border: 'none', padding: 4, cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#87786c', transition: 'color 0.15s' }}
             title="Add to Playlist"
+            onMouseEnter={e => (e.currentTarget.style.color = '#221a15')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#87786c')}
           >
-            <Plus size={19} strokeWidth={1.8} />
+            <Plus size={18} strokeWidth={1.8} />
           </button>
 
           {/* Download Button */}
           <button
             onClick={handleDownloadClick}
             style={{
-              background: 'transparent', border: 'none', padding: 7, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: downloading ? GREEN : downloaded ? GREEN : '#87786c',
-              transition: 'all 0.18s', borderRadius: 8, position: 'relative'
+              background: 'transparent',
+              border: 'none',
+              padding: 4,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              color: downloading ? 'var(--color-ss-secondary, #8c6c44)' : downloaded ? 'var(--color-ss-secondary, #8c6c44)' : '#87786c',
+              transition: 'color 0.15s',
+              position: 'relative'
             }}
-            title={downloaded ? 'Remove download' : downloading ? 'Downloading...' : 'Download'}
+            title={downloaded ? "Remove download" : downloading ? "Downloading..." : "Download"}
+            onMouseEnter={e => { if (!downloaded && !downloading) e.currentTarget.style.color = '#221a15'; }}
+            onMouseLeave={e => { if (!downloaded && !downloading) e.currentTarget.style.color = '#87786c'; }}
           >
             {downloading ? (
               <div style={{
-                width: 19, height: 19, border: `2px solid rgba(176,136,80,0.2)`,
-                borderTop: `2px solid ${GREEN}`, borderRadius: '50%',
-                animation: 'spin 0.7s linear infinite'
+                width: 18, height: 18, border: '2px solid rgba(176,136,80,0.2)', borderTop: '2px solid var(--color-ss-secondary, #8c6c44)',
+                borderRadius: '50%', animation: 'spin 0.7s linear infinite'
               }} />
             ) : (
-              <Download size={19} strokeWidth={1.8} />
+              <Download size={18} strokeWidth={1.8} />
             )}
           </button>
 
-          {/* Play/Pause — compact primary action */}
+          {/* Previous Button */}
+          <button
+            onClick={e => { e.stopPropagation(); usePlayerStore.getState().playPrevious(); }}
+            style={{ background: 'transparent', border: 'none', padding: 4, cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#221a15', transition: 'color 0.15s' }}
+            title="Previous"
+            onMouseEnter={e => (e.currentTarget.style.color = 'var(--color-ss-secondary, #8c6c44)')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#221a15')}
+          >
+            <SkipBack size={18} strokeWidth={1.8} fill="none" />
+          </button>
+
+          {/* Play/Pause Button */}
           <button
             onClick={e => { e.stopPropagation(); togglePlay(); }}
-            style={{
-              background: GREEN, border: 'none', padding: 0, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#fff', borderRadius: '50%', width: 36, height: 36,
-              flexShrink: 0, boxShadow: `0 2px 8px ${GREEN}55`, transition: 'all 0.18s',
-              marginLeft: 4
-            }}
-            title={isPlaying ? 'Pause' : 'Play'}
+            style={{ background: 'transparent', border: 'none', padding: 4, cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#221a15', transition: 'color 0.15s' }}
+            title={isPlaying ? "Pause" : "Play"}
+            onMouseEnter={e => (e.currentTarget.style.color = 'var(--color-ss-secondary, #8c6c44)')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#221a15')}
           >
             {isPlaying ? (
-              <Pause size={17} strokeWidth={2} fill="#fff" />
+              <Pause size={20} strokeWidth={1.8} fill="none" />
             ) : (
-              <Play size={17} strokeWidth={2} fill="#fff" />
+              <Play size={20} strokeWidth={1.8} fill="none" />
             )}
+          </button>
+
+          {/* Next Button */}
+          <button
+            onClick={e => { e.stopPropagation(); playNext(); }}
+            style={{ background: 'transparent', border: 'none', padding: 4, cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#221a15', transition: 'color 0.15s' }}
+            title="Next"
+            onMouseEnter={e => (e.currentTarget.style.color = 'var(--color-ss-secondary, #8c6c44)')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#221a15')}
+          >
+            <SkipForward size={18} strokeWidth={1.8} fill="none" />
           </button>
         </div>
       </div>
-
-      {/* ── Mobile Row 2: Shuffle | Prev | Next | Repeat ── */}
-      <div
-        className="mobile-player-controls-row"
-        onClick={e => e.stopPropagation()}
-        style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-around',
-          paddingTop: 6, paddingBottom: 2
-        }}
-      >
-        {/* Shuffle */}
-        <button
-          onClick={toggleShuffle}
-          style={{
-            background: 'transparent', border: 'none', padding: 8, cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 2,
-            color: shuffle ? GREEN : '#87786c', transition: 'all 0.18s', borderRadius: 10, minWidth: 44
-          }}
-          title="Shuffle"
-        >
-          <Shuffle size={17} strokeWidth={shuffle ? 2.2 : 1.8} />
-          {shuffle && <div style={{ width: 4, height: 4, borderRadius: '50%', background: GREEN }} />}
-        </button>
-
-        {/* Previous */}
-        <button
-          onClick={e => { e.stopPropagation(); usePlayerStore.getState().playPrevious(); }}
-          style={{
-            background: 'transparent', border: 'none', padding: 8, cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#221a15', transition: 'all 0.18s', borderRadius: 10, minWidth: 44
-          }}
-          title="Previous"
-        >
-          <SkipBack size={20} strokeWidth={1.8} fill="none" />
-        </button>
-
-        {/* Next */}
-        <button
-          onClick={e => { e.stopPropagation(); playNext(); }}
-          style={{
-            background: 'transparent', border: 'none', padding: 8, cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#221a15', transition: 'all 0.18s', borderRadius: 10, minWidth: 44
-          }}
-          title="Next"
-        >
-          <SkipForward size={20} strokeWidth={1.8} fill="none" />
-        </button>
-
-        {/* Repeat */}
-        <button
-          onClick={cycleRepeat}
-          style={{
-            background: 'transparent', border: 'none', padding: 8, cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 2,
-            color: repeat !== 'none' ? GREEN : '#87786c', transition: 'all 0.18s', borderRadius: 10, minWidth: 44
-          }}
-          title={repeat === 'none' ? 'Repeat Off' : repeat === 'all' ? 'Repeat All' : 'Repeat One'}
-        >
-          {repeat === 'one' ? <Repeat1 size={17} strokeWidth={2.2} /> : <Repeat size={17} strokeWidth={repeat !== 'none' ? 2.2 : 1.8} />}
-          {repeat !== 'none' && <div style={{ width: 4, height: 4, borderRadius: '50%', background: GREEN }} />}
-        </button>
-      </div>
-
 
       {/* ── Playlist Picker Bottom Sheet ── */}
       <AnimatePresence>
