@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Play, Pause, Heart, MoreHorizontal, MoreVertical, Download, Check, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useDownloadStore } from '@/store/downloadStore';
 import { Track } from '@/types';
 import { usePlayerStore } from '@/store/playerStore';
@@ -22,6 +23,7 @@ interface TrackCardProps {
 }
 
 export default function TrackCard({ track, index, queue = [], showAlbum = true, compact = false }: TrackCardProps) {
+  const router = useRouter();
   const [isHovered, setIsHovered] = useState(false);
   const [imgError, setImgError] = useState(false);
   const [prevCoverImage, setPrevCoverImage] = useState(track.coverImage);
@@ -128,24 +130,39 @@ export default function TrackCard({ track, index, queue = [], showAlbum = true, 
           {track.title}
           {track.explicit && <span style={{ marginLeft: 6, fontSize: 9, background: 'rgba(43,34,26,0.08)', color: '#87786c', padding: '1px 5px', borderRadius: 3 }}>E</span>}
         </p>
-        <Link href={`/artist/${track.artistId}`} onClick={e => e.stopPropagation()} style={{ textDecoration: 'none' }}>
+        <div
+          onClick={e => {
+            e.preventDefault();
+            e.stopPropagation();
+            router.push(`/artist/${track.artistId}`);
+          }}
+          style={{ textDecoration: 'none', cursor: 'pointer' }}
+        >
           <p style={{ color: '#87786c', fontSize: 12.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 1 }}
             onMouseEnter={e => { e.currentTarget.style.color = '#221a15'; e.currentTarget.style.textDecoration = 'underline'; }}
             onMouseLeave={e => { e.currentTarget.style.color = '#87786c'; e.currentTarget.style.textDecoration = 'none'; }}>
             {track.artistName}
           </p>
-        </Link>
+        </div>
       </div>
 
       {/* Album */}
       {showAlbum && !compact && (
-        <Link className="track-card-album" href={`/album/${track.albumId}`} onClick={e => e.stopPropagation()} style={{ textDecoration: 'none' }}>
+        <div
+          className="track-card-album"
+          onClick={e => {
+            e.preventDefault();
+            e.stopPropagation();
+            router.push(`/album/${track.albumId}`);
+          }}
+          style={{ textDecoration: 'none', cursor: 'pointer' }}
+        >
           <p style={{ color: '#87786c', fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
             onMouseEnter={e => { e.currentTarget.style.color = '#221a15'; e.currentTarget.style.textDecoration = 'underline'; }}
             onMouseLeave={e => { e.currentTarget.style.color = '#87786c'; e.currentTarget.style.textDecoration = 'none'; }}>
             {track.albumName}
           </p>
-        </Link>
+        </div>
       )}
 
       {/* Actions + Duration */}

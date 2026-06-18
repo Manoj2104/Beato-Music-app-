@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, ChevronRight, Heart, Music, Sparkles, TrendingUp, Clock, Headphones, Star, Search, X, Plus, Check, Bell } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import TrackCard from '@/components/music/TrackCard';
 import TopBar from '@/components/layout/TopBar';
 import { mockAlbums, mockArtists, mockPlaylists, mockTracks } from '@/lib/mockData';
@@ -45,6 +46,7 @@ function AlbumCardInline({ track, onPlay, isPlaying, isActive, cardStyle = 'clas
   cardShape?: string; cardWidth?: number; cardHeight?: number;
   isMobile?: boolean;
 }) {
+  const router = useRouter();
   const [hov, setHov] = useState(false);
   const [imgError, setImgError] = useState(false);
 
@@ -80,7 +82,7 @@ function AlbumCardInline({ track, onPlay, isPlaying, isActive, cardStyle = 'clas
     borderRadius: isCircle ? '50%' : (cardStyle === 'retro' ? 8 : 12),
     overflow: 'hidden',
     marginBottom: isBanner ? 0 : (cardStyle === 'glass' || cardStyle === 'neo' || cardStyle === 'retro' || cardStyle === 'gradient' ? 8 : 10),
-    boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+    boxShadow: 'none',
     transition: 'all 0.3s ease',
     width: isBanner ? (cardHeight ? cardHeight : 80) : '100%',
     height: isBanner ? (cardHeight ? cardHeight : 80) : undefined,
@@ -103,7 +105,7 @@ function AlbumCardInline({ track, onPlay, isPlaying, isActive, cardStyle = 'clas
       border: '1px solid rgba(255, 255, 255, 0.06)',
       padding: defaultPadding,
       borderRadius: '16px',
-      boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+      boxShadow: 'none',
       transform: hov ? 'translateY(-6px)' : 'none',
     };
     imageContainerStyle.boxShadow = 'none';
@@ -114,7 +116,7 @@ function AlbumCardInline({ track, onPlay, isPlaying, isActive, cardStyle = 'clas
       border: `1px solid var(--theme-primary, ${GREEN})30`,
       padding: defaultPadding,
       borderRadius: '16px',
-      boxShadow: hov ? `0 0 16px var(--theme-primary, ${GREEN})30` : 'none',
+      boxShadow: 'none',
       transform: hov ? 'translateY(-6px)' : 'none',
     };
     imageContainerStyle.border = hov ? `1px solid var(--theme-primary, ${GREEN})` : `1px solid var(--theme-primary, ${GREEN})20`;
@@ -125,7 +127,7 @@ function AlbumCardInline({ track, onPlay, isPlaying, isActive, cardStyle = 'clas
       border: '1.5px solid var(--color-ss-primary, #b08850)',
       padding: retroPadding,
       borderRadius: '12px',
-      boxShadow: hov ? '4px 4px 0px var(--color-ss-secondary, #8c6c44)' : '2px 2px 0px var(--color-ss-secondary, #8c6c44)',
+      boxShadow: 'none',
       transform: hov ? 'translate(-2px, -2px)' : 'none',
     };
     imageContainerStyle.borderRadius = 8;
@@ -211,13 +213,20 @@ function AlbumCardInline({ track, onPlay, isPlaying, isActive, cardStyle = 'clas
       </div>
       <div style={{ flex: 1, paddingRight: isBanner ? 12 : 0, minWidth: 0 }}>
         <p style={{ color: '#221a15', fontSize: titleSize, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{track.title}</p>
-        <Link href={`/artist/${track.artistId}`} onClick={e => e.stopPropagation()} style={{ textDecoration: 'none', width: '100%', display: 'block' }}>
+        <div
+          onClick={e => {
+            e.preventDefault();
+            e.stopPropagation();
+            router.push(`/artist/${track.artistId}`);
+          }}
+          style={{ textDecoration: 'none', width: '100%', display: 'block', cursor: 'pointer' }}
+        >
           <p style={{ color: '#87786c', fontSize: artistSize, marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}
             onMouseEnter={e => { e.currentTarget.style.color = '#221a15'; e.currentTarget.style.textDecoration = 'underline'; }}
             onMouseLeave={e => { e.currentTarget.style.color = '#87786c'; e.currentTarget.style.textDecoration = 'none'; }}>
             {track.artistName}
           </p>
-        </Link>
+        </div>
       </div>
     </div>
   );
@@ -2244,7 +2253,7 @@ export default function HomePage() {
                           borderRadius: 12,
                           padding: 10,
                           border: isCurrent ? '1.5px solid var(--theme-primary, #b08850)' : '1px solid rgba(255,255,255,0.04)',
-                          boxShadow: '0 4px 15px rgba(0,0,0,0.15)',
+                          boxShadow: 'none',
                           cursor: 'pointer'
                         }}
                       >
@@ -2279,7 +2288,7 @@ export default function HomePage() {
                           border: `2px solid ${isCurrent ? 'var(--theme-primary, #b08850)' : outlineColor}`,
                           padding: 8,
                           borderRadius: 4,
-                          boxShadow: `4px 4px 0px ${outlineColor === '#ff007f' ? '#00f0ff' : '#ff007f'}`,
+                          boxShadow: 'none',
                           cursor: 'pointer'
                         }}
                       >

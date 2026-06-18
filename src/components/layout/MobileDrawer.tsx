@@ -68,7 +68,10 @@ export default function MobileDrawer() {
               boxShadow: '4px 0 24px rgba(43, 34, 26, 0.08)',
               display: 'flex',
               flexDirection: 'column',
-              padding: '24px 20px',
+              paddingTop: 'calc(var(--sat, 0px) + 24px)',
+              paddingBottom: '24px',
+              paddingLeft: '20px',
+              paddingRight: '20px',
               color: 'var(--color-ss-text-primary, #221a15)',
               zIndex: 10001,
             }}

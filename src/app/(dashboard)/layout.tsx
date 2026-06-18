@@ -32,6 +32,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [showNowPlaying, setShowNowPlaying] = useState(false);
   const isMobile = useIsMobile(); // ⚡ shared single resize listener
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => setIsMounted(true), []);
 
   // Automatically show Now Playing panel when a track starts playing
   useEffect(() => {
@@ -124,7 +127,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     <div className={`app-layout ${!currentTrack ? 'no-player' : ''}`} style={{
       ['--layout-cols' as any]: showRightPanel ? '280px 1fr 350px' : '280px 1fr',
     }}>
-      {isMobile && (
+      {isMounted && isMobile && (
         <div style={{
           position: 'fixed',
           top: 0,
