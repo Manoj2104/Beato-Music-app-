@@ -12,6 +12,14 @@ export default function CapacitorInit() {
   const router = useRouter();
 
   useEffect(() => {
+    // Clean up local testing server URL if present
+    if (typeof window !== 'undefined') {
+      const stored = window.localStorage.getItem('beato_api_url');
+      if (stored && (stored.includes('192.168.') || stored.includes('localhost') || stored.includes('/login'))) {
+        window.localStorage.removeItem('beato_api_url');
+      }
+    }
+
     // Set custom safe-area top and bottom CSS variables for mobile layout scaling
     if (typeof window !== 'undefined') {
       if (Capacitor.isNativePlatform()) {

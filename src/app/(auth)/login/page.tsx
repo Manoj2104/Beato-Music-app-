@@ -35,9 +35,12 @@ export default function LoginPage() {
   const [showServerSettings, setShowServerSettings] = useState(false);
   const [serverUrl, setServerUrl] = useState(() => {
     if (typeof window !== 'undefined') {
-      return window.localStorage.getItem('beato_api_url') || 'https://beato-music-app.vercel.app';
+      const stored = window.localStorage.getItem('beato_api_url');
+      if (stored && !stored.includes('192.168.') && !stored.includes('localhost') && !stored.includes('/login')) {
+        return stored;
+      }
     }
-    return 'https://beato-music-app.vercel.app';
+    return 'https://beato-music-app.vercel.app/';
   });
 
   const handleQuickLogin = async (mockEmail: string) => {
@@ -796,7 +799,7 @@ export default function LoginPage() {
               </p>
               <div style={{ marginBottom: 20 }}>
                 <label style={labelStyle}>Backend / API Server URL</label>
-                <input type="text" value={serverUrl} onChange={e => setServerUrl(e.target.value)} placeholder="https://beato-music-app.vercel.app"
+                <input type="text" value={serverUrl} onChange={e => setServerUrl(e.target.value)} placeholder="https://beato-music-app.vercel.app/"
                   className="auth-input"
                   style={inputStyle}
                 />
