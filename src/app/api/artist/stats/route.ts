@@ -14,17 +14,8 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const token = request.cookies.get('beato-token')?.value;
-    if (!token) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-    }
-
-    const decoded = await verifyJWT(token);
-    if (!decoded) {
-      return NextResponse.json({ error: 'Invalid session token' }, { status: 401 });
-    }
-
-    const artistId = decoded.userId;
+    // Use the already-verified user from rbacCheck (supports both cookie & Authorization header)
+    const artistId = rbacCheck.user.userId!;
 
     // Retrieve all registered users to check their followed artists list
     const allUsers = db.getUsers();

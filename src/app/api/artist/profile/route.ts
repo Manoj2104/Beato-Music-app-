@@ -12,12 +12,8 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const token = request.cookies.get('beato-token')?.value;
-    if (!token) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-    const decoded = await verifyJWT(token);
-    if (!decoded) return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
-
-    const artistId = decoded.userId;
+    // Use the already-verified user from rbacCheck (supports both cookie & Authorization header)
+    const artistId = rbacCheck.user.userId!;
     const user = db.getUserById(artistId);
     if (!user) return NextResponse.json({ error: 'Artist not found' }, { status: 404 });
 
@@ -141,12 +137,8 @@ export async function POST(request: NextRequest) {
   if (!rbacCheck.authorized) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
-    const token = request.cookies.get('beato-token')?.value;
-    if (!token) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-    const decoded = await verifyJWT(token);
-    if (!decoded) return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
-
-    const artistId = decoded.userId;
+    // Use the already-verified user from rbacCheck (supports both cookie & Authorization header)
+    const artistId = rbacCheck.user!.userId!;
     const body = await request.json();
     const { action, payload } = body;
 

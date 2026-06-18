@@ -15,17 +15,8 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const token = request.cookies.get('beato-token')?.value;
-    if (!token) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-    }
-
-    const decoded = await verifyJWT(token);
-    if (!decoded) {
-      return NextResponse.json({ error: 'Invalid session token' }, { status: 401 });
-    }
-
-    const userId = decoded.userId;
+    // Use the already-verified user from rbacCheck (supports both cookie & Authorization header)
+    const userId = rbacCheck.user.userId!;
 
     // Filter updates to allow only specific safe fields
     const updates: any = {};
