@@ -208,5 +208,138 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
-  return <>{children}</>;
+  return (
+    <div className="admin-panel-container" style={{ minHeight: '100%', background: 'var(--color-ss-bg, #fbf9f5)' }}>
+      <style>{`
+        /* Centralized styles to retheme the entire Admin Panel (dashboard, panel, etc.) */
+        
+        .admin-panel-container {
+          background-color: var(--color-ss-bg, #fbf9f5) !important;
+          color: var(--color-ss-text-primary, #221a15) !important;
+        }
+
+        /* Override dark backgrounds in root div and sub divs */
+        .admin-panel-container div[style*="background: #0a0a0a"],
+        .admin-panel-container div[style*="background: rgb(10, 10, 10)"],
+        .admin-panel-container div[style*="background: #000000"],
+        .admin-panel-container div[style*="background: rgb(0, 0, 0)"],
+        .admin-panel-container div[style*="background: #121212"],
+        .admin-panel-container div[style*="background: rgb(18, 18, 18)"],
+        .admin-panel-container div[style*="background: #1a1a1a"],
+        .admin-panel-container div[style*="background: rgb(26, 26, 26)"],
+        .admin-panel-container div[style*="background: #161616"],
+        .admin-panel-container div[style*="background: rgb(22, 22, 22)"],
+        .admin-panel-container div[style*="background: #0d0d0d"],
+        .admin-panel-container div[style*="background: rgb(13, 13, 13)"] {
+          background-color: var(--color-ss-bg, #fbf9f5) !important;
+        }
+
+        /* Override card layouts (KPI cards, stats bar, table containers) */
+        .admin-panel-container div[style*="background: #121212"],
+        .admin-panel-container div[style*="background: rgb(18, 18, 18)"],
+        .admin-panel-container div[style*="background: #1a1a1a"],
+        .admin-panel-container div[style*="background: rgb(26, 26, 26)"],
+        .admin-panel-container div[style*="background: #161616"],
+        .admin-panel-container div[style*="background: rgb(22, 22, 22)"],
+        .admin-panel-container div[style*="background: rgba(255,255,255,0.04)"],
+        .admin-panel-container div[style*="background: rgba(255, 255, 255, 0.04)"],
+        .admin-panel-container div[style*="background: rgba(255,255,255,0.05)"],
+        .admin-panel-container div[style*="background: rgba(255, 255, 255, 0.05)"],
+        .admin-panel-container div[style*="background: rgba(255,255,255,0.06)"],
+        .admin-panel-container div[style*="background: rgba(255, 255, 255, 0.06)"],
+        .admin-panel-container div[style*="background: rgba(255,255,255,0.03)"],
+        .admin-panel-container div[style*="background: rgba(255, 255, 255, 0.03)"],
+        .admin-panel-container div[style*="background: rgba(255,255,255,0.02)"],
+        .admin-panel-container div[style*="background: rgba(255, 255, 255, 0.02)"] {
+          background-color: var(--color-ss-elevated, #ffffff) !important;
+          border: 1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08)) !important;
+          box-shadow: 0 10px 30px -10px rgba(43, 34, 26, 0.05) !important;
+        }
+
+        /* Header titles and dashboard text */
+        .admin-panel-container h1,
+        .admin-panel-container h2,
+        .admin-panel-container h3,
+        .admin-panel-container h4,
+        .admin-panel-container h5,
+        .admin-panel-container h6 {
+          color: var(--color-ss-text-primary, #221a15) !important;
+          text-shadow: none !important;
+        }
+
+        /* Body and general text layers */
+        .admin-panel-container p,
+        .admin-panel-container span:not(.live-text-gold),
+        .admin-panel-container label,
+        .admin-panel-container button:not(.play-btn-force):not(.text-white-force),
+        .admin-panel-container input,
+        .admin-panel-container select,
+        .admin-panel-container textarea,
+        .admin-panel-container td,
+        .admin-panel-container th {
+          color: var(--color-ss-text-primary, #221a15) !important;
+          text-shadow: none !important;
+        }
+
+        /* Target muted texts */
+        .admin-panel-container p[style*="color: #6b7280"],
+        .admin-panel-container span[style*="color: #6b7280"],
+        .admin-panel-container div[style*="color: #6b7280"],
+        .admin-panel-container p[style*="color: rgb(107, 114, 128)"],
+        .admin-panel-container span[style*="color: rgb(107, 114, 128)"],
+        .admin-panel-container div[style*="color: rgb(107, 114, 128)"],
+        .admin-panel-container p[style*="color: #a3a3a3"],
+        .admin-panel-container span[style*="color: #a3a3a3"],
+        .admin-panel-container div[style*="color: #a3a3a3"],
+        .admin-panel-container p[style*="color: rgb(163, 163, 163)"],
+        .admin-panel-container span[style*="color: rgb(163, 163, 163)"],
+        .admin-panel-container div[style*="color: rgb(163, 163, 163)"],
+        .admin-panel-container p[style*="color: #737373"],
+        .admin-panel-container span[style*="color: #737373"],
+        .admin-panel-container div[style*="color: #737373"],
+        .admin-panel-container p[style*="color: rgb(115, 115, 115)"],
+        .admin-panel-container span[style*="color: rgb(115, 115, 115)"],
+        .admin-panel-container div[style*="color: rgb(115, 115, 115)"] {
+          color: var(--color-ss-text-muted, #87786c) !important;
+        }
+
+        /* Table styles override */
+        .admin-panel-container tr {
+          border-bottom: 1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08)) !important;
+        }
+        .admin-panel-container tr:hover {
+          background-color: var(--color-ss-surface, #f4eede) !important;
+        }
+        .admin-panel-container th {
+          border-bottom: 2px solid var(--color-ss-border, rgba(43, 34, 26, 0.08)) !important;
+          color: var(--color-ss-text-secondary, #4d3f35) !important;
+        }
+
+        /* Inputs, selectors, textareas */
+        .admin-panel-container input,
+        .admin-panel-container select,
+        .admin-panel-container textarea {
+          background-color: var(--color-ss-surface, #f4eede) !important;
+          border: 1.5px solid var(--color-ss-border, rgba(43, 34, 26, 0.08)) !important;
+          color: var(--color-ss-text-primary, #221a15) !important;
+        }
+
+        /* Recharts SVG and text overrides */
+        .admin-panel-container .recharts-cartesian-grid-horizontal line,
+        .admin-panel-container .recharts-cartesian-grid-vertical line {
+          stroke: var(--color-ss-border, rgba(43, 34, 26, 0.08)) !important;
+        }
+        .admin-panel-container .recharts-text {
+          fill: var(--color-ss-text-secondary, #4d3f35) !important;
+        }
+        .admin-panel-container .recharts-tooltip-wrapper .recharts-default-tooltip {
+          background-color: var(--color-ss-elevated, #ffffff) !important;
+          border: 1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08)) !important;
+          border-radius: 8px !important;
+          color: var(--color-ss-text-primary, #221a15) !important;
+        }
+      `}</style>
+      {children}
+    </div>
+  );
 }
