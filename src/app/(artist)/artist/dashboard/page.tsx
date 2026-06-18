@@ -1686,8 +1686,8 @@ function ArtistDashboardContent() {
                         justifyContent: 'center',
                         flexShrink: 0,
                         overflow: 'hidden',
-                        boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
-                        border: '1px solid rgba(255, 255, 255, 0.08)'
+                        boxShadow: 'none',
+                        border: '1px solid rgba(43, 34, 26, 0.1)'
                       }}>
                         {!track.coverImage && <Music size={18} color="rgba(255,255,255,0.8)" />}
                       </div>

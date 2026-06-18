@@ -462,7 +462,7 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-outfit), system-ui, sans-serif;
   margin-bottom: 4px;
 }
 .sidebar-accordion-header:hover {
-  background: rgba(43, 34, 26, 0.04);
+  background: rgba(255, 255, 255, 0.05);
 }
 .sidebar-accordion-title {
   color: #87786c;
@@ -473,7 +473,7 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-outfit), system-ui, sans-serif;
   transition: color 0.2s ease;
 }
 .sidebar-accordion-header:hover .sidebar-accordion-title {
-  color: #221a15;
+  color: #ffffff;
 }
 .sidebar-accordion-icon {
   color: #87786c;
@@ -523,8 +523,8 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-outfit), system-ui, sans-serif;
   position: relative;
 }
 .sidebar-sub-link:hover {
-  background: rgba(43, 34, 26, 0.04);
-  color: #221a15;
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
   transform: translateX(4px);
 }
 .sidebar-sub-link.active {

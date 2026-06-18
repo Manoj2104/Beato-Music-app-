@@ -241,14 +241,14 @@ function SidebarContent() {
                   <Icon size={16} color="white" />
                 </div>
                 <div style={{ minWidth: 0 }}>
-                  <p style={{ color: '#221a15', fontSize: 13, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>{label}</p>
-                  <p style={{ color: '#706155', fontSize: 11, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: '2px 0 0 0' }}>{count}</p>
+                  <p style={{ color: '#e5e5e5', fontSize: 13, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>{label}</p>
+                  <p style={{ color: '#a3a3a3', fontSize: 11, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: '2px 0 0 0' }}>{count}</p>
                 </div>
               </Link>
             ))}
           </div>
 
-          <div style={{ height: 1, background: 'rgba(43,34,26,0.08)', margin: '12px 12px' }} />
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '12px 12px' }} />
 
           {/* Playlists & Albums */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -294,8 +294,8 @@ function SidebarContent() {
                     )}
                   </div>
                   <div style={{ minWidth: 0, flex: 1 }}>
-                    <p style={{ color: isPlaying ? '#b08850' : '#221a15', fontSize: 13, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>{playlist.title}</p>
-                    <p style={{ color: '#706155', fontSize: 11, margin: '2px 0 0 0' }}>Playlist · {playlist.ownerName}</p>
+                    <p style={{ color: isPlaying ? '#b08850' : '#e5e5e5', fontSize: 13, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>{playlist.title}</p>
+                    <p style={{ color: '#a3a3a3', fontSize: 11, margin: '2px 0 0 0' }}>Playlist · {playlist.ownerName}</p>
                   </div>
                   {isPlaying && (
                     <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 16, flexShrink: 0 }}>
@@ -319,8 +319,8 @@ function SidebarContent() {
                     <Music2 size={14} color="rgba(255,255,255,0.6)" />
                   </div>
                   <div style={{ minWidth: 0 }}>
-                    <p style={{ color: '#221a15', fontSize: 13, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>{album.title}</p>
-                    <p style={{ color: '#706155', fontSize: 11, margin: '2px 0 0 0' }}>Album · {album.artistName}</p>
+                    <p style={{ color: '#e5e5e5', fontSize: 13, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>{album.title}</p>
+                    <p style={{ color: '#a3a3a3', fontSize: 11, margin: '2px 0 0 0' }}>Album · {album.artistName}</p>
                   </div>
                 </Link>
               );
