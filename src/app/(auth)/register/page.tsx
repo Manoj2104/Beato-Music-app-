@@ -238,10 +238,17 @@ export default function RegisterPage() {
         @media (max-width: 768px) {
           .auth-desktop { display: none !important; }
           .auth-mobile {
-            display: flex !important; flex-direction: column;
-            align-items: center; justify-content: center;
-            min-height: 100vh; background: ${BG};
-            padding: 24px 20px; box-sizing: border-box;
+            display: flex !important;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: ${BG};
+            padding-top: calc(var(--sat, 0px) + 24px);
+            padding-bottom: 24px;
+            padding-left: 20px;
+            padding-right: 20px;
+            box-sizing: border-box;
           }
         }
       `}</style>

@@ -357,7 +357,10 @@ export default function LoginPage() {
             justify-content: center;
             min-height: 100vh;
             background: ${BG};
-            padding: 24px 20px;
+            padding-top: calc(var(--sat, 0px) + 24px);
+            padding-bottom: 24px;
+            padding-left: 20px;
+            padding-right: 20px;
             box-sizing: border-box;
           }
         }
