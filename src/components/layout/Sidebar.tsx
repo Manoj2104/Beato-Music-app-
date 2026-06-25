@@ -8,7 +8,7 @@ import {
   LayoutDashboard, Upload, TrendingUp, DollarSign, BarChart3, Users, Shield, AlertTriangle,
   CreditCard, Globe, Activity, Key, BookOpen, Mail, FlaskConical, Settings, BellRing, Headphones, Map,
   User, Volume2, FileEdit, LayoutGrid, Wand2, CheckSquare, Mic2, FileText, Code, Trophy, MessageSquare, ShoppingBag, Share2,
-  Calendar, ChevronDown, ChevronRight
+  Calendar, ChevronDown, ChevronRight, Crown, Library as LibraryIcon
 } from 'lucide-react';
 import { usePlayerStore } from '@/store/playerStore';
 import { useAuthStore } from '@/store/authStore';
@@ -101,6 +101,35 @@ function SidebarContent() {
     return hrefTab === currentTab;
   };
 
+  const hasPermission = (perm: string) => {
+    if (!user) return false;
+    const userRole = user.role || 'USER';
+    if (userRole === 'SUPER_ADMIN' || userRole === 'super_admin') return true;
+    
+    // Client-side fallback if not loaded yet
+    const getFallbackPermissions = (roleName: string, serverPermissions?: string[]) => {
+      if (serverPermissions !== undefined && Array.isArray(serverPermissions)) {
+        return serverPermissions;
+      }
+      const r = roleName.toLowerCase();
+      if (r === 'admin') {
+        return ['manage_users','manage_artists','manage_songs','manage_subscriptions','manage_payments','view_analytics','manage_reports','manage_notifications','manage_support','manage_content','manage_marketing'];
+      }
+      if (r === 'moderator') {
+        return ['manage_artists','manage_songs','manage_reports','manage_support','manage_content'];
+      }
+      if (r === 'analyst') {
+        return ['view_analytics','manage_reports','export_data'];
+      }
+      return [];
+    };
+
+    const permissions = getFallbackPermissions(userRole, user.permissions);
+    const has = permissions.includes(perm);
+    console.log(`[Sidebar] User ${user.email} checking permission: ${perm}. Has it? ${has}. Permissions used:`, permissions);
+    return has;
+  };
+
   const role = user?.role || 'USER';
 
   return (
@@ -128,7 +157,7 @@ function SidebarContent() {
         </div>
 
         {/* Artist Portal Menu */}
-        {(role === 'ARTIST' || role === 'SUPER_ADMIN' || isApproved) && (
+        {(role === 'ARTIST' || role === 'SUPER_ADMIN' || role === 'super_admin' || isApproved) && (
           <div>
             <div
               onClick={() => {
@@ -159,8 +188,7 @@ function SidebarContent() {
                   { href: '/artist/dashboard?tab=Campaigns', icon: Globe, label: 'Campaigns' },
                   { href: '/artist/dashboard?tab=Profile', icon: User, label: 'Profile' },
                   { href: '/artist/dashboard?tab=Live Events', icon: Calendar, label: 'Live Events' },
-
-
+                  ...(user?.email === 'manoj2104s@gmail.com' ? [{ href: '/artist/dashboard?tab=Sample Upload', icon: Upload, label: 'Sample Upload' }] : []),
                 ].map(({ href, icon: Icon, label }) => (
                   <Link key={`${href}-${label}`} href={href} className={`sidebar-sub-link ${isActive(href) ? 'active' : ''}`}>
                     <Icon size={14} />
@@ -173,7 +201,7 @@ function SidebarContent() {
         )}
 
         {/* Admin Menu */}
-        {(role === 'ADMIN' || role === 'SUPER_ADMIN') && (
+        {(role === 'ADMIN' || role === 'SUPER_ADMIN' || role === 'admin' || role === 'super_admin' || role === 'moderator' || role === 'analyst' || role === 'MODERATOR' || role === 'ANALYST') && (
           <div>
             <div
               onClick={() => setAdminPanelExpanded(!adminPanelExpanded)}
@@ -192,28 +220,39 @@ function SidebarContent() {
               <div className="sidebar-accordion-inner">
                 {[
                   { href: '/admin/dashboard', icon: BarChart3, label: 'Overview' },
-                  { href: '/admin/dashboard?tab=users', icon: Users, label: 'Users' },
-                  { href: '/admin/dashboard?tab=artists', icon: Shield, label: 'Artists' },
-                  { href: '/admin/dashboard?tab=songs', icon: Music2, label: 'Songs' },
-                  { href: '/admin/dashboard?tab=reports', icon: AlertTriangle, label: 'Reports' },
-                  { href: '/admin/dashboard?tab=subscriptions', icon: CreditCard, label: 'Subscriptions' },
-                  { href: '/admin/dashboard?tab=payments', icon: DollarSign, label: 'Payments' },
-                  { href: '/admin/dashboard?tab=analytics', icon: TrendingUp, label: 'Analytics' },
-                  { href: '/admin/dashboard?tab=marketing', icon: BellRing, label: 'Marketing' },
-                  { href: '/admin/dashboard?tab=notifications', icon: BellRing, label: 'Notifications' },
-                  { href: '/admin/dashboard?tab=support', icon: Headphones, label: 'Support' },
-                  { href: '/admin/dashboard?tab=payouts', icon: DollarSign, label: 'Payouts' },
-                  { href: '/admin/dashboard?tab=geography', icon: Globe, label: 'Geography' },
-                  { href: '/admin/dashboard?tab=health', icon: Activity, label: 'System Health' },
-                  { href: '/admin/dashboard?tab=api', icon: Key, label: 'API Keys' },
-                  { href: '/admin/dashboard?tab=audit', icon: BookOpen, label: 'Audit Logs' },
-                  { href: '/admin/dashboard?tab=abtests', icon: FlaskConical, label: 'A/B Testing' },
-                  { href: '/admin/dashboard?tab=email', icon: Mail, label: 'Email' },
-                  { href: '/admin/dashboard?tab=content', icon: Library, label: 'Content Library' },
-                  { href: '/admin/dashboard?tab=settings', icon: Settings, label: 'Settings' },
-                ].map(({ href, icon: Icon, label }) => (
-                  <Link key={`${href}-${label}`} href={href} className={`sidebar-sub-link ${isActive(href) ? 'active' : ''}`}>
-                    <Icon size={14} />
+                  { href: '/admin/dashboard?tab=users', icon: Users, label: 'Users', permission: 'manage_users' },
+                  { href: '/admin/dashboard?tab=artists', icon: Shield, label: 'Artists', permission: 'manage_artists' },
+                  { href: '/admin/dashboard?tab=songs', icon: Music2, label: 'Songs', permission: 'manage_songs' },
+                  { href: '/admin/dashboard?tab=reports', icon: AlertTriangle, label: 'Reports', permission: 'manage_reports' },
+                  { href: '/admin/dashboard?tab=subscriptions', icon: CreditCard, label: 'Subscriptions', permission: 'manage_subscriptions' },
+                  { href: '/admin/dashboard?tab=payments', icon: DollarSign, label: 'Payments', permission: 'manage_payments' },
+                  { href: '/admin/dashboard?tab=analytics', icon: TrendingUp, label: 'Analytics', permission: 'view_analytics' },
+                  { href: '/admin/dashboard?tab=marketing', icon: BellRing, label: 'Marketing', permission: 'manage_marketing' },
+                  { href: '/admin/dashboard?tab=notifications', icon: BellRing, label: 'Notifications', permission: 'manage_notifications' },
+                  { href: '/admin/dashboard?tab=support', icon: Headphones, label: 'Support', permission: 'manage_support' },
+                  { href: '/admin/dashboard?tab=payouts', icon: DollarSign, label: 'Payouts', permission: 'manage_payouts' },
+                  { href: '/admin/dashboard?tab=geography', icon: Globe, label: 'Geography', permission: 'manage_geography' },
+                  { href: '/admin/dashboard?tab=health', icon: Activity, label: 'System Health', permission: 'manage_settings' },
+                  { href: '/admin/dashboard?tab=api', icon: Key, label: 'API Keys', permission: 'manage_api_keys' },
+                  { href: '/admin/dashboard?tab=audit', icon: BookOpen, label: 'Audit Logs', permission: 'view_audit_logs' },
+                  { href: '/admin/dashboard?tab=abtests', icon: FlaskConical, label: 'A/B Testing', permission: 'manage_ab_tests' },
+                  { href: '/admin/dashboard?tab=email', icon: Mail, label: 'Email', permission: 'manage_email' },
+                  { href: '/admin/dashboard?tab=content', icon: Library, label: 'Content Library', permission: 'manage_content' },
+                  { href: '/admin/dashboard?tab=settings', icon: Settings, label: 'Settings', permission: 'manage_settings' },
+                  ...(user?.role === 'SUPER_ADMIN' || user?.role === 'super_admin' ? [{ href: '/admin/dashboard?tab=superadmin', icon: Crown, label: 'Super Admin ✦', superAdminOnly: true as const }] : []),
+                ].filter((item: any) => {
+                  if (item.superAdminOnly) {
+                    return user?.role === 'SUPER_ADMIN' || user?.role === 'super_admin';
+                  }
+                  if (item.permission) {
+                    return hasPermission(item.permission);
+                  }
+                  return true;
+                }).map(({ href, icon: Icon, label, superAdminOnly }: any) => (
+                  <Link key={`${href}-${label}`} href={href}
+                    className={`sidebar-sub-link ${isActive(href) ? 'active' : ''}`}
+                    style={superAdminOnly ? { color: '#b08850', fontWeight: 700 } : {}}>
+                    <Icon size={14} style={superAdminOnly ? { color: '#b08850' } : {}} />
                     <span>{label}</span>
                   </Link>
                 ))}

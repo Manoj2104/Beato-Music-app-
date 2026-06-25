@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import {
@@ -22,13 +22,13 @@ const tierColors: Record<string, string> = {
 };
 
 const inputStyle: React.CSSProperties = {
-  width: '100%', background: '#070707', border: '1px solid #222', borderRadius: 8,
-  color: '#fff', padding: '10px 14px', fontSize: 13, outline: 'none', boxSizing: 'border-box',
+  width: '100%', background: '#070707', border: '1px solid rgba(43,34,26,0.1)', borderRadius: 8,
+  color: '#221a15', padding: '10px 14px', fontSize: 13, outline: 'none', boxSizing: 'border-box',
   transition: 'border-color 0.2s',
 };
 
 const card = (style?: React.CSSProperties): React.CSSProperties => ({
-  background: '#0d0d0d', border: '1px solid #1a1a1a', borderRadius: 16, padding: 22,
+  background: '#ffffff', border: '1px solid rgba(43,34,26,0.07)', borderRadius: 16, padding: 22,
   boxShadow: '0 4px 30px rgba(0, 0, 0, 0.4)', ...style,
 });
 
@@ -369,14 +369,14 @@ export default function ApiKeysTab() {
       if (diffDays <= 7) {
         return { text: `Expires in ${diffDays}d`, color: '#f59e0b' };
       }
-      return { text: `Expires in ${diffDays}d`, color: '#6b7280' };
+      return { text: `Expires in ${diffDays}d`, color: '#87786c' };
     } catch {
-      return { text: 'Configured', color: '#6b7280' };
+      return { text: 'Configured', color: '#87786c' };
     }
   };
 
   return (
-    <div style={{ color: '#fff', fontFamily: 'Inter, sans-serif' }}>
+    <div style={{ color: '#221a15', fontFamily: 'Inter, sans-serif' }}>
       
       {/* Top Banner & Title */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
@@ -385,12 +385,12 @@ export default function ApiKeysTab() {
             <Key size={24} className="text-emerald-500" />
             API & Webhook Management
           </h2>
-          <p style={{ fontSize: 13, color: '#6b7280', margin: '4px 0 0' }}>Configure secure API integrations, rotation policies, whitelist client IP constraints, and register real-time webhooks.</p>
+          <p style={{ fontSize: 13, color: '#87786c', margin: '4px 0 0' }}>Configure secure API integrations, rotation policies, whitelist client IP constraints, and register real-time webhooks.</p>
         </div>
         <button
           onClick={() => fetchData()}
           style={{
-            background: '#161616', color: '#a3a3a3', border: '1px solid #222', borderRadius: 8,
+            background: '#ffffff', color: '#a3a3a3', border: '1px solid rgba(43,34,26,0.1)', borderRadius: 8,
             padding: '8px 12px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer'
           }}
         >
@@ -415,8 +415,8 @@ export default function ApiKeysTab() {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <p style={{ fontSize: 11, color: '#6b7280', margin: '0 0 6px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{s.label}</p>
-                <p style={{ fontSize: 24, fontWeight: 800, margin: 0, color: '#ffffff' }}>{s.value}</p>
+                <p style={{ fontSize: 11, color: '#87786c', margin: '0 0 6px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{s.label}</p>
+                <p style={{ fontSize: 24, fontWeight: 800, margin: 0, color: '#221a15' }}>{s.value}</p>
               </div>
               <div style={{ background: s.color + '15', padding: 8, borderRadius: 10 }}>
                 <s.icon size={18} style={{ color: s.color }} />
@@ -439,9 +439,9 @@ export default function ApiKeysTab() {
                 <TrendingUp size={16} className="text-emerald-500" />
                 API Key Queries Telemetry
               </h3>
-              <p style={{ margin: '2px 0 0', fontSize: 11, color: '#6b7280' }}>Visual analytics trail matching live gateway hits per environment.</p>
+              <p style={{ margin: '2px 0 0', fontSize: 11, color: '#87786c' }}>Visual analytics trail matching live gateway hits per environment.</p>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: '#6b7280' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: '#87786c' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981' }} /> Queries</span>
               <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444' }} /> Errors</span>
             </div>
@@ -465,15 +465,15 @@ export default function ApiKeysTab() {
                   <XAxis dataKey="date" stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} />
                   <YAxis stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} />
                   <Tooltip
-                    contentStyle={{ background: '#090909', border: '1px solid #1c1c1c', borderRadius: 8, color: '#fff', fontSize: 12 }}
-                    itemStyle={{ color: '#fff' }}
+                    contentStyle={{ background: '#090909', border: '1px solid #1c1c1c', borderRadius: 8, color: '#221a15', fontSize: 12 }}
+                    itemStyle={{ color: '#221a15' }}
                   />
                   <Area type="monotone" dataKey="requests" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorRequests)" name="Requests" />
                   <Area type="monotone" dataKey="errors" stroke="#ef4444" strokeWidth={1.5} fillOpacity={1} fill="url(#colorErrors)" name="Errors" />
                 </AreaChart>
               </ResponsiveContainer>
             ) : (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#6b7280', fontSize: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#87786c', fontSize: 12 }}>
                 Loading visual analytics stream...
               </div>
             )}
@@ -483,7 +483,7 @@ export default function ApiKeysTab() {
         {/* Key Breakdown / Health Status */}
         <div style={card({ display: 'flex', flexDirection: 'column', height: 280 })}>
           <h3 style={{ margin: '0 0 4px', fontSize: 14, fontWeight: 700 }}>Query Volume Share</h3>
-          <p style={{ margin: '0 0 16px', fontSize: 11, color: '#6b7280' }}>Key shares in total request load.</p>
+          <p style={{ margin: '0 0 16px', fontSize: 11, color: '#87786c' }}>Key shares in total request load.</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, flex: 1, overflowY: 'auto' }}>
             {metrics?.keyUsageBreakdown?.map((item: any) => {
               const total = metrics.keyUsageBreakdown.reduce((acc: number, cur: any) => acc + cur.requests, 0) || 1;
@@ -492,16 +492,16 @@ export default function ApiKeysTab() {
                 <div key={item.name}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 4 }}>
                     <span style={{ fontWeight: 600, color: '#e5e7eb' }}>{item.name}</span>
-                    <span style={{ color: '#9ca3af' }}>{item.requests.toLocaleString()} ({percent}%)</span>
+                    <span style={{ color: '#a0958b' }}>{item.requests.toLocaleString()} ({percent}%)</span>
                   </div>
-                  <div style={{ width: '100%', height: 6, background: '#161616', borderRadius: 3, overflow: 'hidden' }}>
+                  <div style={{ width: '100%', height: 6, background: '#ffffff', borderRadius: 3, overflow: 'hidden' }}>
                     <div style={{ height: '100%', width: `${percent}%`, background: '#10b981', borderRadius: 3 }} />
                   </div>
                 </div>
               );
             })}
             {keys.length === 0 && (
-              <div style={{ color: '#6b7280', fontSize: 11, textAlign: 'center', padding: 20 }}>No keys active.</div>
+              <div style={{ color: '#87786c', fontSize: 11, textAlign: 'center', padding: 20 }}>No keys active.</div>
             )}
           </div>
         </div>
@@ -513,7 +513,7 @@ export default function ApiKeysTab() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <div>
             <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800 }}>Gateway Keys</h3>
-            <p style={{ margin: '2px 0 0', fontSize: 12, color: '#6b7280' }}>Manage client app secrets and enforce access parameters.</p>
+            <p style={{ margin: '2px 0 0', fontSize: 12, color: '#87786c' }}>Manage client app secrets and enforce access parameters.</p>
           </div>
           <button
             onClick={() => setShowKeyModal(true)}
@@ -530,7 +530,7 @@ export default function ApiKeysTab() {
 
         <div style={{ overflowX: 'auto' }}>
           {loading && keys.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: 40, color: '#6b7280', fontSize: 13 }}>
+            <div style={{ textAlign: 'center', padding: 40, color: '#87786c', fontSize: 13 }}>
               <RefreshCw size={24} className="animate-spin" style={{ margin: '0 auto 10px' }} />
               Syncing API key states...
             </div>
@@ -540,7 +540,7 @@ export default function ApiKeysTab() {
                 <tr style={{ borderBottom: '1px solid #1a1a1a' }}>
                   <th style={{ width: 28, padding: '10px 12px' }} />
                   {['Key Name', 'Auth Key Token', 'Tier', 'Env', 'IP Access', 'Rate Limit', 'TTL Check', 'Actions'].map(h => (
-                    <th key={h} style={{ textAlign: 'left', padding: '10px 12px', color: '#6b7280', fontWeight: 600 }}>{h}</th>
+                    <th key={h} style={{ textAlign: 'left', padding: '10px 12px', color: '#87786c', fontWeight: 600 }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -549,7 +549,7 @@ export default function ApiKeysTab() {
                   const isExpanded = expandedKeyId === k.id;
                   const expStatus = getExpirationDaysStatus(k.expiresAt);
                   return (
-                    <>
+                    <React.Fragment key={k.id}>
                       {/* Base Key Row */}
                       <tr
                         key={k.id}
@@ -564,7 +564,7 @@ export default function ApiKeysTab() {
                         <td style={{ padding: '12px 12px', textAlign: 'center' }}>
                           {isExpanded ? <ChevronUp size={14} className="text-zinc-500" /> : <ChevronDown size={14} className="text-zinc-500" />}
                         </td>
-                        <td style={{ padding: '12px 12px', fontWeight: 700, color: '#fff' }}>
+                        <td style={{ padding: '12px 12px', fontWeight: 700, color: '#221a15' }}>
                           <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                             {k.name}
                           </span>
@@ -589,7 +589,7 @@ export default function ApiKeysTab() {
                             {k.env}
                           </span>
                         </td>
-                        <td style={{ padding: '12px 12px', color: '#9ca3af' }}>
+                        <td style={{ padding: '12px 12px', color: '#a0958b' }}>
                           <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                             <Globe size={12} className="text-zinc-500" />
                             {k.ipWhitelist && k.ipWhitelist.length > 0
@@ -611,14 +611,14 @@ export default function ApiKeysTab() {
                           <div style={{ display: 'flex', gap: 6 }}>
                             <button
                               onClick={() => copyToClipboard(k.key, 'API Key')}
-                              style={{ background: '#1a1a1a', color: '#9ca3af', border: '1px solid #222', borderRadius: 6, padding: '5px 9px', fontSize: 11, cursor: 'pointer' }}
+                              style={{ background: '#f4eede', color: '#a0958b', border: '1px solid rgba(43,34,26,0.1)', borderRadius: 6, padding: '5px 9px', fontSize: 11, cursor: 'pointer' }}
                             >
                               Copy
                             </button>
                             <button
                               onClick={() => handleRotateKey(k.id)}
                               title="Rotate Credentials (Swap to a new secure key string, preserving properties)"
-                              style={{ background: '#1a1a1a', color: '#f59e0b', border: '1px solid #f59e0b22', borderRadius: 6, padding: '5px 9px', fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+                              style={{ background: '#f4eede', color: '#f59e0b', border: '1px solid #f59e0b22', borderRadius: 6, padding: '5px 9px', fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
                             >
                               <RotateCw size={11} />
                               Rotate
@@ -636,7 +636,7 @@ export default function ApiKeysTab() {
                       {/* Expandable Details Drawer */}
                       <AnimatePresence>
                         {isExpanded && (
-                          <tr style={{ background: '#111111' }}>
+                          <tr style={{ background: '#ffffff' }}>
                             <td colSpan={9} style={{ padding: '12px 24px 20px 52px', borderBottom: '1px solid #1a1a1a' }}>
                               <motion.div
                                 initial={{ opacity: 0, height: 0 }}
@@ -649,7 +649,7 @@ export default function ApiKeysTab() {
                                   {/* Credentials & Token Viewer */}
                                   <div style={{ background: '#090909', borderRadius: 8, padding: 14, border: '1px solid #1c1c1c' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                                      <span style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase' }}>Private Secret Key Token</span>
+                                      <span style={{ fontSize: 11, fontWeight: 700, color: '#87786c', textTransform: 'uppercase' }}>Private Secret Key Token</span>
                                       <button
                                         onClick={() => toggleKeyVisibility(k.id)}
                                         style={{ background: 'transparent', border: 'none', color: '#a3a3a3', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 10 }}
@@ -664,7 +664,7 @@ export default function ApiKeysTab() {
                                       </code>
                                       <button
                                         onClick={() => copyToClipboard(k.key, 'API Token')}
-                                        style={{ background: '#111', color: '#fff', border: '1px solid #222', borderRadius: 4, padding: '4px 8px', fontSize: 10, cursor: 'pointer' }}
+                                        style={{ background: '#ffffff', color: '#221a15', border: '1px solid rgba(43,34,26,0.1)', borderRadius: 4, padding: '4px 8px', fontSize: 10, cursor: 'pointer' }}
                                       >
                                         Copy
                                       </button>
@@ -672,7 +672,7 @@ export default function ApiKeysTab() {
                                     
                                     {/* Subscribed scopes */}
                                     <div style={{ marginTop: 14 }}>
-                                      <span style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>Subscribed Scopes ({k.perms?.length || 0})</span>
+                                      <span style={{ fontSize: 11, fontWeight: 700, color: '#87786c', textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>Subscribed Scopes ({k.perms?.length || 0})</span>
                                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                                         {k.perms && k.perms.length > 0 ? (
                                           k.perms.map((p: string) => (
@@ -687,7 +687,7 @@ export default function ApiKeysTab() {
 
                                   {/* CIDR Whitelist Restrictions */}
                                   <div style={{ background: '#090909', borderRadius: 8, padding: 14, border: '1px solid #1c1c1c' }}>
-                                    <span style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>IP CIDR Constraints</span>
+                                    <span style={{ fontSize: 11, fontWeight: 700, color: '#87786c', textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>IP CIDR Constraints</span>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                                       {k.ipWhitelist && k.ipWhitelist.length > 0 ? (
                                         k.ipWhitelist.map((ip: string) => (
@@ -697,7 +697,7 @@ export default function ApiKeysTab() {
                                           </div>
                                         ))
                                       ) : (
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#6b7280' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#87786c' }}>
                                           <ShieldAlert size={14} className="text-zinc-600" />
                                           <span>No whitelisting active. Accessible from anywhere.</span>
                                         </div>
@@ -708,23 +708,23 @@ export default function ApiKeysTab() {
                                   {/* Metadata and Creation Logs */}
                                   <div style={{ background: '#090909', borderRadius: 8, padding: 14, border: '1px solid #1c1c1c', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                                     <div>
-                                      <span style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>Key Metadata</span>
+                                      <span style={{ fontSize: 11, fontWeight: 700, color: '#87786c', textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>Key Metadata</span>
                                       <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 11 }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                          <span style={{ color: '#6b7280' }}>Created At</span>
+                                          <span style={{ color: '#87786c' }}>Created At</span>
                                           <span style={{ color: '#e5e7eb', fontWeight: 600 }}>{formatDate(k.createdAt)}</span>
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                          <span style={{ color: '#6b7280' }}>Gateway Limit</span>
+                                          <span style={{ color: '#87786c' }}>Gateway Limit</span>
                                           <span style={{ color: '#e5e7eb', fontWeight: 600 }}>{k.rateLimit ? `${k.rateLimit.toLocaleString()} rpm` : 'Unlimited'}</span>
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                          <span style={{ color: '#6b7280' }}>Last Active</span>
+                                          <span style={{ color: '#87786c' }}>Last Active</span>
                                           <span style={{ color: '#e5e7eb', fontWeight: 600 }}>{k.lastUsed || 'Never'}</span>
                                         </div>
                                       </div>
                                     </div>
-                                    <div style={{ fontSize: 10, color: '#6b7280', borderTop: '1px solid #1c1c1c', paddingTop: 8, marginTop: 10, display: 'flex', alignItems: 'center', gap: 4 }}>
+                                    <div style={{ fontSize: 10, color: '#87786c', borderTop: '1px solid #1c1c1c', paddingTop: 8, marginTop: 10, display: 'flex', alignItems: 'center', gap: 4 }}>
                                       <Lock size={12} className="text-zinc-600" />
                                       Secured via HSM encryption
                                     </div>
@@ -736,7 +736,7 @@ export default function ApiKeysTab() {
                           </tr>
                         )}
                       </AnimatePresence>
-                    </>
+                    </React.Fragment>
                   );
                 })}
               </tbody>
@@ -756,7 +756,7 @@ export default function ApiKeysTab() {
                 <Link2 size={16} className="text-purple-400" />
                 Active Webhooks
               </h3>
-              <p style={{ margin: '2px 0 0', fontSize: 11, color: '#6b7280' }}>Outbound Event handlers triggered by system events.</p>
+              <p style={{ margin: '2px 0 0', fontSize: 11, color: '#87786c' }}>Outbound Event handlers triggered by system events.</p>
             </div>
             <button
               onClick={() => setShowWhModal(true)}
@@ -781,12 +781,12 @@ export default function ApiKeysTab() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
                   <div style={{ flex: 1, minWidth: 0, paddingRight: 10 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
-                      <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: '#221a15', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {w.url}
                       </p>
                     </div>
                     {w.description && (
-                      <p style={{ margin: '2px 0 0', fontSize: 11, color: '#6b7280' }}>{w.description}</p>
+                      <p style={{ margin: '2px 0 0', fontSize: 11, color: '#87786c' }}>{w.description}</p>
                     )}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -825,14 +825,14 @@ export default function ApiKeysTab() {
 
                 {/* Signing secret toggler */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #141414', paddingTop: 8, fontSize: 10 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#6b7280' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#87786c' }}>
                     <span>Secret Key:</span>
                     <code style={{ fontFamily: 'monospace', color: visibleSecrets[w.id] ? '#f59e0b' : '#525252' }}>
                       {visibleSecrets[w.id] ? w.signingSecret : maskSecret(w.signingSecret)}
                     </code>
                     <button
                       onClick={() => toggleSecretVisibility(w.id)}
-                      style={{ background: 'transparent', border: 'none', color: '#6b7280', cursor: 'pointer', padding: 0 }}
+                      style={{ background: 'transparent', border: 'none', color: '#87786c', cursor: 'pointer', padding: 0 }}
                     >
                       {visibleSecrets[w.id] ? <EyeOff size={11} /> : <Eye size={11} />}
                     </button>
@@ -840,7 +840,7 @@ export default function ApiKeysTab() {
                   <div style={{ display: 'flex', gap: 6 }}>
                     <button
                       onClick={() => copyToClipboard(w.signingSecret, 'Signing Secret')}
-                      style={{ background: '#111', color: '#a3a3a3', border: '1px solid #222', borderRadius: 4, padding: '3px 7px', fontSize: 9, cursor: 'pointer' }}
+                      style={{ background: '#ffffff', color: '#a3a3a3', border: '1px solid rgba(43,34,26,0.1)', borderRadius: 4, padding: '3px 7px', fontSize: 9, cursor: 'pointer' }}
                     >
                       Copy
                     </button>
@@ -862,7 +862,7 @@ export default function ApiKeysTab() {
               </div>
             ))}
             {webhooks.length === 0 && (
-              <div style={{ color: '#6b7280', fontSize: 12, textAlign: 'center', padding: '40px 0' }}>
+              <div style={{ color: '#87786c', fontSize: 12, textAlign: 'center', padding: '40px 0' }}>
                 No active webhooks registered. Configure a target to listen for Beato events.
               </div>
             )}
@@ -877,7 +877,7 @@ export default function ApiKeysTab() {
                 <Terminal size={16} className="text-emerald-500" />
                 Live Webhook Logs Console
               </h3>
-              <p style={{ margin: '2px 0 0', fontSize: 11, color: '#6b7280' }}>Real-time audit trails of dispatched JSON hooks and response headers.</p>
+              <p style={{ margin: '2px 0 0', fontSize: 11, color: '#87786c' }}>Real-time audit trails of dispatched JSON hooks and response headers.</p>
             </div>
             <span style={{
               background: '#10b98115', color: '#10b981', border: '1px solid #10b98122',
@@ -917,7 +917,7 @@ export default function ApiKeysTab() {
                       }}>
                         {log.status} {log.statusText}
                       </span>
-                      <span style={{ color: '#fff', fontWeight: 600 }}>{log.event}</span>
+                      <span style={{ color: '#221a15', fontWeight: 600 }}>{log.event}</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#525252', fontSize: 10 }}>
                       <span>{log.durationMs}ms</span>
@@ -942,7 +942,7 @@ export default function ApiKeysTab() {
                       >
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                           <div>
-                            <span style={{ color: '#6b7280', fontSize: 10, display: 'block', marginBottom: 2 }}>Request Payload Body (JSON)</span>
+                            <span style={{ color: '#87786c', fontSize: 10, display: 'block', marginBottom: 2 }}>Request Payload Body (JSON)</span>
                             <pre style={{
                               background: '#000', border: '1px solid #1c1c1c', borderRadius: 6,
                               padding: 8, margin: 0, overflowX: 'auto', color: '#10b981', fontSize: 10
@@ -951,7 +951,7 @@ export default function ApiKeysTab() {
                             </pre>
                           </div>
                           <div>
-                            <span style={{ color: '#6b7280', fontSize: 10, display: 'block', marginBottom: 2 }}>Response Payload / Server Log</span>
+                            <span style={{ color: '#87786c', fontSize: 10, display: 'block', marginBottom: 2 }}>Response Payload / Server Log</span>
                             <pre style={{
                               background: '#000', border: '1px solid #1c1c1c', borderRadius: 6,
                               padding: 8, margin: 0, overflowX: 'auto', color: isSuccess ? '#10b981' : '#ef4444', fontSize: 10
@@ -982,7 +982,7 @@ export default function ApiKeysTab() {
           <Sliders size={16} className="text-zinc-400" />
           Gateway Third-Party Integrations
         </h3>
-        <p style={{ margin: '0 0 16px', fontSize: 11, color: '#6b7280' }}>Link and authorize metadata stream exchange with global consumer services.</p>
+        <p style={{ margin: '0 0 16px', fontSize: 11, color: '#87786c' }}>Link and authorize metadata stream exchange with global consumer services.</p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
           {integrations.map(int => (
             <div
@@ -997,9 +997,9 @@ export default function ApiKeysTab() {
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                   <span style={{ fontSize: 18 }}>{int.icon}</span>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>{int.name}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: '#221a15' }}>{int.name}</span>
                 </div>
-                <p style={{ margin: '0 0 12px', fontSize: 10, color: '#6b7280', minHeight: 28 }}>{int.desc}</p>
+                <p style={{ margin: '0 0 12px', fontSize: 10, color: '#87786c', minHeight: 28 }}>{int.desc}</p>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: 9, color: int.connected ? '#10b981' : '#6b7280', fontWeight: 600 }}>
@@ -1037,7 +1037,7 @@ export default function ApiKeysTab() {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 15 }}
               onClick={e => e.stopPropagation()}
-              style={{ background: '#0a0a0a', border: '1px solid #1c1c1c', borderRadius: 20, padding: 28, width: 480 }}
+              style={{ background: '#fbf9f5', border: '1px solid #1c1c1c', borderRadius: 20, padding: 28, width: 480 }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
                 <div style={{ background: '#10b98115', padding: 8, borderRadius: 10 }}>
@@ -1045,7 +1045,7 @@ export default function ApiKeysTab() {
                 </div>
                 <div>
                   <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>Generate Enterprise Credentials</h3>
-                  <p style={{ margin: '2px 0 0', fontSize: 11, color: '#6b7280' }}>Keys permit secure external queries through API Gateways.</p>
+                  <p style={{ margin: '2px 0 0', fontSize: 11, color: '#87786c' }}>Keys permit secure external queries through API Gateways.</p>
                 </div>
               </div>
 
@@ -1072,7 +1072,7 @@ export default function ApiKeysTab() {
                       onChange={e => setNewKey(p => ({ ...p, tier: e.target.value }))}
                     >
                       {['Bronze', 'Silver', 'Gold', 'Custom'].map(t => (
-                        <option key={t} value={t} style={{ background: '#0a0a0a' }}>{t} Tier</option>
+                        <option key={t} value={t} style={{ background: '#fbf9f5' }}>{t} Tier</option>
                       ))}
                     </select>
                   </div>
@@ -1084,7 +1084,7 @@ export default function ApiKeysTab() {
                       onChange={e => setNewKey(p => ({ ...p, env: e.target.value }))}
                     >
                       {['prod', 'staging', 'dev'].map(env => (
-                        <option key={env} value={env} style={{ background: '#0a0a0a' }}>{env.toUpperCase()}</option>
+                        <option key={env} value={env} style={{ background: '#fbf9f5' }}>{env.toUpperCase()}</option>
                       ))}
                     </select>
                   </div>
@@ -1133,12 +1133,12 @@ export default function ApiKeysTab() {
                         }
                       }}
                     >
-                      <option value="Never" style={{ background: '#0a0a0a' }}>Never Expires</option>
-                      <option value="30" style={{ background: '#0a0a0a' }}>30 Days</option>
-                      <option value="60" style={{ background: '#0a0a0a' }}>60 Days</option>
-                      <option value="90" style={{ background: '#0a0a0a' }}>90 Days</option>
-                      <option value="180" style={{ background: '#0a0a0a' }}>180 Days</option>
-                      <option value="365" style={{ background: '#0a0a0a' }}>1 Year</option>
+                      <option value="Never" style={{ background: '#fbf9f5' }}>Never Expires</option>
+                      <option value="30" style={{ background: '#fbf9f5' }}>30 Days</option>
+                      <option value="60" style={{ background: '#fbf9f5' }}>60 Days</option>
+                      <option value="90" style={{ background: '#fbf9f5' }}>90 Days</option>
+                      <option value="180" style={{ background: '#fbf9f5' }}>180 Days</option>
+                      <option value="365" style={{ background: '#fbf9f5' }}>1 Year</option>
                     </select>
                   </div>
                 </div>
@@ -1165,7 +1165,7 @@ export default function ApiKeysTab() {
                 <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 10 }}>
                   <button
                     onClick={() => setShowKeyModal(false)}
-                    style={{ background: '#141414', border: '1px solid #222', borderRadius: 8, color: '#a3a3a3', padding: '10px 18px', fontSize: 12, cursor: 'pointer' }}
+                    style={{ background: '#141414', border: '1px solid rgba(43,34,26,0.1)', borderRadius: 8, color: '#a3a3a3', padding: '10px 18px', fontSize: 12, cursor: 'pointer' }}
                   >
                     Cancel
                   </button>
@@ -1198,7 +1198,7 @@ export default function ApiKeysTab() {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 15 }}
               onClick={e => e.stopPropagation()}
-              style={{ background: '#0a0a0a', border: '1px solid #1c1c1c', borderRadius: 20, padding: 28, width: 460 }}
+              style={{ background: '#fbf9f5', border: '1px solid #1c1c1c', borderRadius: 20, padding: 28, width: 460 }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
                 <div style={{ background: '#a855f715', padding: 8, borderRadius: 10 }}>
@@ -1206,7 +1206,7 @@ export default function ApiKeysTab() {
                 </div>
                 <div>
                   <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>Register Outbound Webhook</h3>
-                  <p style={{ margin: '2px 0 0', fontSize: 11, color: '#6b7280' }}>Dispatches automated REST hooks during platform activities.</p>
+                  <p style={{ margin: '2px 0 0', fontSize: 11, color: '#87786c' }}>Dispatches automated REST hooks during platform activities.</p>
                 </div>
               </div>
 
@@ -1256,13 +1256,13 @@ export default function ApiKeysTab() {
                 <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 10 }}>
                   <button
                     onClick={() => setShowWhModal(false)}
-                    style={{ background: '#141414', border: '1px solid #222', borderRadius: 8, color: '#a3a3a3', padding: '10px 18px', fontSize: 12, cursor: 'pointer' }}
+                    style={{ background: '#141414', border: '1px solid rgba(43,34,26,0.1)', borderRadius: 8, color: '#a3a3a3', padding: '10px 18px', fontSize: 12, cursor: 'pointer' }}
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleCreateWebhook}
-                    style={{ background: '#a855f7', border: 'none', borderRadius: 8, color: '#fff', padding: '10px 20px', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}
+                    style={{ background: '#a855f7', border: 'none', borderRadius: 8, color: '#221a15', padding: '10px 20px', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}
                   >
                     Register Target
                   </button>

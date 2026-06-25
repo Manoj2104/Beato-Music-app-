@@ -89,10 +89,10 @@ const REVENUE_DATA = [
 
 const inputStyle: React.CSSProperties = {
   width: '100%',
-  background: '#0a0a0a',
-  border: '1px solid #2a2a2a',
+  background: '#fbf9f5',
+  border: '1px solid rgba(43,34,26,0.1)',
   borderRadius: 8,
-  color: '#fff',
+  color: '#221a15',
   padding: '9px 12px',
   fontSize: 13,
   outline: 'none',
@@ -106,11 +106,11 @@ function StatCard({ label, value, color, sub }: { label: string; value: string; 
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      style={{ background: '#121212', border: '1px solid #1a1a1a', borderRadius: 14, padding: '18px 20px' }}
+      style={{ background: '#ffffff', border: '1px solid rgba(43,34,26,0.07)', borderRadius: 14, padding: '18px 20px' }}
     >
-      <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</div>
+      <div style={{ fontSize: 11, color: '#87786c', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</div>
       <div style={{ color, fontSize: 28, fontWeight: 700, fontFamily: 'Outfit, sans-serif' }}>{value}</div>
-      {sub && <div style={{ fontSize: 11, color: '#4b5563', marginTop: 4 }}>{sub}</div>}
+      {sub && <div style={{ fontSize: 11, color: '#87786c', marginTop: 4 }}>{sub}</div>}
     </motion.div>
   );
 }
@@ -129,7 +129,7 @@ function PlanCard({
       whileHover={{ y: -4, boxShadow: `0 8px 32px ${color}33` }}
       transition={{ type: 'spring', stiffness: 300 }}
       style={{
-        background: '#121212',
+        background: '#ffffff',
         border: `1px solid #1a1a1a`,
         borderRadius: 16,
         padding: '22px 20px',
@@ -144,17 +144,17 @@ function PlanCard({
         <span style={{ background: `${color}22`, color, border: `1px solid ${color}44`, padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700 }}>
           {PLAN_LABELS[plan.name]}
         </span>
-        <span style={{ color: '#fff', fontSize: 18, fontWeight: 700, fontFamily: 'Outfit, sans-serif' }}>
+        <span style={{ color: '#221a15', fontSize: 18, fontWeight: 700, fontFamily: 'Outfit, sans-serif' }}>
           {plan.price === 0 ? 'Free' : `${symbol}${plan.price}`}
           {plan.price > 0 && <span style={{ fontSize: 11, color: '#666', fontWeight: 400 }}>/mo</span>}
         </span>
       </div>
-      <div style={{ color: '#fff', fontSize: 26, fontWeight: 700, fontFamily: 'Outfit, sans-serif', marginBottom: 4 }}>
+      <div style={{ color: '#221a15', fontSize: 26, fontWeight: 700, fontFamily: 'Outfit, sans-serif', marginBottom: 4 }}>
         {plan.subscribers.toLocaleString()}
       </div>
       <div style={{ color: '#666', fontSize: 12, marginBottom: 10 }}>subscribers</div>
       <div style={{ color: '#aaa', fontSize: 12, marginBottom: 4 }}>
-        Revenue: <span style={{ color: '#fff', fontWeight: 600 }}>{symbol}{(plan.revenue / 1000).toFixed(1)}K/mo</span>
+        Revenue: <span style={{ color: '#221a15', fontWeight: 600 }}>{symbol}{(plan.revenue / 1000).toFixed(1)}K/mo</span>
       </div>
       <div style={{ color: '#aaa', fontSize: 12, marginBottom: 14 }}>
         Share: <span style={{ color, fontWeight: 600 }}>{plan.share}%</span>
@@ -162,7 +162,7 @@ function PlanCard({
       <div style={{ display: 'flex', gap: 6 }}>
         <button
           onClick={() => onEditPrice(plan)}
-          style={{ flex: 1, background: '#1a1a1a', border: `1px solid #333`, color: '#ccc', borderRadius: 8, padding: '7px 0', fontSize: 11, fontWeight: 600, cursor: 'pointer', transition: 'all .2s' }}
+          style={{ flex: 1, background: '#f4eede', border: `1px solid #333`, color: '#ccc', borderRadius: 8, padding: '7px 0', fontSize: 11, fontWeight: 600, cursor: 'pointer', transition: 'all .2s' }}
           onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = color; (e.currentTarget as HTMLButtonElement).style.color = color; }}
           onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#333'; (e.currentTarget as HTMLButtonElement).style.color = '#ccc'; }}
         >Edit Plan</button>
@@ -316,7 +316,7 @@ export default function SubscriptionsTab() {
   const pieData = plans.map(p => ({ name: PLAN_LABELS[p.name], value: p.subscribers, color: PLAN_COLORS[p.name] }));
 
   return (
-    <div style={{ padding: '28px 0', fontFamily: 'Inter, sans-serif', color: '#fff' }}>
+    <div style={{ padding: '28px 0', fontFamily: 'Inter, sans-serif', color: '#221a15' }}>
 
       {/* ── Real-time Stats ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 28 }}>
@@ -374,7 +374,7 @@ export default function SubscriptionsTab() {
       </div>
 
       {/* ── Charts ── */}
-      <div style={{ background: '#121212', border: '1px solid #1a1a1a', borderRadius: 16, padding: '24px 24px 12px', marginBottom: 32 }}>
+      <div style={{ background: '#ffffff', border: '1px solid rgba(43,34,26,0.07)', borderRadius: 16, padding: '24px 24px 12px', marginBottom: 32 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
           <div style={{ fontSize: 16, fontWeight: 700, fontFamily: 'Outfit, sans-serif' }}>Analytics</div>
           <div style={{ display: 'flex', gap: 8 }}>
@@ -407,7 +407,7 @@ export default function SubscriptionsTab() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#1e1e1e" />
                   <XAxis dataKey="month" tick={{ fill: '#666', fontSize: 12 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fill: '#666', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `${(v / 1000).toFixed(0)}K`} />
-                  <Tooltip contentStyle={{ background: '#1a1a1a', border: '1px solid #333', borderRadius: 10, color: '#fff', fontSize: 12 }} />
+                  <Tooltip contentStyle={{ background: '#f4eede', border: '1px solid rgba(43,34,26,0.12)', borderRadius: 10, color: '#221a15', fontSize: 12 }} />
                   <Legend wrapperStyle={{ fontSize: 12, color: '#888' }} />
                   {Object.entries(PLAN_COLORS).map(([name, color]) => (
                     <Area key={name} type="monotone" dataKey={name} stroke={color} fill={`url(#grad_${name})`} strokeWidth={2} dot={false} />
@@ -430,7 +430,7 @@ export default function SubscriptionsTab() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#1e1e1e" />
                   <XAxis dataKey="month" tick={{ fill: '#666', fontSize: 12 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fill: '#666', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `$${(v / 1000).toFixed(0)}K`} />
-                  <Tooltip contentStyle={{ background: '#1a1a1a', border: '1px solid #333', borderRadius: 10, color: '#fff', fontSize: 12 }} formatter={(v: any) => [`$${(v / 1000).toFixed(1)}K`, 'Revenue']} />
+                  <Tooltip contentStyle={{ background: '#f4eede', border: '1px solid rgba(43,34,26,0.12)', borderRadius: 10, color: '#221a15', fontSize: 12 }} formatter={(v: any) => [`$${(v / 1000).toFixed(1)}K`, 'Revenue']} />
                   <Bar dataKey="revenue" fill="url(#revenueGrad)" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -447,7 +447,7 @@ export default function SubscriptionsTab() {
                         <Cell key={idx} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip contentStyle={{ background: '#1a1a1a', border: '1px solid #333', borderRadius: 10, color: '#fff', fontSize: 12 }} />
+                    <Tooltip contentStyle={{ background: '#f4eede', border: '1px solid rgba(43,34,26,0.12)', borderRadius: 10, color: '#221a15', fontSize: 12 }} />
                   </PieChart>
                 </ResponsiveContainer>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -455,7 +455,7 @@ export default function SubscriptionsTab() {
                     <div key={p.name} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                       <div style={{ width: 12, height: 12, borderRadius: 3, background: PLAN_COLORS[p.name], flexShrink: 0 }} />
                       <span style={{ fontSize: 13, color: '#e5e7eb', fontWeight: 600 }}>{PLAN_LABELS[p.name]}</span>
-                      <span style={{ fontSize: 12, color: '#6b7280' }}>{p.share}% ({p.subscribers.toLocaleString()})</span>
+                      <span style={{ fontSize: 12, color: '#87786c' }}>{p.share}% ({p.subscribers.toLocaleString()})</span>
                     </div>
                   ))}
                 </div>
@@ -466,7 +466,7 @@ export default function SubscriptionsTab() {
       </div>
 
       {/* ── Subscribers Table ── */}
-      <div style={{ background: '#121212', border: '1px solid #1a1a1a', borderRadius: 16, padding: 24 }}>
+      <div style={{ background: '#ffffff', border: '1px solid rgba(43,34,26,0.07)', borderRadius: 16, padding: 24 }}>
 
         {/* Table Header & Controls */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 20 }}>
@@ -481,7 +481,7 @@ export default function SubscriptionsTab() {
                 </button>
               )}
             </div>
-            <button onClick={exportCSV} style={{ background: '#1a1a1a', border: '1px solid #333', color: '#ccc', borderRadius: 8, padding: '7px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+            <button onClick={exportCSV} style={{ background: '#f4eede', border: '1px solid rgba(43,34,26,0.12)', color: '#ccc', borderRadius: 8, padding: '7px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
               Export CSV
             </button>
           </div>
@@ -556,7 +556,7 @@ export default function SubscriptionsTab() {
                       </td>
 
                       {/* Joined */}
-                      <td style={{ padding: '12px 14px', color: '#6b7280', fontSize: 12 }}>{sub.joinedAt}</td>
+                      <td style={{ padding: '12px 14px', color: '#87786c', fontSize: 12 }}>{sub.joinedAt}</td>
 
                       {/* Status */}
                       <td style={{ padding: '12px 14px' }}>
@@ -569,7 +569,7 @@ export default function SubscriptionsTab() {
                       <td style={{ padding: '12px 14px' }}>
                         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                           <button onClick={() => setDetailsModal(sub)}
-                            style={{ background: '#1a1a1a', border: '1px solid #333', color: '#ccc', borderRadius: 6, padding: '5px 10px', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                            style={{ background: '#f4eede', border: '1px solid rgba(43,34,26,0.12)', color: '#ccc', borderRadius: 6, padding: '5px 10px', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
                             Details
                           </button>
                           <button onClick={() => { setChangePlanModal(sub); setNewPlan(sub.plan); }}
@@ -593,7 +593,7 @@ export default function SubscriptionsTab() {
                           )}
                           {sub.plan !== 'free' && (
                             <button onClick={() => { if (confirm(`Cancel ${sub.name}'s subscription?`)) handleAction(sub.id, 'cancel_sub', sub.name); }}
-                              style={{ background: '#6b728022', border: '1px solid #6b728044', color: '#9ca3af', borderRadius: 6, padding: '5px 10px', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                              style={{ background: '#6b728022', border: '1px solid #6b728044', color: '#a0958b', borderRadius: 6, padding: '5px 10px', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
                               Cancel
                             </button>
                           )}
@@ -621,9 +621,9 @@ export default function SubscriptionsTab() {
             onClick={() => setChangePlanModal(null)}>
             <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
               onClick={e => e.stopPropagation()}
-              style={{ background: '#121212', border: '1px solid #2a2a2a', borderRadius: 16, padding: 28, width: 400 }}>
+              style={{ background: '#ffffff', border: '1px solid rgba(43,34,26,0.1)', borderRadius: 16, padding: 28, width: 400 }}>
               <h3 style={{ margin: '0 0 6px', fontSize: 18, fontWeight: 700 }}>Change Subscription Plan</h3>
-              <p style={{ margin: '0 0 20px', fontSize: 13, color: '#6b7280' }}>Changing plan for <strong style={{ color: '#e5e7eb' }}>{changePlanModal.name}</strong></p>
+              <p style={{ margin: '0 0 20px', fontSize: 13, color: '#87786c' }}>Changing plan for <strong style={{ color: '#e5e7eb' }}>{changePlanModal.name}</strong></p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
                 {(['free', 'student', 'premium', 'family', 'creator'] as PlanName[]).map(p => {
@@ -632,7 +632,7 @@ export default function SubscriptionsTab() {
                     <button key={p} onClick={() => setNewPlan(p)}
                       style={{
                         padding: '12px 16px', borderRadius: 10, border: `2px solid ${newPlan === p ? PLAN_COLORS[p] : '#1a1a1a'}`,
-                        background: newPlan === p ? `${PLAN_COLORS[p]}18` : '#0a0a0a',
+                        background: newPlan === p ? `${PLAN_COLORS[p]}18` : '#fbf9f5',
                         color: newPlan === p ? PLAN_COLORS[p] : '#9ca3af',
                         fontWeight: 700, fontSize: 13, cursor: 'pointer', textAlign: 'left', display: 'flex', justifyContent: 'space-between',
                       }}>
@@ -644,7 +644,7 @@ export default function SubscriptionsTab() {
               </div>
 
               <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-                <button onClick={() => setChangePlanModal(null)} style={{ background: '#1a1a1a', border: 'none', borderRadius: 8, color: '#9ca3af', padding: '10px 18px', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
+                <button onClick={() => setChangePlanModal(null)} style={{ background: '#f4eede', border: 'none', borderRadius: 8, color: '#a0958b', padding: '10px 18px', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
                 <button onClick={handleChangePlan} style={{ background: '#b08850', border: 'none', borderRadius: 8, color: '#000', padding: '10px 20px', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Apply Change</button>
               </div>
             </motion.div>
@@ -660,10 +660,10 @@ export default function SubscriptionsTab() {
             onClick={() => setTrialModal(null)}>
             <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
               onClick={e => e.stopPropagation()}
-              style={{ background: '#121212', border: '1px solid #2a2a2a', borderRadius: 16, padding: 28, width: 380 }}>
+              style={{ background: '#ffffff', border: '1px solid rgba(43,34,26,0.1)', borderRadius: 16, padding: 28, width: 380 }}>
               <h3 style={{ margin: '0 0 6px', fontSize: 18, fontWeight: 700 }}>Grant Free Trial</h3>
-              <p style={{ margin: '0 0 20px', fontSize: 13, color: '#6b7280' }}>Give <strong style={{ color: '#e5e7eb' }}>{trialModal.name}</strong> a 30-day trial</p>
-              <label style={{ fontSize: 12, color: '#9ca3af', display: 'block', marginBottom: 8 }}>Select Trial Plan</label>
+              <p style={{ margin: '0 0 20px', fontSize: 13, color: '#87786c' }}>Give <strong style={{ color: '#e5e7eb' }}>{trialModal.name}</strong> a 30-day trial</p>
+              <label style={{ fontSize: 12, color: '#a0958b', display: 'block', marginBottom: 8 }}>Select Trial Plan</label>
               <select value={trialPlan} onChange={e => setTrialPlan(e.target.value as PlanName)} style={{ ...inputStyle, marginBottom: 20 }}>
                 {(['student', 'premium', 'family', 'creator'] as PlanName[]).map(p => {
                   const price = plans.find(pl => pl.name === p)?.price ?? 0;
@@ -675,7 +675,7 @@ export default function SubscriptionsTab() {
                 })}
               </select>
               <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-                <button onClick={() => setTrialModal(null)} style={{ background: '#1a1a1a', border: 'none', borderRadius: 8, color: '#9ca3af', padding: '10px 18px', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
+                <button onClick={() => setTrialModal(null)} style={{ background: '#f4eede', border: 'none', borderRadius: 8, color: '#a0958b', padding: '10px 18px', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
                 <button onClick={handleGrantTrial} style={{ background: '#f59e0b', border: 'none', borderRadius: 8, color: '#000', padding: '10px 20px', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Grant Trial</button>
               </div>
             </motion.div>
@@ -691,13 +691,13 @@ export default function SubscriptionsTab() {
             onClick={() => setEditPlanModal(null)}>
             <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
               onClick={e => e.stopPropagation()}
-              style={{ background: '#121212', border: '1px solid #2a2a2a', borderRadius: 16, padding: 28, width: 380 }}>
+              style={{ background: '#ffffff', border: '1px solid rgba(43,34,26,0.1)', borderRadius: 16, padding: 28, width: 380 }}>
               <h3 style={{ margin: '0 0 6px', fontSize: 18, fontWeight: 700 }}>Edit Plan: {PLAN_LABELS[editPlanModal.name]}</h3>
-              <p style={{ margin: '0 0 20px', fontSize: 13, color: '#6b7280' }}>Update pricing and features for this plan</p>
-              <label style={{ fontSize: 12, color: '#9ca3af', display: 'block', marginBottom: 8 }}>Monthly Price ({symbol})</label>
+              <p style={{ margin: '0 0 20px', fontSize: 13, color: '#87786c' }}>Update pricing and features for this plan</p>
+              <label style={{ fontSize: 12, color: '#a0958b', display: 'block', marginBottom: 8 }}>Monthly Price ({symbol})</label>
               <input type="number" value={editPrice} onChange={e => setEditPrice(e.target.value)} style={{ ...inputStyle, marginBottom: 20 }} placeholder="9.99" />
               <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-                <button onClick={() => setEditPlanModal(null)} style={{ background: '#1a1a1a', border: 'none', borderRadius: 8, color: '#9ca3af', padding: '10px 18px', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
+                <button onClick={() => setEditPlanModal(null)} style={{ background: '#f4eede', border: 'none', borderRadius: 8, color: '#a0958b', padding: '10px 18px', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
                 <button onClick={handleEditPrice} style={{ background: PLAN_COLORS[editPlanModal.name], border: 'none', borderRadius: 8, color: '#000', padding: '10px 20px', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Save Changes</button>
               </div>
             </motion.div>
@@ -713,25 +713,25 @@ export default function SubscriptionsTab() {
             onClick={() => setDetailsModal(null)}>
             <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
               onClick={e => e.stopPropagation()}
-              style={{ background: '#121212', border: '1px solid #2a2a2a', borderRadius: 16, padding: 28, width: 440 }}>
+              style={{ background: '#ffffff', border: '1px solid rgba(43,34,26,0.1)', borderRadius: 16, padding: 28, width: 440 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
                 <img src={detailsModal.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=60&h=60&fit=crop'} style={{ width: 60, height: 60, borderRadius: '50%', objectFit: 'cover', border: `2px solid ${PLAN_COLORS[detailsModal.plan]}` }} />
                 <div>
                   <h3 style={{ margin: '0 0 4px', fontSize: 20, fontWeight: 700 }}>{detailsModal.name}</h3>
-                  <p style={{ margin: 0, color: '#6b7280', fontSize: 13 }}>{detailsModal.email}</p>
+                  <p style={{ margin: 0, color: '#87786c', fontSize: 13 }}>{detailsModal.email}</p>
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
                 {[
                   { label: 'PLAN', value: PLAN_LABELS[detailsModal.plan], color: PLAN_COLORS[detailsModal.plan] },
                   { label: 'STATUS', value: detailsModal.status, color: STATUS_COLORS[detailsModal.status] },
-                  { label: 'BILLING', value: detailsModal.billing, color: '#fff' },
-                  { label: 'COUNTRY', value: detailsModal.country, color: '#fff' },
-                  { label: 'MEMBER SINCE', value: detailsModal.joinedAt, color: '#fff' },
-                  { label: 'ROLE', value: detailsModal.role, color: '#9ca3af' },
+                  { label: 'BILLING', value: detailsModal.billing, color: '#221a15' },
+                  { label: 'COUNTRY', value: detailsModal.country, color: '#221a15' },
+                  { label: 'MEMBER SINCE', value: detailsModal.joinedAt, color: '#221a15' },
+                  { label: 'ROLE', value: detailsModal.role, color: '#a0958b' },
                 ].map(({ label, value, color }) => (
-                  <div key={label} style={{ background: '#0a0a0a', padding: 12, borderRadius: 8, border: '1px solid #1a1a1a' }}>
-                    <p style={{ margin: '0 0 4px', fontSize: 10, color: '#6b7280', letterSpacing: '0.06em' }}>{label}</p>
+                  <div key={label} style={{ background: '#fbf9f5', padding: 12, borderRadius: 8, border: '1px solid rgba(43,34,26,0.07)' }}>
+                    <p style={{ margin: '0 0 4px', fontSize: 10, color: '#87786c', letterSpacing: '0.06em' }}>{label}</p>
                     <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color, textTransform: 'capitalize' }}>{value}</p>
                   </div>
                 ))}
@@ -742,7 +742,7 @@ export default function SubscriptionsTab() {
                   Change Plan
                 </button>
                 <button onClick={() => setDetailsModal(null)}
-                  style={{ flex: 1, background: '#1a1a1a', border: '1px solid #333', borderRadius: 8, color: '#9ca3af', padding: '10px', fontSize: 13, cursor: 'pointer' }}>
+                  style={{ flex: 1, background: '#f4eede', border: '1px solid rgba(43,34,26,0.12)', borderRadius: 8, color: '#a0958b', padding: '10px', fontSize: 13, cursor: 'pointer' }}>
                   Close
                 </button>
               </div>

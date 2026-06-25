@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --color-ss-bg: #fbf9f5;
-  --color-ss-surface: #f4eede;
+  --color-ss-bg: #f4eede;
+  --color-ss-surface: #fbf9f5;
   --color-ss-elevated: #ffffff;
   --color-ss-hover: #ebdcb9;
   --color-ss-border: rgba(43, 34, 26, 0.07);
@@ -60,7 +60,7 @@
 html { scroll-behavior: smooth; }
 body {
   font-family: var(--font-inter), system-ui, sans-serif;
-  background-color: #fbf9f5;
+  background-color: var(--color-ss-bg, #f4eede);
   color: #221a15;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
@@ -88,8 +88,8 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-outfit), system-ui, sans-serif;
 .app-layout.no-player {
   grid-template-rows: 1fr;
 }
-.app-sidebar { grid-row: 1 / 2; grid-column: 1 / 2; overflow: hidden; border-radius: 12px; background: #f4eede; border: 1px solid rgba(43, 34, 26, 0.05); }
-.app-main { grid-row: 1 / 2; grid-column: 2 / 3; overflow-y: auto; overflow-x: hidden; border-radius: 12px; background: #fbf9f5; position: relative; scroll-behavior: smooth; padding-top: var(--sat); border: 1px solid rgba(43, 34, 26, 0.05); }
+.app-sidebar { grid-row: 1 / 2; grid-column: 1 / 2; overflow: hidden; border-radius: 12px; background: var(--color-ss-surface, #fbf9f5); border: 1px solid rgba(43, 34, 26, 0.05); }
+.app-main { grid-row: 1 / 2; grid-column: 2 / 3; overflow-y: auto; overflow-x: hidden; border-radius: 12px; background: var(--color-ss-bg, #f4eede); position: relative; scroll-behavior: smooth; padding-top: var(--sat); border: 1px solid rgba(43, 34, 26, 0.05); }
 .app-player { grid-row: 2 / 3; grid-column: 1 / -1; border-radius: 12px; background: #ffffff; border: 1px solid rgba(43, 34, 26, 0.08); box-shadow: 0 4px 20px rgba(43, 34, 26, 0.05); }
 .app-right-panel { grid-row: 1 / 2; grid-column: 3 / 4; overflow: hidden; }
 
@@ -218,6 +218,116 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-outfit), system-ui, sans-serif;
 
 .hero-gradient { background: linear-gradient(to bottom, transparent 0%, #121212 100%); }
 
+/* ═══════════════════════════════════════════════════════════════
+   ADMIN PANEL — Light Theme Override (matches home page beige theme)
+═══════════════════════════════════════════════════════════════ */
+.admin-light-theme {
+  background: var(--color-ss-bg, #f4eede) !important;
+  color: #221a15 !important;
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+/* ── Core dark backgrounds → light (all hex variants) ── */
+.admin-light-theme [style*="background: #080808"],
+.admin-light-theme [style*="background: #0a0a0a"],
+.admin-light-theme [style*="background: #0c0c0c"],
+.admin-light-theme [style*="background: #0d0d0d"],
+.admin-light-theme [style*="background: #0f0f0f"],
+.admin-light-theme [style*="background: #111111"],
+.admin-light-theme [style*="background: #121212"],
+.admin-light-theme [style*="background: #161616"],
+.admin-light-theme [style*="background: #111"],
+.admin-light-theme [style*="background: rgb(8, 8, 8)"],
+.admin-light-theme [style*="background: rgb(10, 10, 10)"],
+.admin-light-theme [style*="background: rgb(12, 12, 12)"],
+.admin-light-theme [style*="background: rgb(18, 18, 18)"],
+.admin-light-theme [style*="background: rgb(22, 22, 22)"] { background: #ffffff !important; }
+
+.admin-light-theme [style*="background: #1a1a1a"],
+.admin-light-theme [style*="background: #1e1e1e"],
+.admin-light-theme [style*="background: rgb(26, 26, 26)"],
+.admin-light-theme [style*="background: rgb(30, 30, 30)"] { background: #f4eede !important; }
+
+.admin-light-theme [style*="background: #222"],
+.admin-light-theme [style*="background: #222222"],
+.admin-light-theme [style*="background: #2a2a2a"],
+.admin-light-theme [style*="background: #252525"],
+.admin-light-theme [style*="background: #333"],
+.admin-light-theme [style*="background: #333333"],
+.admin-light-theme [style*="background: rgb(34, 34, 34)"],
+.admin-light-theme [style*="background: rgb(42, 42, 42)"],
+.admin-light-theme [style*="background: rgb(37, 37, 37)"],
+.admin-light-theme [style*="background: rgb(51, 51, 51)"] { background: rgba(43, 34, 26, 0.06) !important; }
+
+/* ── Border colors — all dark variants ── */
+.admin-light-theme [style*="border: 1px solid #111"],
+.admin-light-theme [style*="border: 1px solid #1a1a1a"],
+.admin-light-theme [style*="border: 1px solid #1e1e1e"] { border-color: rgba(43, 34, 26, 0.07) !important; }
+
+.admin-light-theme [style*="border: 1px solid #222"],
+.admin-light-theme [style*="border: 1px solid #2a2a2a"],
+.admin-light-theme [style*="border: 1px solid #333"] { border-color: rgba(43, 34, 26, 0.1) !important; }
+
+/* ── White text → dark text ── */
+.admin-light-theme [style*="color: #fff"],
+.admin-light-theme [style*="color: white"],
+.admin-light-theme [style*="color: #ffffff"],
+.admin-light-theme [style*="color: rgb(255, 255, 255)"] { color: #221a15 !important; }
+
+/* ── Muted gray text → warm muted ── */
+.admin-light-theme [style*="color: #6b7280"],
+.admin-light-theme [style*="color: rgb(107, 114, 128)"],
+.admin-light-theme [style*="color: #4b5563"],
+.admin-light-theme [style*="color: #374151"] { color: #87786c !important; }
+
+.admin-light-theme [style*="color: #9ca3af"],
+.admin-light-theme [style*="color: rgb(156, 163, 175)"] { color: #a0958b !important; }
+
+/* ── Stroke/fill overrides for charts ── */
+.admin-light-theme .recharts-cartesian-grid line { stroke: rgba(43, 34, 26, 0.07) !important; }
+.admin-light-theme .recharts-text,
+.admin-light-theme .recharts-text tspan { fill: #87786c !important; }
+.admin-light-theme .recharts-tooltip-wrapper .recharts-default-tooltip {
+  background: #fff !important;
+  border: 1px solid rgba(43, 34, 26, 0.1) !important;
+  color: #221a15 !important;
+}
+
+/* ── Input/textarea/select ── */
+.admin-light-theme input,
+.admin-light-theme textarea,
+.admin-light-theme select {
+  background: #f4eede !important;
+  color: #221a15 !important;
+  border-color: rgba(43, 34, 26, 0.15) !important;
+}
+.admin-light-theme input::placeholder,
+.admin-light-theme textarea::placeholder { color: #a0958b !important; }
+
+/* ── Table rows – dark row backgrounds ── */
+.admin-light-theme [style*="borderBottom: 1px solid #1a1a1a"],
+.admin-light-theme [style*="border-bottom: 1px solid #1a1a1a"],
+.admin-light-theme [style*="borderBottom: 1px solid #222"],
+.admin-light-theme [style*="border-bottom: 1px solid #222"] {
+  border-bottom-color: rgba(43, 34, 26, 0.07) !important;
+}
+
+/* ── Hover backgrounds ── */
+.admin-light-theme [style*="background: #252525"],
+.admin-light-theme [style*="background: #1e1e1e"] { background: #f0e8d8 !important; }
+
+/* ── Modals ── */
+.admin-light-theme [style*="background: rgba(0,0,0,0.75)"],
+.admin-light-theme [style*="background: rgba(0, 0, 0, 0.75)"],
+.admin-light-theme [style*="background: rgba(0,0,0,0.85)"],
+.admin-light-theme [style*="background: rgba(0, 0, 0, 0.85)"] {
+  background: rgba(43, 34, 26, 0.55) !important;
+}
+
+/* ── Scrollbar ── */
+.admin-light-theme ::-webkit-scrollbar-thumb { background: #c8bdad; }
+.admin-light-theme ::-webkit-scrollbar-track { background: #f4eede; }
+
 @media (max-width: 768px) {
   .app-layout {
     grid-template-columns: 1fr !important;
@@ -281,7 +391,7 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-outfit), system-ui, sans-serif;
 /* Responsive TrackCard & List Header Styles */
 .track-card-row {
   display: grid;
-  grid-template-columns: 20px 44px 1fr 1fr 90px;
+  grid-template-columns: 20px 44px minmax(0, 1fr) minmax(0, 1fr) 90px;
   align-items: center;
   gap: 12px;
   padding: 8px 14px;
@@ -290,12 +400,12 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-outfit), system-ui, sans-serif;
   transition: background 0.15s ease;
 }
 .track-card-row.compact {
-  grid-template-columns: 20px 44px 1fr 70px;
+  grid-template-columns: 20px 44px minmax(0, 1fr) 70px;
 }
 
 .track-list-header {
   display: grid;
-  grid-template-columns: 20px 44px 1fr 1fr 90px;
+  grid-template-columns: 20px 44px minmax(0, 1fr) minmax(0, 1fr) 90px;
   gap: 12px;
   padding: 10px 14px 8px;
   color: var(--theme-text-muted, #525252);
@@ -306,7 +416,7 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-outfit), system-ui, sans-serif;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 .track-list-header.compact {
-  grid-template-columns: 20px 44px 1fr 70px;
+  grid-template-columns: 20px 44px minmax(0, 1fr) 70px;
 }
 
 @media (max-width: 768px) {

@@ -163,12 +163,15 @@ export async function sendEmail(opts: {
 }): Promise<{ success: boolean; error?: string }> {
   try {
     const cfg = db.getMessagingConfig();
-    if (!cfg.email.enabled || !cfg.email.user || !cfg.email.pass) {
-      return { success: false, error: 'Email not configured or disabled. Enable Gmail SMTP in Settings → Messaging.' };
-    }
+    const emailUser = process.env.SMTP_USER || cfg.email.user;
+    const emailPass = process.env.SMTP_PASS || cfg.email.pass;
+    const host = process.env.SMTP_HOST || cfg.email.host || 'smtp.gmail.com';
+    const port = Number(process.env.SMTP_PORT) || cfg.email.port || 587;
+    const emailEnabled = (process.env.SMTP_USER && process.env.SMTP_PASS) ? true : cfg.email.enabled;
 
-    const host = cfg.email.host || 'smtp.gmail.com';
-    const port = cfg.email.port || 587;
+    if (!emailEnabled || !emailUser || !emailPass) {
+      return { success: false, error: 'Email not configured or disabled. Enable Gmail SMTP in Settings → Messaging or define SMTP_USER / SMTP_PASS in your .env file.' };
+    }
 
     // ✅ Port 465 = SSL (secure: true). Port 587/25 = STARTTLS (secure: false + requireTLS: true)
     // This is the correct mapping — wrong value here causes "wrong version number" SSL errors.
@@ -179,7 +182,7 @@ export async function sendEmail(opts: {
       port,
       secure: isSSL,              // true only for port 465 (direct SSL)
       requireTLS: !isSSL,         // force STARTTLS upgrade on port 587/25
-      auth: { user: cfg.email.user, pass: cfg.email.pass },
+      auth: { user: emailUser, pass: emailPass },
       tls: {
         rejectUnauthorized: false, // allow self-signed certs in dev
         minVersion: 'TLSv1.2',
@@ -187,7 +190,7 @@ export async function sendEmail(opts: {
     });
 
     await transporter.sendMail({
-      from: `"${cfg.email.fromName || 'Beato'}" <${cfg.email.fromAddress || cfg.email.user}>`,
+      from: `"${cfg.email.fromName || 'Beato'}" <${cfg.email.fromAddress || emailUser}>`,
       to: opts.to,
       subject: opts.subject,
       text: opts.text,

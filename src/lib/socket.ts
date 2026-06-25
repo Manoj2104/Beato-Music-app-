@@ -19,7 +19,8 @@ export type SocketEvent =
   | 'NEW_COMMENT'
   | 'MERCH_SALE'
   | 'TICKET_SALE'
-  | 'PLAYLIST_UPDATED';
+  | 'PLAYLIST_UPDATED'
+  | 'ROLE_PERMISSION_UPDATE';
 
 export interface SocketMessage {
   event: SocketEvent;

@@ -150,8 +150,8 @@ function DesktopRecommendedCard({ track, onAdd, isAdded, onPlay }: { track: any;
         gap: 14,
         padding: '12px 16px',
         borderRadius: 14,
-        background: hov ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.02)',
-        border: '1px solid rgba(255,255,255,0.04)',
+        background: hov ? 'var(--color-ss-surface, #f4eede)' : 'rgba(43, 34, 26, 0.02)',
+        border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.07))',
         cursor: 'pointer',
         transition: 'all 0.2s ease',
         position: 'relative'
@@ -190,7 +190,7 @@ function DesktopRecommendedCard({ track, onAdd, isAdded, onPlay }: { track: any;
       
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{
-          color: hov ? '#b08850' : '#fff',
+          color: hov ? 'var(--color-ss-primary, #b08850)' : 'var(--color-ss-text-primary, #221a15)',
           fontWeight: 600,
           fontSize: 14,
           margin: '0 0 4px 0',
@@ -200,7 +200,7 @@ function DesktopRecommendedCard({ track, onAdd, isAdded, onPlay }: { track: any;
           transition: 'color 0.2s'
         }}>{track.title}</p>
         <p style={{
-          color: '#a3a3a3',
+          color: 'var(--color-ss-text-muted, #87786c)',
           fontSize: 12,
           margin: 0,
           overflow: 'hidden',
@@ -212,7 +212,7 @@ function DesktopRecommendedCard({ track, onAdd, isAdded, onPlay }: { track: any;
       <div onClick={(e) => e.stopPropagation()}>
         {isAdded ? (
           <div style={{
-            color: '#b08850',
+            color: 'var(--color-ss-primary, #b08850)',
             padding: '6px 12px',
             display: 'flex',
             alignItems: 'center',
@@ -232,9 +232,9 @@ function DesktopRecommendedCard({ track, onAdd, isAdded, onPlay }: { track: any;
               width: 32,
               height: 32,
               borderRadius: '50%',
-              background: 'rgba(255,255,255,0.08)',
-              border: '1px solid rgba(255,255,255,0.14)',
-              color: '#fff',
+              background: 'rgba(43, 34, 26, 0.04)',
+              border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.07))',
+              color: 'var(--color-ss-text-primary, #221a15)',
               cursor: 'pointer',
               padding: 0
             }}
@@ -265,8 +265,8 @@ function DesktopTrendingCard({ track, onAdd, isAdded, onPlay }: { track: any; on
         position: 'relative',
         padding: 12,
         borderRadius: 12,
-        background: hov ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.02)',
-        border: '1px solid rgba(255,255,255,0.04)',
+        background: hov ? 'var(--color-ss-surface, #f4eede)' : 'rgba(43, 34, 26, 0.02)',
+        border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.07))',
         transition: 'all 0.2s ease'
       }}
     >
@@ -361,7 +361,7 @@ function DesktopTrendingCard({ track, onAdd, isAdded, onPlay }: { track: any; on
 
       <div style={{ minWidth: 0 }}>
         <p style={{
-          color: hov ? '#b08850' : '#fff',
+          color: hov ? 'var(--color-ss-primary, #b08850)' : 'var(--color-ss-text-primary, #221a15)',
           fontWeight: 600,
           fontSize: 13,
           margin: 0,
@@ -371,7 +371,7 @@ function DesktopTrendingCard({ track, onAdd, isAdded, onPlay }: { track: any; on
           transition: 'color 0.2s'
         }}>{track.title}</p>
         <p style={{
-          color: '#a3a3a3',
+          color: 'var(--color-ss-text-muted, #87786c)',
           fontSize: 11,
           margin: '2px 0 0 0',
           overflow: 'hidden',
@@ -775,6 +775,9 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
         .playlist-desktop-container span:not(.hero-text):not(.text-white-force) {
           color: var(--color-ss-text-primary, #221a15) !important;
         }
+        .playlist-desktop-container .hero-text {
+          color: inherit !important;
+        }
 
         /* Override muted texts */
         .playlist-desktop-container .text-ss-text-muted,
@@ -788,12 +791,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
           color: var(--color-ss-text-muted, #87786c) !important;
         }
 
-        /* Controls bar buttons */
-        .playlist-desktop-container button:not(.play-btn-force):not(.text-white-force) {
-          color: var(--color-ss-text-primary, #221a15) !important;
-          border-color: rgba(43, 34, 26, 0.2) !important;
-        }
-        
+
         /* Lists and card hovers */
         .playlist-desktop-container div[style*="background: rgba(255, 255, 255, 0.05)"],
         .playlist-desktop-container div[style*="background: rgba(255,255,255,0.05)"],
@@ -878,6 +876,164 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
           background: var(--color-ss-elevated, #ffffff) !important;
           color: var(--color-ss-text-primary, #221a15) !important;
         }
+
+        /* ─── Premium Polish Overrides ─── */
+        
+        /* Edit Playlist Modal */
+        .premium-modal-card {
+          width: 100% !important;
+          max-width: 400px !important;
+          background: var(--color-ss-elevated, #ffffff) !important;
+          border: 1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08)) !important;
+          border-radius: 20px !important;
+          box-shadow: 0 24px 60px rgba(43, 34, 26, 0.15) !important;
+          padding: 24px !important;
+          overflow: hidden !important;
+        }
+        .premium-modal-card h3 {
+          color: var(--color-ss-text-primary, #221a15) !important;
+          font-family: var(--font-inter), sans-serif !important;
+          font-weight: 800 !important;
+          font-size: 18px !important;
+          margin-bottom: 16px !important;
+          text-align: center !important;
+        }
+        .premium-modal-card label {
+          color: var(--color-ss-text-muted, #87786c) !important;
+          font-size: 11px !important;
+          font-weight: 700 !important;
+          text-transform: uppercase !important;
+          margin-bottom: 6px !important;
+          display: block !important;
+          font-family: var(--font-inter), sans-serif !important;
+        }
+        .premium-modal-card input {
+          width: 100% !important;
+          background: var(--color-ss-surface, #f4eede) !important;
+          border: 1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08)) !important;
+          border-radius: 8px !important;
+          padding: 10px 14px !important;
+          color: var(--color-ss-text-primary, #221a15) !important;
+          font-size: 14px !important;
+          outline: none !important;
+          box-sizing: border-box !important;
+        }
+        .premium-modal-card button.btn-cancel {
+          padding: 8px 18px !important;
+          border-radius: 20px !important;
+          background: rgba(43, 34, 26, 0.03) !important;
+          border: 1px solid rgba(43, 34, 26, 0.08) !important;
+          color: var(--color-ss-text-muted, #87786c) !important;
+          font-size: 13px !important;
+          font-weight: 600 !important;
+          cursor: pointer !important;
+          font-family: var(--font-inter), sans-serif !important;
+          transition: all 0.2s ease !important;
+        }
+        .premium-modal-card button.btn-cancel:hover {
+          background: rgba(43, 34, 26, 0.08) !important;
+          color: var(--color-ss-text-primary, #221a15) !important;
+        }
+        .premium-modal-card button.btn-save {
+          padding: 8px 22px !important;
+          border-radius: 20px !important;
+          border: none !important;
+          background: var(--color-ss-primary, #b08850) !important;
+          color: #ffffff !important;
+          font-size: 13px !important;
+          font-weight: 800 !important;
+          cursor: pointer !important;
+          font-family: var(--font-inter), sans-serif !important;
+          transition: all 0.2s ease !important;
+          box-shadow: 0 4px 12px rgba(176, 136, 80, 0.25) !important;
+        }
+        .premium-modal-card button.btn-save:hover {
+          background: #9d7641 !important;
+          transform: scale(1.02) !important;
+        }
+
+        /* Drawer & Bottom Sheet overrides */
+        .all-songs-drawer-content {
+          background: var(--color-ss-elevated, #ffffff) !important;
+          border-top: 1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08)) !important;
+        }
+        .all-songs-drawer-content h3 {
+          color: var(--color-ss-text-primary, #221a15) !important;
+        }
+        .all-songs-drawer-content p {
+          color: var(--color-ss-text-muted, #87786c) !important;
+        }
+        .all-songs-drawer-content input {
+          background: var(--color-ss-surface, #f4eede) !important;
+          color: var(--color-ss-text-primary, #221a15) !important;
+          border: 1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08)) !important;
+        }
+        .all-songs-drawer-content input::placeholder {
+          color: var(--color-ss-text-muted, #87786c) !important;
+        }
+
+        /* Drawer Buttons & Lists */
+        .all-songs-drawer-content button {
+          background: rgba(43, 34, 26, 0.04) !important;
+          color: var(--color-ss-text-primary, #221a15) !important;
+          transition: all 0.15s ease !important;
+        }
+        .all-songs-drawer-content button.active-chip {
+          background: var(--color-ss-primary, #b08850) !important;
+          color: #ffffff !important;
+        }
+        .all-songs-drawer-content .drawer-track-row {
+          transition: background 0.15s ease !important;
+        }
+        .all-songs-drawer-content .drawer-track-row:hover {
+          background: rgba(43, 34, 26, 0.04) !important;
+        }
+        .all-songs-drawer-content .drawer-track-row p.title {
+          color: var(--color-ss-text-primary, #221a15) !important;
+        }
+        .all-songs-drawer-content .drawer-track-row p.artist {
+          color: var(--color-ss-text-muted, #87786c) !important;
+        }
+        .all-songs-drawer-content .drawer-track-row button.btn-add {
+          background: rgba(43, 34, 26, 0.04) !important;
+          border: 1px solid rgba(43, 34, 26, 0.08) !important;
+          color: var(--color-ss-text-primary, #221a15) !important;
+        }
+        .all-songs-drawer-content .drawer-track-row button.btn-add.added {
+          background: transparent !important;
+          border: none !important;
+          color: var(--color-ss-primary, #b08850) !important;
+        }
+
+        /* Playlist Picker Bottom Sheet overrides */
+        .playlist-themed-container div[style*="background: #121212"] {
+          background: var(--color-ss-elevated, #ffffff) !important;
+          border-top: 1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08)) !important;
+        }
+        .playlist-themed-container div[style*="background: #121212"] input {
+          background: var(--color-ss-surface, #f4eede) !important;
+          color: var(--color-ss-text-primary, #221a15) !important;
+          border: 1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08)) !important;
+        }
+        .playlist-themed-container div[style*="background: #121212"] p {
+          color: var(--color-ss-text-primary, #221a15) !important;
+        }
+        .playlist-themed-container div[style*="background: #121212"] button {
+          color: var(--color-ss-text-primary, #221a15) !important;
+        }
+        .playlist-themed-container div[style*="background: #121212"] button p {
+          color: var(--color-ss-text-primary, #221a15) !important;
+        }
+        .playlist-themed-container div[style*="background: #121212"] svg {
+          color: var(--color-ss-text-muted, #87786c) !important;
+        }
+        .playlist-themed-container div[style*="background: #121212"] button:hover {
+          background: rgba(43, 34, 26, 0.04) !important;
+        }
+        .playlist-desktop-container input::placeholder {
+          color: var(--color-ss-text-muted, #87786c) !important;
+          opacity: 0.8 !important;
+        }
       `}</style>
 
       {/* ── DESKTOP PLAYLIST VIEW ── */}
@@ -889,11 +1045,9 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
               initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
               style={{
                 position: 'sticky', top: 0, zIndex: 50,
-                background: isLikedSongs
-                  ? 'rgba(55,28,130,0.95)'
-                  : 'rgba(20,50,32,0.95)',
+                background: 'rgba(251, 249, 245, 0.96)',
                 backdropFilter: 'blur(20px)',
-                borderBottom: '1px solid rgba(255,255,255,0.07)',
+                borderBottom: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
                 paddingLeft: 16,
                 paddingRight: 16,
                 paddingBottom: 10,
@@ -902,7 +1056,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
               }}
             >
               {/* Back button on sticky mini-header */}
-              <button onClick={() => router.back()} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', padding: 0, marginRight: 4 }}>
+              <button onClick={() => router.back()} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-ss-text-primary, #221a15)', display: 'flex', alignItems: 'center', padding: 0, marginRight: 4 }}>
                 <ChevronLeft size={24} />
               </button>
 
@@ -910,8 +1064,8 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                 style={{ width: 36, height: 36, borderRadius: '50%', background: G, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 4px 12px ${G}50`, flexShrink: 0 }}>
                 {isCurrentPlaylist && isPlaying ? <Pause size={15} fill="black" color="black" /> : <Play size={15} fill="black" color="black" />}
               </button>
-              <p style={{ fontFamily: 'var(--font-outfit), sans-serif', color: '#fff', fontSize: 17, fontWeight: 900, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{playlist.title}</p>
-              <span style={{ color: '#737373', fontSize: 12 }}>{rawTracks.length} songs</span>
+              <p style={{ fontFamily: 'var(--font-outfit), sans-serif', color: 'var(--color-ss-text-primary, #221a15)', fontSize: 17, fontWeight: 900, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{playlist.title}</p>
+              <span className="text-ss-text-muted" style={{ fontSize: 12 }}>{rawTracks.length} songs</span>
             </motion.div>
           )}
         </AnimatePresence>
@@ -982,7 +1136,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
               }}>
                 <Check size={10} strokeWidth={4} color="black" />
               </div>
-              <span style={{ 
+              <span className="hero-text" style={{ 
                 fontSize: 12, 
                 fontWeight: 700, 
                 color: '#fff',
@@ -1017,6 +1171,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                     setEditGrad((playlist as any).gradientCss || '');
                     setShowEditModal(true);
                   }}
+                  className="text-white-force"
                   style={{
                     background: 'rgba(255,255,255,0.08)',
                     border: '1px solid rgba(255,255,255,0.2)',
@@ -1047,7 +1202,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
 
             {/* Playlist Description */}
             {playlist.description && (
-              <p style={{
+              <p className="hero-text" style={{
                 fontSize: 14,
                 color: '#d1d5db',
                 margin: '4px 0 2px 0',
@@ -1077,11 +1232,11 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                   {(playlist.ownerName || 'Y').charAt(0).toUpperCase()}
                 </div>
               )}
-              <span>{playlist.ownerName || 'You'}</span>
-              <span>•</span>
-              <span>{playlist.followers > 0 ? `${playlist.followers.toLocaleString()} saves` : '0 saves'}</span>
-              <span>•</span>
-              <span>{fmtTime(totalDuration)}</span>
+              <span className="hero-text">{playlist.ownerName || 'You'}</span>
+              <span className="hero-text">•</span>
+              <span className="hero-text">{playlist.followers > 0 ? `${playlist.followers.toLocaleString()} saves` : '0 saves'}</span>
+              <span className="hero-text">•</span>
+              <span className="hero-text">{fmtTime(totalDuration)}</span>
             </div>
           </div>
         </div>
@@ -1092,7 +1247,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
           style={{ 
-            background: 'linear-gradient(180deg, rgba(10,10,10,0) 0%, #0a0a0a 100%)',
+            background: 'transparent',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -1134,8 +1289,8 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                 height: 32,
                 borderRadius: '50%',
                 background: 'transparent',
-                border: '1px solid rgba(255,255,255,0.15)',
-                color: shuffle ? '#b08850' : '#fff',
+                border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
+                color: shuffle ? 'var(--color-ss-primary, #b08850)' : 'var(--color-ss-text-primary, #221a15)',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -1144,15 +1299,15 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                 flexShrink: 0
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
-                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)';
+                e.currentTarget.style.background = 'var(--color-ss-surface, #f4eede)';
+                e.currentTarget.style.borderColor = 'var(--color-ss-border, rgba(43, 34, 26, 0.08))';
               }}
               onMouseLeave={e => {
                 e.currentTarget.style.background = 'transparent';
-                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
+                e.currentTarget.style.borderColor = 'var(--color-ss-border, rgba(43, 34, 26, 0.08))';
               }}
             >
-              <Shuffle size={14} color={shuffle ? '#b08850' : '#fff'} />
+              <Shuffle size={14} color={shuffle ? 'var(--color-ss-primary, #b08850)' : 'var(--color-ss-text-primary, #221a15)'} />
             </motion.button>
 
             {/* Save / Follow (+) or Add to your playlist capsule button if not owner */}
@@ -1172,9 +1327,9 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                   gap: 8,
                   padding: '8px 20px',
                   borderRadius: 20,
-                  background: isSaved ? G : 'rgba(255,255,255,0.08)',
-                  border: isSaved ? 'none' : '1px solid rgba(255,255,255,0.2)',
-                  color: isSaved ? '#000' : '#fff',
+                  background: isSaved ? 'var(--color-ss-primary, #b08850)' : 'var(--color-ss-surface, #f4eede)',
+                  border: isSaved ? 'none' : '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
+                  color: isSaved ? '#fff' : 'var(--color-ss-text-primary, #221a15)',
                   fontSize: 13,
                   fontWeight: 700,
                   cursor: 'pointer',
@@ -1184,8 +1339,8 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                   flexShrink: 0
                 }}
               >
-                {isSaved ? <Check size={14} color="black" strokeWidth={3} /> : <Plus size={14} />}
-                <span>{isSaved ? 'In your playlists' : 'Add to your playlist'}</span>
+                {isSaved ? <Check size={14} color="white" strokeWidth={3} /> : <Plus size={14} />}
+                <span className="hero-text">{isSaved ? 'In your playlists' : 'Add to your playlist'}</span>
               </motion.button>
             ) : (
               <motion.button 
@@ -1201,9 +1356,9 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                   width: 32,
                   height: 32,
                   borderRadius: '50%',
-                  background: isSaved ? G : 'transparent',
-                  border: isSaved ? 'none' : '1px solid rgba(255,255,255,0.15)',
-                  color: isSaved ? '#000' : '#fff',
+                  background: isSaved ? 'var(--color-ss-primary, #b08850)' : 'transparent',
+                  border: isSaved ? 'none' : '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
+                  color: isSaved ? '#fff' : 'var(--color-ss-text-primary, #221a15)',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -1213,18 +1368,18 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                 }}
                 onMouseEnter={e => {
                   if (!isSaved) {
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
-                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)';
+                    e.currentTarget.style.background = 'var(--color-ss-surface, #f4eede)';
+                    e.currentTarget.style.borderColor = 'var(--color-ss-border, rgba(43, 34, 26, 0.08))';
                   }
                 }}
                 onMouseLeave={e => {
                   if (!isSaved) {
                     e.currentTarget.style.background = 'transparent';
-                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
+                    e.currentTarget.style.borderColor = 'var(--color-ss-border, rgba(43, 34, 26, 0.08))';
                   }
                 }}
               >
-                {isSaved ? <Check size={14} color="#000" strokeWidth={3.5} /> : <Plus size={14} />}
+                {isSaved ? <Check size={14} color="#fff" strokeWidth={3.5} /> : <Plus size={14} />}
               </motion.button>
             )}
 
@@ -1237,8 +1392,8 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                 height: 32,
                 borderRadius: '50%',
                 background: 'transparent',
-                border: '1px solid rgba(255,255,255,0.15)',
-                color: '#fff',
+                border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
+                color: 'var(--color-ss-text-primary, #221a15)',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -1247,12 +1402,12 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                 flexShrink: 0
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
-                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)';
+                e.currentTarget.style.background = 'var(--color-ss-surface, #f4eede)';
+                e.currentTarget.style.borderColor = 'var(--color-ss-border, rgba(43, 34, 26, 0.08))';
               }}
               onMouseLeave={e => {
                 e.currentTarget.style.background = 'transparent';
-                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
+                e.currentTarget.style.borderColor = 'var(--color-ss-border, rgba(43, 34, 26, 0.08))';
               }}
             >
               <Download size={14} />
@@ -1268,8 +1423,8 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                   height: 32,
                   borderRadius: '50%',
                   background: 'transparent',
-                  border: '1px solid rgba(255,255,255,0.15)',
-                  color: '#fff',
+                  border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
+                  color: 'var(--color-ss-text-primary, #221a15)',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -1277,12 +1432,12 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                   transition: 'all 0.2s'
                 }}
                 onMouseEnter={e => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)';
+                  e.currentTarget.style.background = 'var(--color-ss-surface, #f4eede)';
+                  e.currentTarget.style.borderColor = 'var(--color-ss-border, rgba(43, 34, 26, 0.08))';
                 }}
                 onMouseLeave={e => {
                   e.currentTarget.style.background = 'transparent';
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
+                  e.currentTarget.style.borderColor = 'var(--color-ss-border, rgba(43, 34, 26, 0.08))';
                 }}
               >
                 <MoreVertical size={16} />
@@ -1322,9 +1477,9 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
               { label: `${uniqueArtists.length} Artists`, icon: Star, color: '#f59e0b' },
               ...(playlist.followers > 0 ? [{ label: `${numFmt(playlist.followers)} Saves`, icon: Heart, color: '#34d399' }] : []),
             ].map(({ label, icon: Icon, color }) => (
-              <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '6px 14px', borderRadius: 20, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '6px 14px', borderRadius: 20, background: 'rgba(43, 34, 26, 0.03)', border: '1px solid rgba(43, 34, 26, 0.06)' }}>
                 <Icon size={13} color={color} />
-                <span style={{ color: '#d1d5db', fontSize: 12, fontWeight: 600 }}>{label}</span>
+                <span className="text-ss-text-muted" style={{ fontSize: 12, fontWeight: 600 }}>{label}</span>
               </div>
             ))}
           </div>
@@ -1342,21 +1497,21 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, flex: 1 }}>
             {/* Search */}
             <div style={{ position: 'relative', width: 280 }}>
-              <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#a3a3a3', pointerEvents: 'none' }} />
+              <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-ss-text-muted, #87786c)', pointerEvents: 'none' }} />
               <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search in playlist…"
-                style={{ width: '100%', paddingLeft: 36, paddingRight: searchQuery ? 32 : 12, paddingTop: 9, paddingBottom: 9, background: 'rgba(255,255,255,0.06)', border: searchQuery ? `1px solid ${G}50` : '1px solid rgba(255,255,255,0.08)', borderRadius: 10, color: '#fff', fontSize: 13, outline: 'none', transition: 'all 0.2s', boxSizing: 'border-box' }}
+                style={{ width: '100%', paddingLeft: 36, paddingRight: searchQuery ? 32 : 12, paddingTop: 9, paddingBottom: 9, background: 'rgba(43, 34, 26, 0.04)', border: searchQuery ? `1px solid ${G}50` : '1px solid rgba(43, 34, 26, 0.08)', borderRadius: 10, color: 'var(--color-ss-text-primary, #221a15)', fontSize: 13, outline: 'none', transition: 'all 0.2s', boxSizing: 'border-box' }}
               />
               {searchQuery && (
-                <button onClick={() => setSearchQuery('')} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#a3a3a3', cursor: 'pointer', display: 'flex', alignItems: 'center' }}><X size={14} /></button>
+                <button onClick={() => setSearchQuery('')} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--color-ss-text-muted, #87786c)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}><X size={14} /></button>
               )}
             </div>
 
             {/* Sort */}
             <div style={{ position: 'relative' }}>
               <button onClick={() => setShowSortMenu(!showSortMenu)}
-                style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 16px', borderRadius: 10, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#d1d5db', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s', whiteSpace: 'nowrap' }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = '#fff'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = '#d1d5db'; }}
+                style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 16px', borderRadius: 10, background: 'rgba(43, 34, 26, 0.04)', border: '1px solid rgba(43, 34, 26, 0.08)', color: 'var(--color-ss-text-muted, #87786c)', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s', whiteSpace: 'nowrap' }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(43, 34, 26, 0.08)'; e.currentTarget.style.color = 'var(--color-ss-text-primary, #221a15)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(43, 34, 26, 0.04)'; e.currentTarget.style.color = 'var(--color-ss-text-muted, #87786c)'; }}
               >
                 <BarChart2 size={13} style={{ transform: 'rotate(90deg)' }} />
                 {SORT_OPTS.find(s => s.v === activeSort)?.l}
@@ -1387,7 +1542,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
           </div>
 
           {/* Track count */}
-          <span style={{ color: '#737373', fontSize: 13, fontWeight: 500, whiteSpace: 'nowrap' }}>
+          <span className="text-ss-text-muted" style={{ fontSize: 13, fontWeight: 500, whiteSpace: 'nowrap' }}>
             {filteredTracks.length} {filteredTracks.length !== rawTracks.length ? `of ${rawTracks.length} ` : ''}tracks
           </span>
         </div>
@@ -1395,8 +1550,8 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
         {/* ── Track Table ─────────────────────────────────────────────────── */}
         <div style={{ padding: '0 32px' }}>
           {/* Table header */}
-          <div className="track-list-header" style={{ display: 'grid', gridTemplateColumns: '28px 46px 1fr 1fr 80px', gap: 12, padding: '8px 14px 10px', color: '#525252', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', borderBottom: '1px solid rgba(255,255,255,0.07)', marginBottom: 4 }}>
-            <span style={{ textAlign: 'center' }}>#</span>
+          <div className="track-list-header" style={{ display: 'grid', gridTemplateColumns: '20px 44px minmax(0, 1fr) minmax(0, 1fr) 90px', gap: 12, padding: '8px 14px 10px', color: 'var(--color-ss-text-muted, #87786c)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', borderBottom: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))', marginBottom: 4 }}>
+            <span style={{ textAlign: 'left' }}>#</span>
             <span />
             <span>Title</span>
             <span>Album</span>
@@ -1434,13 +1589,13 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
               <div>
                 <h2 style={{
                   fontFamily: 'var(--font-outfit), sans-serif',
-                  color: '#fff',
+                  color: 'var(--color-ss-text-primary, #221a15)',
                   fontSize: 22,
                   fontWeight: 800,
                   margin: '0 0 4px 0'
                 }}>Recommended Songs</h2>
                 <p style={{
-                  color: '#a3a3a3',
+                  color: 'var(--color-ss-text-muted, #87786c)',
                   fontSize: 13,
                   fontWeight: 500,
                   margin: 0
@@ -1481,13 +1636,13 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
               <div>
                 <h2 style={{
                   fontFamily: 'var(--font-outfit), sans-serif',
-                  color: '#fff',
+                  color: 'var(--color-ss-text-primary, #221a15)',
                   fontSize: 22,
                   fontWeight: 800,
                   margin: '0 0 4px 0'
                 }}>Trending Songs</h2>
                 <p style={{
-                  color: '#a3a3a3',
+                  color: 'var(--color-ss-text-muted, #87786c)',
                   fontSize: 13,
                   fontWeight: 500,
                   margin: 0
@@ -1501,15 +1656,15 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                 <button
                   onClick={() => scrollCarousel('left')}
                   style={{
-                    background: 'rgba(255,255,255,0.06)',
-                    border: '1px solid rgba(255,255,255,0.1)',
+                    background: 'rgba(43, 34, 26, 0.04)',
+                    border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
                     borderRadius: '50%',
                     width: 32,
                     height: 32,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: '#fff',
+                    color: 'var(--color-ss-text-primary, #221a15)',
                     cursor: 'pointer',
                     transition: 'all 0.2s'
                   }}
@@ -1520,15 +1675,15 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                 <button
                   onClick={() => scrollCarousel('right')}
                   style={{
-                    background: 'rgba(255,255,255,0.06)',
-                    border: '1px solid rgba(255,255,255,0.1)',
+                    background: 'rgba(43, 34, 26, 0.04)',
+                    border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
                     borderRadius: '50%',
                     width: 32,
                     height: 32,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: '#fff',
+                    color: 'var(--color-ss-text-primary, #221a15)',
                     cursor: 'pointer',
                     transition: 'all 0.2s'
                   }}
@@ -1578,9 +1733,9 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
               whileTap={{ scale: 0.95 }}
               onClick={() => setShowAllSongsDrawer(true)}
               style={{
-                background: '#ffffff',
-                color: '#000000',
-                border: 'none',
+                background: 'var(--color-ss-elevated, #ffffff)',
+                color: 'var(--color-ss-text-primary, #221a15)',
+                border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
                 borderRadius: 28,
                 padding: '14px 40px',
                 fontSize: 14,
@@ -1589,7 +1744,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                 display: 'flex',
                 alignItems: 'center',
                 gap: 8,
-                boxShadow: '0 8px 20px rgba(255,255,255,0.15)',
+                boxShadow: '0 8px 24px rgba(43, 34, 26, 0.06)',
                 fontFamily: 'var(--font-outfit), sans-serif',
                 transition: 'all 0.2s'
               }}
@@ -2558,7 +2713,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
           >
             <motion.div initial={{ opacity: 0, scale: 0.92, y: 24 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.92, y: 24 }}
               transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-              style={{ width: '100%', maxWidth: 400, background: '#1e1e1e', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 24px 60px rgba(0,0,0,0.6)', padding: 20 }}
+              className="premium-modal-card"
             >
               <h3 style={{ color: '#fff', fontSize: 18, fontWeight: 800, marginBottom: 16, textAlign: 'center', fontFamily: 'var(--font-inter), sans-serif' }}>Edit Playlist Details</h3>
               
@@ -2590,12 +2745,12 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
 
                 <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 12 }}>
                   <button type="button" onClick={() => setShowEditModal(false)}
-                    style={{ padding: '8px 18px', borderRadius: 20, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#a3a3a3', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-inter), sans-serif' }}
+                    className="btn-cancel"
                   >
                     Cancel
                   </button>
                   <button type="submit" disabled={!editTitle.trim()}
-                    style={{ padding: '8px 22px', borderRadius: 20, border: 'none', background: G, color: '#000', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'var(--font-inter), sans-serif' }}
+                    className="btn-save"
                   >
                     Save
                   </button>
@@ -2726,9 +2881,8 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                       setDrawerCategory(cat === drawerCategory ? '' : cat);
                       setDrawerGenre('');
                     }}
+                    className={`chip ${drawerCategory === cat ? 'active-chip' : ''}`}
                     style={{
-                      background: drawerCategory === cat ? '#b08850' : 'rgba(255,255,255,0.06)',
-                      color: drawerCategory === cat ? '#000' : '#fff',
                       border: 'none',
                       borderRadius: 16,
                       padding: '6px 14px',
@@ -2754,9 +2908,8 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                       setDrawerGenre(gen === drawerGenre ? '' : gen);
                       setDrawerCategory('');
                     }}
+                    className={`chip ${drawerGenre === gen ? 'active-chip' : ''}`}
                     style={{
-                      background: drawerGenre === gen ? '#b08850' : 'rgba(255,255,255,0.06)',
-                      color: drawerGenre === gen ? '#000' : '#fff',
                       border: 'none',
                       borderRadius: 16,
                       padding: '6px 14px',
@@ -2787,6 +2940,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                       <div
                         key={track.id}
                         onClick={() => playTrack(track, filteredDrawerTracks)}
+                        className="drawer-track-row"
                         style={{
                           display: 'flex',
                           alignItems: 'center',
@@ -2794,10 +2948,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                           gap: 12,
                           cursor: 'pointer',
                           borderRadius: 8,
-                          transition: 'background 0.15s'
                         }}
-                        onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)'}
-                        onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
                       >
                         <div style={{ width: 44, height: 44, borderRadius: 6, overflow: 'hidden', background: trackGradient(track.id), display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                           {track.coverImage ? (
@@ -2807,8 +2958,8 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                           )}
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <p style={{ color: '#fff', fontSize: 14, fontWeight: 600, margin: '0 0 3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'var(--font-inter), sans-serif' }}>{track.title}</p>
-                          <p style={{ color: '#b3b3b3', fontSize: 12, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'var(--font-inter), sans-serif' }}>{track.artistName} • {track.genre}</p>
+                          <p className="title" style={{ fontSize: 14, fontWeight: 600, margin: '0 0 3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'var(--font-inter), sans-serif' }}>{track.title}</p>
+                          <p className="artist" style={{ fontSize: 12, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'var(--font-inter), sans-serif' }}>{track.artistName} • {track.genre}</p>
                         </div>
                         
                         <button
@@ -2820,16 +2971,14 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                               style: { background: '#1a1a1a', color: '#fff' }
                             });
                           }}
+                          className={`btn-add ${isAdded ? 'added' : ''}`}
                           style={{
-                            background: isAdded ? 'transparent' : 'rgba(255,255,255,0.05)',
-                            border: isAdded ? 'none' : '1px solid rgba(255,255,255,0.1)',
                             borderRadius: '50%',
                             width: 32,
                             height: 32,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            color: isAdded ? '#b08850' : '#fff',
                             cursor: 'pointer'
                           }}
                         >

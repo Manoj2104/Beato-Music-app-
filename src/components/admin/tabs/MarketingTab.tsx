@@ -30,9 +30,9 @@ const chartTooltip = {
     background: '#181818',
     border: `1px solid ${COLORS.border}`,
     borderRadius: 12,
-    color: '#fff',
+    color: '#221a15',
     fontSize: 12,
-    boxShadow: '0 8px 30px rgba(0, 0, 0, 0.5)'
+    boxShadow: '0 8px 30px rgba(43, 34, 26, 0.1)'
   }
 };
 
@@ -243,7 +243,7 @@ export default function MarketingTab() {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 400, gap: 16 }}>
         <div style={{ width: 40, height: 40, border: `3px solid ${COLORS.primaryBg}`, borderTopColor: COLORS.primary, borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-        <div style={{ color: COLORS.textMuted, fontSize: 14 }}>Aggregating campaign logs and targeting stats...</div>
+        <div style={{ color: '#87786c', fontSize: 14 }}>Aggregating campaign logs and targeting stats...</div>
         <style jsx global>{`
           @keyframes spin { to { transform: rotate(360deg); } }
         `}</style>
@@ -769,10 +769,10 @@ export default function MarketingTab() {
   };
 
   return (
-    <div style={{ padding: '24px 0', fontFamily: 'Inter, sans-serif', color: COLORS.text }}>
+    <div style={{ padding: '24px 0', fontFamily: 'Inter, sans-serif', color: '#221a15' }}>
 
       {/* ─── Sub-Tab Navigation Bar ─── */}
-      <div style={{ background: '#0d0d0d', border: `1px solid ${COLORS.border}`, borderRadius: 12, padding: '4px', marginBottom: 24, display: 'inline-flex', gap: 2 }}>
+      <div style={{ background: '#ffffff', border: `1px solid ${COLORS.border}`, borderRadius: 12, padding: '4px', marginBottom: 24, display: 'inline-flex', gap: 2 }}>
         <button
           onClick={() => setActiveSubTab('campaigns')}
           style={{
@@ -805,19 +805,19 @@ export default function MarketingTab() {
 
       {/* ─── Control Header ─── */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-        style={{ background: '#121212', border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: '16px 20px', marginBottom: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
+        style={{ background: '#ffffff', border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: '16px 20px', marginBottom: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <span style={{ fontSize: 20 }}>📣</span>
             <div>
               <h2 style={{ fontSize: 16, fontWeight: 800, margin: 0, fontFamily: 'Outfit, sans-serif' }}>Enterprise Campaign & Growth Hub</h2>
-              <p style={{ fontSize: 11, color: COLORS.textMuted, margin: 0 }}>Target segment estimators, persistent discount coupon codes, budgets and ROI auditing logs.</p>
+              <p style={{ fontSize: 11, color: '#87786c', margin: 0 }}>Target segment estimators, persistent discount coupon codes, budgets and ROI auditing logs.</p>
             </div>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={printMarketingReport}
-              style={{ background: '#1a1a1a', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '8px 14px', fontSize: 12, fontWeight: 600, color: '#ccc', cursor: 'pointer' }}>
+              style={{ background: '#f4eede', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '8px 14px', fontSize: 12, fontWeight: 600, color: '#ccc', cursor: 'pointer' }}>
               🖨️ Print Executive Report
             </button>
             <button onClick={fetchMarketingData}
@@ -839,11 +839,11 @@ export default function MarketingTab() {
         ].map((s, i) => (
           <div key={s.label} style={{ background: COLORS.card, border: `1px solid ${COLORS.border}`, borderRadius: 14, padding: '16px 18px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-              <span style={{ color: COLORS.textMuted, fontSize: 11, fontWeight: 700, textTransform: 'uppercase' }}>{s.label}</span>
+              <span style={{ color: '#87786c', fontSize: 11, fontWeight: 700, textTransform: 'uppercase' }}>{s.label}</span>
               <span>{s.icon}</span>
             </div>
             <div style={{ color: s.color, fontSize: 24, fontWeight: 800, fontFamily: 'Outfit, sans-serif' }}>{s.value}</div>
-            <span style={{ fontSize: 11, color: COLORS.textMuted }}>{s.sub}</span>
+            <span style={{ fontSize: 11, color: '#87786c' }}>{s.sub}</span>
           </div>
         ))}
       </motion.div>
@@ -855,14 +855,14 @@ export default function MarketingTab() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 18 }}>
           <div>
             <h3 style={{ fontSize: 15, fontWeight: 800, margin: 0, fontFamily: 'Outfit, sans-serif' }}>Active Operations & Marketing Channels</h3>
-            <p style={{ fontSize: 11, color: COLORS.textMuted, margin: 0 }}>Create, pause, duplicate or delete targeted campaigns directly in the database.</p>
+            <p style={{ fontSize: 11, color: '#87786c', margin: 0 }}>Create, pause, duplicate or delete targeted campaigns directly in the database.</p>
           </div>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <input type="text" placeholder="Search campaign..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-              style={{ background: '#1a1a1a', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '6px 12px', color: '#fff', fontSize: 12, width: 150 }} />
+              style={{ background: '#f4eede', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '6px 12px', color: '#221a15', fontSize: 12, width: 150 }} />
             
             <select value={filterType} onChange={(e) => setFilterType(e.target.value)}
-              style={{ background: '#1a1a1a', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '6px', color: '#fff', fontSize: 12, cursor: 'pointer' }}>
+              style={{ background: '#f4eede', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '6px', color: '#221a15', fontSize: 12, cursor: 'pointer' }}>
               <option value="all">All Channels</option>
               <option value="email">Emails Only</option>
               <option value="push">Push Notification</option>
@@ -871,7 +871,7 @@ export default function MarketingTab() {
             </select>
             
             <button onClick={exportCampaignsCSV}
-              style={{ background: '#1a1a1a', border: `1px solid ${COLORS.border}`, color: '#aaa', borderRadius: 8, padding: '6px 12px', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+              style={{ background: '#f4eede', border: `1px solid ${COLORS.border}`, color: '#aaa', borderRadius: 8, padding: '6px 12px', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
               📤 Export CSV
             </button>
             <button onClick={() => setShowCampaignModal(true)}
@@ -886,9 +886,9 @@ export default function MarketingTab() {
             .filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()))
             .filter(c => filterType === 'all' || c.type === filterType)
             .map(c => {
-              const channel = campaignTypeColors[c.type as keyof typeof campaignTypeColors] || { color: '#6b7280', bg: '#6b72801a', icon: '📢' };
+              const channel = campaignTypeColors[c.type as keyof typeof campaignTypeColors] || { color: '#87786c', bg: '#6b72801a', icon: '📢' };
               return (
-                <div key={c.id} style={{ background: '#161616', border: `1px solid ${COLORS.border}`, borderRadius: 14, padding: '16px', position: 'relative', overflow: 'hidden' }}>
+                <div key={c.id} style={{ background: '#ffffff', border: `1px solid ${COLORS.border}`, borderRadius: 14, padding: '16px', position: 'relative', overflow: 'hidden' }}>
                   <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2.5, background: channel.color }} />
                   
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
@@ -903,16 +903,16 @@ export default function MarketingTab() {
                   <h4 style={{ margin: '0 0 12px 0', fontSize: 14, fontWeight: 800, fontFamily: 'Outfit, sans-serif' }}>{c.name}</h4>
                   
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 14 }}>
-                    <div style={{ background: '#1c1c1c', borderRadius: 8, padding: '6px 8px' }}>
-                      <span style={{ fontSize: 9, color: COLORS.textMuted, display: 'block' }}>REACH</span>
-                      <strong style={{ fontSize: 13, color: '#fff' }}>{c.reach >= 1000 ? `${(c.reach / 1000).toFixed(0)}K` : c.reach}</strong>
+                    <div style={{ background: 'rgba(43, 34, 26, 0.03)', borderRadius: 8, padding: '6px 8px' }}>
+                      <span style={{ fontSize: 9, color: '#87786c', display: 'block' }}>REACH</span>
+                      <strong style={{ fontSize: 13, color: '#221a15' }}>{c.reach >= 1000 ? `${(c.reach / 1000).toFixed(0)}K` : c.reach}</strong>
                     </div>
-                    <div style={{ background: '#1c1c1c', borderRadius: 8, padding: '6px 8px' }}>
-                      <span style={{ fontSize: 9, color: COLORS.textMuted, display: 'block' }}>CTR</span>
-                      <strong style={{ fontSize: 13, color: '#fff' }}>{c.clickRate.toFixed(1)}%</strong>
+                    <div style={{ background: 'rgba(43, 34, 26, 0.03)', borderRadius: 8, padding: '6px 8px' }}>
+                      <span style={{ fontSize: 9, color: '#87786c', display: 'block' }}>CTR</span>
+                      <strong style={{ fontSize: 13, color: '#221a15' }}>{c.clickRate.toFixed(1)}%</strong>
                     </div>
-                    <div style={{ background: '#1c1c1c', borderRadius: 8, padding: '6px 8px' }}>
-                      <span style={{ fontSize: 9, color: COLORS.textMuted, display: 'block' }}>CONV</span>
+                    <div style={{ background: 'rgba(43, 34, 26, 0.03)', borderRadius: 8, padding: '6px 8px' }}>
+                      <span style={{ fontSize: 9, color: '#87786c', display: 'block' }}>CONV</span>
                       <strong style={{ fontSize: 13, color: COLORS.primary }}>{c.conversion.toFixed(1)}%</strong>
                     </div>
                   </div>
@@ -920,15 +920,15 @@ export default function MarketingTab() {
                   {/* Actions buttons */}
                   <div style={{ display: 'flex', gap: 6 }}>
                     <button onClick={() => setStatsModalCampaign(c)}
-                      style={{ flex: 1, background: '#222', border: `1px solid ${COLORS.border}`, borderRadius: 6, padding: '6px 0', fontSize: 11, fontWeight: 600, color: '#fff', cursor: 'pointer' }}>
+                      style={{ flex: 1, background: 'rgba(43,34,26,0.08)', border: `1px solid ${COLORS.border}`, borderRadius: 6, padding: '6px 0', fontSize: 11, fontWeight: 600, color: '#221a15', cursor: 'pointer' }}>
                       📊 View Stats
                     </button>
                     <button onClick={() => handleToggleCampaign(c.id, c.status)}
-                      style={{ background: '#222', border: `1px solid ${COLORS.border}`, borderRadius: 6, padding: '6px 10px', fontSize: 11, fontWeight: 600, color: c.status === 'active' ? COLORS.orange : COLORS.primary, cursor: 'pointer' }}>
+                      style={{ background: 'rgba(43,34,26,0.08)', border: `1px solid ${COLORS.border}`, borderRadius: 6, padding: '6px 10px', fontSize: 11, fontWeight: 600, color: c.status === 'active' ? COLORS.orange : COLORS.primary, cursor: 'pointer' }}>
                       {c.status === 'active' ? '⏸️ Pause' : '▶️ Resume'}
                     </button>
                     <button onClick={() => handleCloneCampaign(c)} title="Duplicate Campaign"
-                      style={{ background: '#222', border: `1px solid ${COLORS.border}`, borderRadius: 6, padding: '6px 8px', color: '#ccc', cursor: 'pointer' }}>
+                      style={{ background: 'rgba(43,34,26,0.08)', border: `1px solid ${COLORS.border}`, borderRadius: 6, padding: '6px 8px', color: '#ccc', cursor: 'pointer' }}>
                       ⧉
                     </button>
                     <button onClick={() => handleDeleteCampaign(c.id)} title="Delete Campaign"
@@ -949,7 +949,7 @@ export default function MarketingTab() {
         <motion.div initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
           style={{ background: COLORS.card, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: '20px' }}>
           <h3 style={{ fontSize: 14, fontWeight: 800, margin: '0 0 4px 0', fontFamily: 'Outfit, sans-serif' }}>📈 Revenue ROI Marketing Impact</h3>
-          <p style={{ fontSize: 11, color: COLORS.textMuted, margin: '0 0 16px 0' }}>Plots campaign budget cost against generated conversion signup revenues.</p>
+          <p style={{ fontSize: 11, color: '#87786c', margin: '0 0 16px 0' }}>Plots campaign budget cost against generated conversion signup revenues.</p>
           
           <div style={{ height: 180 }}>
             <ResponsiveContainer width="100%" height="100%">
@@ -970,22 +970,22 @@ export default function MarketingTab() {
         <motion.div initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }}
           style={{ background: COLORS.card, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: '20px', display: 'flex', flexDirection: 'column' }}>
           <h3 style={{ fontSize: 14, fontWeight: 800, margin: '0 0 4px 0', fontFamily: 'Outfit, sans-serif' }}>🤖 Automation & Operations Scheduler</h3>
-          <p style={{ fontSize: 11, color: COLORS.textMuted, margin: '0 0 14px 0' }}>Setup event triggers to execute dispatches automatically.</p>
+          <p style={{ fontSize: 11, color: '#87786c', margin: '0 0 14px 0' }}>Setup event triggers to execute dispatches automatically.</p>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flex: 1 }}>
             <div>
-              <label style={{ fontSize: 10, color: COLORS.textMuted, display: 'block', marginBottom: 4, fontWeight: 600 }}>EVENT TRIGGER</label>
+              <label style={{ fontSize: 10, color: '#87786c', display: 'block', marginBottom: 4, fontWeight: 600 }}>EVENT TRIGGER</label>
               <select value={autoTrigger} onChange={(e) => setAutoTrigger(e.target.value)}
-                style={{ background: '#1a1a1a', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '7px 10px', color: '#fff', fontSize: 11, width: '100%' }}>
+                style={{ background: '#f4eede', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '7px 10px', color: '#221a15', fontSize: 11, width: '100%' }}>
                 <option value="on_registration">On User Registration</option>
                 <option value="on_premium_cancel">On Subscription Cancel</option>
                 <option value="on_14d_inactivity">On 14-Day Inactivity</option>
               </select>
             </div>
             <div>
-              <label style={{ fontSize: 10, color: COLORS.textMuted, display: 'block', marginBottom: 4, fontWeight: 600 }}>AUTOMATED CHANNEL ACTION</label>
+              <label style={{ fontSize: 10, color: '#87786c', display: 'block', marginBottom: 4, fontWeight: 600 }}>AUTOMATED CHANNEL ACTION</label>
               <select value={autoAction} onChange={(e) => setAutoAction(e.target.value)}
-                style={{ background: '#1a1a1a', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '7px 10px', color: '#fff', fontSize: 11, width: '100%' }}>
+                style={{ background: '#f4eede', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '7px 10px', color: '#221a15', fontSize: 11, width: '100%' }}>
                 <option value="send_welcome_email">Send Welcome Promo Email</option>
                 <option value="push_offer">Push Retention Discount Coupon</option>
                 <option value="sms_survey">Send Feedback SMS Survey</option>
@@ -1013,12 +1013,12 @@ export default function MarketingTab() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 18 }}>
           <div>
             <h3 style={{ fontSize: 15, fontWeight: 800, margin: 0, fontFamily: 'Outfit, sans-serif' }}>Coupon Promo Code Manager</h3>
-            <p style={{ fontSize: 11, color: COLORS.textMuted, margin: 0 }}>Persistent coupon settings with active usage bars and bulk deactivation tools.</p>
+            <p style={{ fontSize: 11, color: '#87786c', margin: 0 }}>Persistent coupon settings with active usage bars and bulk deactivation tools.</p>
           </div>
           
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <input type="text" placeholder="Filter coupon code..." value={promoSearch} onChange={(e) => setPromoSearch(e.target.value)}
-              style={{ background: '#1a1a1a', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '6px 12px', color: '#fff', fontSize: 12, width: 140 }} />
+              style={{ background: '#f4eede', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '6px 12px', color: '#221a15', fontSize: 12, width: 140 }} />
             
             {selectedPromos.length > 0 && (
               <>
@@ -1034,11 +1034,11 @@ export default function MarketingTab() {
             )}
 
             <button onClick={exportPromosCSV}
-              style={{ background: '#1a1a1a', border: `1px solid ${COLORS.border}`, color: '#aaa', borderRadius: 8, padding: '6px 12px', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+              style={{ background: '#f4eede', border: `1px solid ${COLORS.border}`, color: '#aaa', borderRadius: 8, padding: '6px 12px', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
               📤 Export CSV
             </button>
             <button onClick={() => setShowPromoModal(true)}
-              style={{ background: '#1a1a1a', border: `1px solid ${COLORS.border}`, color: '#ccc', borderRadius: 8, padding: '6px 16px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+              style={{ background: '#f4eede', border: `1px solid ${COLORS.border}`, color: '#ccc', borderRadius: 8, padding: '6px 16px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
               + Create Promo Code
             </button>
           </div>
@@ -1047,7 +1047,7 @@ export default function MarketingTab() {
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 700 }}>
             <thead>
-              <tr style={{ borderBottom: `1px solid ${COLORS.border}`, color: COLORS.textMuted, fontSize: 10, textAlign: 'left' }}>
+              <tr style={{ borderBottom: `1px solid ${COLORS.border}`, color: '#87786c', fontSize: 10, textAlign: 'left' }}>
                 <th style={{ padding: '10px 14px' }}>
                   <input type="checkbox" checked={selectedPromos.length === data.promos.length && data.promos.length > 0}
                     onChange={(e) => {
@@ -1072,7 +1072,7 @@ export default function MarketingTab() {
                   const nearLimit = p.limit > 0 && (p.uses / p.limit) > 0.85;
                   const isExpired = p.status === 'expired' || (p.expiry !== 'Ongoing' && new Date(p.expiry).getTime() < Date.now());
                   return (
-                    <tr key={p.id} style={{ borderBottom: '1px solid #161616', fontSize: 12 }}>
+                    <tr key={p.id} style={{ borderBottom: `1px solid ${COLORS.border}`, fontSize: 12 }}>
                       <td style={{ padding: '12px 14px' }}>
                         <input type="checkbox" checked={selectedPromos.includes(p.id)}
                           onChange={(e) => {
@@ -1082,7 +1082,7 @@ export default function MarketingTab() {
                           style={{ accentColor: COLORS.primary }} />
                       </td>
                       <td style={{ padding: '12px 14px' }}>
-                        <code style={{ background: '#181818', border: `1px solid ${COLORS.border}`, color: COLORS.primary, padding: '3px 8px', borderRadius: 6, fontWeight: 700 }}>
+                        <code style={{ background: 'rgba(43, 34, 26, 0.04)', border: `1px solid ${COLORS.border}`, color: COLORS.primary, padding: '3px 8px', borderRadius: 6, fontWeight: 700 }}>
                           {p.code}
                         </code>
                         {nearLimit && <span style={{ marginLeft: 6, color: COLORS.orange }} title="Code usage is approaching target limits">⚠️ Near Limit</span>}
@@ -1091,19 +1091,19 @@ export default function MarketingTab() {
                       <td style={{ padding: '12px 14px', fontWeight: 700, fontSize: 14 }}>
                         {p.type === 'percent' ? `${p.discount}%` : `${data.currency.symbol}${Math.round(p.discount * data.currency.rate)}`}
                       </td>
-                      <td style={{ padding: '12px 14px', color: COLORS.textMuted }}>{p.type === 'percent' ? 'Percentage' : 'Fixed Cash Discount'}</td>
+                      <td style={{ padding: '12px 14px', color: '#87786c' }}>{p.type === 'percent' ? 'Percentage' : 'Fixed Cash Discount'}</td>
                       <td style={{ padding: '12px 14px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 4 }}>
                           <span>{p.uses.toLocaleString()} / {p.limit === 0 ? '∞' : p.limit.toLocaleString()}</span>
                           {p.limit > 0 && <span style={{ color: nearLimit ? COLORS.red : COLORS.textMuted }}>{Math.round((p.uses / p.limit) * 100)}%</span>}
                         </div>
                         {p.limit > 0 && (
-                          <div style={{ background: '#1a1a1a', borderRadius: 3, height: 5, overflow: 'hidden' }}>
+                          <div style={{ background: '#f4eede', borderRadius: 3, height: 5, overflow: 'hidden' }}>
                             <div style={{ width: `${Math.min(100, (p.uses / p.limit) * 100)}%`, height: '100%', background: nearLimit ? COLORS.red : COLORS.primary }} />
                           </div>
                         )}
                       </td>
-                      <td style={{ padding: '12px 14px', color: COLORS.textMuted }}>{p.expiry}</td>
+                      <td style={{ padding: '12px 14px', color: '#87786c' }}>{p.expiry}</td>
                       <td style={{ padding: '12px 14px' }}>
                         <span style={{ fontSize: 10, background: p.status === 'active' ? 'rgba(176, 136, 80,0.1)' : 'rgba(239,68,68,0.1)', color: p.status === 'active' ? COLORS.primary : COLORS.red, border: `1px solid ${p.status === 'active' ? COLORS.primary : COLORS.red}33`, padding: '2px 8px', borderRadius: 20, fontWeight: 700, textTransform: 'uppercase' }}>
                           {p.status}
@@ -1112,7 +1112,7 @@ export default function MarketingTab() {
                       <td style={{ padding: '12px 14px', textAlign: 'right' }}>
                         <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
                           <button onClick={() => handleTogglePromo(p.id, p.status)}
-                            style={{ background: '#222', border: `1px solid ${COLORS.border}`, borderRadius: 6, padding: '4px 10px', fontSize: 11, fontWeight: 600, color: p.status === 'active' ? COLORS.orange : COLORS.primary, cursor: 'pointer' }}>
+                            style={{ background: 'rgba(43,34,26,0.08)', border: `1px solid ${COLORS.border}`, borderRadius: 6, padding: '4px 10px', fontSize: 11, fontWeight: 600, color: p.status === 'active' ? COLORS.orange : COLORS.primary, cursor: 'pointer' }}>
                             {p.status === 'active' ? 'Pause' : 'Activate'}
                           </button>
                           <button onClick={() => handleDeletePromo(p.id)}
@@ -1139,7 +1139,7 @@ export default function MarketingTab() {
             <h3 style={{ fontSize: 14, fontWeight: 800, margin: 0, fontFamily: 'Outfit, sans-serif' }}>↕️ Homepage Drag & Drop Layout Sequencer</h3>
             <span style={{ fontSize: 18 }}>📱</span>
           </div>
-          <p style={{ fontSize: 11, color: COLORS.textMuted, margin: '0 0 16px 0' }}>Drag sections to reorder how they appear on the homepage for all users.</p>
+          <p style={{ fontSize: 11, color: '#87786c', margin: '0 0 16px 0' }}>Drag sections to reorder how they appear on the homepage for all users.</p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: 1, marginBottom: 16 }}>
             {layoutOrder.map((sectionId, idx) => (
@@ -1161,8 +1161,8 @@ export default function MarketingTab() {
                   transition: 'background 0.2s, border-color 0.2s',
                 }}
               >
-                <span style={{ marginRight: 12, color: COLORS.textMuted, fontSize: 14, userSelect: 'none' }}>☰</span>
-                <span style={{ fontSize: 12, fontWeight: 600, color: '#fff', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ marginRight: 12, color: '#87786c', fontSize: 14, userSelect: 'none' }}>☰</span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: '#221a15', display: 'flex', alignItems: 'center', gap: 6 }}>
                   {sectionNames[sectionId] || 
                    (sectionId.startsWith('promo_') ? 
                      `📢 Promo: ${data?.promotions?.find((p: any) => p.id === sectionId.replace('promo_', ''))?.title || sectionId.replace('promo_', '')}` : 
@@ -1220,7 +1220,7 @@ export default function MarketingTab() {
                   🗑️
                 </button>
 
-                <span style={{ fontSize: 10, color: COLORS.textMuted, background: '#1c1c1c', padding: '2px 6px', borderRadius: 4 }}>
+                <span style={{ fontSize: 10, color: '#87786c', background: '#1c1c1c', padding: '2px 6px', borderRadius: 4 }}>
                   Order {idx + 1}
                 </span>
               </div>
@@ -1228,8 +1228,8 @@ export default function MarketingTab() {
           </div>
 
           {/* Section Addition Tools */}
-          <div style={{ background: '#121212', borderRadius: 10, padding: 12, border: `1px solid ${COLORS.border}`, marginBottom: 12 }}>
-            <span style={{ fontSize: 10, fontWeight: 700, color: COLORS.textMuted, display: 'block', marginBottom: 8, textTransform: 'uppercase' }}>➕ Add Section to Layout</span>
+          <div style={{ background: '#ffffff', borderRadius: 10, padding: 12, border: `1px solid ${COLORS.border}`, marginBottom: 12 }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: '#87786c', display: 'block', marginBottom: 8, textTransform: 'uppercase' }}>➕ Add Section to Layout</span>
             
             {/* Standard sections selector */}
             {(() => {
@@ -1263,7 +1263,7 @@ export default function MarketingTab() {
                   <button
                     type="button"
                     onClick={() => handleAddStandardSection(selectedSectionToAdd)}
-                    style={{ background: '#222', border: `1px solid ${COLORS.border}`, color: '#fff', borderRadius: 8, padding: '6px 12px', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}
+                    style={{ background: 'rgba(43,34,26,0.08)', border: `1px solid ${COLORS.border}`, color: '#221a15', borderRadius: 8, padding: '6px 12px', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}
                   >
                     Add
                   </button>
@@ -1283,7 +1283,7 @@ export default function MarketingTab() {
             ) : (
               <form onSubmit={handleAddCustomSection} style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 4, background: '#181818', padding: 14, borderRadius: 12, border: '1px solid #282828' }}>
                 <div>
-                  <label style={{ fontSize: 9, color: COLORS.textMuted, display: 'block', marginBottom: 2 }}>Section Title</label>
+                  <label style={{ fontSize: 9, color: '#87786c', display: 'block', marginBottom: 2 }}>Section Title</label>
                   <input
                     value={customSecTitle}
                     onChange={e => setCustomSecTitle(e.target.value)}
@@ -1294,7 +1294,7 @@ export default function MarketingTab() {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                   <div>
-                    <label style={{ fontSize: 9, color: COLORS.textMuted, display: 'block', marginBottom: 2 }}>Content Source</label>
+                    <label style={{ fontSize: 9, color: '#87786c', display: 'block', marginBottom: 2 }}>Content Source</label>
                     <select
                       value={customSecType}
                       onChange={e => {
@@ -1318,7 +1318,7 @@ export default function MarketingTab() {
                   </div>
 
                   <div>
-                    <label style={{ fontSize: 9, color: COLORS.textMuted, display: 'block', marginBottom: 2 }}>Design Layout Template</label>
+                    <label style={{ fontSize: 9, color: '#87786c', display: 'block', marginBottom: 2 }}>Design Layout Template</label>
                     <select
                       value={customSecLayout}
                       onChange={e => setCustomSecLayout(e.target.value as any)}
@@ -1338,7 +1338,7 @@ export default function MarketingTab() {
                 {/* Playlist/Album Dropdown Selection */}
                 {(customSecType === 'playlist' || customSecType === 'album') && (
                   <div>
-                    <label style={{ fontSize: 9, color: COLORS.textMuted, display: 'block', marginBottom: 2 }}>
+                    <label style={{ fontSize: 9, color: '#87786c', display: 'block', marginBottom: 2 }}>
                       Select Target {customSecType === 'playlist' ? 'Playlist' : 'Album'}
                     </label>
                     <select
@@ -1361,12 +1361,12 @@ export default function MarketingTab() {
 
                 {/* Dynamic Smart Filter Rules inputs */}
                 {customSecType === 'smart_filter' && (
-                  <div style={{ background: '#121212', padding: 10, borderRadius: 8, border: '1px solid #222', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div style={{ background: '#ffffff', padding: 10, borderRadius: 8, border: '1px solid rgba(43,34,26,0.1)', display: 'flex', flexDirection: 'column', gap: 8 }}>
                     <span style={{ fontSize: 9, fontWeight: 700, color: COLORS.primary, display: 'block' }}>⚙️ Smart Filter Rules Configuration</span>
                     
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                       <div>
-                        <label style={{ fontSize: 8, color: COLORS.textMuted, display: 'block', marginBottom: 2 }}>Filter by Genre</label>
+                        <label style={{ fontSize: 8, color: '#87786c', display: 'block', marginBottom: 2 }}>Filter by Genre</label>
                         <select
                           value={customSecGenreFilter}
                           onChange={e => setCustomSecGenreFilter(e.target.value)}
@@ -1380,7 +1380,7 @@ export default function MarketingTab() {
                       </div>
 
                       <div>
-                        <label style={{ fontSize: 8, color: COLORS.textMuted, display: 'block', marginBottom: 2 }}>Plays Count (Minimum)</label>
+                        <label style={{ fontSize: 8, color: '#87786c', display: 'block', marginBottom: 2 }}>Plays Count (Minimum)</label>
                         <select
                           value={customSecMinPlays}
                           onChange={e => setCustomSecMinPlays(Number(e.target.value))}
@@ -1397,7 +1397,7 @@ export default function MarketingTab() {
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                       <div>
-                        <label style={{ fontSize: 8, color: COLORS.textMuted, display: 'block', marginBottom: 2 }}>Release Year</label>
+                        <label style={{ fontSize: 8, color: '#87786c', display: 'block', marginBottom: 2 }}>Release Year</label>
                         <input
                           type="number"
                           value={customSecYearFilter}
@@ -1408,7 +1408,7 @@ export default function MarketingTab() {
                       </div>
 
                       <div>
-                        <label style={{ fontSize: 8, color: COLORS.textMuted, display: 'block', marginBottom: 2 }}>Content Type</label>
+                        <label style={{ fontSize: 8, color: '#87786c', display: 'block', marginBottom: 2 }}>Content Type</label>
                         <select
                           value={customSecExplicitFilter}
                           onChange={e => setCustomSecExplicitFilter(e.target.value as any)}
@@ -1425,9 +1425,9 @@ export default function MarketingTab() {
 
                 {/* Custom Selected Songs Search Checklist */}
                 {customSecType === 'custom_songs' && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, background: '#101010', padding: 8, borderRadius: 8, border: '1px solid #222' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, background: '#101010', padding: 8, borderRadius: 8, border: '1px solid rgba(43,34,26,0.1)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <label style={{ fontSize: 9, color: COLORS.textMuted, fontWeight: 700 }}>
+                      <label style={{ fontSize: 9, color: '#87786c', fontWeight: 700 }}>
                         Select Songs ({customSecSongIds.length} selected)
                       </label>
                       {customSecSongIds.length > 0 && (
@@ -1440,7 +1440,7 @@ export default function MarketingTab() {
                       value={songSearchQuery}
                       onChange={e => setSongSearchQuery(e.target.value)}
                       placeholder="🔍 Search songs or artists..."
-                      style={{ ...inputStyle, padding: '5px 8px', fontSize: 10, background: '#1a1a1a' }}
+                      style={{ ...inputStyle, padding: '5px 8px', fontSize: 10, background: '#f4eede' }}
                     />
                     <div style={{ maxHeight: 110, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 4, paddingRight: 4 }}>
                       {mockTracks
@@ -1466,7 +1466,7 @@ export default function MarketingTab() {
                               />
                               <div style={{ display: 'flex', flexDirection: 'column' }}>
                                 <span style={{ fontSize: 10, fontWeight: 600, color: isChecked ? COLORS.primary : '#fff' }}>{t.title}</span>
-                                <span style={{ fontSize: 8, color: COLORS.textMuted }}>{t.artistName}</span>
+                                <span style={{ fontSize: 8, color: '#87786c' }}>{t.artistName}</span>
                               </div>
                             </label>
                           );
@@ -1480,12 +1480,12 @@ export default function MarketingTab() {
                 {(() => {
                   const matched = getMatchedSongs();
                   return (
-                    <div style={{ background: '#0a0a0a', padding: 8, borderRadius: 8, border: '1px solid #222' }}>
+                    <div style={{ background: '#fbf9f5', padding: 8, borderRadius: 8, border: '1px solid rgba(43,34,26,0.1)' }}>
                       <span style={{ fontSize: 8, fontWeight: 700, color: COLORS.primary, display: 'block', marginBottom: 6 }}>
                         👁️ Live Content Preview ({matched.length} tracks matched)
                       </span>
                       {matched.length === 0 ? (
-                        <div style={{ fontSize: 8, color: COLORS.textMuted, textAlign: 'center', padding: '4px 0' }}>
+                        <div style={{ fontSize: 8, color: '#87786c', textAlign: 'center', padding: '4px 0' }}>
                           No songs match the current rules.
                         </div>
                       ) : (
@@ -1493,11 +1493,11 @@ export default function MarketingTab() {
                           {matched.slice(0, 10).map(t => (
                             <div key={t.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 36, flexShrink: 0 }} title={`${t.title} - ${t.artistName}`}>
                               <img src={t.coverImage} alt={t.title} style={{ width: 28, height: 28, borderRadius: 4, objectFit: 'cover' }} />
-                              <span style={{ fontSize: 6, color: COLORS.textMuted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%', textAlign: 'center', marginTop: 1 }}>{t.title}</span>
+                              <span style={{ fontSize: 6, color: '#87786c', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%', textAlign: 'center', marginTop: 1 }}>{t.title}</span>
                             </div>
                           ))}
                           {matched.length > 10 && (
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: 4, background: '#1c1c1c', flexShrink: 0, fontSize: 8, color: COLORS.textMuted }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: 4, background: '#1c1c1c', flexShrink: 0, fontSize: 8, color: '#87786c' }}>
                               +{matched.length - 10}
                             </div>
                           )}
@@ -1514,7 +1514,7 @@ export default function MarketingTab() {
                     onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
                     style={{
                       width: '100%',
-                      background: '#121212',
+                      background: '#ffffff',
                       border: 'none',
                       padding: '6px 10px',
                       color: COLORS.primary,
@@ -1533,7 +1533,7 @@ export default function MarketingTab() {
                     <div style={{ padding: 10, background: '#141414', display: 'flex', flexDirection: 'column', gap: 8, borderTop: '1px solid #282828' }}>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                         <div>
-                          <label style={{ fontSize: 8, color: COLORS.textMuted, display: 'block', marginBottom: 2 }}>Target Audience Segment</label>
+                          <label style={{ fontSize: 8, color: '#87786c', display: 'block', marginBottom: 2 }}>Target Audience Segment</label>
                           <select
                             value={customSecAudience}
                             onChange={e => setCustomSecAudience(e.target.value as any)}
@@ -1546,7 +1546,7 @@ export default function MarketingTab() {
                         </div>
 
                         <div>
-                          <label style={{ fontSize: 8, color: COLORS.textMuted, display: 'block', marginBottom: 2 }}>Background Theme Container</label>
+                          <label style={{ fontSize: 8, color: '#87786c', display: 'block', marginBottom: 2 }}>Background Theme Container</label>
                           <select
                             value={customSecBgStyle}
                             onChange={e => setCustomSecBgStyle(e.target.value as any)}
@@ -1563,7 +1563,7 @@ export default function MarketingTab() {
 
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                         <div>
-                          <label style={{ fontSize: 8, color: COLORS.textMuted, display: 'block', marginBottom: 2 }}>Display Start Date</label>
+                          <label style={{ fontSize: 8, color: '#87786c', display: 'block', marginBottom: 2 }}>Display Start Date</label>
                           <input
                             type="date"
                             value={customSecStartDate}
@@ -1573,7 +1573,7 @@ export default function MarketingTab() {
                         </div>
 
                         <div>
-                          <label style={{ fontSize: 8, color: COLORS.textMuted, display: 'block', marginBottom: 2 }}>Display End Date</label>
+                          <label style={{ fontSize: 8, color: '#87786c', display: 'block', marginBottom: 2 }}>Display End Date</label>
                           <input
                             type="date"
                             value={customSecEndDate}
@@ -1584,7 +1584,7 @@ export default function MarketingTab() {
                       </div>
 
                       <div>
-                        <label style={{ fontSize: 8, color: COLORS.textMuted, display: 'block', marginBottom: 2 }}>Border Highlight Style</label>
+                        <label style={{ fontSize: 8, color: '#87786c', display: 'block', marginBottom: 2 }}>Border Highlight Style</label>
                         <select
                           value={customSecBorderStyle}
                           onChange={e => setCustomSecBorderStyle(e.target.value as any)}
@@ -1627,7 +1627,7 @@ export default function MarketingTab() {
         {/* Column 2: Custom Promo Creator */}
         <div style={{ background: COLORS.card, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: '20px', display: 'flex', flexDirection: 'column' }}>
           <h3 style={{ fontSize: 14, fontWeight: 800, margin: '0 0 4px 0', fontFamily: 'Outfit, sans-serif' }}>🎨 Create Custom Homepage Promotion</h3>
-          <p style={{ fontSize: 11, color: COLORS.textMuted, margin: '0 0 16px 0' }}>Upload a custom promotional banner linked to playlists, albums, or tracks.</p>
+          <p style={{ fontSize: 11, color: '#87786c', margin: '0 0 16px 0' }}>Upload a custom promotional banner linked to playlists, albums, or tracks.</p>
 
           <form onSubmit={handleCreatePromotion} style={{ display: 'flex', flexDirection: 'column', gap: 12, flex: 1 }}>
             <div>
@@ -1672,7 +1672,7 @@ export default function MarketingTab() {
                   borderRadius: 10,
                   padding: '16px',
                   textAlign: 'center',
-                  background: '#161616',
+                  background: '#ffffff',
                   cursor: 'pointer',
                   transition: 'border-color 0.2s',
                   position: 'relative',
@@ -1706,7 +1706,7 @@ export default function MarketingTab() {
                         right: 4,
                         background: COLORS.red,
                         border: 'none',
-                        color: '#fff',
+                        color: '#221a15',
                         borderRadius: '50%',
                         width: 18,
                         height: 18,
@@ -1724,26 +1724,26 @@ export default function MarketingTab() {
                 ) : (
                   <div>
                     <span style={{ fontSize: 20, display: 'block', marginBottom: 4 }}>📤</span>
-                    <span style={{ fontSize: 10, color: COLORS.textMuted }}>Drag image here or click to upload</span>
+                    <span style={{ fontSize: 10, color: '#87786c' }}>Drag image here or click to upload</span>
                   </div>
                 )}
               </div>
-              <p style={{ fontSize: 9, color: COLORS.textMuted, marginTop: 4, margin: 0 }}>
+              <p style={{ fontSize: 9, color: '#87786c', marginTop: 4, margin: 0 }}>
                 💡 Recommended Banner Size: <strong>1200 x 400 pixels (3:1 aspect ratio)</strong> for visually premium desktop integration. You can crop the image on upload.
               </p>
             </div>
 
             {/* Real-time Banner Preview Box */}
-            <div style={{ border: `1px solid ${COLORS.border}`, borderRadius: 12, padding: 12, background: '#121212' }}>
-              <span style={{ fontSize: 10, fontWeight: 700, color: COLORS.textMuted, display: 'block', marginBottom: 8, textTransform: 'uppercase' }}>👁️ Real-time Banner Preview</span>
+            <div style={{ border: `1px solid ${COLORS.border}`, borderRadius: 12, padding: 12, background: '#ffffff' }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: '#87786c', display: 'block', marginBottom: 8, textTransform: 'uppercase' }}>👁️ Real-time Banner Preview</span>
               <div
                 style={{
                   borderRadius: 12,
                   overflow: 'hidden',
                   position: 'relative',
                   height: 110,
-                  border: '1px solid rgba(255, 255, 255, 0.06)',
-                  background: '#0a0a0a',
+                  border: '1px solid rgba(43, 34, 26, 0.06)',
+                  background: '#fbf9f5',
                   display: 'flex',
                   alignItems: 'center'
                 }}
@@ -1762,7 +1762,7 @@ export default function MarketingTab() {
                   <span style={{ color: COLORS.primary, fontSize: 8, fontWeight: 700, textTransform: 'uppercase', display: 'block', marginBottom: 2 }}>
                     🔥 Promotion • {promoType}
                   </span>
-                  <h4 style={{ margin: 0, fontSize: 12, fontWeight: 900, color: '#fff' }}>
+                  <h4 style={{ margin: 0, fontSize: 12, fontWeight: 900, color: '#221a15' }}>
                     {promoTitle || 'Neon Dreams Album Launch'}
                   </h4>
                   <p style={{ color: '#aaa', fontSize: 9, margin: '2px 0 6px 0', maxWidth: '80%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -1788,16 +1788,16 @@ export default function MarketingTab() {
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
         style={{ background: COLORS.card, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: '20px', marginBottom: 24 }}>
         <h3 style={{ fontSize: 15, fontWeight: 800, margin: '0 0 4px 0', fontFamily: 'Outfit, sans-serif' }}>🖼️ Active Homepage Promo Placements</h3>
-        <p style={{ fontSize: 11, color: COLORS.textMuted, margin: '0 0 16px 0' }}>Manage custom banners running live in the client homepage hero promotion stack.</p>
+        <p style={{ fontSize: 11, color: '#87786c', margin: '0 0 16px 0' }}>Manage custom banners running live in the client homepage hero promotion stack.</p>
 
         {(!data.promotions || data.promotions.length === 0) ? (
-          <div style={{ background: '#161616', border: `1px dashed ${COLORS.border}`, borderRadius: 12, padding: '24px', textAlign: 'center', color: COLORS.textMuted, fontSize: 12 }}>
+          <div style={{ background: '#ffffff', border: `1px dashed ${COLORS.border}`, borderRadius: 12, padding: '24px', textAlign: 'center', color: '#87786c', fontSize: 12 }}>
             No custom promotional banners deployed. Fill in the form above to deploy one.
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
             {data.promotions.map(promo => (
-              <div key={promo.id} style={{ background: '#161616', border: `1px solid ${COLORS.border}`, borderRadius: 14, padding: '14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div key={promo.id} style={{ background: '#ffffff', border: `1px solid ${COLORS.border}`, borderRadius: 14, padding: '14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {promo.image && (
                   <div style={{ width: '100%', height: 110, borderRadius: 8, overflow: 'hidden', border: `1px solid ${COLORS.border}`, background: '#000' }}>
                     <img src={promo.image} alt={promo.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -1813,7 +1813,7 @@ export default function MarketingTab() {
                     </span>
                   </div>
                   <h4 style={{ margin: '4px 0 2px 0', fontSize: 13, fontWeight: 800, fontFamily: 'Outfit, sans-serif' }}>{promo.title}</h4>
-                  <p style={{ margin: 0, fontSize: 11, color: COLORS.textMuted, lineBreak: 'anywhere' }}>{promo.description}</p>
+                  <p style={{ margin: 0, fontSize: 11, color: '#87786c', lineBreak: 'anywhere' }}>{promo.description}</p>
                   {promo.targetId && (
                     <div style={{ marginTop: 6, fontSize: 10, color: COLORS.blue, fontFamily: 'monospace' }}>
                       Target: {promo.targetId}
@@ -1823,7 +1823,7 @@ export default function MarketingTab() {
 
                 <div style={{ display: 'flex', gap: 6, marginTop: 'auto' }}>
                   <button onClick={() => handleTogglePromotion(promo.id, promo.status)}
-                    style={{ flex: 1, background: '#222', border: `1px solid ${COLORS.border}`, borderRadius: 6, padding: '6px 0', fontSize: 11, fontWeight: 600, color: promo.status === 'active' ? COLORS.orange : COLORS.primary, cursor: 'pointer' }}>
+                    style={{ flex: 1, background: 'rgba(43,34,26,0.08)', border: `1px solid ${COLORS.border}`, borderRadius: 6, padding: '6px 0', fontSize: 11, fontWeight: 600, color: promo.status === 'active' ? COLORS.orange : COLORS.primary, cursor: 'pointer' }}>
                     {promo.status === 'active' ? '⏸️ Pause' : '▶️ Resume'}
                   </button>
                   <button onClick={() => handleDeletePromotion(promo.id)}
@@ -1844,7 +1844,7 @@ export default function MarketingTab() {
         <motion.div initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
           style={{ background: COLORS.card, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: '20px' }}>
           <h3 style={{ fontSize: 14, fontWeight: 800, margin: '0 0 4px 0', fontFamily: 'Outfit, sans-serif' }}>💬 Operations Test Queue Dispatch</h3>
-          <p style={{ fontSize: 11, color: COLORS.textMuted, margin: '0 0 16px 0' }}>Manually simulate campaign SMS texts or Mobile push notification dispatches.</p>
+          <p style={{ fontSize: 11, color: '#87786c', margin: '0 0 16px 0' }}>Manually simulate campaign SMS texts or Mobile push notification dispatches.</p>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <div style={{ display: 'flex', gap: 8 }}>
@@ -1855,7 +1855,7 @@ export default function MarketingTab() {
                   ...prev
                 ]);
               }}
-                style={{ flex: 1, background: '#1c1c1c', border: `1px solid ${COLORS.border}`, color: '#fff', borderRadius: 8, padding: '12px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                style={{ flex: 1, background: '#1c1c1c', border: `1px solid ${COLORS.border}`, color: '#221a15', borderRadius: 8, padding: '12px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
                 🔔 Dispatch Test Push
               </button>
               <button onClick={() => {
@@ -1865,12 +1865,12 @@ export default function MarketingTab() {
                   ...prev
                 ]);
               }}
-                style={{ flex: 1, background: '#1c1c1c', border: `1px solid ${COLORS.border}`, color: '#fff', borderRadius: 8, padding: '12px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                style={{ flex: 1, background: '#1c1c1c', border: `1px solid ${COLORS.border}`, color: '#221a15', borderRadius: 8, padding: '12px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
                 💬 Dispatch Test SMS
               </button>
             </div>
-            <div style={{ background: '#161616', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '10px 12px', fontSize: 11 }}>
-              <span style={{ color: COLORS.textMuted, display: 'block', marginBottom: 4, fontWeight: 600 }}>SIMULATION STATUS</span>
+            <div style={{ background: '#ffffff', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '10px 12px', fontSize: 11 }}>
+              <span style={{ color: '#87786c', display: 'block', marginBottom: 4, fontWeight: 600 }}>SIMULATION STATUS</span>
               <div style={{ display: 'flex', justifyContent: 'space-between', color: COLORS.primary, fontWeight: 700 }}>
                 <span>DISPATCH SERVICE: ONLINE</span>
                 <span>QUEUE: 0 PENDING</span>
@@ -1883,13 +1883,13 @@ export default function MarketingTab() {
         <motion.div initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }}
           style={{ background: COLORS.card, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: '20px' }}>
           <h3 style={{ fontSize: 14, fontWeight: 800, margin: '0 0 4px 0', fontFamily: 'Outfit, sans-serif' }}>📃 Live Marketing Action Logs</h3>
-          <p style={{ fontSize: 11, color: COLORS.textMuted, margin: '0 0 12px 0' }}>Real-time rolling event capture of campaign interactions.</p>
+          <p style={{ fontSize: 11, color: '#87786c', margin: '0 0 12px 0' }}>Real-time rolling event capture of campaign interactions.</p>
           
-          <div style={{ background: '#0a0a0a', border: `1px solid ${COLORS.border}`, borderRadius: 12, padding: '10px 12px', height: 110, overflowY: 'auto', fontFamily: 'Courier New, monospace', fontSize: 11 }}>
+          <div style={{ background: '#fbf9f5', border: `1px solid ${COLORS.border}`, borderRadius: 12, padding: '10px 12px', height: 110, overflowY: 'auto', fontFamily: 'Courier New, monospace', fontSize: 11 }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
               {auditLogs.map(log => (
                 <div key={log.id} style={{ display: 'flex', gap: 8, borderBottom: '1px solid #111', paddingBottom: 2 }}>
-                  <span style={{ color: COLORS.textMuted }}>[{log.time}]</span>
+                  <span style={{ color: '#87786c' }}>[{log.time}]</span>
                   <span style={{ color: log.type === 'promo' ? COLORS.primary : log.type === 'push' ? COLORS.blue : COLORS.orange }}>
                     {log.msg}
                   </span>
@@ -1920,7 +1920,7 @@ export default function MarketingTab() {
                   📊 Detailed Campaign Metrics Audit
                 </h3>
                 <button onClick={() => setStatsModalCampaign(null)}
-                  style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: 18, cursor: 'pointer' }}>
+                  style={{ background: 'transparent', border: 'none', color: '#221a15', fontSize: 18, cursor: 'pointer' }}>
                   ✕
                 </button>
               </div>
@@ -1929,27 +1929,27 @@ export default function MarketingTab() {
                 <h4 style={{ margin: 0, fontSize: 15, color: COLORS.primary }}>{statsModalCampaign.name}</h4>
                 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                  <div style={{ background: '#121212', borderRadius: 8, padding: '10px', border: `1px solid ${COLORS.border}` }}>
-                    <span style={{ fontSize: 10, color: COLORS.textMuted, display: 'block' }}>ESTIMATED REACH</span>
+                  <div style={{ background: '#ffffff', borderRadius: 8, padding: '10px', border: `1px solid ${COLORS.border}` }}>
+                    <span style={{ fontSize: 10, color: '#87786c', display: 'block' }}>ESTIMATED REACH</span>
                     <strong>{statsModalCampaign.reach.toLocaleString()} users</strong>
                   </div>
-                  <div style={{ background: '#121212', borderRadius: 8, padding: '10px', border: `1px solid ${COLORS.border}` }}>
-                    <span style={{ fontSize: 10, color: COLORS.textMuted, display: 'block' }}>CAMPAIGN CHANNEL</span>
+                  <div style={{ background: '#ffffff', borderRadius: 8, padding: '10px', border: `1px solid ${COLORS.border}` }}>
+                    <span style={{ fontSize: 10, color: '#87786c', display: 'block' }}>CAMPAIGN CHANNEL</span>
                     <strong style={{ textTransform: 'uppercase' }}>{statsModalCampaign.type}</strong>
                   </div>
-                  <div style={{ background: '#121212', borderRadius: 8, padding: '10px', border: `1px solid ${COLORS.border}` }}>
-                    <span style={{ fontSize: 10, color: COLORS.textMuted, display: 'block' }}>BUDGET SPEND</span>
+                  <div style={{ background: '#ffffff', borderRadius: 8, padding: '10px', border: `1px solid ${COLORS.border}` }}>
+                    <span style={{ fontSize: 10, color: '#87786c', display: 'block' }}>BUDGET SPEND</span>
                     <strong>{data.currency.symbol}{Math.round((statsModalCampaign.spend || statsModalCampaign.budget * 0.8) * data.currency.rate)}</strong>
                   </div>
-                  <div style={{ background: '#121212', borderRadius: 8, padding: '10px', border: `1px solid ${COLORS.border}` }}>
-                    <span style={{ fontSize: 10, color: COLORS.textMuted, display: 'block' }}>CTR PERFORMANCE</span>
+                  <div style={{ background: '#ffffff', borderRadius: 8, padding: '10px', border: `1px solid ${COLORS.border}` }}>
+                    <span style={{ fontSize: 10, color: '#87786c', display: 'block' }}>CTR PERFORMANCE</span>
                     <strong style={{ color: COLORS.orange }}>{statsModalCampaign.clickRate.toFixed(1)}% CTR</strong>
                   </div>
                 </div>
 
                 {statsModalCampaign.copy && (
-                  <div style={{ background: '#121212', borderRadius: 8, padding: '12px', border: `1px solid ${COLORS.border}` }}>
-                    <span style={{ fontSize: 10, color: COLORS.textMuted, display: 'block', marginBottom: 4 }}>CAMPAIGN MESSAGE COPY</span>
+                  <div style={{ background: '#ffffff', borderRadius: 8, padding: '12px', border: `1px solid ${COLORS.border}` }}>
+                    <span style={{ fontSize: 10, color: '#87786c', display: 'block', marginBottom: 4 }}>CAMPAIGN MESSAGE COPY</span>
                     <p style={{ margin: 0, fontStyle: 'italic', color: '#ccc', fontSize: 11 }}>"{statsModalCampaign.copy}"</p>
                   </div>
                 )}
@@ -2039,16 +2039,16 @@ function CampaignModal({ onClose, reload, targetedCounts }: CampaignModalProps) 
   return (
     <div style={{ position: 'fixed', inset: 0, background: '#000000bb', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <motion.div initial={{ scale: 0.93, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.93, y: 20 }}
-        style={{ background: '#121212', border: '1px solid #2a2a2a', borderRadius: 18, padding: 32, width: 500, maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto' }}>
+        style={{ background: '#ffffff', border: '1px solid rgba(43,34,26,0.1)', borderRadius: 18, padding: 32, width: 500, maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-          <div style={{ fontSize: 18, fontWeight: 700, fontFamily: 'Outfit, sans-serif', color: '#fff' }}>Create Campaign Record</div>
+          <div style={{ fontSize: 18, fontWeight: 700, fontFamily: 'Outfit, sans-serif', color: '#221a15' }}>Create Campaign Record</div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#666', fontSize: 20, cursor: 'pointer', lineHeight: 1 }}>✕</button>
         </div>
         
         {/* Real-time Audience estimator banner */}
         <div style={{ background: 'rgba(176, 136, 80, 0.1)', border: `1px solid ${COLORS.primary}33`, borderRadius: 8, padding: '10px 12px', marginBottom: 16 }}>
           <span style={{ fontSize: 10, color: COLORS.primary, fontWeight: 700, display: 'block' }}>🎯 REAL-TIME AUDIENCE ESTIMATE</span>
-          <strong style={{ fontSize: 14, color: '#fff' }}>Targeting {getEstimate().toLocaleString()} users matching segment criteria.</strong>
+          <strong style={{ fontSize: 14, color: '#221a15' }}>Targeting {getEstimate().toLocaleString()} users matching segment criteria.</strong>
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -2102,7 +2102,7 @@ function CampaignModal({ onClose, reload, targetedCounts }: CampaignModalProps) 
               style={{ ...inputStyle, resize: 'vertical' }} />
           </div>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 4 }}>
-            <button type="button" onClick={onClose} style={{ background: '#1a1a1a', border: '1px solid #333', color: '#888', borderRadius: 10, padding: '10px 20px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+            <button type="button" onClick={onClose} style={{ background: '#f4eede', border: '1px solid rgba(43,34,26,0.12)', color: '#888', borderRadius: 10, padding: '10px 20px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
             <button type="submit" style={{ background: COLORS.primary, border: 'none', color: '#000', borderRadius: 10, padding: '10px 24px', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Create Campaign</button>
           </div>
         </form>
@@ -2151,9 +2151,9 @@ function PromoModal({ onClose, reload }: PromoModalProps) {
   return (
     <div style={{ position: 'fixed', inset: 0, background: '#000000bb', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <motion.div initial={{ scale: 0.93, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.93, y: 20 }}
-        style={{ background: '#121212', border: '1px solid #2a2a2a', borderRadius: 18, padding: 32, width: 420, maxWidth: '95vw' }}>
+        style={{ background: '#ffffff', border: '1px solid rgba(43,34,26,0.1)', borderRadius: 18, padding: 32, width: 420, maxWidth: '95vw' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-          <div style={{ fontSize: 18, fontWeight: 700, fontFamily: 'Outfit, sans-serif', color: '#fff' }}>Create Promo Code Coupon</div>
+          <div style={{ fontSize: 18, fontWeight: 700, fontFamily: 'Outfit, sans-serif', color: '#221a15' }}>Create Promo Code Coupon</div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#666', fontSize: 20, cursor: 'pointer' }}>✕</button>
         </div>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -2183,7 +2183,7 @@ function PromoModal({ onClose, reload }: PromoModalProps) {
             <input type="date" value={expiry} onChange={e => setExpiry(e.target.value)} style={inputStyle} />
           </div>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 4 }}>
-            <button type="button" onClick={onClose} style={{ background: '#1a1a1a', border: '1px solid #333', color: '#888', borderRadius: 10, padding: '10px 20px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+            <button type="button" onClick={onClose} style={{ background: '#f4eede', border: '1px solid rgba(43,34,26,0.12)', color: '#888', borderRadius: 10, padding: '10px 20px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
             <button type="submit" style={{ background: COLORS.primary, border: 'none', color: '#000', borderRadius: 10, padding: '10px 24px', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Create Code</button>
           </div>
         </form>
@@ -2193,8 +2193,8 @@ function PromoModal({ onClose, reload }: PromoModalProps) {
 }
 
 const inputStyle: React.CSSProperties = {
-  width: '100%', background: '#1a1a1a', border: '1px solid #2a2a2a', borderRadius: 8,
-  color: '#fff', padding: '10px 12px', fontSize: 13, fontFamily: 'Inter, sans-serif',
+  width: '100%', background: '#f4eede', border: '1px solid rgba(43,34,26,0.1)', borderRadius: 8,
+  color: '#221a15', padding: '10px 12px', fontSize: 13, fontFamily: 'Inter, sans-serif',
   outline: 'none', boxSizing: 'border-box',
 };
 
@@ -2312,11 +2312,11 @@ function CropModal({ imageSrc, onCrop, onClose }: CropModalProps) {
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, sans-serif' }}>
-      <div style={{ background: '#121212', border: '1px solid #222', borderRadius: 16, padding: 24, width: 640, maxWidth: '95vw', boxSizing: 'border-box' }}>
-        <h3 style={{ margin: '0 0 4px 0', fontFamily: 'Outfit, sans-serif', color: '#fff', fontSize: 16 }}>📐 Crop & Align Banner Image</h3>
+      <div style={{ background: '#ffffff', border: '1px solid rgba(43,34,26,0.1)', borderRadius: 16, padding: 24, width: 640, maxWidth: '95vw', boxSizing: 'border-box' }}>
+        <h3 style={{ margin: '0 0 4px 0', fontFamily: 'Outfit, sans-serif', color: '#221a15', fontSize: 16 }}>📐 Crop & Align Banner Image</h3>
         <p style={{ margin: '0 0 16px 0', fontSize: 11, color: '#666' }}>Drag image to align. Outputs exactly 1200x400 pixels for optimal wide visual banner displays.</p>
 
-        <div style={{ display: 'flex', justifyContent: 'center', background: '#000', padding: 8, borderRadius: 12, overflow: 'hidden', border: '1px solid #1a1a1a' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', background: '#000', padding: 8, borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(43,34,26,0.07)' }}>
           <canvas
             ref={canvasRef}
             width={600}
@@ -2325,7 +2325,7 @@ function CropModal({ imageSrc, onCrop, onClose }: CropModalProps) {
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
-            style={{ cursor: 'move', background: '#111', maxWidth: '100%', borderRadius: 8 }}
+            style={{ cursor: 'move', background: '#ffffff', maxWidth: '100%', borderRadius: 8 }}
           />
         </div>
 
@@ -2346,7 +2346,7 @@ function CropModal({ imageSrc, onCrop, onClose }: CropModalProps) {
 
           <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 12 }}>
             <button onClick={onClose}
-              style={{ background: '#1a1a1a', border: '1px solid #222', color: '#ccc', borderRadius: 8, padding: '8px 16px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+              style={{ background: '#f4eede', border: '1px solid rgba(43,34,26,0.1)', color: '#ccc', borderRadius: 8, padding: '8px 16px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
               Cancel
             </button>
             <button onClick={handleConfirm}

@@ -13,7 +13,7 @@ export interface UserEntity {
   name: string;
   email: string;
   passwordHash: string;
-  role: 'USER' | 'ARTIST' | 'ADMIN' | 'SUPER_ADMIN';
+  role: 'USER' | 'ARTIST' | 'ADMIN' | 'SUPER_ADMIN' | 'MODERATOR' | 'ANALYST' | 'moderator' | 'analyst' | 'admin' | 'super_admin';
   isActive: boolean;
   phone?: string;
   createdAt: string;
@@ -41,6 +41,7 @@ export interface UserEntity {
     status: 'PENDING' | 'APPROVED' | 'REJECTED';
     submittedAt: string;
   };
+  customPermissions?: string[];
 }
 
 export interface OtpEntity {
@@ -832,8 +833,23 @@ function readDb(): DatabaseSchema {
     if (cachedDb && mtime === lastModifiedTime) {
       return cachedDb;
     }
-    const data = fs.readFileSync(DB_FILE, 'utf-8');
-    const parsed = JSON.parse(data);
+    
+    // Concurrency-safe read with retries
+    let data = '';
+    let parsed: any = null;
+    let retries = 5;
+    while (retries > 0) {
+      try {
+        data = fs.readFileSync(DB_FILE, 'utf-8');
+        parsed = JSON.parse(data);
+        break;
+      } catch (err: any) {
+        retries--;
+        if (retries === 0) throw err;
+        const waitTill = new Date(new Date().getTime() + 50);
+        while (waitTill > new Date()) {}
+      }
+    }
     parsed.tracks = parsed.tracks || [];
     parsed.transactions = parsed.transactions || [];
     parsed.planPrices = parsed.planPrices || { free: 0, student: 4.99, premium: 9.99, family: 15.99, creator: 19.99 };
@@ -1421,7 +1437,23 @@ function writeDb(data: DatabaseSchema) {
   cachedDb = data;
   try {
     ensureDbExists();
-    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
+    let retries = 5;
+    while (retries > 0) {
+      try {
+        const tempFile = DB_FILE + '.' + Math.random().toString(36).substring(2) + '.tmp';
+        fs.writeFileSync(tempFile, JSON.stringify(data, null, 2), 'utf-8');
+        fs.renameSync(tempFile, DB_FILE);
+        break;
+      } catch (err: any) {
+        retries--;
+        if (retries === 0) {
+          fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
+        } else {
+          const waitTill = new Date(new Date().getTime() + 50);
+          while (waitTill > new Date()) {}
+        }
+      }
+    }
     lastModifiedTime = fs.statSync(DB_FILE).mtimeMs;
   } catch (e: any) {
     console.warn('Failed to write database file (falling back to memory):', e.message);
@@ -1935,6 +1967,27 @@ export const db = {
     const idx = data.tracks.findIndex((t) => t.id === trackId);
     if (idx === -1) return false;
     data.tracks[idx].status = status;
+    writeDb(data);
+    return true;
+  },
+
+  updateTrackAudioUrl: (trackId: string, audioUrl: string): boolean => {
+    if (process.env.DATABASE_MODE === 'supabase') {
+      import('./dbSupabase').then(({ supabase }) => {
+        supabase
+          .from('tracks')
+          .update({ audio_url: audioUrl })
+          .eq('id', trackId)
+          .then(({ error }) => {
+            if (error) console.error('Supabase updateTrackAudioUrl error:', error);
+          });
+      }).catch(err => console.error('Failed to load supabase client:', err));
+    }
+    const data = readDb();
+    data.tracks = data.tracks || [];
+    const idx = data.tracks.findIndex((t) => t.id === trackId);
+    if (idx === -1) return false;
+    data.tracks[idx].audioUrl = audioUrl;
     writeDb(data);
     return true;
   },
@@ -2780,6 +2833,90 @@ export const db = {
       activePreset: (data as any).activePreset || null,
       events: (data as any).events || [],
     };
+  },
+
+  // --- Roles Configuration ---
+  getRolesConfig: (): any[] => {
+    const data = readDb();
+    return (data as any).rolesConfig || [];
+  },
+  saveRolesConfig: (roles: any[]): any[] => {
+    const data = readDb();
+    (data as any).rolesConfig = roles;
+    writeDb(data);
+    return roles;
+  },
+
+  // --- Database Setup Config ---
+  getDbConfig: (): any => {
+    const data = readDb();
+    return (data as any).dbConfig || null;
+  },
+  saveDbConfig: (cfg: any): any => {
+    const data = readDb();
+    (data as any).dbConfig = cfg;
+    writeDb(data);
+    return cfg;
+  },
+
+  // --- API Integrations Config ---
+  getApiConfig: (): any => {
+    const data = readDb();
+    return (data as any).apiConfig || null;
+  },
+  saveApiConfig: (cfg: any): any => {
+    const data = readDb();
+    (data as any).apiConfig = cfg;
+    writeDb(data);
+    return cfg;
+  },
+
+  // --- Individual User Permissions override ---
+  updateUserPermissions: (userId: string, perms: string[]): boolean => {
+    const data = readDb();
+    const user = data.users.find(u => u.id === userId);
+    if (!user) return false;
+    user.customPermissions = perms;
+    writeDb(data);
+    return true;
+  },
+
+  getUserPermissions: (userId: string): string[] => {
+    const data = readDb();
+    const user = data.users.find(u => u.id === userId);
+    if (!user) return [];
+    
+    // Super admin has all permissions
+    if (user.role === 'SUPER_ADMIN' || user.role === 'super_admin') {
+      return [
+        'manage_admins','manage_roles','manage_database','manage_api_keys',
+        'manage_settings','manage_email','manage_sms','manage_notifications',
+        'manage_users','manage_artists','manage_songs','manage_content',
+        'manage_subscriptions','manage_payments','manage_payouts','view_analytics',
+        'export_data','manage_reports','manage_support','manage_marketing',
+        'view_audit_logs','impersonate_user','manage_geography','manage_ab_tests'
+      ];
+    }
+    
+    // Load roles config
+    const rolesConfig = (data as any).rolesConfig || [
+      { id: 'admin', permissions: ['manage_users','manage_artists','manage_songs','manage_subscriptions','manage_payments','view_analytics','manage_reports','manage_notifications','manage_support','manage_content','manage_marketing'] },
+      { id: 'moderator', permissions: ['manage_artists','manage_songs','manage_reports','manage_support','manage_content'] },
+      { id: 'analyst', permissions: ['view_analytics','manage_reports','export_data'] },
+    ];
+    
+    // Find role permissions
+    const userRole = (user.role || '').toLowerCase();
+    const roleObj = rolesConfig.find((r: any) => r.id.toLowerCase() === userRole);
+    
+    let permissions = roleObj ? (roleObj.permissions || []) : [];
+    
+    // Merge user custom overrides if any
+    if (user.customPermissions && Array.isArray(user.customPermissions)) {
+      permissions = Array.from(new Set([...permissions, ...user.customPermissions]));
+    }
+    
+    return permissions;
   },
 };
 

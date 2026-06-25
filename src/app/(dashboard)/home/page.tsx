@@ -987,6 +987,14 @@ export default function HomePage() {
 
       return (
         <div key={sectionId} style={{ marginBottom: 28 }}>
+          {!isMobile && (
+            <style>{`
+              .quick-access-card:hover .quick-play-btn {
+                opacity: 1 !important;
+                transform: translateX(0) scale(1) !important;
+              }
+            `}</style>
+          )}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
             <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 26, fontWeight: 900, color: '#221a15' }}>
               {displayTitle}{user ? `, ${user.name}` : ''}
@@ -1000,7 +1008,7 @@ export default function HomePage() {
               )}
             </div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', gap: 8 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', gap: isMobile ? 8 : 16 }}>
             {itemsToRender.map((item) => {
               let tracks: typeof mockTracks = [];
               let playlistObj: any = null;
@@ -1021,93 +1029,200 @@ export default function HomePage() {
               const isSaved = playlistObj ? (user?.playlists || []).includes(playlistObj.id) : false;
               const hasImg = !!item.coverImage;
 
-              return (
-                <Link key={item.id} href={item.href} style={{ textDecoration: 'none', display: 'block', width: '100%', minWidth: 0 }}>
-                  <motion.div whileHover={{ scale: 1.02 }}
-                    style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      borderRadius: 28, 
-                      overflow: 'hidden', 
-                      background: '#ffffff', 
-                      border: '1px solid rgba(176, 136, 80, 0.18)', 
-                      cursor: 'pointer', 
-                      position: 'relative', 
-                      transition: 'background 0.15s, border-color 0.15s', 
-                      height: 56, 
-                      minWidth: 0,
-                      padding: '0 12px 0 6px',
-                      boxShadow: '0 4px 12px rgba(43, 34, 26, 0.04)'
-                    }}
-                    onMouseEnter={e => {
-                      e.currentTarget.style.background = 'var(--color-ss-surface, #f4eede)';
-                      e.currentTarget.style.borderColor = 'rgba(176, 136, 80, 0.3)';
-                    }}
-                    onMouseLeave={e => {
-                      e.currentTarget.style.background = '#ffffff';
-                      e.currentTarget.style.borderColor = 'rgba(176, 136, 80, 0.18)';
-                    }}>
-                    <div style={{ 
-                       width: 44, 
-                       height: 44, 
-                       borderRadius: '50%',
-                       overflow: 'hidden',
-                       backgroundImage: hasImg ? `url(${item.coverImage})` : item.gradient,
-                       backgroundColor: hasImg ? 'transparent' : undefined,
-                       backgroundSize: 'cover',
-                       backgroundPosition: 'center',
-                       display: 'flex', 
-                       alignItems: 'center', 
-                       justifyContent: 'center', 
-                       fontSize: 18, 
-                       flexShrink: 0,
-                       boxShadow: '0 2px 8px rgba(43, 34, 26, 0.08)'
-                     }}>
-                      {!hasImg && item.icon}
-                    </div>
-                    <span style={{ color: '#221a15', fontSize: 13.5, fontWeight: 750, padding: '0 12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, minWidth: 0, fontFamily: 'Outfit, sans-serif' }}>{item.label}</span>
-                    {isCurrent && (
-                      <div style={{ marginRight: 12, display: 'flex', alignItems: 'flex-end', gap: 2 }}>
-                        {[1, 2, 3].map(i => (
-                          <div key={i} style={{ width: 2, background: GREEN, borderRadius: 1, height: `${4 + i * 3}px`, animation: `waveform ${0.6 + i * 0.15}s ease-in-out infinite` }} />
-                        ))}
+              if (isMobile) {
+                return (
+                  <Link key={item.id} href={item.href} style={{ textDecoration: 'none', display: 'block', width: '100%', minWidth: 0 }}>
+                    <motion.div whileHover={{ scale: 1.02 }}
+                      style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        borderRadius: 28, 
+                        overflow: 'hidden', 
+                        background: '#ffffff', 
+                        border: '1px solid rgba(176, 136, 80, 0.18)', 
+                        cursor: 'pointer', 
+                        position: 'relative', 
+                        transition: 'background 0.15s, border-color 0.15s', 
+                        height: 56, 
+                        minWidth: 0,
+                        padding: '0 12px 0 6px',
+                        boxShadow: '0 4px 12px rgba(43, 34, 26, 0.04)'
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.background = 'var(--color-ss-surface, #f4eede)';
+                        e.currentTarget.style.borderColor = 'rgba(176, 136, 80, 0.3)';
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.background = '#ffffff';
+                        e.currentTarget.style.borderColor = 'rgba(176, 136, 80, 0.18)';
+                      }}>
+                      <div style={{ 
+                         width: 44, 
+                         height: 44, 
+                         borderRadius: '50%',
+                         overflow: 'hidden',
+                         backgroundImage: hasImg ? `url(${item.coverImage})` : item.gradient,
+                         backgroundColor: hasImg ? 'transparent' : undefined,
+                         backgroundSize: 'cover',
+                         backgroundPosition: 'center',
+                         display: 'flex', 
+                         alignItems: 'center', 
+                         justifyContent: 'center', 
+                         fontSize: 18, 
+                         flexShrink: 0,
+                         boxShadow: '0 2px 8px rgba(43, 34, 26, 0.08)'
+                       }}>
+                        {!hasImg && item.icon}
                       </div>
-                    )}
-                    {!isMobile && playlistObj && playlistObj.id !== 'playlist-1' && (
-                      <button
-                        onClick={e => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          toggleSavePlaylist(playlistObj.id);
-                        }}
-                        style={{
-                          marginRight: 12,
-                          background: 'none',
-                          border: 'none',
-                          color: isSaved ? GREEN : 'rgba(43,34,26,0.4)',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          padding: 6,
-                          borderRadius: '50%',
-                          transition: 'all 0.15s',
-                        }}
-                        onMouseEnter={e => {
-                          e.currentTarget.style.color = '#221a15';
-                          e.currentTarget.style.background = 'rgba(43,34,26,0.06)';
-                        }}
-                        onMouseLeave={e => {
-                          e.currentTarget.style.color = isSaved ? GREEN : 'rgba(43,34,26,0.4)';
-                          e.currentTarget.style.background = 'none';
-                        }}
-                      >
-                        {isSaved ? <Check size={14} strokeWidth={3} /> : <Plus size={14} strokeWidth={2.5} />}
-                      </button>
-                    )}
-                  </motion.div>
-                </Link>
-              );
+                      <span style={{ color: '#221a15', fontSize: 13.5, fontWeight: 750, padding: '0 12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, minWidth: 0, fontFamily: 'Outfit, sans-serif' }}>{item.label}</span>
+                      {isCurrent && (
+                        <div style={{ marginRight: 12, display: 'flex', alignItems: 'flex-end', gap: 2 }}>
+                          {[1, 2, 3].map(i => (
+                            <div key={i} style={{ width: 2, background: GREEN, borderRadius: 1, height: `${4 + i * 3}px`, animation: `waveform ${0.6 + i * 0.15}s ease-in-out infinite` }} />
+                          ))}
+                        </div>
+                      )}
+                    </motion.div>
+                  </Link>
+                );
+              } else {
+                // Premium Desktop Layout (Laptop View)
+                return (
+                  <Link key={item.id} href={item.href} style={{ textDecoration: 'none', display: 'block', width: '100%', minWidth: 0 }}>
+                    <motion.div
+                      className="quick-access-card"
+                      whileHover={{ y: -4, boxShadow: '0 8px 24px rgba(176, 136, 80, 0.08)' }}
+                      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                      style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        borderRadius: 12, 
+                        overflow: 'hidden', 
+                        background: '#ffffff', 
+                        border: '1px solid rgba(176, 136, 80, 0.12)', 
+                        cursor: 'pointer', 
+                        position: 'relative', 
+                        transition: 'background 0.25s, border-color 0.25s', 
+                        height: 64, 
+                        minWidth: 0,
+                        padding: 0,
+                        boxShadow: '0 4px 12px rgba(43, 34, 26, 0.03)'
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.background = 'var(--color-ss-surface, #f4eede)';
+                        e.currentTarget.style.borderColor = 'rgba(176, 136, 80, 0.3)';
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.background = '#ffffff';
+                        e.currentTarget.style.borderColor = 'rgba(176, 136, 80, 0.12)';
+                      }}>
+                      {/* Left cover image flush to card edges */}
+                      <div style={{ 
+                         width: 64, 
+                         height: 64, 
+                         borderRadius: '12px 0 0 12px',
+                         overflow: 'hidden',
+                         backgroundImage: hasImg ? `url(${item.coverImage})` : item.gradient,
+                         backgroundColor: hasImg ? 'transparent' : undefined,
+                         backgroundSize: 'cover',
+                         backgroundPosition: 'center',
+                         display: 'flex', 
+                         alignItems: 'center', 
+                         justifyContent: 'center', 
+                         fontSize: 20, 
+                         flexShrink: 0,
+                         boxShadow: '2px 0 8px rgba(43, 34, 26, 0.05)'
+                       }}>
+                        {!hasImg && item.icon}
+                      </div>
+
+                      {/* Title label */}
+                      <span style={{ color: '#221a15', fontSize: 14.5, fontWeight: 800, padding: '0 16px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, minWidth: 0, fontFamily: 'Outfit, sans-serif' }}>
+                        {item.label}
+                      </span>
+
+                      {/* Waveform playing indicator */}
+                      {isCurrent && (
+                        <div style={{ marginRight: 12, display: 'flex', alignItems: 'flex-end', gap: 2, flexShrink: 0 }}>
+                          {[1, 2, 3].map(i => (
+                            <div key={i} style={{ width: 2.5, background: GREEN, borderRadius: 1, height: `${4 + i * 3.5}px`, animation: `waveform ${0.6 + i * 0.15}s ease-in-out infinite` }} />
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Save/Add Playlist Actions */}
+                      {playlistObj && playlistObj.id !== 'playlist-1' && (
+                        <button
+                          onClick={e => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            toggleSavePlaylist(playlistObj.id);
+                          }}
+                          style={{
+                            marginRight: 8,
+                            background: 'none',
+                            border: 'none',
+                            color: isSaved ? GREEN : 'rgba(43,34,26,0.3)',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: 6,
+                            borderRadius: '50%',
+                            transition: 'all 0.15s',
+                            flexShrink: 0,
+                          }}
+                          onMouseEnter={e => {
+                            e.currentTarget.style.color = '#221a15';
+                            e.currentTarget.style.background = 'rgba(43,34,26,0.06)';
+                          }}
+                          onMouseLeave={e => {
+                            e.currentTarget.style.color = isSaved ? GREEN : 'rgba(43,34,26,0.3)';
+                            e.currentTarget.style.background = 'none';
+                          }}
+                        >
+                          {isSaved ? <Check size={14} strokeWidth={3} /> : <Plus size={14} strokeWidth={2.5} />}
+                        </button>
+                      )}
+
+                      {/* Instant Play Button on Hover */}
+                      {tracks.length > 0 && (
+                        <motion.button
+                          className="quick-play-btn"
+                          onClick={e => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            playTrack(tracks[0], tracks);
+                          }}
+                          whileHover={{ scale: 1.1, backgroundColor: '#937041' }}
+                          whileTap={{ scale: 0.95 }}
+                          style={{
+                            width: 36,
+                            height: 36,
+                            borderRadius: '50%',
+                            background: '#b08850',
+                            border: 'none',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            boxShadow: '0 4px 12px rgba(176, 136, 80, 0.3)',
+                            opacity: 0,
+                            transform: 'translateX(10px) scale(0.9)',
+                            transition: 'all 0.2s ease-in-out',
+                            marginRight: 12,
+                            flexShrink: 0,
+                          }}
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff" xmlns="http://www.w3.org/2000/svg" style={{ marginLeft: 2 }}>
+                            <path d="M8 5V19L19 12L8 5Z" />
+                          </svg>
+                        </motion.button>
+                      )}
+                    </motion.div>
+                  </Link>
+                );
+              }
             })}
           </div>
           {combinedItems.length > 6 && (
@@ -2754,193 +2869,534 @@ export default function HomePage() {
                 '1px solid rgba(176, 136, 80, 0.25)'
               ];
 
-              return (
-                <div key={sectionId} style={{ marginBottom: 32 }}>
-                  {/* 1. Header Banner */}
-                  <div style={{
-                    borderRadius: 16,
-                    background: 'linear-gradient(135deg, var(--color-ss-surface, #f4eede) 0%, var(--color-ss-hover, #ebdcb9) 100%)',
-                    padding: isMobile ? '12px' : '20px',
-                    position: 'relative',
-                    overflow: 'hidden',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: 16,
-                    border: '1px solid rgba(176, 136, 80, 0.25)',
-                    boxShadow: '0 6px 20px rgba(43, 34, 26, 0.04)'
-                  }}>
-                    <div style={{ position: 'absolute', top: -20, left: -20, width: 80, height: 80, borderRadius: '50%', background: 'rgba(176, 136, 80, 0.12)', filter: 'blur(35px)' }} />
-                    <div style={{ position: 'absolute', bottom: -20, right: -20, width: 80, height: 80, borderRadius: '50%', background: 'rgba(176, 136, 80, 0.15)', filter: 'blur(35px)' }} />
-                    
-                    <div style={{ textAlign: 'center', zIndex: 1 }}>
-                      <span style={{ color: GREEN, fontSize: isMobile ? 8.5 : 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.15em' }}>
-                        {config.subtitle || "BEATO SPECIALS"}
-                      </span>
-                      <h2 style={{
-                        fontFamily: 'Outfit, sans-serif',
-                        fontSize: isMobile ? 18 : 26,
-                        fontWeight: 950,
-                        margin: '4px 0 0 0',
-                        color: 'var(--color-ss-text-primary, #221a15)',
-                        letterSpacing: '0.03em'
-                      }}>
-                        {config.title || "SELF CARE DAYS"}
-                      </h2>
-                    </div>
-                  </div>
-
-                  {/* 2. Main Grid */}
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: isMobile ? '1.2fr 1fr 1fr' : '1.5fr 1fr 1fr',
-                    gap: isMobile ? 8 : 14,
-                    alignItems: 'stretch'
-                  }}>
-                    {/* Left Card: Steal Deals */}
+              if (isMobile) {
+                return (
+                  <div key={sectionId} style={{ marginBottom: 32 }}>
+                    {/* 1. Header Banner */}
                     <div style={{
-                      gridRow: 'span 2',
-                      background: 'linear-gradient(135deg, var(--color-ss-elevated, #ffffff) 0%, var(--color-ss-surface, #f4eede) 100%)',
-                      border: '1.5px solid rgba(176, 136, 80, 0.2)',
-                      borderRadius: 14,
-                      padding: isMobile ? 10 : 16,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'space-between',
+                      borderRadius: 16,
+                      background: 'linear-gradient(135deg, var(--color-ss-surface, #f4eede) 0%, var(--color-ss-hover, #ebdcb9) 100%)',
+                      padding: '12px',
                       position: 'relative',
                       overflow: 'hidden',
-                      cursor: 'pointer',
-                      boxShadow: '0 8px 24px rgba(43, 34, 26, 0.05)',
-                      backdropFilter: 'blur(8px)'
-                    }}
-                    onClick={() => playTrack(mainTrack, tracks)}
-                    >
-                      <div style={{
-                        background: 'linear-gradient(90deg, #b08850, #8c6c44)',
-                        padding: '4px 8px',
-                        borderRadius: 6,
-                        fontSize: isMobile ? 9 : 11,
-                        fontWeight: 900,
-                        color: '#fff',
-                        alignSelf: 'flex-start',
-                        letterSpacing: '0.05em',
-                        marginBottom: 10
-                      }}>
-                        STEAL DEALS
-                      </div>
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginBottom: 16,
+                      border: '1px solid rgba(176, 136, 80, 0.25)',
+                      boxShadow: '0 6px 20px rgba(43, 34, 26, 0.04)'
+                    }}>
+                      <div style={{ position: 'absolute', top: -20, left: -20, width: 80, height: 80, borderRadius: '50%', background: 'rgba(176, 136, 80, 0.12)', filter: 'blur(35px)' }} />
+                      <div style={{ position: 'absolute', bottom: -20, right: -20, width: 80, height: 80, borderRadius: '50%', background: 'rgba(176, 136, 80, 0.15)', filter: 'blur(35px)' }} />
                       
-                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', margin: '10px 0' }}>
-                        <div style={{ position: 'relative', width: isMobile ? 64 : 100, height: isMobile ? 64 : 100, borderRadius: 12, overflow: 'hidden', boxShadow: '0 8px 20px rgba(43, 34, 26, 0.15)' }}>
-                          <img src={mainTrack.coverImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        </div>
-                        <div style={{ color: 'var(--color-ss-text-primary, #221a15)', fontSize: isMobile ? 12 : 15, fontWeight: 900, fontFamily: 'Outfit, sans-serif', marginTop: 10, textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {mainTrack.title}
-                        </div>
-                        <div style={{ color: 'var(--color-ss-text-muted, #87786c)', fontSize: isMobile ? 10 : 12, marginTop: 2, textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {mainTrack.artistName || 'Various Artists'}
-                        </div>
+                      <div style={{ textAlign: 'center', zIndex: 1 }}>
+                        <span style={{ color: GREEN, fontSize: 8.5, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.15em' }}>
+                          {config.subtitle || "BEATO SPECIALS"}
+                        </span>
+                        <h2 style={{
+                          fontFamily: 'Outfit, sans-serif',
+                          fontSize: 18,
+                          fontWeight: 950,
+                          margin: '4px 0 0 0',
+                          color: 'var(--color-ss-text-primary, #221a15)',
+                          letterSpacing: '0.03em'
+                        }}>
+                          {config.title || "SELF CARE DAYS"}
+                        </h2>
                       </div>
-
-                      <button style={{
-                        background: '#b08850',
-                        border: 'none',
-                        color: '#fff',
-                        padding: isMobile ? '6px 10px' : '8px 16px',
-                        borderRadius: 20,
-                        fontSize: isMobile ? 9.5 : 11,
-                        fontWeight: 900,
-                        textAlign: 'center',
-                        width: '100%',
-                        cursor: 'pointer',
-                        boxShadow: '0 4px 12px rgba(176, 136, 80, 0.3)',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em'
-                      }}>
-                        Listen Free
-                      </button>
                     </div>
 
-                    {/* Right 2x2 Grid */}
-                    {gridTracks.map((track, i) => {
-                      const prevTrack = mockTracks[(i + 2) % mockTracks.length];
-                      return (
-                        <div key={track.id} style={{
-                          background: gradients[i],
-                          border: borders[i],
-                          borderRadius: 14,
-                          padding: isMobile ? 8 : 12,
-                          display: 'flex',
-                          flexDirection: 'column',
-                          justifyContent: 'space-between',
-                          height: isMobile ? 120 : 160,
-                          cursor: 'pointer',
-                          position: 'relative',
-                          boxShadow: '0 4px 14px rgba(43, 34, 26, 0.05)'
-                        }}
-                        onClick={() => playTrack(track, tracks)}
-                        >
-                          <div style={{ fontSize: isMobile ? 11 : 14, fontWeight: 800, fontFamily: 'Outfit, sans-serif', color: 'var(--color-ss-text-primary, #221a15)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {cardTitles[i]}
+                    {/* 2. Main Grid */}
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1.2fr 1fr 1fr',
+                      gap: 8,
+                      alignItems: 'stretch'
+                    }}>
+                      {/* Left Card: Steal Deals */}
+                      <div style={{
+                        gridRow: 'span 2',
+                        background: 'linear-gradient(135deg, var(--color-ss-elevated, #ffffff) 0%, var(--color-ss-surface, #f4eede) 100%)',
+                        border: '1.5px solid rgba(176, 136, 80, 0.2)',
+                        borderRadius: 14,
+                        padding: 10,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        cursor: 'pointer',
+                        boxShadow: '0 8px 24px rgba(43, 34, 26, 0.05)',
+                        backdropFilter: 'blur(8px)'
+                      }}
+                      onClick={() => playTrack(mainTrack, tracks)}
+                      >
+                        <div style={{
+                          background: 'linear-gradient(90deg, #b08850, #8c6c44)',
+                          padding: '4px 8px',
+                          borderRadius: 6,
+                          fontSize: 9,
+                          fontWeight: 900,
+                          color: '#fff',
+                          alignSelf: 'flex-start',
+                          letterSpacing: '0.05em',
+                          marginBottom: 10
+                        }}>
+                          STEAL DEALS
+                        </div>
+                        
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', margin: '10px 0' }}>
+                          <div style={{ position: 'relative', width: 64, height: 64, borderRadius: 12, overflow: 'hidden', boxShadow: '0 8px 20px rgba(43, 34, 26, 0.15)' }}>
+                            <img src={mainTrack.coverImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                           </div>
-
-                          {/* Overlapping cover images in center */}
-                          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: isMobile ? '4px 0' : '8px 0', height: isMobile ? 34 : 44 }}>
-                            <img src={track.coverImage} alt="" style={{ width: isMobile ? 30 : 40, height: isMobile ? 30 : 40, borderRadius: 6, objectFit: 'cover', transform: 'rotate(-6deg) translateX(4px)', border: '1.5px solid var(--color-ss-elevated, #ffffff)', boxShadow: '0 4px 10px rgba(43,34,26,0.15)', zIndex: 1 }} />
-                            <img src={prevTrack.coverImage} alt="" style={{ width: isMobile ? 30 : 40, height: isMobile ? 30 : 40, borderRadius: 6, objectFit: 'cover', transform: 'rotate(6deg) translateX(-4px)', border: '1.5px solid var(--color-ss-elevated, #ffffff)', boxShadow: '0 4px 10px rgba(43,34,26,0.15)', zIndex: 2 }} />
+                          <div style={{ color: 'var(--color-ss-text-primary, #221a15)', fontSize: 12, fontWeight: 900, fontFamily: 'Outfit, sans-serif', marginTop: 10, textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {mainTrack.title}
                           </div>
-
-                          <div style={{
-                            background: badgeBackgrounds[i],
-                            color: badgeColors[i],
-                            border: badgeBorders[i],
-                            padding: '3px 6px',
-                            borderRadius: 20,
-                            fontSize: isMobile ? 7.5 : 9.5,
-                            fontWeight: 800,
-                            textAlign: 'center',
-                            alignSelf: 'stretch',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap'
-                          }}>
-                            {badges[i]}
+                          <div style={{ color: 'var(--color-ss-text-muted, #87786c)', fontSize: 10, marginTop: 2, textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {mainTrack.artistName || 'Various Artists'}
                           </div>
                         </div>
-                      );
-                    })}
-                  </div>
 
-                  {/* 3. Bottom Banner Strip */}
-                  <div style={{
-                    background: 'linear-gradient(90deg, var(--color-ss-hover, #ebdcb9) 0%, var(--color-ss-surface, #f4eede) 100%)',
-                    borderRadius: 14,
-                    padding: isMobile ? '8px 14px' : '12px 20px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    marginTop: 14,
-                    border: '1.5px solid var(--color-ss-primary, #b08850)40',
-                    boxShadow: '0 6px 18px rgba(43, 34, 26, 0.04)'
-                  }}>
-                    <span style={{ color: 'var(--color-ss-text-primary, #221a15)', fontSize: isMobile ? 10 : 13, fontWeight: 800, letterSpacing: '0.01em', fontFamily: 'Outfit, sans-serif' }}>
-                      🔥 Buy 2 Months of Premium & get 1 Month Free! T&C Apply *
-                    </span>
-                    <button style={{
-                      background: 'var(--color-ss-primary, #b08850)',
-                      color: '#fff',
-                      border: 'none',
-                      borderRadius: 20,
-                      padding: isMobile ? '6px 12px' : '8px 16px',
-                      fontSize: isMobile ? 9.5 : 11.5,
-                      fontWeight: 900,
-                      cursor: 'pointer',
-                      boxShadow: '0 4px 10px rgba(176, 136, 80, 0.2)'
+                        <button style={{
+                          background: '#b08850',
+                          border: 'none',
+                          color: '#fff',
+                          padding: '6px 10px',
+                          borderRadius: 20,
+                          fontSize: 9.5,
+                          fontWeight: 900,
+                          textAlign: 'center',
+                          width: '100%',
+                          cursor: 'pointer',
+                          boxShadow: '0 4px 12px rgba(176, 136, 80, 0.3)',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.05em'
+                        }}>
+                          Listen Free
+                        </button>
+                      </div>
+
+                      {/* Right 2x2 Grid */}
+                      {gridTracks.map((track, i) => {
+                        const prevTrack = mockTracks[(i + 2) % mockTracks.length];
+                        return (
+                          <div key={track.id} style={{
+                            background: gradients[i],
+                            border: borders[i],
+                            borderRadius: 14,
+                            padding: 8,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            height: 120,
+                            cursor: 'pointer',
+                            position: 'relative',
+                            boxShadow: '0 4px 14px rgba(43, 34, 26, 0.05)'
+                          }}
+                          onClick={() => playTrack(track, tracks)}
+                          >
+                            <div style={{ fontSize: 11, fontWeight: 800, fontFamily: 'Outfit, sans-serif', color: 'var(--color-ss-text-primary, #221a15)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {cardTitles[i]}
+                            </div>
+
+                            {/* Overlapping cover images in center */}
+                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '4px 0', height: 34 }}>
+                              <img src={track.coverImage} alt="" style={{ width: 30, height: 30, borderRadius: 6, objectFit: 'cover', transform: 'rotate(-6deg) translateX(4px)', border: '1.5px solid var(--color-ss-elevated, #ffffff)', boxShadow: '0 4px 10px rgba(43,34,26,0.15)', zIndex: 1 }} />
+                              <img src={prevTrack.coverImage} alt="" style={{ width: 30, height: 30, borderRadius: 6, objectFit: 'cover', transform: 'rotate(6deg) translateX(-4px)', border: '1.5px solid var(--color-ss-elevated, #ffffff)', boxShadow: '0 4px 10px rgba(43,34,26,0.15)', zIndex: 2 }} />
+                            </div>
+
+                            <div style={{
+                              background: badgeBackgrounds[i],
+                              color: badgeColors[i],
+                              border: badgeBorders[i],
+                              padding: '3px 6px',
+                              borderRadius: 20,
+                              fontSize: 7.5,
+                              fontWeight: 800,
+                              textAlign: 'center',
+                              alignSelf: 'stretch',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              {badges[i]}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* 3. Bottom Banner Strip */}
+                    <div style={{
+                      background: 'linear-gradient(90deg, var(--color-ss-hover, #ebdcb9) 0%, var(--color-ss-surface, #f4eede) 100%)',
+                      borderRadius: 14,
+                      padding: '8px 14px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginTop: 14,
+                      border: '1.5px solid var(--color-ss-primary, #b08850)40',
+                      boxShadow: '0 6px 18px rgba(43, 34, 26, 0.04)'
                     }}>
-                      Claim Offer
-                    </button>
+                      <span style={{ color: 'var(--color-ss-text-primary, #221a15)', fontSize: 10, fontWeight: 800, letterSpacing: '0.01em', fontFamily: 'Outfit, sans-serif' }}>
+                        🔥 Buy 2 Months of Premium & get 1 Month Free! T&C Apply *
+                      </span>
+                      <button style={{
+                        background: 'var(--color-ss-primary, #b08850)',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: 20,
+                        padding: '6px 12px',
+                        fontSize: 9.5,
+                        fontWeight: 900,
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 10px rgba(176, 136, 80, 0.2)'
+                      }}>
+                        Claim Offer
+                      </button>
+                    </div>
                   </div>
-                </div>
-              );
+                );
+              } else {
+                return (
+                  <div key={sectionId} style={{ marginBottom: 40, fontFamily: 'Outfit, sans-serif' }}>
+                    {/* Modern Clean Header for Laptop */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 24, position: 'relative' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <span style={{
+                          color: '#b08850',
+                          fontSize: 12,
+                          fontWeight: 800,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.2em',
+                        }}>
+                          {config.subtitle || "BEATO SPECIALS"}
+                        </span>
+                        <div style={{ flex: 1, height: 1, background: 'linear-gradient(90deg, rgba(176,136,80,0.2) 0%, rgba(176,136,80,0) 100%)' }} />
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <h2 style={{
+                          fontSize: 32,
+                          fontWeight: 950,
+                          margin: 0,
+                          color: '#221a15',
+                          letterSpacing: '-0.02em',
+                        }}>
+                          {config.title || "SELF CARE DAYS"}
+                        </h2>
+                        <span style={{ fontSize: 24 }}>✨</span>
+                      </div>
+                      <p style={{ margin: '4px 0 0 0', fontSize: 14, color: '#87786c', fontWeight: 555 }}>
+                        Curated audio therapies and premium deals handcrafted just for your device.
+                      </p>
+                    </div>
+
+                    {/* Premium Grid Layout for Laptop */}
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1.2fr 2fr',
+                      gap: 24,
+                      alignItems: 'stretch'
+                    }}>
+                      {/* Left Spotlight Card */}
+                      <motion.div
+                        whileHover={{ y: -8, boxShadow: '0 24px 48px rgba(176, 136, 80, 0.18)' }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                        style={{
+                          position: 'relative',
+                          height: '390px',
+                          borderRadius: 28,
+                          overflow: 'hidden',
+                          cursor: 'pointer',
+                          boxShadow: '0 12px 30px rgba(43, 34, 26, 0.08)',
+                          border: '1px solid rgba(176, 136, 80, 0.22)',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'flex-end',
+                          padding: '16px',
+                        }}
+                        onClick={() => playTrack(mainTrack, tracks)}
+                      >
+                        {/* Background Cover Image */}
+                        <img
+                          src={mainTrack.coverImage}
+                          alt=""
+                          style={{
+                            position: 'absolute',
+                            inset: 0,
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            zIndex: 0,
+                            transition: 'transform 0.5s ease',
+                          }}
+                        />
+                        {/* Gradient Overlay for text readability */}
+                        <div style={{
+                          position: 'absolute',
+                          inset: 0,
+                          background: 'linear-gradient(to bottom, rgba(34, 26, 21, 0.05) 0%, rgba(34, 26, 21, 0.3) 40%, rgba(34, 26, 21, 0.85) 100%)',
+                          zIndex: 1,
+                        }} />
+
+                        {/* Tag Overlay at Top Right */}
+                        <div style={{
+                          position: 'absolute',
+                          top: 16,
+                          right: 16,
+                          background: 'linear-gradient(135deg, #e0a96d 0%, #b08850 100%)',
+                          padding: '6px 14px',
+                          borderRadius: 30,
+                          fontSize: 10.5,
+                          fontWeight: 900,
+                          color: '#fff',
+                          letterSpacing: '0.06em',
+                          boxShadow: '0 4px 12px rgba(176, 136, 80, 0.3)',
+                          zIndex: 2,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          textTransform: 'uppercase'
+                        }}
+                        className="text-white-force"
+                        >
+                          <span>🔥</span> STEAL DEALS
+                        </div>
+
+                        {/* Floating Sparkles decorative effect */}
+                        <div style={{
+                          position: 'absolute',
+                          bottom: 0,
+                          left: 0,
+                          width: '100%',
+                          height: '150px',
+                          background: 'rgba(176, 136, 80, 0.1)',
+                          filter: 'blur(30px)',
+                          zIndex: 1
+                        }} />
+
+                        {/* Glassmorphic Audio Player Widget at Bottom */}
+                        <div style={{
+                          position: 'relative',
+                          zIndex: 2,
+                          background: 'rgba(255, 255, 255, 0.1)',
+                          backdropFilter: 'blur(20px)',
+                          border: '1px solid rgba(255, 255, 255, 0.15)',
+                          borderRadius: 20,
+                          padding: '16px 20px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: 12,
+                          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.25)'
+                        }}>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <span style={{ fontSize: 9.5, fontWeight: 800, color: '#e0a96d', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 2 }}>
+                              SPOTLIGHT TRACK
+                            </span>
+                            <h3 className="text-white-force" style={{
+                              fontSize: 18,
+                              fontWeight: 900,
+                              color: '#fff',
+                              margin: 0,
+                              letterSpacing: '-0.01em',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              textShadow: '0 1px 2px rgba(0,0,0,0.2)'
+                            }}>
+                              {mainTrack.title}
+                            </h3>
+                            <span className="text-white-muted-force" style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block', marginTop: 1 }}>
+                              {mainTrack.artistName || 'Various Artists'}
+                            </span>
+                          </div>
+
+                          {/* Interactive Golden Play Button */}
+                          <motion.div
+                            whileHover={{ scale: 1.1, backgroundColor: '#937041' }}
+                            whileTap={{ scale: 0.95 }}
+                            style={{
+                              width: 44,
+                              height: 44,
+                              borderRadius: '50%',
+                              backgroundColor: '#b08850',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              boxShadow: '0 4px 15px rgba(176, 136, 80, 0.4)',
+                              cursor: 'pointer',
+                              flexShrink: 0,
+                              border: '1px solid rgba(255,255,255,0.1)'
+                            }}
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff" xmlns="http://www.w3.org/2000/svg" style={{ marginLeft: 2 }}>
+                              <path d="M8 5V19L19 12L8 5Z" />
+                            </svg>
+                          </motion.div>
+                        </div>
+                      </motion.div>
+
+                      {/* Right 2x2 Curated Grid */}
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: '1fr 1fr',
+                        gap: 16
+                      }}>
+                        {gridTracks.map((track, i) => {
+                          const prevTrack = mockTracks[(i + 2) % mockTracks.length];
+                          return (
+                            <motion.div
+                              key={track.id}
+                              whileHover={{ 
+                                y: -5, 
+                                boxShadow: '0 15px 30px rgba(176, 136, 80, 0.08)',
+                                borderColor: 'rgba(176, 136, 80, 0.4)'
+                              }}
+                              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                              style={{
+                                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(244, 238, 222, 0.4) 100%)',
+                                backdropFilter: 'blur(12px)',
+                                border: '1px solid rgba(176, 136, 80, 0.15)',
+                                borderRadius: 20,
+                                padding: '18px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'space-between',
+                                height: '182px',
+                                cursor: 'pointer',
+                                position: 'relative',
+                                boxShadow: '0 6px 20px rgba(43, 34, 26, 0.03)'
+                              }}
+                              onClick={() => playTrack(track, tracks)}
+                            >
+                              {/* Header info */}
+                              <div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                  <span style={{ fontSize: 15, fontWeight: 900, color: '#221a15', letterSpacing: '-0.01em' }}>
+                                    {cardTitles[i]}
+                                  </span>
+                                  <span style={{ fontSize: 16 }}>🎧</span>
+                                </div>
+                                <div style={{ fontSize: 11, color: '#87786c', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                  Featuring {track.title}
+                                </div>
+                              </div>
+
+                              {/* Overlapping cover artwork stack */}
+                              <div style={{ 
+                                display: 'flex', 
+                                justifyContent: 'center', 
+                                alignItems: 'center', 
+                                margin: '12px 0', 
+                                height: '56px',
+                                position: 'relative'
+                              }}>
+                                <motion.img 
+                                  src={track.coverImage} 
+                                  alt="" 
+                                  whileHover={{ rotate: -12, scale: 1.1 }}
+                                  style={{ 
+                                    width: 52, 
+                                    height: 52, 
+                                    borderRadius: 10, 
+                                    objectFit: 'cover', 
+                                    transform: 'rotate(-6deg) translateX(8px)', 
+                                    border: '2px solid #ffffff', 
+                                    boxShadow: '0 6px 16px rgba(43,34,26,0.12)', 
+                                    zIndex: 1,
+                                    transition: 'transform 0.2s ease'
+                                  }} 
+                                />
+                                <motion.img 
+                                  src={prevTrack.coverImage} 
+                                  alt="" 
+                                  whileHover={{ rotate: 12, scale: 1.1 }}
+                                  style={{ 
+                                    width: 52, 
+                                    height: 52, 
+                                    borderRadius: 10, 
+                                    objectFit: 'cover', 
+                                    transform: 'rotate(6deg) translateX(-8px)', 
+                                    border: '2px solid #ffffff', 
+                                    boxShadow: '0 6px 16px rgba(43,34,26,0.12)', 
+                                    zIndex: 2,
+                                    transition: 'transform 0.2s ease'
+                                  }} 
+                                />
+                              </div>
+
+                              {/* Status Badge */}
+                              <div style={{
+                                background: 'rgba(176, 136, 80, 0.08)',
+                                color: '#b08850',
+                                border: '1px solid rgba(176, 136, 80, 0.18)',
+                                padding: '4px 10px',
+                                borderRadius: 30,
+                                fontSize: 10,
+                                fontWeight: 800,
+                                textAlign: 'center',
+                                alignSelf: 'stretch',
+                                letterSpacing: '0.03em',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: 4
+                              }}>
+                                <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#b08850' }} />
+                                {badges[i]}
+                              </div>
+                            </motion.div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Bottom Promo Strip for Laptop */}
+                    <motion.div 
+                      whileHover={{ scale: 1.005 }}
+                      style={{
+                        background: 'linear-gradient(90deg, rgba(176, 136, 80, 0.2) 0%, rgba(244, 238, 222, 0.8) 100%)',
+                        backdropFilter: 'blur(10px)',
+                        borderRadius: 20,
+                        padding: '16px 28px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        marginTop: 24,
+                        border: '1px solid rgba(176, 136, 80, 0.3)',
+                        boxShadow: '0 10px 30px rgba(176, 136, 80, 0.08)'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <span style={{ fontSize: 20 }}>🔥</span>
+                        <span style={{ color: '#221a15', fontSize: 14, fontWeight: 800, letterSpacing: '0.01em' }}>
+                          Buy 2 Months of Premium & get 1 Month Free! T&C Apply *
+                        </span>
+                      </div>
+                      <motion.button 
+                        whileHover={{ scale: 1.05, boxShadow: '0 6px 15px rgba(176, 136, 80, 0.35)' }}
+                        whileTap={{ scale: 0.95 }}
+                        style={{
+                          background: 'linear-gradient(135deg, #b08850 0%, #937041 100%)',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: 30,
+                          padding: '10px 24px',
+                          fontSize: 12,
+                          fontWeight: 900,
+                          cursor: 'pointer',
+                          boxShadow: '0 4px 12px rgba(176, 136, 80, 0.2)',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.05em'
+                        }}
+                      >
+                        Claim Offer
+                      </motion.button>
+                    </motion.div>
+                  </div>
+                );
+              }
             }
 
             if (rawLayout === 'music_summer_store') {
@@ -4485,6 +4941,330 @@ export default function HomePage() {
 
               // ── MOBILE + DESKTOP: 3-card peek carousel ──
               return (() => {
+                if (!isMobile) {
+                  // Premium Laptop View
+                  const handleNext = () => setIdx((safeIdx + 1) % slides.length);
+                  const handlePrev = () => setIdx((safeIdx - 1 + slides.length) % slides.length);
+
+                  return (
+                    <div key={sectionId} style={{ marginBottom: 42, position: 'relative' }}>
+                      {/* Section header */}
+                      <div style={{ display: 'flex', flexDirection: 'column', marginBottom: 16, paddingLeft: 4 }}>
+                        <span style={{ color: accent, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 4 }}>
+                          {config.subtitle || 'SPOTLIGHT'}
+                        </span>
+                        <h3 style={{ margin: 0, color: 'var(--theme-text, #fff)', fontSize: 24, fontFamily: 'Outfit, sans-serif', fontWeight: 900, letterSpacing: '-0.02em' }}>
+                          {config.title || 'Fresh'}
+                        </h3>
+                      </div>
+
+                      {/* Main Banner Area */}
+                      <div 
+                        style={{ 
+                          position: 'relative', 
+                          borderRadius: 24, 
+                          overflow: 'hidden', 
+                          height: 320, 
+                          background: 'rgba(23, 18, 14, 0.4)',
+                          border: `1.5px solid ${accent}25`,
+                          backdropFilter: 'blur(20px)',
+                          boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          padding: '0 40px',
+                          transition: 'all 0.5s ease',
+                        }}
+                        className="group-banner"
+                      >
+                        {/* Inline styles for banner group hover */}
+                        <style>{`
+                          .group-banner:hover .nav-arrow { opacity: 1 !important; transform: scale(1) !important; }
+                          .hover-tilt { transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1); }
+                          .hover-tilt:hover { transform: perspective(1000px) rotateY(-8deg) rotateX(4deg) scale(1.03) !important; }
+                          .vinyl-disc { transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.6s ease; }
+                          .group-banner:hover .vinyl-disc { transform: translate(50px, -50%) rotate(180deg) !important; opacity: 0.8 !important; }
+                          .btn-glow { transition: all 0.3s ease; }
+                          .btn-glow:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(176, 136, 80, 0.4); }
+                          .btn-outline-glow:hover { background: rgba(255,255,255,0.08) !important; border-color: rgba(255,255,255,0.6) !important; transform: translateY(-2px); }
+                          @keyframes pulse {
+                            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+                            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(255, 255, 255, 0); }
+                            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+                          }
+                        `}</style>
+
+                        {/* Ambient Blur Backdrop */}
+                        <AnimatePresence mode="wait">
+                          <motion.div
+                            key={`ambient-${safeIdx}`}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 0.35 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.6 }}
+                            style={{
+                              position: 'absolute',
+                              inset: 0,
+                              zIndex: 0,
+                              backgroundImage: `url(${cur.imageUrl || cur.coverImage || config.customImage || ''})`,
+                              backgroundSize: 'cover',
+                              backgroundPosition: 'center',
+                              filter: 'blur(60px) brightness(0.6)',
+                              pointerEvents: 'none',
+                            }}
+                          />
+                        </AnimatePresence>
+
+                        {/* Solid Backing Layer */}
+                        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(15,10,8,0.92) 0%, rgba(15,10,8,0.7) 50%, rgba(15,10,8,0.4) 100%)', zIndex: 1, pointerEvents: 'none' }} />
+
+                        {/* Banner Content Grid */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1.25fr 0.75fr', width: '100%', height: '100%', zIndex: 2, position: 'relative', alignItems: 'center' }}>
+                          
+                          {/* Left Column: Typography & CTAs */}
+                          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingRight: 40 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                              {/* Glowing Dot Badge */}
+                              <span style={{
+                                display: 'inline-flex', alignItems: 'center', gap: 6,
+                                background: 'rgba(255,255,255,0.06)', color: '#fff',
+                                border: '1px solid rgba(255,255,255,0.12)',
+                                fontSize: 9, fontWeight: 900, textTransform: 'uppercase',
+                                letterSpacing: '0.14em', padding: '5px 12px',
+                                borderRadius: 30, backdropFilter: 'blur(10px)',
+                              }}>
+                                <span style={{
+                                  width: 6, height: 6, borderRadius: '50%',
+                                  background: accent, display: 'inline-block',
+                                  boxShadow: `0 0 10px ${accent}`, flexShrink: 0,
+                                  animation: 'pulse 1.8s infinite',
+                                }} />
+                                {badge}
+                              </span>
+                            </div>
+
+                            <AnimatePresence mode="wait">
+                              <motion.div
+                                key={`text-${safeIdx}`}
+                                initial={{ opacity: 0, y: 15 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -15 }}
+                                transition={{ duration: 0.4, ease: 'easeOut' }}
+                              >
+                                <style>{`.text-white-force { color: #fff !important; }`}</style>
+                                <h2 className="text-white-force" style={{
+                                  fontFamily: 'Outfit, sans-serif',
+                                  fontSize: 38, fontWeight: 950,
+                                  color: '#fff', margin: '0 0 8px', lineHeight: 1.15,
+                                  letterSpacing: '-0.03em',
+                                  textShadow: '0 4px 20px rgba(0,0,0,0.6)',
+                                } as React.CSSProperties}>
+                                  {title}
+                                </h2>
+
+                                <p className="text-white-muted-force" style={{
+                                  color: 'rgba(255,255,255,0.65)', fontSize: 14,
+                                  margin: '0 0 24px', fontWeight: 500,
+                                  lineHeight: 1.5,
+                                  textShadow: '0 2px 10px rgba(0,0,0,0.5)',
+                                } as React.CSSProperties}>
+                                  {desc2}
+                                </p>
+                              </motion.div>
+                            </AnimatePresence>
+
+                            {/* Buttons */}
+                            <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+                              <button
+                                onClick={e => { e.stopPropagation(); handleAction(e); }}
+                                className="btn-glow"
+                                style={{
+                                  background: accent, color: '#000', border: 'none',
+                                  borderRadius: 24, padding: '12px 30px',
+                                  fontSize: 14, fontWeight: 900, cursor: 'pointer',
+                                  boxShadow: `0 8px 24px ${accent}45`,
+                                  display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0,
+                                }}
+                              >
+                                <Play size={15} fill="black" />
+                                {buttonText}
+                              </button>
+                              <button 
+                                className="btn-outline-glow"
+                                style={{
+                                  background: 'rgba(255,255,255,0.06)', color: '#fff',
+                                  border: '1.5px solid rgba(255,255,255,0.24)',
+                                  borderRadius: 24, padding: '12px 24px',
+                                  fontSize: 14, fontWeight: 700, cursor: 'pointer',
+                                  backdropFilter: 'blur(12px)', flexShrink: 0,
+                                  transition: 'all 0.3s ease',
+                                }}
+                              >
+                                Save
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Right Column: Floating Artwork with Vinyl Disc */}
+                          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative', width: '100%', height: '100%' }}>
+                            
+                            {/* Hidden Vinyl Disc Peek */}
+                            <div 
+                              className="vinyl-disc"
+                              style={{
+                                position: 'absolute',
+                                width: 170,
+                                height: 170,
+                                borderRadius: '50%',
+                                background: 'radial-gradient(circle, #222 0%, #111 30%, #050505 60%, #111 70%, #000 100%)',
+                                border: '2px solid #222',
+                                top: '50%',
+                                left: '30%',
+                                transform: 'translate(0px, -50%) rotate(0deg)',
+                                zIndex: 0,
+                                boxShadow: '0 12px 28px rgba(0,0,0,0.5)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                opacity: 0,
+                                pointerEvents: 'none',
+                              }}
+                            >
+                              {/* Vinyl grooves */}
+                              <div style={{ width: 150, height: 150, borderRadius: '50%', border: '0.5px solid rgba(255,255,255,0.05)' }} />
+                              <div style={{ position: 'absolute', width: 130, height: 130, borderRadius: '50%', border: '0.5px solid rgba(255,255,255,0.05)' }} />
+                              <div style={{ position: 'absolute', width: 110, height: 110, borderRadius: '50%', border: '0.5px solid rgba(255,255,255,0.05)' }} />
+                              {/* Center label */}
+                              <div style={{ position: 'absolute', width: 50, height: 50, borderRadius: '50%', background: accent, opacity: 0.8, boxShadow: `0 0 10px ${accent}80` }} />
+                              <div style={{ position: 'absolute', width: 12, height: 12, borderRadius: '50%', background: '#000' }} />
+                            </div>
+
+                            {/* Album Artwork Cover Card */}
+                            <AnimatePresence mode="wait">
+                              <motion.div
+                                key={`art-${safeIdx}`}
+                                initial={{ opacity: 0, scale: 0.9, rotateY: 15 }}
+                                animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+                                exit={{ opacity: 0, scale: 0.9, rotateY: -15 }}
+                                transition={{ duration: 0.5, ease: 'easeOut' }}
+                                style={{ zIndex: 2, position: 'relative', perspective: 1000 }}
+                              >
+                                <div 
+                                  className="hover-tilt"
+                                  style={{
+                                    width: 200,
+                                    height: 200,
+                                    borderRadius: 18,
+                                    overflow: 'hidden',
+                                    boxShadow: '0 15px 35px rgba(0,0,0,0.5), 0 0 25px rgba(0,0,0,0.2)',
+                                    border: '1.5px solid rgba(255,255,255,0.18)',
+                                    cursor: 'pointer',
+                                    position: 'relative',
+                                  }}
+                                >
+                                  <img
+                                    src={cur.imageUrl || cur.coverImage || config.customImage || ''}
+                                    alt={title}
+                                    style={{
+                                      width: '100%',
+                                      height: '100%',
+                                      objectFit: 'cover',
+                                    }}
+                                  />
+                                  {/* Glossy reflection cover overlay */}
+                                  <div style={{
+                                    position: 'absolute',
+                                    inset: 0,
+                                    background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 50%, transparent 100%)',
+                                    pointerEvents: 'none',
+                                  }} />
+                                </div>
+                              </motion.div>
+                            </AnimatePresence>
+                          </div>
+                        </div>
+
+                        {/* Navigation Arrows overlay */}
+                        <button
+                          onClick={e => { e.stopPropagation(); handlePrev(); }}
+                          className="nav-arrow"
+                          style={{
+                            position: 'absolute',
+                            left: 15,
+                            top: '50%',
+                            transform: 'translateY(-50%) scale(0.9)',
+                            zIndex: 10,
+                            width: 44,
+                            height: 44,
+                            borderRadius: '50%',
+                            background: 'rgba(15,10,8,0.6)',
+                            border: '1px solid rgba(255,255,255,0.15)',
+                            color: '#fff',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            opacity: 0,
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            backdropFilter: 'blur(8px)',
+                          }}
+                        >
+                          <ChevronRight size={20} style={{ transform: 'rotate(180deg)' }} />
+                        </button>
+                        
+                        <button
+                          onClick={e => { e.stopPropagation(); handleNext(); }}
+                          className="nav-arrow"
+                          style={{
+                            position: 'absolute',
+                            right: 15,
+                            top: '50%',
+                            transform: 'translateY(-50%) scale(0.9)',
+                            zIndex: 10,
+                            width: 44,
+                            height: 44,
+                            borderRadius: '50%',
+                            background: 'rgba(15,10,8,0.6)',
+                            border: '1px solid rgba(255,255,255,0.15)',
+                            color: '#fff',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            opacity: 0,
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            backdropFilter: 'blur(8px)',
+                          }}
+                        >
+                          <ChevronRight size={20} />
+                        </button>
+                      </div>
+
+                      {/* Expanding Dot Pill Indicators */}
+                      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8, marginTop: 16 }}>
+                        {slides.map((_: any, i: number) => {
+                          const isActive = i === safeIdx;
+                          return (
+                            <div
+                              key={i}
+                              onClick={() => setIdx(i)}
+                              style={{
+                                width: isActive ? 28 : 8, 
+                                height: 8, 
+                                borderRadius: 4,
+                                background: isActive ? accent : 'rgba(255,255,255,0.18)',
+                                transition: 'all 0.4s cubic-bezier(0.25, 1, 0.5, 1)',
+                                cursor: 'pointer',
+                                boxShadow: isActive ? `0 0 10px ${accent}80` : 'none',
+                              }}
+                            />
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                }
+
+                // Mobile View: Keep Original 3-card peek
                 const PEEK_W = isMobile ? 40 : 70;  // total width of side card
                 const GAP_W  = isMobile ? 8 : 15;
                 const PEEK_OFFSET = isMobile ? 15 : 25; // amount of side card hidden off-screen
@@ -4563,7 +5343,7 @@ export default function HomePage() {
                         />
                       )}
 
-                      {/* Bottom scrim — only on center */}
+                      {/* Bottom scrim —  only on center */}
                       {isC && (
                         <div style={{
                           position: 'absolute', inset: 0, zIndex: 1,
@@ -4572,7 +5352,7 @@ export default function HomePage() {
                         }} />
                       )}
 
-                      {/* Badge — top left, center only */}
+                      {/* Badge —  top left, center only */}
                       {isC && (
                         <div style={{ position: 'absolute', top: 13, left: 13, zIndex: 5 }}>
                           <span style={{
@@ -4593,7 +5373,7 @@ export default function HomePage() {
                         </div>
                       )}
 
-                      {/* Three-dot — top right, center only */}
+                      {/* Three-dot —  top right, center only */}
                       {isC && (
                         <button
                           onClick={e => e.stopPropagation()}
@@ -4615,7 +5395,6 @@ export default function HomePage() {
                           display: 'flex', flexDirection: 'column',
                           padding: isMobile ? '0 16px 16px 18px' : '0 24px 22px 28px',
                         }}>
-                          <style>{`.text-white-force { color: #fff !important; }`}</style>
                           <h2 className="text-white-force" style={{
                             fontFamily: 'Outfit, sans-serif',
                             fontSize: isMobile ? 21 : 34, fontWeight: 950,
@@ -4638,7 +5417,7 @@ export default function HomePage() {
 
                           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                             <button
-                              onClick={e => { e.stopPropagation(); if (!isCustom) playTrack(slide, slides); else handleAction(e); }}
+                              onClick={e => { e.stopPropagation(); handleAction(e); }}
                               style={{
                                 background: ca, color: '#000', border: 'none',
                                 borderRadius: 22, padding: isMobile ? '8px 18px' : '10px 24px',
@@ -5226,7 +6005,16 @@ export default function HomePage() {
         }
       `}</style>
 
-      <div style={{ position: 'sticky', top: 0, zIndex: 50, background: isMobile ? '#fbf9f5' : headerGradient, paddingTop: isMobile ? 'calc(var(--sat, 0px) + 12px)' : '20px', paddingRight: isMobile ? '16px' : '24px', paddingBottom: isMobile ? '12px' : '24px', paddingLeft: isMobile ? '16px' : '24px' }}>
+      <div style={{
+        position: isMobile ? 'sticky' : 'static',
+        top: 0,
+        zIndex: 50,
+        background: isMobile ? '#fbf9f5' : 'transparent',
+        paddingTop: isMobile ? 'calc(var(--sat, 0px) + 12px)' : 0,
+        paddingRight: isMobile ? '16px' : 0,
+        paddingBottom: isMobile ? '12px' : 0,
+        paddingLeft: isMobile ? '16px' : 0
+      }}>
         {isMobile ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
             {/* User Profile Avatar */}
@@ -5399,7 +6187,7 @@ export default function HomePage() {
         ) : (
           <div style={{ padding: '40px 20px', textAlign: 'center', background: 'rgba(255, 255, 255, 0.02)', borderRadius: 18, border: '1px dashed rgba(255, 255, 255, 0.15)', marginTop: 24 }}>
             <span style={{ fontSize: 48, display: 'block', marginBottom: 16 }}>🎵</span>
-            {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') ? (
+            {(user?.role && ['ADMIN', 'SUPER_ADMIN', 'admin', 'super_admin', 'moderator', 'analyst', 'MODERATOR', 'ANALYST'].includes(user.role)) ? (
               <div>
                 <h3 style={{ fontSize: 18, fontWeight: 800, color: '#fff', marginBottom: 8 }}>Start Designing Your Homepage!</h3>
                 <p style={{ fontSize: 13, color: '#a3a3a3', lineHeight: '1.5', maxWidth: 400, margin: '0 auto 20px' }}>

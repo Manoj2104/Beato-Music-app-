@@ -31,11 +31,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Account has been suspended' }, { status: 403 });
     }
 
+    const userPermissions = db.getUserPermissions(user.id);
+    console.log(`[API /api/auth/me] User: ${user.email}, Role: ${user.role}, Permissions computed:`, userPermissions);
+
     const userPayload = {
       id: user.id,
       name: user.name,
       email: user.email,
       role: user.role,
+      permissions: userPermissions,
       avatar: user.avatar,
       coverImage: user.coverImage,
       subscription: user.subscription,

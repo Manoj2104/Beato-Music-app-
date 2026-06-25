@@ -226,7 +226,7 @@ export default function UploadPage() {
   
   // Real user data hooks
   const activeApp = user ? getApplicationByUserId(user.id) : undefined;
-  const isApproved = activeApp?.status === 'APPROVED' || user?.role === 'ARTIST' || user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
+  const isApproved = activeApp?.status === 'APPROVED' || ['ARTIST', 'artist'].includes(user?.role || '') || ['ADMIN', 'SUPER_ADMIN', 'admin', 'super_admin', 'moderator', 'analyst', 'MODERATOR', 'ANALYST'].includes(user?.role || '');
   const defaultArtistName = isApproved && activeApp ? activeApp.artistName : (user?.name || 'Manoj S');
   const artistId = user?.id || 'artist-user-1780052773758';
   const userAvatar = user?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop';

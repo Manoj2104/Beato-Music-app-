@@ -47,12 +47,12 @@ const PC: Record<string, string> = { free: '#6b7280', student: '#10b981', premiu
 const MC: Record<string, string> = { Visa: '#1a56db', Mastercard: '#eb4034', PayPal: '#0070ba', UPI: '#7c3aed', 'Apple Pay': '#555', 'Google Pay': '#4285f4', 'Admin Plan': '#34d399', Admin: '#34d399' };
 const MI: Record<string, string> = { Visa: '💳', Mastercard: '💳', PayPal: '🅿️', UPI: '📱', 'Apple Pay': '🍎', 'Google Pay': '🔍', 'Admin Plan': '👑', Admin: '👑' };
 
-const inp: React.CSSProperties = { background: '#080808', border: '1px solid #222', borderRadius: 8, color: '#fff', padding: '9px 12px', fontSize: 13, outline: 'none', boxSizing: 'border-box', fontFamily: 'Inter,sans-serif' };
-const card: React.CSSProperties = { background: '#0c0c0c', border: '1px solid #1a1a1a', borderRadius: 16 };
+const inp: React.CSSProperties = { background: '#ffffff', border: '1px solid rgba(43,34,26,0.1)', borderRadius: 8, color: '#221a15', padding: '9px 12px', fontSize: 13, outline: 'none', boxSizing: 'border-box', fontFamily: 'Inter,sans-serif' };
+const card: React.CSSProperties = { background: '#ffffff', border: '1px solid rgba(43,34,26,0.07)', borderRadius: 16 };
 const btn = (active?: boolean, color?: string): React.CSSProperties => ({
   padding: '7px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-  background: active ? (color || '#b08850') : '#111', color: active ? (color === '#ef4444' ? '#fff' : '#000') : '#6b7280',
-  border: `1px solid ${active ? (color || '#b08850') : '#222'}`,
+  background: active ? (color || '#b08850') : '#f4eede', color: active ? (color === '#ef4444' ? '#fff' : '#fff') : '#87786c',
+  border: `1px solid ${active ? (color || '#b08850') : 'rgba(43,34,26,0.12)'}`,
 });
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -62,11 +62,11 @@ function Kpi({ label, value, sub, color, icon, trend }: any) {
       style={{ ...card, padding: '20px 22px', position: 'relative', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg,${color},transparent)` }} />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-        <div style={{ fontSize: 10, color: '#4b5563', textTransform: 'uppercase', letterSpacing: '.07em', fontWeight: 700 }}>{label}</div>
+        <div style={{ fontSize: 10, color: '#87786c', textTransform: 'uppercase', letterSpacing: '.07em', fontWeight: 700 }}>{label}</div>
         <div style={{ fontSize: 16, background: `${color}18`, borderRadius: 8, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{icon}</div>
       </div>
       <div style={{ color, fontSize: 26, fontWeight: 800, fontFamily: 'Outfit,sans-serif', lineHeight: 1, marginBottom: 6 }}>{value}</div>
-      {sub && <div style={{ fontSize: 11, color: '#374151' }}>{sub}</div>}
+      {sub && <div style={{ fontSize: 11, color: '#6b6055' }}>{sub}</div>}
       {trend !== undefined && (
         <div style={{ fontSize: 11, color: String(trend).startsWith('-') ? '#ef4444' : '#b08850', fontWeight: 600, marginTop: 2 }}>
           {String(trend).startsWith('-') ? '' : '+'}{trend}% vs yesterday
@@ -119,7 +119,7 @@ function InvoiceModal({ tx, onClose }: { tx: Tx; onClose: () => void }) {
       onClick={onClose}>
       <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9 }}
         onClick={e => e.stopPropagation()}
-        style={{ background: '#0a0a0a', border: '1px solid #1e1e1e', borderRadius: 20, padding: 32, width: 560, maxHeight: '90vh', overflowY: 'auto' }}>
+        style={{ background: '#fbf9f5', border: '1px solid rgba(43, 34, 26, 0.08)', borderRadius: 20, padding: 32, width: 560, maxHeight: '90vh', overflowY: 'auto' }}>
 
         {/* Invoice Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
@@ -128,54 +128,54 @@ function InvoiceModal({ tx, onClose }: { tx: Tx; onClose: () => void }) {
               <div style={{ fontSize: 20 }}>🎵</div>
               <span style={{ fontSize: 18, fontWeight: 800, fontFamily: 'Outfit,sans-serif' }}>Beato</span>
             </div>
-            <div style={{ fontSize: 12, color: '#6b7280' }}>Tax Invoice</div>
+            <div style={{ fontSize: 12, color: '#87786c' }}>Tax Invoice</div>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 20, fontWeight: 800, color: '#fff', fontFamily: 'Outfit,sans-serif' }}>{tx.invoiceId}</div>
-            <div style={{ fontSize: 12, color: '#6b7280' }}>{tx.date}</div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: '#221a15', fontFamily: 'Outfit,sans-serif' }}>{tx.invoiceId}</div>
+            <div style={{ fontSize: 12, color: '#87786c' }}>{tx.date}</div>
           </div>
         </div>
 
         {/* Billed To */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
-          <div style={{ background: '#111', padding: 16, borderRadius: 12, border: '1px solid #1a1a1a' }}>
-            <div style={{ fontSize: 10, color: '#4b5563', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '.06em', fontWeight: 700 }}>Billed To</div>
+          <div style={{ background: '#ffffff', padding: 16, borderRadius: 12, border: '1px solid rgba(43,34,26,0.07)' }}>
+            <div style={{ fontSize: 10, color: '#87786c', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '.06em', fontWeight: 700 }}>Billed To</div>
             <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>{tx.user}</div>
-            <div style={{ fontSize: 12, color: '#6b7280' }}>{tx.email}</div>
-            <div style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>📍 {tx.country}</div>
+            <div style={{ fontSize: 12, color: '#87786c' }}>{tx.email}</div>
+            <div style={{ fontSize: 12, color: '#87786c', marginTop: 4 }}>📍 {tx.country}</div>
           </div>
-          <div style={{ background: '#111', padding: 16, borderRadius: 12, border: '1px solid #1a1a1a' }}>
-            <div style={{ fontSize: 10, color: '#4b5563', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '.06em', fontWeight: 700 }}>Payment Details</div>
-            <div style={{ fontSize: 12, color: '#9ca3af', marginBottom: 4 }}>{MI[tx.method]} {tx.method}</div>
-            <div style={{ fontSize: 12, color: '#9ca3af', marginBottom: 4 }}>Billing: {tx.billingCycle}</div>
-            <div style={{ fontSize: 12, color: '#9ca3af' }}>Currency: {tx.currency}</div>
+          <div style={{ background: '#ffffff', padding: 16, borderRadius: 12, border: '1px solid rgba(43,34,26,0.07)' }}>
+            <div style={{ fontSize: 10, color: '#87786c', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '.06em', fontWeight: 700 }}>Payment Details</div>
+            <div style={{ fontSize: 12, color: '#a0958b', marginBottom: 4 }}>{MI[tx.method]} {tx.method}</div>
+            <div style={{ fontSize: 12, color: '#a0958b', marginBottom: 4 }}>Billing: {tx.billingCycle}</div>
+            <div style={{ fontSize: 12, color: '#a0958b' }}>Currency: {tx.currency}</div>
           </div>
         </div>
 
         {/* Line Items */}
-        <div style={{ background: '#111', borderRadius: 12, border: '1px solid #1a1a1a', overflow: 'hidden', marginBottom: 20 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', padding: '10px 16px', borderBottom: '1px solid #1a1a1a', gap: 12 }}>
-            <div style={{ fontSize: 10, color: '#4b5563', textTransform: 'uppercase', fontWeight: 700 }}>Description</div>
-            <div style={{ fontSize: 10, color: '#4b5563', textTransform: 'uppercase', fontWeight: 700 }}>Qty</div>
-            <div style={{ fontSize: 10, color: '#4b5563', textTransform: 'uppercase', fontWeight: 700 }}>Amount</div>
+        <div style={{ background: '#ffffff', borderRadius: 12, border: '1px solid rgba(43,34,26,0.07)', overflow: 'hidden', marginBottom: 20 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', padding: '10px 16px', borderBottom: '1px solid rgba(43, 34, 26, 0.08)', gap: 12 }}>
+            <div style={{ fontSize: 10, color: '#87786c', textTransform: 'uppercase', fontWeight: 700 }}>Description</div>
+            <div style={{ fontSize: 10, color: '#87786c', textTransform: 'uppercase', fontWeight: 700 }}>Qty</div>
+            <div style={{ fontSize: 10, color: '#87786c', textTransform: 'uppercase', fontWeight: 700 }}>Amount</div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', padding: '14px 16px', gap: 12, alignItems: 'center' }}>
             <div>
               <div style={{ fontSize: 14, fontWeight: 600 }}>Beato {tx.planLabel} — Monthly Subscription</div>
-              <div style={{ fontSize: 11, color: '#6b7280', marginTop: 3 }}>Full access to all {tx.planLabel} features · Auto-renews monthly</div>
+              <div style={{ fontSize: 11, color: '#87786c', marginTop: 3 }}>Full access to all {tx.planLabel} features · Auto-renews monthly</div>
             </div>
             <div style={{ fontSize: 14, textAlign: 'center' }}>1</div>
             <div style={{ fontSize: 14, fontWeight: 700, color: '#b08850' }}>{sym}{tx.amount.toFixed(2)}</div>
           </div>
-          <div style={{ borderTop: '1px solid #1a1a1a', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ fontSize: 12, color: '#6b7280' }}>Subtotal</div>
-            <div style={{ fontSize: 12, color: '#9ca3af' }}>{sym}{tx.amount.toFixed(2)}</div>
+          <div style={{ borderTop: '1px solid rgba(43, 34, 26, 0.08)', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ fontSize: 12, color: '#87786c' }}>Subtotal</div>
+            <div style={{ fontSize: 12, color: '#a0958b' }}>{sym}{tx.amount.toFixed(2)}</div>
           </div>
           <div style={{ padding: '0 16px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ fontSize: 12, color: '#6b7280' }}>Tax (0%)</div>
-            <div style={{ fontSize: 12, color: '#9ca3af' }}>{sym}0.00</div>
+            <div style={{ fontSize: 12, color: '#87786c' }}>Tax (0%)</div>
+            <div style={{ fontSize: 12, color: '#a0958b' }}>{sym}0.00</div>
           </div>
-          <div style={{ background: '#161616', padding: '14px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ background: '#ffffff', padding: '14px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ fontSize: 14, fontWeight: 700 }}>Total Due</div>
             <div style={{ fontSize: 20, fontWeight: 800, color: '#b08850', fontFamily: 'Outfit,sans-serif' }}>{sym}{tx.amount.toFixed(2)} {tx.currency}</div>
           </div>
@@ -184,7 +184,7 @@ function InvoiceModal({ tx, onClose }: { tx: Tx; onClose: () => void }) {
         {/* Status */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24 }}>
           <Badge val={tx.status} colorMap={SC} />
-          <span style={{ marginLeft: 10, fontSize: 12, color: '#6b7280' }}>
+          <span style={{ marginLeft: 10, fontSize: 12, color: '#87786c' }}>
             {tx.status === 'completed' ? '✅ Payment received successfully' :
              tx.status === 'pending' ? '⏳ Awaiting payment confirmation' :
              tx.status === 'failed' ? '❌ Payment failed — retry required' :
@@ -193,7 +193,7 @@ function InvoiceModal({ tx, onClose }: { tx: Tx; onClose: () => void }) {
         </div>
 
         {/* Footer */}
-        <div style={{ fontSize: 11, color: '#374151', textAlign: 'center', marginBottom: 24, lineHeight: 1.6 }}>
+        <div style={{ fontSize: 11, color: '#6b6055', textAlign: 'center', marginBottom: 24, lineHeight: 1.6 }}>
           Beato Inc. · support@beato.io<br />This is an official payment receipt.
         </div>
 
@@ -202,7 +202,7 @@ function InvoiceModal({ tx, onClose }: { tx: Tx; onClose: () => void }) {
           <button onClick={printInvoice} style={{ flex: 1, background: '#b08850', border: 'none', color: '#000', borderRadius: 10, padding: '12px', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
             🖨️ Print Invoice
           </button>
-          <button onClick={onClose} style={{ flex: 1, background: '#111', border: '1px solid #2a2a2a', color: '#9ca3af', borderRadius: 10, padding: '12px', fontSize: 13, cursor: 'pointer' }}>
+          <button onClick={onClose} style={{ flex: 1, background: '#ffffff', border: '1px solid rgba(43,34,26,0.1)', color: '#a0958b', borderRadius: 10, padding: '12px', fontSize: 13, cursor: 'pointer' }}>
             Close
           </button>
         </div>
@@ -226,25 +226,25 @@ function RefundModal({ tx, onClose, onRefund }: { tx: Tx; onClose: () => void; o
       onClick={onClose}>
       <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
         onClick={e => e.stopPropagation()}
-        style={{ background: '#0a0a0a', border: '1px solid #1e1e1e', borderRadius: 20, padding: 32, width: 440 }}>
+        style={{ background: '#fbf9f5', border: '1px solid rgba(43, 34, 26, 0.08)', borderRadius: 20, padding: 32, width: 440 }}>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
           <div style={{ background: '#10b98118', borderRadius: 12, width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>↩️</div>
           <div>
             <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>Process Refund</h3>
-            <p style={{ margin: 0, fontSize: 12, color: '#6b7280', fontFamily: 'monospace' }}>{tx.invoiceId}</p>
+            <p style={{ margin: 0, fontSize: 12, color: '#87786c', fontFamily: 'monospace' }}>{tx.invoiceId}</p>
           </div>
         </div>
 
         {/* User info */}
-        <div style={{ background: '#111', padding: '12px 16px', borderRadius: 10, border: '1px solid #1a1a1a', marginBottom: 20, display: 'flex', justifyContent: 'space-between' }}>
+        <div style={{ background: '#ffffff', padding: '12px 16px', borderRadius: 10, border: '1px solid rgba(43,34,26,0.07)', marginBottom: 20, display: 'flex', justifyContent: 'space-between' }}>
           <div>
             <div style={{ fontWeight: 600, fontSize: 14 }}>{tx.user}</div>
-            <div style={{ fontSize: 12, color: '#6b7280' }}>{tx.email}</div>
+            <div style={{ fontSize: 12, color: '#87786c' }}>{tx.email}</div>
           </div>
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: 20, fontWeight: 800, color: '#b08850' }}>{sym}{tx.amount.toFixed(2)}</div>
-            <div style={{ fontSize: 11, color: '#6b7280' }}>{tx.method}</div>
+            <div style={{ fontSize: 11, color: '#87786c' }}>{tx.method}</div>
           </div>
         </div>
 
@@ -256,13 +256,13 @@ function RefundModal({ tx, onClose, onRefund }: { tx: Tx; onClose: () => void; o
 
         {type === 'partial' && (
           <div style={{ marginBottom: 14 }}>
-            <label style={{ fontSize: 12, color: '#6b7280', display: 'block', marginBottom: 6 }}>Refund Amount ({sym})</label>
+            <label style={{ fontSize: 12, color: '#87786c', display: 'block', marginBottom: 6 }}>Refund Amount ({sym})</label>
             <input type="number" value={amount} onChange={e => setAmount(e.target.value)} style={{ ...inp, width: '100%' }} max={tx.amount} min={0.01} step={0.01} placeholder={`Max: ${sym}${tx.amount.toFixed(2)}`} />
           </div>
         )}
 
         <div style={{ marginBottom: 20 }}>
-          <label style={{ fontSize: 12, color: '#6b7280', display: 'block', marginBottom: 6 }}>Reason for Refund *</label>
+          <label style={{ fontSize: 12, color: '#87786c', display: 'block', marginBottom: 6 }}>Reason for Refund *</label>
           <select value={reason} onChange={e => setReason(e.target.value)} style={{ ...inp, width: '100%' }}>
             <option value="">Select reason…</option>
             <option value="customer_request">Customer Request</option>
@@ -279,7 +279,7 @@ function RefundModal({ tx, onClose, onRefund }: { tx: Tx; onClose: () => void; o
         </div>
 
         <div style={{ display: 'flex', gap: 10 }}>
-          <button onClick={onClose} style={{ flex: 1, background: '#111', border: '1px solid #2a2a2a', color: '#9ca3af', borderRadius: 10, padding: '11px', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
+          <button onClick={onClose} style={{ flex: 1, background: '#ffffff', border: '1px solid rgba(43,34,26,0.1)', color: '#a0958b', borderRadius: 10, padding: '11px', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
           <button disabled={!reason || !amount}
             onClick={() => onRefund(amount, reason)}
             style={{ flex: 1, background: reason && amount ? '#10b981' : '#2a1a3a', border: 'none', color: reason && amount ? '#fff' : '#555', borderRadius: 10, padding: '11px', fontWeight: 700, fontSize: 13, cursor: reason && amount ? 'pointer' : 'not-allowed' }}>
@@ -395,7 +395,7 @@ export default function PaymentsTab() {
   });
 
   const TH = ({ label, field }: { label: string; field?: string }) => (
-    <th onClick={() => field && handleSort(field)} style={{ padding: '10px 12px', textAlign: 'left', color: '#4b5563', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', whiteSpace: 'nowrap', cursor: field ? 'pointer' : 'default' }}>
+    <th onClick={() => field && handleSort(field)} style={{ padding: '10px 12px', textAlign: 'left', color: '#87786c', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', whiteSpace: 'nowrap', cursor: field ? 'pointer' : 'default' }}>
       {label} {field && <span style={{ color: sortField === field ? '#b08850' : '#333' }}>{sortField === field ? (sortDir === 'asc' ? '↑' : '↓') : '↕'}</span>}
     </th>
   );
@@ -405,7 +405,7 @@ export default function PaymentsTab() {
   const totalCount = stats?.totalUsersCount ?? 0;
 
   return (
-    <div style={{ padding: '24px 0', fontFamily: 'Inter,sans-serif', color: '#fff' }}>
+    <div style={{ padding: '24px 0', fontFamily: 'Inter,sans-serif', color: '#221a15' }}>
 
       {/* ── Header ── */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
@@ -416,8 +416,8 @@ export default function PaymentsTab() {
               {liveMode && <motion.div animate={{ scale: [1, 1.6, 1], opacity: [1, 0.4, 1] }} transition={{ duration: 1.5, repeat: Infinity }} style={{ width: 7, height: 7, borderRadius: '50%', background: '#b08850' }} />}
               <span style={{ fontSize: 11, color: liveMode ? '#b08850' : '#6b7280', fontWeight: 700 }}>{liveMode ? 'LIVE' : 'PAUSED'}</span>
             </div>
-            {lastUpdated && <span style={{ fontSize: 11, color: '#4b5563' }}>Updated {lastUpdated}</span>}
-            <span style={{ fontSize: 11, color: '#4b5563' }}>📊 {paidCount} paid · {totalCount - paidCount} free · {totalCount} total users</span>
+            {lastUpdated && <span style={{ fontSize: 11, color: '#87786c' }}>Updated {lastUpdated}</span>}
+            <span style={{ fontSize: 11, color: '#87786c' }}>📊 {paidCount} paid · {totalCount - paidCount} free · {totalCount} total users</span>
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -465,7 +465,7 @@ export default function PaymentsTab() {
                   </div>
                   {selected.length > 0 && (
                     <button onClick={() => { toast.success(`Exported ${selected.length} transactions`); setSelected([]); }}
-                      style={{ background: '#10b981', border: 'none', color: '#fff', borderRadius: 8, padding: '7px 14px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                      style={{ background: '#10b981', border: 'none', color: '#221a15', borderRadius: 8, padding: '7px 14px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
                       Export {selected.length} Selected
                     </button>
                   )}
@@ -492,7 +492,7 @@ export default function PaymentsTab() {
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 960 }}>
                   <thead>
-                    <tr style={{ borderBottom: '1px solid #1a1a1a' }}>
+                    <tr style={{ borderBottom: '1px solid rgba(43, 34, 26, 0.08)' }}>
                       <th style={{ width: 36, padding: '10px 8px' }}>
                         <input type="checkbox" checked={selected.length === filteredTxns.length && filteredTxns.length > 0} onChange={() => setSelected(selected.length === filteredTxns.length ? [] : filteredTxns.map(t => t.id))} style={{ accentColor: '#b08850' }} />
                       </th>
@@ -513,39 +513,39 @@ export default function PaymentsTab() {
                         <motion.tr key={tx.id}
                           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                           transition={{ delay: Math.min(i * 0.015, 0.3) }}
-                          style={{ borderBottom: '1px solid #111', background: selected.includes(tx.id) ? 'rgba(176, 136, 80,0.04)' : 'transparent' }}
-                          onMouseEnter={e => { (e.currentTarget as HTMLTableRowElement).style.background = '#0f0f0f'; }}
+                          style={{ borderBottom: '1px solid rgba(43, 34, 26, 0.08)', background: selected.includes(tx.id) ? 'rgba(176, 136, 80,0.04)' : 'transparent' }}
+                          onMouseEnter={e => { (e.currentTarget as HTMLTableRowElement).style.background = 'rgba(43, 34, 26, 0.02)'; }}
                           onMouseLeave={e => { (e.currentTarget as HTMLTableRowElement).style.background = selected.includes(tx.id) ? 'rgba(176, 136, 80,0.04)' : 'transparent'; }}>
                           <td style={{ padding: '11px 8px' }}>
                             <input type="checkbox" checked={selected.includes(tx.id)} onChange={() => setSelected(p => p.includes(tx.id) ? p.filter(x => x !== tx.id) : [...p, tx.id])} style={{ accentColor: '#b08850' }} />
                           </td>
                           <td style={{ padding: '11px 12px' }}>
-                            <div style={{ fontSize: 11, color: '#6b7280', fontFamily: 'monospace' }}>{tx.id}</div>
-                            <div style={{ fontSize: 10, color: '#374151', marginTop: 2, fontFamily: 'monospace' }}>{tx.invoiceId}</div>
+                            <div style={{ fontSize: 11, color: '#87786c', fontFamily: 'monospace' }}>{tx.id}</div>
+                            <div style={{ fontSize: 10, color: '#6b6055', marginTop: 2, fontFamily: 'monospace' }}>{tx.invoiceId}</div>
                           </td>
                           <td style={{ padding: '11px 12px' }}>
                             <div style={{ fontWeight: 600, fontSize: 13 }}>{tx.user}</div>
-                            <div style={{ fontSize: 10, color: '#4b5563' }}>{tx.email} · {tx.country}</div>
+                            <div style={{ fontSize: 10, color: '#87786c' }}>{tx.email} · {tx.country}</div>
                           </td>
                           <td style={{ padding: '11px 12px' }}>
                             <div style={{ fontSize: 16, fontWeight: 800, color: '#b08850', fontFamily: 'Outfit,sans-serif' }}>{symbol}{tx.amount.toFixed(2)}</div>
-                            <div style={{ fontSize: 10, color: '#4b5563' }}>{tx.currency}</div>
+                            <div style={{ fontSize: 10, color: '#87786c' }}>{tx.currency}</div>
                           </td>
                           <td style={{ padding: '11px 12px' }}>
                             <Badge val={tx.planLabel} colorMap={{ [tx.planLabel]: PC[tx.plan] || '#6b7280' }} />
                           </td>
-                          <td style={{ padding: '11px 12px', fontSize: 12, color: '#9ca3af', whiteSpace: 'nowrap' }}>
+                          <td style={{ padding: '11px 12px', fontSize: 12, color: '#a0958b', whiteSpace: 'nowrap' }}>
                             {MI[tx.method] || '💳'} {tx.method}
                           </td>
                           <td style={{ padding: '11px 12px' }}>
-                            <div style={{ fontSize: 12, color: '#6b7280', whiteSpace: 'nowrap' }}>{tx.date}</div>
-                            <div style={{ fontSize: 10, color: '#374151' }}>{tx.billingCycle}</div>
+                            <div style={{ fontSize: 12, color: '#87786c', whiteSpace: 'nowrap' }}>{tx.date}</div>
+                            <div style={{ fontSize: 10, color: '#6b6055' }}>{tx.billingCycle}</div>
                           </td>
                           <td style={{ padding: '11px 12px' }}><Badge val={tx.risk} colorMap={RC} /></td>
                           <td style={{ padding: '11px 12px' }}><Badge val={tx.status} colorMap={SC} /></td>
                           <td style={{ padding: '11px 12px' }}>
                             <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                              <button onClick={() => setInvoiceModal(tx)} style={{ background: '#161616', border: '1px solid #2a2a2a', color: '#9ca3af', borderRadius: 6, padding: '4px 8px', fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>📄 Invoice</button>
+                              <button onClick={() => setInvoiceModal(tx)} style={{ background: '#ffffff', border: '1px solid rgba(43,34,26,0.1)', color: '#a0958b', borderRadius: 6, padding: '4px 8px', fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>📄 Invoice</button>
                               {tx.status === 'completed' && <button onClick={() => setRefundModal(tx)} style={{ background: '#10b98118', border: '1px solid #10b98130', color: '#10b981', borderRadius: 6, padding: '4px 8px', fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>↩ Refund</button>}
                               {tx.status === 'failed' && <button onClick={() => handleAction('retry', tx)} style={{ background: '#f59e0b18', border: '1px solid #f59e0b30', color: '#f59e0b', borderRadius: 6, padding: '4px 8px', fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>🔄 Retry</button>}
                               {tx.risk === 'high' && <button onClick={() => handleAction('flag', tx)} style={{ background: '#ef444418', border: '1px solid #ef444430', color: '#ef4444', borderRadius: 6, padding: '4px 8px', fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>🚩 Flag</button>}
@@ -556,7 +556,7 @@ export default function PaymentsTab() {
                       ))}
                     </AnimatePresence>
                     {filteredTxns.length === 0 && !loading && (
-                      <tr><td colSpan={10} style={{ padding: 48, textAlign: 'center', color: '#374151', fontSize: 13 }}>
+                      <tr><td colSpan={10} style={{ padding: 48, textAlign: 'center', color: '#6b6055', fontSize: 13 }}>
                         No transactions found.{filter !== 'All' || search ? ' Try clearing filters.' : ' Add paid users to see payment history.'}
                       </td></tr>
                     )}
@@ -573,29 +573,29 @@ export default function PaymentsTab() {
             <div style={{ ...card, padding: 24 }}>
               <div style={{ fontSize: 15, fontWeight: 700, fontFamily: 'Outfit,sans-serif', marginBottom: 20 }}>
                 Paying Users ({userBreakdown.length})
-                <span style={{ marginLeft: 10, fontSize: 12, color: '#4b5563', fontWeight: 400 }}>{totalCount - paidCount} free users not shown</span>
+                <span style={{ marginLeft: 10, fontSize: 12, color: '#87786c', fontWeight: 400 }}>{totalCount - paidCount} free users not shown</span>
               </div>
               {userBreakdown.length === 0 ? (
-                <div style={{ padding: 48, textAlign: 'center', color: '#374151', fontSize: 13 }}>No paying users yet. Upgrade users to a paid plan to see billing data.</div>
+                <div style={{ padding: 48, textAlign: 'center', color: '#6b6055', fontSize: 13 }}>No paying users yet. Upgrade users to a paid plan to see billing data.</div>
               ) : (
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
-                      <tr style={{ borderBottom: '1px solid #1a1a1a' }}>
+                      <tr style={{ borderBottom: '1px solid rgba(43, 34, 26, 0.08)' }}>
                         {['User', 'Plan', 'Total Paid', 'Method', 'Transactions', 'Last Payment', 'Status', 'Actions'].map(h => (
-                          <th key={h} style={{ padding: '10px 12px', textAlign: 'left', color: '#4b5563', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', whiteSpace: 'nowrap' }}>{h}</th>
+                          <th key={h} style={{ padding: '10px 12px', textAlign: 'left', color: '#87786c', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', whiteSpace: 'nowrap' }}>{h}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
                       {userBreakdown.map((u, i) => (
                         <motion.tr key={u.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.06 }}
-                          style={{ borderBottom: '1px solid #111' }}
-                          onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = '#0f0f0f'}
+                          style={{ borderBottom: '1px solid rgba(43, 34, 26, 0.08)' }}
+                          onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = 'rgba(43, 34, 26, 0.02)'}
                           onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = 'transparent'}>
                           <td style={{ padding: '12px 12px' }}>
                             <div style={{ fontWeight: 600, fontSize: 13 }}>{u.name}</div>
-                            <div style={{ fontSize: 10, color: '#4b5563' }}>{u.email} · {u.country}</div>
+                            <div style={{ fontSize: 10, color: '#87786c' }}>{u.email} · {u.country}</div>
                           </td>
                           <td style={{ padding: '12px 12px' }}>
                             <Badge val={u.plan} colorMap={PC} />
@@ -603,14 +603,14 @@ export default function PaymentsTab() {
                           <td style={{ padding: '12px 12px' }}>
                             <div style={{ fontSize: 16, fontWeight: 800, color: '#b08850', fontFamily: 'Outfit,sans-serif' }}>{symbol}{u.totalPaid.toFixed(2)}</div>
                           </td>
-                          <td style={{ padding: '12px 12px', fontSize: 12, color: '#9ca3af' }}>{MI[u.method] || '💳'} {u.method}</td>
-                          <td style={{ padding: '12px 12px', fontSize: 13, color: '#e5e7eb', textAlign: 'center' }}>{u.txCount}</td>
+                          <td style={{ padding: '12px 12px', fontSize: 12, color: '#4b5563' }}>{MI[u.method] || '💳'} {u.method}</td>
+                          <td style={{ padding: '12px 12px', fontSize: 13, color: '#221a15', textAlign: 'center' }}>{u.txCount}</td>
                           <td style={{ padding: '12px 12px', fontSize: 12, color: '#6b7280', whiteSpace: 'nowrap' }}>{u.lastPayment}</td>
                           <td style={{ padding: '12px 12px' }}><Badge val={u.status} colorMap={{ active: '#b08850', suspended: '#ef4444' }} /></td>
                           <td style={{ padding: '12px 12px' }}>
                             <div style={{ display: 'flex', gap: 6 }}>
                               <button onClick={() => { const tx = transactions.find(t => t.userId === u.id); if (tx) setInvoiceModal(tx); }}
-                                style={{ background: '#161616', border: '1px solid #2a2a2a', color: '#9ca3af', borderRadius: 6, padding: '5px 10px', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>View Invoice</button>
+                                style={{ background: '#fff', border: '1px solid #d1d5db', color: '#374151', borderRadius: 6, padding: '5px 10px', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>View Invoice</button>
                               <button onClick={() => { setChangeMethodModal(u); setNewMethod(u.method || 'Visa'); }}
                                 style={{ background: '#10b98118', border: '1px solid #10b98130', color: '#10b981', borderRadius: 6, padding: '5px 10px', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>Update Method</button>
                             </div>
@@ -651,10 +651,10 @@ export default function PaymentsTab() {
                             <stop offset="95%" stopColor="#b08850" stopOpacity={0} />
                           </linearGradient>
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#1a1a1a" />
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(43,34,26,0.07)" />
                         <XAxis dataKey="day" tick={{ fill: '#4b5563', fontSize: 10 }} axisLine={false} tickLine={false} />
                         <YAxis tick={{ fill: '#4b5563', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={v => `${symbol}${v}`} />
-                        <Tooltip contentStyle={{ background: '#0a0a0a', border: '1px solid #333', borderRadius: 10, color: '#fff', fontSize: 12 }} formatter={(v: any) => [`${symbol}${Number(v).toFixed(2)}`, 'Revenue']} />
+                        <Tooltip contentStyle={{ background: '#fbf9f5', border: '1px solid rgba(43,34,26,0.12)', borderRadius: 10, color: '#221a15', fontSize: 12 }} formatter={(v: any) => [`${symbol}${Number(v).toFixed(2)}`, 'Revenue']} />
                         <Area type="monotone" dataKey="revenue" stroke="#b08850" fill="url(#ag)" strokeWidth={2.5} dot={false} />
                       </AreaChart>
                     </ResponsiveContainer>
@@ -671,10 +671,10 @@ export default function PaymentsTab() {
                             <stop offset="100%" stopColor="#4c1d95" stopOpacity={0.5} />
                           </linearGradient>
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#1a1a1a" />
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(43,34,26,0.07)" />
                         <XAxis dataKey="month" tick={{ fill: '#4b5563', fontSize: 10 }} axisLine={false} tickLine={false} />
                         <YAxis tick={{ fill: '#4b5563', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={v => `${symbol}${v}`} />
-                        <Tooltip contentStyle={{ background: '#0a0a0a', border: '1px solid #333', borderRadius: 10, color: '#fff', fontSize: 12 }} formatter={(v: any) => [`${symbol}${Number(v).toFixed(2)}`, 'Revenue']} />
+                        <Tooltip contentStyle={{ background: '#fbf9f5', border: '1px solid rgba(43,34,26,0.12)', borderRadius: 10, color: '#221a15', fontSize: 12 }} formatter={(v: any) => [`${symbol}${Number(v).toFixed(2)}`, 'Revenue']} />
                         <Bar dataKey="revenue" fill="url(#bg2)" radius={[6, 6, 0, 0]} maxBarSize={40} />
                       </BarChart>
                     </ResponsiveContainer>
@@ -689,19 +689,19 @@ export default function PaymentsTab() {
                           <Pie data={methodData} dataKey="value" cx="50%" cy="50%" innerRadius={70} outerRadius={110} paddingAngle={4}>
                             {methodData.map((e, i) => <Cell key={i} fill={MC[e.name] || '#6b7280'} stroke="none" />)}
                           </Pie>
-                          <Tooltip contentStyle={{ background: '#0a0a0a', border: '1px solid #333', borderRadius: 10, color: '#fff', fontSize: 12 }} formatter={(v: any) => [`${v}%`, 'Share']} />
+                          <Tooltip contentStyle={{ background: '#fbf9f5', border: '1px solid rgba(43,34,26,0.12)', borderRadius: 10, color: '#221a15', fontSize: 12 }} formatter={(v: any) => [`${v}%`, 'Share']} />
                         </PieChart>
                       </ResponsiveContainer>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                         {methodData.map(m => (
-                          <div key={m.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#111', padding: '10px 14px', borderRadius: 10, border: '1px solid #1a1a1a' }}>
+                          <div key={m.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#ffffff', padding: '10px 14px', borderRadius: 10, border: '1px solid rgba(43,34,26,0.07)' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                               <div style={{ width: 10, height: 10, borderRadius: 3, background: MC[m.name] || '#6b7280' }} />
                               <span style={{ fontSize: 13 }}>{MI[m.name] || '💳'} {m.name}</span>
                             </div>
                             <div style={{ textAlign: 'right' }}>
-                              <div style={{ fontWeight: 700, fontSize: 14, color: '#fff' }}>{m.value}%</div>
-                              <div style={{ fontSize: 11, color: '#4b5563' }}>{symbol}{m.revenue?.toFixed(2)}</div>
+                              <div style={{ fontWeight: 700, fontSize: 14, color: '#221a15' }}>{m.value}%</div>
+                              <div style={{ fontSize: 11, color: '#87786c' }}>{symbol}{m.revenue?.toFixed(2)}</div>
                             </div>
                           </div>
                         ))}
@@ -714,10 +714,10 @@ export default function PaymentsTab() {
                   <motion.div key="pl" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                     <ResponsiveContainer width="100%" height={280}>
                       <BarChart data={planRevenue} layout="vertical" margin={{ right: 20, left: 60 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#1a1a1a" />
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(43,34,26,0.07)" />
                         <XAxis type="number" tick={{ fill: '#4b5563', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={v => `${symbol}${v}`} />
-                        <YAxis type="category" dataKey="plan" tick={{ fill: '#9ca3af', fontSize: 12 }} tickFormatter={v => v.charAt(0).toUpperCase() + v.slice(1)} axisLine={false} tickLine={false} />
-                        <Tooltip contentStyle={{ background: '#0a0a0a', border: '1px solid #333', borderRadius: 10, color: '#fff', fontSize: 12 }} formatter={(v: any) => [`${symbol}${Number(v).toFixed(2)}`, 'Revenue']} />
+                        <YAxis type="category" dataKey="plan" tick={{ fill: '#a0958b', fontSize: 12 }} tickFormatter={v => v.charAt(0).toUpperCase() + v.slice(1)} axisLine={false} tickLine={false} />
+                        <Tooltip contentStyle={{ background: '#fbf9f5', border: '1px solid rgba(43,34,26,0.12)', borderRadius: 10, color: '#221a15', fontSize: 12 }} formatter={(v: any) => [`${symbol}${Number(v).toFixed(2)}`, 'Revenue']} />
                         <Bar dataKey="revenue" radius={[0, 6, 6, 0]} maxBarSize={24}>
                           {planRevenue.map((e, i) => <Cell key={i} fill={PC[e.plan] || '#6b7280'} />)}
                         </Bar>
@@ -736,9 +736,9 @@ export default function PaymentsTab() {
                 { label: 'Payment Success Rate', value: `${stats?.successRate || 0}%`, sub: `${stats?.completedCount || 0} successful · ${stats?.failedCount || 0} failed`, color: '#f59e0b' },
               ].map(c => (
                 <div key={c.label} style={{ ...card, padding: '18px 20px' }}>
-                  <div style={{ fontSize: 11, color: '#4b5563', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '.06em', fontWeight: 700 }}>{c.label}</div>
+                  <div style={{ fontSize: 11, color: '#87786c', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '.06em', fontWeight: 700 }}>{c.label}</div>
                   <div style={{ fontSize: 28, fontWeight: 800, color: c.color, fontFamily: 'Outfit,sans-serif', marginBottom: 4 }}>{c.value}</div>
-                  <div style={{ fontSize: 11, color: '#374151' }}>{c.sub}</div>
+                  <div style={{ fontSize: 11, color: '#6b6055' }}>{c.sub}</div>
                 </div>
               ))}
             </div>
@@ -756,16 +756,16 @@ export default function PaymentsTab() {
             onClick={() => setChangeMethodModal(null)}>
             <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
               onClick={e => e.stopPropagation()}
-              style={{ background: '#0a0a0a', border: '1px solid #1e1e1e', borderRadius: 20, padding: 32, width: 400 }}>
+              style={{ background: '#fbf9f5', border: '1px solid rgba(43, 34, 26, 0.08)', borderRadius: 20, padding: 32, width: 400 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
                 <div style={{ background: '#10b98118', borderRadius: 12, width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>💳</div>
                 <div>
                   <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>Update Payment Method</h3>
-                  <p style={{ margin: 0, fontSize: 12, color: '#6b7280' }}>Change details for {changeMethodModal.name}</p>
+                  <p style={{ margin: 0, fontSize: 12, color: '#87786c' }}>Change details for {changeMethodModal.name}</p>
                 </div>
               </div>
               <div style={{ marginBottom: 20 }}>
-                <label style={{ fontSize: 12, color: '#6b7280', display: 'block', marginBottom: 6 }}>Payment Method</label>
+                <label style={{ fontSize: 12, color: '#87786c', display: 'block', marginBottom: 6 }}>Payment Method</label>
                 <select value={newMethod} onChange={e => setNewMethod(e.target.value)} style={{ ...inp, width: '100%' }}>
                   <option value="Visa">Visa</option>
                   <option value="Mastercard">Mastercard</option>
@@ -777,7 +777,7 @@ export default function PaymentsTab() {
                 </select>
               </div>
               <div style={{ display: 'flex', gap: 10 }}>
-                <button onClick={() => setChangeMethodModal(null)} style={{ flex: 1, background: '#111', border: '1px solid #2a2a2a', color: '#9ca3af', borderRadius: 10, padding: '11px', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
+                <button onClick={() => setChangeMethodModal(null)} style={{ flex: 1, background: '#ffffff', border: '1px solid rgba(43,34,26,0.1)', color: '#a0958b', borderRadius: 10, padding: '11px', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
                 <button onClick={async () => {
                   try {
                     const res = await fetch('/api/admin/payments', {
@@ -793,7 +793,7 @@ export default function PaymentsTab() {
                   } catch (e: any) {
                     toast.error(e.message);
                   }
-                }} style={{ flex: 1, background: '#10b981', border: 'none', color: '#fff', borderRadius: 10, padding: '11px', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+                }} style={{ flex: 1, background: '#10b981', border: 'none', color: '#221a15', borderRadius: 10, padding: '11px', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
                   Save Method
                 </button>
               </div>

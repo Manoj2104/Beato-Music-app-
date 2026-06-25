@@ -29,7 +29,7 @@ import {
 const C = {
   primary: '#b08850',
   primaryDim: 'rgba(176, 136, 80,0.12)',
-  bg: '#0a0a0a',
+  bg: '#fbf9f5',
   surface: '#111111',
   card: '#161616',
   border: '#262626',
@@ -65,7 +65,7 @@ const pillSt = (active: boolean, color = C.primary): React.CSSProperties => ({
 });
 
 const inputSt: React.CSSProperties = {
-  background: '#0a0a0a',
+  background: '#fbf9f5',
   border: `1px solid ${C.border}`,
   borderRadius: 6,
   color: C.text,
@@ -89,7 +89,7 @@ const btnSt = (variant: 'primary' | 'secondary' | 'danger' | 'outline', extra?: 
   justifyContent: 'center',
   gap: 4,
   ...(variant === 'primary' ? { background: C.primary, color: '#000' }
-    : variant === 'secondary' ? { background: '#1e1e1e', color: C.text, border: `1px solid ${C.border}` }
+    : variant === 'secondary' ? { background: '#f4eede', color: C.text, border: `1px solid ${C.border}` }
     : variant === 'danger' ? { background: 'rgba(239,68,68,0.12)', color: C.red, border: `1px solid rgba(239,68,68,0.2)` }
     : { background: 'transparent', color: C.muted, border: `1px solid ${C.border}` }),
   ...extra
@@ -221,7 +221,7 @@ export default function HomepageBuilderTab() {
         border: sec.borderStyle !== 'none' ? 'solid' : 'none',
         borderColor: sec.borderColor || 'rgba(255,255,255,0.1)',
         borderWidth: sec.borderStyle !== 'none' ? 1 : 0,
-        boxShadow: '0 8px 32px rgba(0,0,0,0.5)', padding: 24,
+        boxShadow: '0 8px 32px rgba(43, 34, 26, 0.1)', padding: 24,
       },
     });
 
@@ -234,7 +234,7 @@ export default function HomepageBuilderTab() {
         elStyle: defStyle(), animation: defAnim(),
         text: {
           content: sec.title, fontFamily: 'Outfit', fontSize: 26, fontWeight: 900,
-          color: '#ffffff', letterSpacing: 0, lineHeight: 1.2,
+          color: '#221a15', letterSpacing: 0, lineHeight: 1.2,
           textAlign: 'left', italic: false, underline: false, uppercase: false,
         },
       });
@@ -1310,7 +1310,7 @@ export default function HomepageBuilderTab() {
           ].map((item, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', borderRadius: 8, background: 'rgba(255,255,255,0.06)', height: 42, overflow: 'hidden', minWidth: 0 }}>
               <div style={{ width: 42, height: 42, background: item.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>{item.icon}</div>
-              <span style={{ fontSize: 10, fontWeight: 800, color: '#fff', padding: '0 10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>{item.label}</span>
+              <span style={{ fontSize: 10, fontWeight: 800, color: '#221a15', padding: '0 10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>{item.label}</span>
             </div>
           ))}
         </div>
@@ -1341,7 +1341,7 @@ export default function HomepageBuilderTab() {
               <span style={{ fontSize: 22, color: 'white' }}>♥</span>
             </div>
             <div>
-              <h2 style={{ color: '#fff', fontSize: 18, fontWeight: 800, margin: 0, fontFamily: 'Outfit, sans-serif' }}>Liked Songs</h2>
+              <h2 style={{ color: '#221a15', fontSize: 18, fontWeight: 800, margin: 0, fontFamily: 'Outfit, sans-serif' }}>Liked Songs</h2>
               <p style={{ color: '#aaa', fontSize: 13, margin: '2px 0 0 0' }}>1 song you love</p>
             </div>
           </div>
@@ -1353,7 +1353,7 @@ export default function HomepageBuilderTab() {
             }}>
               <span style={{ color: '#000', fontSize: 16, fontWeight: 900, marginLeft: 2 }}>▶</span>
             </div>
-            <span style={{ color: '#fff', fontSize: 12, fontWeight: 700, opacity: 0.7 }}>View all →</span>
+            <span style={{ color: '#221a15', fontSize: 12, fontWeight: 700, opacity: 0.7 }}>View all →</span>
           </div>
         </div>
       );
@@ -1385,7 +1385,7 @@ export default function HomepageBuilderTab() {
                     <img src={coverImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   </div>
                 </div>
-                <span style={{ fontSize: isLaptopMode ? 9.5 : 7.5, color: '#fff', fontWeight: 700, marginTop: 4, width: '100%', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <span style={{ fontSize: isLaptopMode ? 9.5 : 7.5, color: '#221a15', fontWeight: 700, marginTop: 4, width: '100%', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {track?.title || 'Story'}
                 </span>
               </div>
@@ -1417,17 +1417,17 @@ export default function HomepageBuilderTab() {
                 position: 'relative',
                 overflow: 'hidden',
                 border: '1px solid rgba(255,255,255,0.08)',
-                boxShadow: '0 6px 16px rgba(0,0,0,0.3)'
+                boxShadow: '0 6px 16px rgba(43, 34, 26, 0.08)'
               }}>
                 <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)', zIndex: 1 }} />
                 
                 <div style={{ position: 'absolute', right: 8, bottom: isLaptopMode ? 45 : 35, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: isLaptopMode ? 12 : 10, zIndex: 2 }}>
-                  <div style={{ width: 22, height: 22, borderRadius: '50%', border: '1px solid #fff', overflow: 'hidden', background: '#333' }}>
+                  <div style={{ width: 22, height: 22, borderRadius: '50%', border: '1px solid #fff', overflow: 'hidden', background: 'rgba(43,34,26,0.1)' }}>
                     <img src={coverImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   </div>
-                  <span style={{ fontSize: isLaptopMode ? 11 : 9, color: '#fff' }}>❤️</span>
-                  <span style={{ fontSize: isLaptopMode ? 11 : 9, color: '#fff' }}>💬</span>
-                  <span style={{ fontSize: isLaptopMode ? 11 : 9, color: '#fff' }}>📤</span>
+                  <span style={{ fontSize: isLaptopMode ? 11 : 9, color: '#221a15' }}>❤️</span>
+                  <span style={{ fontSize: isLaptopMode ? 11 : 9, color: '#221a15' }}>💬</span>
+                  <span style={{ fontSize: isLaptopMode ? 11 : 9, color: '#221a15' }}>📤</span>
                 </div>
 
                 <div className="spinning-disc-mock" style={{
@@ -1437,7 +1437,7 @@ export default function HomepageBuilderTab() {
                   width: 18,
                   height: 18,
                   borderRadius: '50%',
-                  background: '#111',
+                  background: '#ffffff',
                   border: '2px dashed #444',
                   zIndex: 2,
                   display: 'flex',
@@ -1449,7 +1449,7 @@ export default function HomepageBuilderTab() {
                 </div>
 
                 <div style={{ position: 'absolute', bottom: 8, left: 8, right: 30, zIndex: 2 }}>
-                  <div style={{ fontSize: isLaptopMode ? 11 : 9.5, fontWeight: 900, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>@{track?.artistName || 'artist'}</div>
+                  <div style={{ fontSize: isLaptopMode ? 11 : 9.5, fontWeight: 900, color: '#221a15', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>@{track?.artistName || 'artist'}</div>
                   <div style={{ fontSize: isLaptopMode ? 9.5 : 8, color: '#ddd', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 1 }}>🎵 {track?.title || 'Song title'}</div>
                 </div>
               </div>
@@ -1505,7 +1505,7 @@ export default function HomepageBuilderTab() {
                 <div style={{ width: '100%', paddingTop: '100%', position: 'relative', borderRadius: 6, overflow: 'hidden' }}>
                   <img src={coverImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
-                <div style={{ fontSize: isLaptopMode ? 12 : 9.5, fontWeight: 700, color: '#fff', marginTop: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track?.title}</div>
+                <div style={{ fontSize: isLaptopMode ? 12 : 9.5, fontWeight: 700, color: '#221a15', marginTop: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track?.title}</div>
                 <div style={{ fontSize: isLaptopMode ? 10 : 7.5, color: '#888', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track?.artistName}</div>
               </div>
             );
@@ -1530,7 +1530,7 @@ export default function HomepageBuilderTab() {
                   <img src={coverImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
                 <div style={{ fontSize: isLaptopMode ? 11 : 9, fontWeight: 900, color: '#00f0ff', fontFamily: 'monospace', marginTop: 6, textShadow: '1px 1px 0px #ff007f', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track?.title?.toUpperCase()}</div>
-                <div style={{ fontSize: isLaptopMode ? 9 : 7, color: '#fff', opacity: 0.8, fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track?.artistName}</div>
+                <div style={{ fontSize: isLaptopMode ? 9 : 7, color: '#221a15', opacity: 0.8, fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track?.artistName}</div>
               </div>
             );
           })}
@@ -1556,7 +1556,7 @@ export default function HomepageBuilderTab() {
                   <img src={coverImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: isLaptopMode ? 12 : 9.5, fontWeight: 800, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track?.title}</div>
+                  <div style={{ fontSize: isLaptopMode ? 12 : 9.5, fontWeight: 800, color: '#221a15', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track?.title}</div>
                   <div style={{ fontSize: isLaptopMode ? 10 : 7.5, color: C.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track?.artistName}</div>
                 </div>
                 <span style={{ fontSize: isLaptopMode ? 9.5 : 7, color: '#888', fontWeight: 700 }}>{(4.2 - i * 0.9).toFixed(1)}M plays</span>
@@ -1585,14 +1585,14 @@ export default function HomepageBuilderTab() {
           <img src={coverImg} alt="" style={{ width: isLaptopMode ? 64 : 44, height: isLaptopMode ? 64 : 44, borderRadius: 8, objectFit: 'cover', border: '1px solid rgba(255,255,255,0.1)' }} />
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: isLaptopMode ? 9 : 7, fontWeight: 900, color: '#10b981', letterSpacing: '0.08em' }}>NEW RELEASE COUNTDOWN</div>
-            <div style={{ fontSize: isLaptopMode ? 14 : 10, fontWeight: 850, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 2 }}>{track.title}</div>
+            <div style={{ fontSize: isLaptopMode ? 14 : 10, fontWeight: 850, color: '#221a15', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 2 }}>{track.title}</div>
             <div style={{ display: 'flex', gap: 4, marginTop: 6 }}>
               {['02d', '14h', '35m', '18s'].map((t, idx) => (
                 <div key={idx} style={{ background: 'rgba(255,255,255,0.06)', borderRadius: 4, padding: '3px 6px', fontSize: isLaptopMode ? 9 : 7.5, fontFamily: 'monospace', color: '#10b981', fontWeight: 800 }}>{t}</div>
               ))}
             </div>
           </div>
-          <button style={{ background: '#10b981', color: '#fff', border: 'none', borderRadius: 8, padding: isLaptopMode ? '8px 16px' : '5px 10px', fontSize: isLaptopMode ? 11 : 8, fontWeight: 800, whiteSpace: 'nowrap' }}>Pre-save</button>
+          <button style={{ background: '#10b981', color: '#221a15', border: 'none', borderRadius: 8, padding: isLaptopMode ? '8px 16px' : '5px 10px', fontSize: isLaptopMode ? 11 : 8, fontWeight: 800, whiteSpace: 'nowrap' }}>Pre-save</button>
         </div>
       );
     }
@@ -1606,7 +1606,7 @@ export default function HomepageBuilderTab() {
         <div style={{ display: 'grid', gridTemplateColumns: isLaptopMode ? '1.5fr 1fr' : '1.2fr 1fr', gap: isLaptopMode ? 16 : 10 }}>
           <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 10, padding: 8, display: 'flex', flexDirection: 'column' }}>
             <img src={sec.customImage || t1.coverImage} alt="" style={{ width: '100%', height: isLaptopMode ? 110 : 70, objectFit: 'cover', borderRadius: 6 }} />
-            <span style={{ fontSize: isLaptopMode ? 14 : 11, fontWeight: 900, fontFamily: 'serif', color: '#fff', marginTop: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>{t1.title}</span>
+            <span style={{ fontSize: isLaptopMode ? 14 : 11, fontWeight: 900, fontFamily: 'serif', color: '#221a15', marginTop: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>{t1.title}</span>
             <span style={{ fontSize: isLaptopMode ? 10 : 8, color: '#999', marginTop: 4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: 1.3 }}>Specially featured editorial layout showing track highlight.</span>
           </div>
           
@@ -1615,7 +1615,7 @@ export default function HomepageBuilderTab() {
               <div key={idx} style={{ display: 'flex', gap: 8, alignItems: 'center', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: 8, padding: 6 }}>
                 <img src={track.coverImage} alt="" style={{ width: isLaptopMode ? 36 : 26, height: isLaptopMode ? 36 : 26, borderRadius: 4, objectFit: 'cover' }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: isLaptopMode ? 11 : 9, fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.title}</div>
+                  <div style={{ fontSize: isLaptopMode ? 11 : 9, fontWeight: 700, color: '#221a15', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.title}</div>
                   <div style={{ fontSize: isLaptopMode ? 9.5 : 8, color: C.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.artistName}</div>
                 </div>
               </div>
@@ -1666,9 +1666,9 @@ export default function HomepageBuilderTab() {
             flexDirection: 'column',
             justifyContent: 'space-between'
           }}>
-            <div style={{ fontSize: isLaptopMode ? 9 : 7, color: '#fff', opacity: 0.6, fontWeight: 800 }}>FEATURED</div>
+            <div style={{ fontSize: isLaptopMode ? 9 : 7, color: '#221a15', opacity: 0.6, fontWeight: 800 }}>FEATURED</div>
             <img src={sec.customImage || t1.coverImage} alt="" style={{ width: '100%', height: isLaptopMode ? 70 : 52, objectFit: 'cover', borderRadius: 8, margin: '6px 0' }} />
-            <div style={{ fontSize: isLaptopMode ? 12 : 9.5, fontWeight: 900, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t1.title}</div>
+            <div style={{ fontSize: isLaptopMode ? 12 : 9.5, fontWeight: 900, color: '#221a15', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t1.title}</div>
           </div>
 
           <div style={{
@@ -1683,7 +1683,7 @@ export default function HomepageBuilderTab() {
           }}>
             <img src={t2.coverImage} alt="" style={{ width: isLaptopMode ? 36 : 24, height: isLaptopMode ? 36 : 24, borderRadius: 6, objectFit: 'cover' }} />
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: isLaptopMode ? 11 : 9, fontWeight: 850, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t2.title}</div>
+              <div style={{ fontSize: isLaptopMode ? 11 : 9, fontWeight: 850, color: '#221a15', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t2.title}</div>
             </div>
           </div>
 
@@ -1699,7 +1699,7 @@ export default function HomepageBuilderTab() {
             alignItems: 'center'
           }}>
             <span style={{ fontSize: isLaptopMode ? 16 : 12 }}>🔥</span>
-            <span style={{ fontSize: isLaptopMode ? 10 : 8, fontWeight: 800, color: '#fff', marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%', textAlign: 'center' }}>{t3.title}</span>
+            <span style={{ fontSize: isLaptopMode ? 10 : 8, fontWeight: 800, color: '#221a15', marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%', textAlign: 'center' }}>{t3.title}</span>
           </div>
         </div>
       );
@@ -1731,7 +1731,7 @@ export default function HomepageBuilderTab() {
               }}>
                 <SafeImage src={defaultHashtagImages[i % defaultHashtagImages.length]} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />
                 <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85), transparent 70%)', zIndex: 1 }} />
-                <span style={{ position: 'relative', zIndex: 2, fontSize: 10, fontWeight: 900, color: '#fff', fontFamily: 'Outfit, sans-serif' }}>{tag.trim()}</span>
+                <span style={{ position: 'relative', zIndex: 2, fontSize: 10, fontWeight: 900, color: '#221a15', fontFamily: 'Outfit, sans-serif' }}>{tag.trim()}</span>
               </div>
             ))}
           </div>
@@ -1756,7 +1756,7 @@ export default function HomepageBuilderTab() {
                 }}>
                   <SafeImage src={coverImg} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85), transparent 70%)', zIndex: 1 }} />
-                  <span style={{ position: 'relative', zIndex: 2, fontSize: 10, fontWeight: 900, color: '#fff', fontFamily: 'Outfit, sans-serif', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', width: '90%', lineHeight: 1.15 }}>{track.title}</span>
+                  <span style={{ position: 'relative', zIndex: 2, fontSize: 10, fontWeight: 900, color: '#221a15', fontFamily: 'Outfit, sans-serif', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', width: '90%', lineHeight: 1.15 }}>{track.title}</span>
                 </div>
               );
             })}
@@ -1780,7 +1780,7 @@ export default function HomepageBuilderTab() {
           <div style={{ display: 'grid', gridTemplateColumns: isLaptopMode ? 'repeat(4, 1fr)' : 'repeat(2, 1fr)', gap: 10 }}>
             {tiles.map((t, i) => (
               <div key={i} style={{ borderRadius: 10, background: colors[i % colors.length], height: 75, position: 'relative', overflow: 'hidden', padding: 12 }}>
-                <span style={{ fontSize: 12, fontWeight: 900, color: '#fff', fontFamily: 'Outfit, sans-serif' }}>{t.trim()}</span>
+                <span style={{ fontSize: 12, fontWeight: 900, color: '#221a15', fontFamily: 'Outfit, sans-serif' }}>{t.trim()}</span>
                 <img src={defaultImages[i % defaultImages.length]} alt="" style={{ position: 'absolute', bottom: -10, right: -10, width: 44, height: 44, transform: 'rotate(25deg)', borderRadius: 4, objectFit: 'cover' }} />
               </div>
             ))}
@@ -1794,7 +1794,7 @@ export default function HomepageBuilderTab() {
               const coverImg = sec.customImage || track.coverImage || `https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c6b?w=100&h=100&fit=crop`;
               return (
                 <div key={track.id} style={{ borderRadius: 10, background: colors[i % colors.length], height: 75, position: 'relative', overflow: 'hidden', padding: 12 }}>
-                  <span style={{ fontSize: 11, fontWeight: 900, color: '#fff', fontFamily: 'Outfit, sans-serif', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '70%', lineHeight: 1.15 }}>{track.title}</span>
+                  <span style={{ fontSize: 11, fontWeight: 900, color: '#221a15', fontFamily: 'Outfit, sans-serif', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '70%', lineHeight: 1.15 }}>{track.title}</span>
                   <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.75)', fontFamily: 'Inter, sans-serif', display: 'block', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '70%' }}>{track.artistName}</span>
                   <img src={coverImg} alt="" style={{ position: 'absolute', bottom: -10, right: -10, width: 44, height: 44, transform: 'rotate(25deg)', borderRadius: 4, objectFit: 'cover' }} />
                 </div>
@@ -1823,7 +1823,7 @@ export default function HomepageBuilderTab() {
               <span style={{ fontSize: 9, color: C.muted, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 MORE LIKE
               </span>
-              <span style={{ fontSize: 13, color: '#fff', fontWeight: 900, fontFamily: 'Outfit, sans-serif', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <span style={{ fontSize: 13, color: '#221a15', fontWeight: 900, fontFamily: 'Outfit, sans-serif', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {plName}
               </span>
               {sec.autoPlaylist && (
@@ -1840,7 +1840,7 @@ export default function HomepageBuilderTab() {
                 <div style={{ width: 80, height: 80, borderRadius: 8, overflow: 'hidden', position: 'relative', border: '1px solid rgba(255,255,255,0.05)' }}>
                   <SafeImage src={track.coverImage} alt="" style={{ width: '100%', height: '100%' }} />
                 </div>
-                <div style={{ fontSize: 9, fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: '#221a15', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {track.title}
                 </div>
               </div>
@@ -1861,9 +1861,9 @@ export default function HomepageBuilderTab() {
           height: isLaptopMode ? '260px' : '220px',
           borderRadius: 12,
           overflow: 'hidden',
-          background: '#121212',
+          background: '#ffffff',
           border: '1px solid rgba(255,255,255,0.06)',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
+          boxShadow: '0 4px 20px rgba(43, 34, 26, 0.1)'
         }}>
           {isVideo ? (
             <video
@@ -1903,7 +1903,7 @@ export default function HomepageBuilderTab() {
             borderRadius: '10px',
             fontSize: '8px',
             fontWeight: 'bold',
-            color: '#fff',
+            color: '#221a15',
             letterSpacing: '0.05em',
             textTransform: 'uppercase',
             zIndex: 5
@@ -1930,7 +1930,7 @@ export default function HomepageBuilderTab() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#fff',
+                color: '#221a15',
                 fontSize: '10px'
               }}>
                 🔇
@@ -1945,7 +1945,7 @@ export default function HomepageBuilderTab() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#fff',
+              color: '#221a15',
               fontSize: '12px'
             }}>
               ⋮
@@ -1979,7 +1979,7 @@ export default function HomepageBuilderTab() {
           }}>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{
-                color: '#fff',
+                color: '#221a15',
                 fontSize: '13px',
                 fontWeight: '900',
                 fontFamily: 'Outfit, sans-serif',
@@ -2131,7 +2131,7 @@ export default function HomepageBuilderTab() {
                 borderRadius: 4,
                 fontSize: isLaptopMode ? 9.5 : 7,
                 fontWeight: 900,
-                color: '#fff',
+                color: '#221a15',
                 alignSelf: 'flex-start',
                 letterSpacing: '0.05em',
                 boxShadow: '0 0 12px rgba(176, 136, 80, 0.4)'
@@ -2143,7 +2143,7 @@ export default function HomepageBuilderTab() {
                 <div style={{ width: isLaptopMode ? 80 : 52, height: isLaptopMode ? 80 : 52, borderRadius: 10, overflow: 'hidden', boxShadow: '0 10px 25px rgba(0,0,0,0.6)' }}>
                   <img src={mainTrack.coverImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
-                <div style={{ color: '#fff', fontSize: isLaptopMode ? 11 : 8.5, fontWeight: 900, fontFamily: 'Outfit, sans-serif', marginTop: 6, textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <div style={{ color: '#221a15', fontSize: isLaptopMode ? 11 : 8.5, fontWeight: 900, fontFamily: 'Outfit, sans-serif', marginTop: 6, textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {mainTrack.title}
                 </div>
                 <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: isLaptopMode ? 9.5 : 7.5, marginTop: 2, textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -2185,14 +2185,14 @@ export default function HomepageBuilderTab() {
                   height: isLaptopMode ? 110 : 70,
                   boxShadow: '0 6px 20px rgba(0, 0, 0, 0.2)'
                 }}>
-                  <div style={{ fontSize: isLaptopMode ? 11 : 8.5, fontWeight: 800, fontFamily: 'Outfit, sans-serif', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <div style={{ fontSize: isLaptopMode ? 11 : 8.5, fontWeight: 800, fontFamily: 'Outfit, sans-serif', color: '#221a15', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {cardTitles[i]}
                   </div>
 
                   {/* Overlapping cover images in center */}
                   <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: isLaptopMode ? '6px 0' : '2px 0', height: isLaptopMode ? 36 : 24 }}>
-                    <img src={track.coverImage} alt="" style={{ width: isLaptopMode ? 32 : 18, height: isLaptopMode ? 32 : 18, borderRadius: 4, objectFit: 'cover', transform: 'rotate(-6deg) translateX(3px)', border: '1.5px solid #121214', boxShadow: '0 4px 8px rgba(0,0,0,0.5)', zIndex: 1 }} />
-                    <img src={prevTrack.coverImage} alt="" style={{ width: isLaptopMode ? 32 : 18, height: isLaptopMode ? 32 : 18, borderRadius: 4, objectFit: 'cover', transform: 'rotate(6deg) translateX(-3px)', border: '1.5px solid #121214', boxShadow: '0 4px 8px rgba(0,0,0,0.5)', zIndex: 2 }} />
+                    <img src={track.coverImage} alt="" style={{ width: isLaptopMode ? 32 : 18, height: isLaptopMode ? 32 : 18, borderRadius: 4, objectFit: 'cover', transform: 'rotate(-6deg) translateX(3px)', border: '1.5px solid #121214', boxShadow: '0 4px 8px rgba(43, 34, 26, 0.1)', zIndex: 1 }} />
+                    <img src={prevTrack.coverImage} alt="" style={{ width: isLaptopMode ? 32 : 18, height: isLaptopMode ? 32 : 18, borderRadius: 4, objectFit: 'cover', transform: 'rotate(6deg) translateX(-3px)', border: '1.5px solid #121214', boxShadow: '0 4px 8px rgba(43, 34, 26, 0.1)', zIndex: 2 }} />
                   </div>
 
                   <div style={{
@@ -2228,7 +2228,7 @@ export default function HomepageBuilderTab() {
             border: '1px dashed rgba(176, 136, 80, 0.4)',
             boxShadow: '0 8px 24px rgba(176, 136, 80, 0.2)'
           }}>
-            <span style={{ color: '#fff', fontSize: isLaptopMode ? 10 : 7.5, fontWeight: 800, letterSpacing: '0.01em', fontFamily: 'Outfit, sans-serif' }}>
+            <span style={{ color: '#221a15', fontSize: isLaptopMode ? 10 : 7.5, fontWeight: 800, letterSpacing: '0.01em', fontFamily: 'Outfit, sans-serif' }}>
               🔥 Buy 2 Months of Premium & get 1 Month Free! T&C Apply *
             </span>
             <button style={{
@@ -2342,7 +2342,7 @@ export default function HomepageBuilderTab() {
                 boxShadow: '0 6px 20px rgba(0, 0, 0, 0.2)'
               }}>
                 <div>
-                  <div style={{ fontSize: isLaptopMode ? 12 : 9, fontWeight: 900, fontFamily: 'Outfit, sans-serif', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <div style={{ fontSize: isLaptopMode ? 12 : 9, fontWeight: 900, fontFamily: 'Outfit, sans-serif', color: '#221a15', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {storeTitles[i]}
                   </div>
                   <div style={{ fontSize: isLaptopMode ? 9.5 : 7, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>
@@ -2360,15 +2360,15 @@ export default function HomepageBuilderTab() {
                   transform: 'rotate(-12deg)',
                   borderRadius: 6,
                   overflow: 'hidden',
-                  boxShadow: '0 4px 10px rgba(0,0,0,0.5)',
+                  boxShadow: '0 4px 10px rgba(43, 34, 26, 0.1)',
                   border: '1.5px solid rgba(255,255,255,0.1)'
                 }}>
                   <img src={track.coverImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
 
                 <div style={{
-                  background: 'rgba(255, 255, 255, 0.04)',
-                  color: '#fff',
+                  background: 'rgba(43, 34, 26, 0.04)',
+                  color: '#221a15',
                   border: '1px solid rgba(255,255,255,0.08)',
                   padding: '2px 6px',
                   borderRadius: 10,
@@ -2398,7 +2398,7 @@ export default function HomepageBuilderTab() {
               <span style={{ color: C.primary, fontSize: 8.5, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
                 {sec.subtitle || "POPULAR HUBS"}
               </span>
-              <h3 style={{ margin: '1px 0 0 0', color: '#fff', fontSize: isLaptopMode ? 14 : 11, fontFamily: 'Outfit, sans-serif', fontWeight: 800 }}>
+              <h3 style={{ margin: '1px 0 0 0', color: '#221a15', fontSize: isLaptopMode ? 14 : 11, fontFamily: 'Outfit, sans-serif', fontWeight: 800 }}>
                 {sec.title || "Explore Music Mood Hubs"}
               </h3>
             </div>
@@ -2428,12 +2428,12 @@ export default function HomepageBuilderTab() {
                     background: isActive
                       ? 'linear-gradient(135deg, rgba(176, 136, 80, 0.35) 0%, rgba(15, 23, 18, 0.9) 100%)'
                       : 'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(15, 23, 18, 0.9) 100%)',
-                    border: isActive ? `1.5px solid ${C.primary}` : '1.5px solid rgba(255, 255, 255, 0.1)',
+                    border: isActive ? `1.5px solid ${C.primary}` : '1.5px solid rgba(43, 34, 26, 0.07)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontSize: isLaptopMode ? 18 : 13,
-                    boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
+                    boxShadow: '0 4px 10px rgba(43, 34, 26, 0.08)',
                     marginBottom: 6,
                     position: 'relative'
                   }}>
@@ -2464,7 +2464,7 @@ export default function HomepageBuilderTab() {
                 <div style={{ width: '100%', aspectRatio: '1', borderRadius: 6, overflow: 'hidden', marginBottom: 4 }}>
                   <img src={track.coverImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
-                <div style={{ color: '#fff', fontSize: isLaptopMode ? 9 : 7, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <div style={{ color: '#221a15', fontSize: isLaptopMode ? 9 : 7, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {track.title}
                 </div>
               </div>
@@ -2498,7 +2498,7 @@ export default function HomepageBuilderTab() {
               height: isLaptopMode ? '100px' : '80px',
               borderRadius: 8,
               overflow: 'hidden',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+              boxShadow: '0 4px 12px rgba(43, 34, 26, 0.1)',
               flexShrink: 0
             }}>
               <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&auto=format&fit=crop&q=80" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -2525,7 +2525,7 @@ export default function HomepageBuilderTab() {
                 <span style={{ color: C.primary, fontSize: 7, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                   FEATURED HARDWARE COLLAB
                 </span>
-                <h2 style={{ color: '#fff', fontSize: isLaptopMode ? 14 : 11, fontFamily: 'Outfit, sans-serif', fontWeight: 950, margin: '2px 0' }}>
+                <h2 style={{ color: '#221a15', fontSize: isLaptopMode ? 14 : 11, fontFamily: 'Outfit, sans-serif', fontWeight: 950, margin: '2px 0' }}>
                   JBL x Beato: Sonic Wave
                 </h2>
                 <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: isLaptopMode ? 10 : 7.5, margin: '0 0 8px 0', lineHeight: 1.3 }}>
@@ -2574,7 +2574,7 @@ export default function HomepageBuilderTab() {
             <span style={{ color: C.primary, fontSize: 8.5, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
               {sec.subtitle || "TOP AUDIO BRANDS"}
             </span>
-            <h3 style={{ margin: '1px 0 0 0', color: '#fff', fontSize: isLaptopMode ? 14 : 11, fontFamily: 'Outfit, sans-serif', fontWeight: 800 }}>
+            <h3 style={{ margin: '1px 0 0 0', color: '#221a15', fontSize: isLaptopMode ? 14 : 11, fontFamily: 'Outfit, sans-serif', fontWeight: 800 }}>
               {sec.title || "Brand Partner Stores"}
             </h3>
           </div>
@@ -2597,7 +2597,7 @@ export default function HomepageBuilderTab() {
                 boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
               }}>
                 <div style={{ flex: 1, marginRight: 4, overflow: 'hidden' }}>
-                  <h4 style={{ color: '#fff', fontSize: isLaptopMode ? 11.5 : 8.5, fontFamily: 'Outfit, sans-serif', fontWeight: 800, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <h4 style={{ color: '#221a15', fontSize: isLaptopMode ? 11.5 : 8.5, fontFamily: 'Outfit, sans-serif', fontWeight: 800, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {brandNames[i]}
                   </h4>
                   <span style={{ color: textColors[i % textColors.length], fontSize: isLaptopMode ? 9 : 7, fontWeight: 800, display: 'block', marginTop: 2 }}>
@@ -2620,14 +2620,14 @@ export default function HomepageBuilderTab() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            boxShadow: '0 6px 16px rgba(0,0,0,0.3)'
+            boxShadow: '0 6px 16px rgba(43, 34, 26, 0.08)'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 0 }}>
               <div style={{ width: 28, height: 28, borderRadius: 6, background: 'linear-gradient(135deg, #b08850 0%, #0a0a0a 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <span style={{ fontSize: 14 }}>🎧</span>
               </div>
               <div style={{ minWidth: 0 }}>
-                <h4 style={{ color: '#fff', fontSize: isLaptopMode ? 12 : 9.5, fontWeight: 900, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Beato Pro Earbuds</h4>
+                <h4 style={{ color: '#221a15', fontSize: isLaptopMode ? 12 : 9.5, fontWeight: 900, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Beato Pro Earbuds</h4>
                 <span style={{ color: C.muted, fontSize: 8 }}>Up to 60% Off for Premium Members</span>
               </div>
             </div>
@@ -2668,7 +2668,7 @@ export default function HomepageBuilderTab() {
               }}>
                 BEAT MANIA
               </span>
-              <h3 style={{ margin: '4px 0 0 0', color: '#fff', fontSize: isLaptopMode ? 15 : 11, fontFamily: 'Outfit, sans-serif', fontWeight: 950 }}>
+              <h3 style={{ margin: '4px 0 0 0', color: '#221a15', fontSize: isLaptopMode ? 15 : 11, fontFamily: 'Outfit, sans-serif', fontWeight: 950 }}>
                 {sec.title || "Music Mania - Up to 50% Off Premium"}
               </h3>
             </div>
@@ -2677,7 +2677,7 @@ export default function HomepageBuilderTab() {
               {gridTracks.map((track, i) => (
                 <div key={`${track.id}-mania-${i}`} style={{
                   background: 'rgba(10, 10, 10, 0.85)',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  border: '1px solid rgba(43, 34, 26, 0.08)',
                   borderRadius: 10,
                   padding: isLaptopMode ? 8 : 4,
                   display: 'flex',
@@ -2688,7 +2688,7 @@ export default function HomepageBuilderTab() {
                   height: isLaptopMode ? 100 : 75
                 }}>
                   <div>
-                    <div style={{ fontSize: isLaptopMode ? 9.5 : 7, fontWeight: 900, fontFamily: 'Outfit, sans-serif', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <div style={{ fontSize: isLaptopMode ? 9.5 : 7, fontWeight: 900, fontFamily: 'Outfit, sans-serif', color: '#221a15', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {categoryNames[i]}
                     </div>
                     <div style={{ fontSize: isLaptopMode ? 7.5 : 6, color: 'rgba(255,255,255,0.4)', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -2722,7 +2722,7 @@ export default function HomepageBuilderTab() {
             <span style={{ color: C.primary, fontSize: 8.5, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
               DEALS STARTING AT ₹0
             </span>
-            <h3 style={{ margin: '1px 0 4px 0', color: '#fff', fontSize: isLaptopMode ? 14 : 11, fontFamily: 'Outfit, sans-serif', fontWeight: 800 }}>
+            <h3 style={{ margin: '1px 0 4px 0', color: '#221a15', fontSize: isLaptopMode ? 14 : 11, fontFamily: 'Outfit, sans-serif', fontWeight: 800 }}>
               {sec.title || "Claim Premium Tracks & Singles"}
             </h3>
             
@@ -2772,7 +2772,7 @@ export default function HomepageBuilderTab() {
                     top: 2,
                     left: 2,
                     background: '#ff007f',
-                    color: '#fff',
+                    color: '#221a15',
                     fontSize: 5.5,
                     fontWeight: 900,
                     padding: '1px 3px',
@@ -2790,7 +2790,7 @@ export default function HomepageBuilderTab() {
                     height: 14,
                     borderRadius: '50%',
                     background: '#ff007f',
-                    color: '#fff',
+                    color: '#221a15',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -2800,7 +2800,7 @@ export default function HomepageBuilderTab() {
                 </div>
 
                 <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  <div style={{ color: '#fff', fontSize: isLaptopMode ? 9.5 : 7, fontWeight: 900, fontFamily: 'Outfit, sans-serif', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <div style={{ color: '#221a15', fontSize: isLaptopMode ? 9.5 : 7, fontWeight: 900, fontFamily: 'Outfit, sans-serif', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {track.title}
                   </div>
                 </div>
@@ -2844,7 +2844,7 @@ export default function HomepageBuilderTab() {
             <span style={{ color: C.primary, fontSize: 9, fontWeight: 900, textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>
               {sec.layout === 'hero_auto_slider' ? `🎠 Hero Auto Slider (${sec.banners?.length || 0} slides)` : 'BEATO SPECIAL'}
             </span>
-            <h4 style={{ fontSize: 17, fontWeight: 900, color: '#fff', margin: '0 0 6px 0', fontFamily: 'Outfit, sans-serif' }}>{title}</h4>
+            <h4 style={{ fontSize: 17, fontWeight: 900, color: '#221a15', margin: '0 0 6px 0', fontFamily: 'Outfit, sans-serif' }}>{title}</h4>
             <p style={{ color: C.muted, fontSize: 11, margin: '0 0 16px 0', lineHeight: 1.4, maxWidth: '80%' }}>{subtitle}</p>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
               <button style={{ padding: '6px 16px', borderRadius: 20, background: C.primary, border: 'none', color: '#000', fontWeight: 800, fontSize: 10 }}>
@@ -2870,7 +2870,7 @@ export default function HomepageBuilderTab() {
                 <SafeImage src={track.coverImage} style={{ width: '100%', height: '100%' }} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.title}</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#221a15', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.title}</div>
                 <div style={{ fontSize: 9, color: C.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.artistName}</div>
               </div>
               {isLaptopMode && (
@@ -2898,7 +2898,7 @@ export default function HomepageBuilderTab() {
                   <SafeImage src={track.coverImage} style={{ width: '100%', height: '100%' }} />
                 </div>
                 <div>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: '#fff' }}>{track.title}</div>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: '#221a15' }}>{track.title}</div>
                   <div style={{ fontSize: 9, color: C.muted }}>{track.artistName}</div>
                 </div>
               </div>
@@ -2971,7 +2971,7 @@ export default function HomepageBuilderTab() {
           <span>💚</span> BEATO
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <div style={{ fontSize: 9, color: '#fff', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>🏠 Home</div>
+          <div style={{ fontSize: 9, color: '#221a15', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>🏠 Home</div>
           <div style={{ fontSize: 9, color: C.muted, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>🔍 Search</div>
           <div style={{ fontSize: 9, color: C.muted, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>📚 Library</div>
         </div>
@@ -2989,7 +2989,7 @@ export default function HomepageBuilderTab() {
     <div style={{ fontFamily: 'Inter, sans-serif', color: C.text, minHeight: '85vh', background: C.bg, display: 'flex', flexDirection: 'column' }}>
 
       {/* ── Top Header Toolbar ────────────────────────────────────────────── */}
-      <div style={{ background: '#0d0d0d', borderBottom: `1px solid ${C.border}`, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+      <div style={{ background: '#ffffff', borderBottom: `1px solid ${C.border}`, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
         <div style={{ flex: 1 }}>
           <h2 style={{ margin: 0, fontSize: 18, fontWeight: 900, fontFamily: 'Outfit, sans-serif', background: `linear-gradient(90deg, ${C.primary}, #00ffff)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
             🏗️ Homepage Design Studio
@@ -3011,7 +3011,7 @@ export default function HomepageBuilderTab() {
               background: 'linear-gradient(135deg, #10b981, #34d399)',
               border: 'none',
               borderRadius: 8,
-              color: '#fff',
+              color: '#221a15',
               padding: '8px 18px',
               cursor: 'pointer',
               fontSize: 11,
@@ -3039,7 +3039,7 @@ export default function HomepageBuilderTab() {
       </div>
 
       {/* ── Studio Navigation Tabs ────────────────────────────────────────── */}
-      <div style={{ background: '#111', borderBottom: `1px solid ${C.border}`, display: 'flex', gap: 0, padding: '0 16px', overflowX: 'auto' }}>
+      <div style={{ background: '#ffffff', borderBottom: `1px solid ${C.border}`, display: 'flex', gap: 0, padding: '0 16px', overflowX: 'auto' }}>
         {[
           { id: 'builder', label: '🏗️ Visual Studio Workspace', desc: 'Section drag & drop editor' },
           { id: 'ai', label: '🤖 AI Layout Generator', desc: 'Describe prompt design' },
@@ -3072,7 +3072,7 @@ export default function HomepageBuilderTab() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14, height: '100%', width: 280, flexShrink: 0 }}>
                   
                   {/* Sidebar Navigation */}
-                  <div style={{ display: 'flex', background: '#111', border: `1px solid ${C.border}`, borderRadius: 8, padding: 3 }}>
+                  <div style={{ display: 'flex', background: '#ffffff', border: `1px solid ${C.border}`, borderRadius: 8, padding: 3 }}>
                     {(['library', 'active', 'presets'] as LeftSidebarTab[]).map(tab => (
                       <button key={tab} onClick={() => setActiveSidebarTab(tab)}
                         style={{
@@ -3141,7 +3141,7 @@ export default function HomepageBuilderTab() {
                             onDragStart={e => handleBlockDragStart(e, block.id)}
                             onClick={() => addBlock(block)}
                             style={{
-                              padding: '8px 10px', borderRadius: 8, background: '#0a0a0a', border: `1px solid ${C.border}`,
+                              padding: '8px 10px', borderRadius: 8, background: '#fbf9f5', border: `1px solid ${C.border}`,
                               cursor: 'grab', display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.15s'
                             }}
                             onMouseEnter={e => (e.currentTarget.style.borderColor = C.primary)}
@@ -3170,7 +3170,7 @@ export default function HomepageBuilderTab() {
                             <div key={sec.id}
                               onClick={() => selectSection(sec)}
                               style={{
-                                padding: '8px 10px', borderRadius: 8, background: selectedSection?.id === sec.id ? C.primaryDim : '#0a0a0a',
+                                padding: '8px 10px', borderRadius: 8, background: selectedSection?.id === sec.id ? C.primaryDim : '#fbf9f5',
                                 border: `1px solid ${selectedSection?.id === sec.id ? C.primary : C.border}`, cursor: 'pointer',
                                 display: 'flex', alignItems: 'center', gap: 6, opacity: sec.hidden ? 0.45 : 1
                               }}
@@ -3214,7 +3214,7 @@ export default function HomepageBuilderTab() {
                         {filteredPresets.map(preset => (
                           <div key={preset.id} onClick={() => applyPreset(preset)}
                             style={{
-                              padding: '8px 10px', borderRadius: 8, background: '#0a0a0a', border: `1px solid ${C.border}`,
+                              padding: '8px 10px', borderRadius: 8, background: '#fbf9f5', border: `1px solid ${C.border}`,
                               cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 6, transition: 'all 0.15s'
                             }}
                             onMouseEnter={e => (e.currentTarget.style.borderColor = C.primary)}
@@ -3244,7 +3244,7 @@ export default function HomepageBuilderTab() {
                               setBuilderSections(t.homeLayoutOrder.map((id: string) => t.customSections[id] || { id, title: 'Unknown' }));
                               toast.success(`"${t.name}" loaded!`);
                             }
-                          }} style={{ fontSize: 10, fontWeight: 700, color: '#fff', cursor: 'pointer', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 160 }}>
+                          }} style={{ fontSize: 10, fontWeight: 700, color: '#221a15', cursor: 'pointer', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 160 }}>
                             {t.name}
                           </span>
                           <button onClick={async () => {
@@ -3271,7 +3271,7 @@ export default function HomepageBuilderTab() {
                     style={btnSt('secondary', { display: 'flex', alignItems: 'center', gap: 6, padding: '5px 12px', border: `1px solid ${C.border}` })}>
                     {isSidebarCollapsed ? '📂 Expand Panel' : '📁 Collapse Panel'}
                   </button>
-                  <div style={{ display: 'flex', background: '#111', borderRadius: 8, padding: 3, border: `1px solid ${C.border}` }}>
+                  <div style={{ display: 'flex', background: '#ffffff', borderRadius: 8, padding: 3, border: `1px solid ${C.border}` }}>
                     <button onClick={() => setPreviewDevice('laptop')}
                       style={{
                         border: 'none', borderRadius: 6, fontSize: 10, fontWeight: 800, padding: '4px 14px', cursor: 'pointer',
@@ -3300,7 +3300,7 @@ export default function HomepageBuilderTab() {
                     <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: '130px', height: '22px', background: '#000', borderBottomLeftRadius: '12px', borderBottomRightRadius: '12px', zIndex: 999 }} />
 
                     {/* Transparent overlay Clock & Status bar */}
-                    <div style={{ height: '34px', background: 'transparent', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 24px', fontSize: 10, fontWeight: 800, color: '#fff', zIndex: 990, position: 'absolute', top: 0, left: 0, right: 0 }}>
+                    <div style={{ height: '34px', background: 'transparent', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 24px', fontSize: 10, fontWeight: 800, color: '#221a15', zIndex: 990, position: 'absolute', top: 0, left: 0, right: 0 }}>
                       <div>11:37 AM</div>
                       <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                         <span>📶</span>
@@ -3324,22 +3324,22 @@ export default function HomepageBuilderTab() {
                       {/* Mobile App Header (Avatar + Chips + Notification Bell) */}
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flex: 1 }}>
-                          <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#34d399', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800 }}>
+                          <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#34d399', color: '#221a15', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800 }}>
                             {user?.name ? user.name[0].toUpperCase() : 'N'}
                           </div>
                           <div style={{ display: 'flex', gap: 6 }}>
                             <span style={{ fontSize: 9, background: C.primary, color: '#000', padding: '3px 10px', borderRadius: 20, fontWeight: 800 }}>All</span>
-                            <span style={{ fontSize: 9, background: 'rgba(255,255,255,0.08)', color: '#fff', padding: '3px 10px', borderRadius: 20, fontWeight: 800 }}>Music</span>
-                            <span style={{ fontSize: 9, background: 'rgba(255,255,255,0.08)', color: '#fff', padding: '3px 10px', borderRadius: 20, fontWeight: 800 }}>Podcasts</span>
+                            <span style={{ fontSize: 9, background: 'rgba(255,255,255,0.08)', color: '#221a15', padding: '3px 10px', borderRadius: 20, fontWeight: 800 }}>Music</span>
+                            <span style={{ fontSize: 9, background: 'rgba(255,255,255,0.08)', color: '#221a15', padding: '3px 10px', borderRadius: 20, fontWeight: 800 }}>Podcasts</span>
                           </div>
                         </div>
-                        <span style={{ fontSize: 12, color: '#fff', cursor: 'pointer', paddingRight: 4 }}>🔔</span>
+                        <span style={{ fontSize: 12, color: '#221a15', cursor: 'pointer', paddingRight: 4 }}>🔔</span>
                       </div>
 
                       {builderSections.length === 0 ? (
                         <div style={{ padding: '60px 10px', textAlign: 'center', color: C.muted, margin: 'auto' }}>
                           <div style={{ fontSize: 32, marginBottom: 12 }}>🏗️</div>
-                          <div style={{ fontSize: 13, fontWeight: 800, color: '#fff', marginBottom: 4 }}>Empty Canvas</div>
+                          <div style={{ fontSize: 13, fontWeight: 800, color: '#221a15', marginBottom: 4 }}>Empty Canvas</div>
                           <div style={{ fontSize: 9 }}>Click library blocks to configure pages.</div>
                         </div>
                       ) : (
@@ -3367,7 +3367,7 @@ export default function HomepageBuilderTab() {
                                 <div style={{ marginBottom: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                                   <div>
                                     {sec.subtitle && <span style={{ fontSize: 8, color: C.muted, display: 'block', marginBottom: 1 }}>{sec.subtitle}</span>}
-                                    <h3 style={{ fontSize: 12, fontWeight: 900, color: '#fff', margin: 0, fontFamily: 'Outfit' }}>{sec.title}</h3>
+                                    <h3 style={{ fontSize: 12, fontWeight: 900, color: '#221a15', margin: 0, fontFamily: 'Outfit' }}>{sec.title}</h3>
                                   </div>
                                   <span style={{ fontSize: 8, color: C.muted }}>See all</span>
                                 </div>
@@ -3387,12 +3387,12 @@ export default function HomepageBuilderTab() {
                 ) : (
                   /* ── LAPTOP WIDESCREEN PREVIEW MODE (Browser spans full width) ── */
                   <div style={{
-                    width: '100%', maxWidth: '1100px', height: '90%', background: '#121212', borderRadius: '16px',
-                    border: '1px solid #333', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
+                    width: '100%', maxWidth: '1100px', height: '90%', background: '#ffffff', borderRadius: '16px',
+                    border: '1px solid rgba(43,34,26,0.12)', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
                     display: 'flex', flexDirection: 'column', overflow: 'hidden', alignSelf: 'center'
                   }}>
                     {/* Widescreen Browser Top Bar (Spans full header across mockup sidebar and content) */}
-                    <div style={{ background: '#080808', borderBottom: `1px solid ${C.border}`, padding: '8px 16px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+                    <div style={{ background: '#ffffff', borderBottom: `1px solid ${C.border}`, padding: '8px 16px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
                       {/* Window Controls */}
                       <div style={{ display: 'flex', gap: 6, marginRight: 10 }}>
                         <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444' }} />
@@ -3424,7 +3424,7 @@ export default function HomepageBuilderTab() {
                         }}>
                           {/* Greeting top header */}
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <h2 style={{ fontSize: 18, fontWeight: 900, fontFamily: 'Outfit', color: '#fff', margin: 0 }}>Good morning, Nandhini</h2>
+                            <h2 style={{ fontSize: 18, fontWeight: 900, fontFamily: 'Outfit', color: '#221a15', margin: 0 }}>Good morning, Nandhini</h2>
                             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                               <button style={{ ...btnSt('secondary'), padding: '4px 8px', fontSize: 9 }}>Upgrade</button>
                               <div style={{ width: 24, height: 24, borderRadius: '50%', background: C.primary, color: '#000', fontSize: 9, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>N</div>
@@ -3437,7 +3437,7 @@ export default function HomepageBuilderTab() {
                           {builderSections.length === 0 ? (
                             <div style={{ padding: '80px 20px', textAlign: 'center', color: C.muted, margin: 'auto' }}>
                               <div style={{ fontSize: 32, marginBottom: 12 }}>🏗️</div>
-                              <div style={{ fontSize: 14, fontWeight: 800, color: '#fff', marginBottom: 4 }}>Empty Workspace Layout</div>
+                              <div style={{ fontSize: 14, fontWeight: 800, color: '#221a15', marginBottom: 4 }}>Empty Workspace Layout</div>
                               <div style={{ fontSize: 10 }}>Load presets or add section blocks from the sidebar to inspect layout.</div>
                             </div>
                           ) : (
@@ -3466,7 +3466,7 @@ export default function HomepageBuilderTab() {
                                     <div style={{ marginBottom: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                                       <div>
                                         {sec.subtitle && <span style={{ fontSize: 9, color: C.muted, display: 'block', marginBottom: 2 }}>{sec.subtitle}</span>}
-                                        <h3 style={{ fontSize: 14, fontWeight: 900, color: '#fff', margin: 0, fontFamily: 'Outfit' }}>{sec.title}</h3>
+                                        <h3 style={{ fontSize: 14, fontWeight: 900, color: '#221a15', margin: 0, fontFamily: 'Outfit' }}>{sec.title}</h3>
                                       </div>
                                       <span style={{ fontSize: 10, color: C.muted, cursor: 'pointer' }}>Show all</span>
                                     </div>
@@ -3503,14 +3503,14 @@ export default function HomepageBuilderTab() {
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${C.border}`, paddingBottom: 10 }}>
                         <div style={{ fontSize: 11, fontWeight: 800, color: C.primary }}>⚙️ Configuration Panel</div>
-                        <button onClick={() => setSelectedSection(null)} style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: 14, cursor: 'pointer', outline: 'none' }}>✕ Close</button>
+                        <button onClick={() => setSelectedSection(null)} style={{ background: 'transparent', border: 'none', color: '#221a15', fontSize: 14, cursor: 'pointer', outline: 'none' }}>✕ Close</button>
                       </div>
 
                       {/* ACCORDION GROUP 1: General Info */}
-                      <div style={cardSt({ padding: '10px 14px', background: '#111' })}>
+                      <div style={cardSt({ padding: '10px 14px', background: '#ffffff' })}>
                         <div onClick={() => setExpandedSection(expandedSection === 'info' ? 'design' : 'info')}
                           style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}>
-                          <span style={{ fontSize: 10, fontWeight: 800, color: '#fff' }}>📝 General Settings</span>
+                          <span style={{ fontSize: 10, fontWeight: 800, color: '#221a15' }}>📝 General Settings</span>
                           <span style={{ fontSize: 8, color: C.muted }}>{expandedSection === 'info' ? '▼' : '▶'}</span>
                         </div>
                         
@@ -3549,10 +3549,10 @@ export default function HomepageBuilderTab() {
                       </div>
 
                       {/* ACCORDION GROUP 2: Layout & Card Design */}
-                      <div style={cardSt({ padding: '10px 14px', background: '#111' })}>
+                      <div style={cardSt({ padding: '10px 14px', background: '#ffffff' })}>
                         <div onClick={() => setExpandedSection(expandedSection === 'design' ? 'background' : 'design')}
                           style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}>
-                          <span style={{ fontSize: 10, fontWeight: 800, color: '#fff' }}>📐 Layout & Card Design</span>
+                          <span style={{ fontSize: 10, fontWeight: 800, color: '#221a15' }}>📐 Layout & Card Design</span>
                           <span style={{ fontSize: 8, color: C.muted }}>{expandedSection === 'design' ? '▼' : '▶'}</span>
                         </div>
                         
@@ -3616,7 +3616,7 @@ export default function HomepageBuilderTab() {
                             <div>
                               <label style={{ fontSize: 9, color: C.muted, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
                                 <span>Custom Image / Cover URL</span>
-                                <label style={{ cursor: 'pointer', background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: 4, border: `1px solid ${C.border}`, color: '#fff', fontWeight: 600 }}>
+                                <label style={{ cursor: 'pointer', background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: 4, border: `1px solid ${C.border}`, color: '#221a15', fontWeight: 600 }}>
                                   Upload Image
                                   <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => {
                                     const file = e.target.files?.[0];
@@ -3669,10 +3669,10 @@ export default function HomepageBuilderTab() {
                       </div>
 
                       {/* ACCORDION GROUP 3: Background & Borders */}
-                      <div style={cardSt({ padding: '10px 14px', background: '#111' })}>
+                      <div style={cardSt({ padding: '10px 14px', background: '#ffffff' })}>
                         <div onClick={() => setExpandedSection(expandedSection === 'background' ? 'special' : 'background')}
                           style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}>
-                          <span style={{ fontSize: 10, fontWeight: 800, color: '#fff' }}>🎨 Backgrounds & Borders</span>
+                          <span style={{ fontSize: 10, fontWeight: 800, color: '#221a15' }}>🎨 Backgrounds & Borders</span>
                           <span style={{ fontSize: 8, color: C.muted }}>{expandedSection === 'background' ? '▼' : '▶'}</span>
                         </div>
                         
@@ -3813,7 +3813,7 @@ export default function HomepageBuilderTab() {
 
                       {/* ACCORDION GROUP 4: Special Search fields */}
                       {(settLayout === 'genre_tiles' || settLayout === 'ad_break_banner' || settLayout === 'hashtag_slides') && (
-                        <div style={cardSt({ padding: '10px 14px', background: '#111' })}>
+                        <div style={cardSt({ padding: '10px 14px', background: '#ffffff' })}>
                           <div onClick={() => setExpandedSection(expandedSection === 'special' ? 'info' : 'special')}
                             style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}>
                             <span style={{ fontSize: 10, fontWeight: 800, color: C.primary }}>🔍 Search Layout Settings</span>
@@ -3875,9 +3875,9 @@ export default function HomepageBuilderTab() {
                                               updateSelectedSectionProp('customVideo', vid.url);
                                             }}
                                             style={{
-                                              padding: '3px 8px', borderRadius: 4, background: '#222', cursor: 'pointer',
+                                              padding: '3px 8px', borderRadius: 4, background: 'rgba(43,34,26,0.08)', cursor: 'pointer',
                                               border: settCustomVideo === vid.url ? `1px solid ${C.primary}` : '1px solid #444',
-                                              fontSize: 8, color: '#fff', whiteSpace: 'nowrap'
+                                              fontSize: 8, color: '#221a15', whiteSpace: 'nowrap'
                                             }}
                                             title={vid.name}
                                           >
@@ -3932,7 +3932,7 @@ export default function HomepageBuilderTab() {
 
                       {/* ACCORDION GROUP 5: Playlist Showcase Settings */}
                       {(selectedSection?.type === 'playlist_showcase' || (settLayout as string) === 'playlist_showcase' || selectedSection?.contentSource === 'playlist') && (
-                        <div style={cardSt({ padding: '10px 14px', background: '#111' })}>
+                        <div style={cardSt({ padding: '10px 14px', background: '#ffffff' })}>
                           <div onClick={() => setExpandedSection(expandedSection === 'special' ? 'info' : 'special')}
                             style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}>
                             <span style={{ fontSize: 10, fontWeight: 800, color: C.primary }}>📋 Playlist Showcase Settings</span>
@@ -3942,7 +3942,7 @@ export default function HomepageBuilderTab() {
                           {expandedSection === 'special' && (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 12 }}>
                               <div>
-                                <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 10, cursor: 'pointer', color: '#fff' }}>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 10, cursor: 'pointer', color: '#221a15' }}>
                                   <input type="checkbox" checked={settAutoPlaylist} onChange={e => {
                                     const val = e.target.checked;
                                     setSettAutoPlaylist(val);
@@ -3985,7 +3985,7 @@ export default function HomepageBuilderTab() {
 
                       {/* ACCORDION GROUP 6: Slider Banners Settings */}
                       {settLayout === 'hero_auto_slider' && (
-                        <div style={cardSt({ padding: '10px 14px', background: '#111' })}>
+                        <div style={cardSt({ padding: '10px 14px', background: '#ffffff' })}>
                           <div onClick={() => setExpandedSection(expandedSection === 'slider' ? 'info' : 'slider')}
                             style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}>
                             <span style={{ fontSize: 10, fontWeight: 800, color: C.primary }}>🎠 Slider Banners ({selectedSection?.banners?.length || 0})</span>
@@ -4045,7 +4045,7 @@ export default function HomepageBuilderTab() {
                                   <div>
                                     <label style={{ fontSize: 8, color: C.muted, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
                                       <span>Image URL</span>
-                                      <label style={{ cursor: 'pointer', background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: 4, border: `1px solid ${C.border}`, color: '#fff', fontSize: 8, fontWeight: 600 }}>
+                                      <label style={{ cursor: 'pointer', background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: 4, border: `1px solid ${C.border}`, color: '#221a15', fontSize: 8, fontWeight: 600 }}>
                                         Upload
                                         <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => {
                                           const file = e.target.files?.[0];
@@ -4186,7 +4186,7 @@ export default function HomepageBuilderTab() {
                       <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, marginBottom: 8 }}>CONFIGURED SECTIONS:</div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                         {aiResult.sections.map((s, i) => (
-                          <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', background: '#0a0a0a', borderRadius: 6, border: `1px solid ${C.border}` }}>
+                          <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', background: '#fbf9f5', borderRadius: 6, border: `1px solid ${C.border}` }}>
                             <span style={{ color: C.primary, fontWeight: 700, fontSize: 10, width: 16 }}>{i + 1}</span>
                             <span style={{ fontSize: 11, fontWeight: 700, flex: 1 }}>{s.title}</span>
                             <span style={{ fontSize: 9, background: C.primaryDim, color: C.primary, padding: '2px 6px', borderRadius: 4 }}>{s.layout}</span>
@@ -4206,7 +4206,7 @@ export default function HomepageBuilderTab() {
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                         {aiHistory.map((h, i) => (
                           <div key={i} onClick={() => { const p = getPresetById(h.presetId); if (p) setAiResult(p); }}
-                            style={{ padding: '8px 10px', borderRadius: 6, background: '#0a0a0a', border: `1px solid ${C.border}`, cursor: 'pointer' }}>
+                            style={{ padding: '8px 10px', borderRadius: 6, background: '#fbf9f5', border: `1px solid ${C.border}`, cursor: 'pointer' }}>
                             <div style={{ fontSize: 11, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{h.prompt}</div>
                           </div>
                         ))}
@@ -4231,7 +4231,7 @@ export default function HomepageBuilderTab() {
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ fontSize: 44, fontWeight: 900, color: C.primary }}>{personalityScore?.overall || 76}</div>
                     <div style={{ fontSize: 10, color: C.muted }}>Explorer Index</div>
-                    <div style={{ fontSize: 13, fontWeight: 800, color: '#fff', marginTop: 2 }}>{personalityScore?.label || 'Aesthetic Explorer'}</div>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: '#221a15', marginTop: 2 }}>{personalityScore?.label || 'Aesthetic Explorer'}</div>
                   </div>
                 </div>
               </div>
@@ -4243,10 +4243,10 @@ export default function HomepageBuilderTab() {
                   <div style={{ fontSize: 10, color: C.muted, marginBottom: 16 }}>Mood index scoring vectors over this week</div>
                   <ResponsiveContainer width="100%" height={200}>
                     <LineChart data={timelineData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#222" />
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(43,34,26,0.07)" />
                       <XAxis dataKey="day" tick={{ fill: '#666', fontSize: 9 }} />
                       <YAxis tick={{ fill: '#666', fontSize: 9 }} domain={[0, 100]} />
-                      <Tooltip contentStyle={{ background: '#111', border: '1px solid #333', borderRadius: 8, fontSize: 10 }} />
+                      <Tooltip contentStyle={{ background: '#ffffff', border: '1px solid rgba(43,34,26,0.12)', borderRadius: 8, fontSize: 10 }} />
                       <Legend wrapperStyle={{ fontSize: 9 }} />
                       <Line type="monotone" dataKey="happy" stroke="#fbbf24" strokeWidth={2} dot={false} />
                       <Line type="monotone" dataKey="energetic" stroke="#ef4444" strokeWidth={2} dot={false} />
@@ -4265,7 +4265,7 @@ export default function HomepageBuilderTab() {
                       <PolarAngleAxis dataKey="subject" tick={{ fill: '#666', fontSize: 9 }} />
                       <PolarRadiusAxis tick={{ fill: '#444', fontSize: 8 }} domain={[0, 100]} />
                       <Radar name="Emotion Score" dataKey="score" stroke={C.primary} fill={C.primary} fillOpacity={0.25} strokeWidth={2} />
-                      <Tooltip contentStyle={{ background: '#111', border: '1px solid #333', borderRadius: 8, fontSize: 10 }} />
+                      <Tooltip contentStyle={{ background: '#ffffff', border: '1px solid rgba(43,34,26,0.12)', borderRadius: 8, fontSize: 10 }} />
                     </RadarChart>
                   </ResponsiveContainer>
                 </div>
@@ -4296,7 +4296,7 @@ export default function HomepageBuilderTab() {
       <AnimatePresence>
         {saveTemplateModal && (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
-            <div style={{ background: '#111', border: `1px solid ${C.border}`, borderRadius: 16, padding: 24, width: 360 }}>
+            <div style={{ background: '#ffffff', border: `1px solid ${C.border}`, borderRadius: 16, padding: 24, width: 360 }}>
               <h3 style={{ margin: '0 0 6px', fontSize: 15, fontWeight: 900 }}>💾 Save layout as template</h3>
               <p style={{ margin: '0 0 16px', fontSize: 11, color: C.muted }}>Enter a name to save this builder layout list.</p>
               <input value={templateName} onChange={e => setTemplateName(e.target.value)} placeholder="e.g. Neon Festival campaign" style={{ ...inputSt, marginBottom: 14 }} autoFocus />
@@ -4312,7 +4312,7 @@ export default function HomepageBuilderTab() {
       <AnimatePresence>
         {importModalOpen && (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
-            <div style={{ background: '#111', border: `1px solid ${C.border}`, borderRadius: 16, padding: 24, width: 440 }}>
+            <div style={{ background: '#ffffff', border: `1px solid ${C.border}`, borderRadius: 16, padding: 24, width: 440 }}>
               <h3 style={{ margin: '0 0 6px', fontSize: 15, fontWeight: 900 }}>📥 Import Layout JSON</h3>
               <p style={{ margin: '0 0 12px', fontSize: 11, color: C.muted }}>Paste the exported homepage design JSON schema.</p>
               <textarea value={importJson} onChange={e => setImportJson(e.target.value)} rows={8}
@@ -4344,7 +4344,7 @@ export default function HomepageBuilderTab() {
             {/* Section title header */}
             <div style={{ padding: '6px 14px 8px', borderBottom: '1px solid rgba(255,255,255,0.07)', marginBottom: 4 }}>
               <div style={{ fontSize: 9, color: '#606060', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Section</div>
-              <div style={{ fontSize: 12, fontWeight: 900, color: '#fff', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 190 }}>{sectionCtxMenu.sec.title}</div>
+              <div style={{ fontSize: 12, fontWeight: 900, color: '#221a15', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 190 }}>{sectionCtxMenu.sec.title}</div>
             </div>
 
             {/* 🎨 Edit with Advanced Designer — HERO OPTION */}
@@ -4404,7 +4404,7 @@ export default function HomepageBuilderTab() {
           <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: '#070707', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
             <div style={{ fontSize: 40 }}>🎨</div>
             <div style={{ fontSize: 14, color: '#b08850', fontWeight: 700, fontFamily: 'Outfit' }}>Loading Advanced Designer…</div>
-            <div style={{ width: 200, height: 3, background: '#222', borderRadius: 2, overflow: 'hidden' }}>
+            <div style={{ width: 200, height: 3, background: 'rgba(43,34,26,0.08)', borderRadius: 2, overflow: 'hidden' }}>
               <div style={{ width: '60%', height: '100%', background: 'linear-gradient(90deg, #10b981, #34d399)', borderRadius: 2 }} />
             </div>
           </div>

@@ -15,6 +15,12 @@ const ROLE_HIERARCHY: Record<UserRole, number> = {
   ARTIST: 2,
   ADMIN: 3,
   SUPER_ADMIN: 4,
+  MODERATOR: 3,
+  ANALYST: 3,
+  moderator: 3,
+  analyst: 3,
+  admin: 3,
+  super_admin: 4,
 };
 
 /**

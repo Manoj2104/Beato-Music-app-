@@ -3,6 +3,7 @@ import { requireAdmin } from '@/lib/rbac';
 import { db } from '@/lib/db';
 import { logSecurityEvent } from '@/lib/audit';
 import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
 
 const DEFAULT_PLAN_PRICES: Record<string, number> = {
   free: 0,
@@ -113,11 +114,16 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Email already exists.' }, { status: 400 });
       }
 
+      let passwordHash = 'default-hash-will-reset';
+      if (payload.password) {
+        passwordHash = await bcrypt.hash(payload.password, 10);
+      }
+
       const hasPlan = payload.plan && payload.plan !== 'free';
       const newUser = db.saveUser({
         name: payload.name,
         email: payload.email,
-        passwordHash: 'default-hash-will-reset', // simulated
+        passwordHash,
         role: payload.role || 'USER',
         isActive: true,
         subscription: payload.plan || 'free',

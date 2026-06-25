@@ -4,10 +4,12 @@ const SECRET_KEY = new TextEncoder().encode(
   process.env.JWT_SECRET || 'beato-super-secure-jwt-secret-key-1234567890'
 );
 
+import { UserRole } from '@/types';
+
 export interface JWTPayload {
   userId: string;
   email: string;
-  role: 'USER' | 'ARTIST' | 'ADMIN' | 'SUPER_ADMIN';
+  role: UserRole;
   name: string;
 }
 

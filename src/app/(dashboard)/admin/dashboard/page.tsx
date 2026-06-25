@@ -17,6 +17,7 @@ import AbTestingTab from '@/components/admin/tabs/AbTestingTab';
 import EmailTab from '@/components/admin/tabs/EmailTab';
 import ContentLibraryTab from '@/components/admin/tabs/ContentLibraryTab';
 import SettingsTab from '@/components/admin/tabs/SettingsTab';
+import SuperAdminTab from '@/components/admin/tabs/SuperAdminTab';
 import TopBar from '@/components/layout/TopBar';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -43,11 +44,11 @@ const GENRE_DATA = [
   { name: 'Electronic', value: 18, color: '#06b6d4' },
   { name: 'Rock', value: 14, color: '#ef4444' },
   { name: 'R&B', value: 10, color: '#10b981' },
-  { name: 'Other', value: 8, color: '#6b7280' },
+  { name: 'Other', value: 8, color: '#87786c' },
 ];
 
 // ─── Types ───────────────────────────────────────────────────────────────────
-type TabType = 'overview' | 'artists' | 'songs' | 'users' | 'reports' | 'subscriptions' | 'payments' | 'analytics' | 'marketing' | 'notifications' | 'support' | 'payouts' | 'geography' | 'health' | 'api' | 'audit' | 'abtests' | 'email' | 'content' | 'settings';
+type TabType = 'overview' | 'artists' | 'songs' | 'users' | 'reports' | 'subscriptions' | 'payments' | 'analytics' | 'marketing' | 'notifications' | 'support' | 'payouts' | 'geography' | 'health' | 'api' | 'audit' | 'abtests' | 'email' | 'content' | 'settings' | 'superadmin';
 type ArtistStatus = 'approved' | 'pending' | 'rejected';
 type UserStatus = 'active' | 'suspended';
 type SongStatus = 'approved' | 'pending' | 'rejected';
@@ -66,16 +67,17 @@ function KpiCard({
 }) {
   return (
     <motion.div
-      whileHover={{ y: -4, boxShadow: `0 20px 60px rgba(0,0,0,0.5)` }}
+      whileHover={{ y: -4, boxShadow: `0 12px 32px rgba(43,34,26,0.08)` }}
       transition={{ duration: 0.2 }}
       style={{
-        background: '#121212',
+        background: '#ffffff',
         borderRadius: 16,
         padding: '22px 24px',
-        border: '1px solid #1a1a1a',
+        border: '1px solid rgba(43, 34, 26, 0.07)',
         display: 'flex',
         flexDirection: 'column',
         gap: 12,
+        boxShadow: '0 2px 8px rgba(43,34,26,0.04)',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -107,10 +109,10 @@ function KpiCard({
         )}
       </div>
       <div>
-        <div style={{ fontSize: 26, fontWeight: 800, color: '#fff', fontFamily: 'Outfit, sans-serif', lineHeight: 1 }}>
+        <div style={{ fontSize: 26, fontWeight: 800, color: '#221a15', fontFamily: 'Outfit, sans-serif', lineHeight: 1 }}>
           {value}
         </div>
-        <div style={{ fontSize: 13, color: '#6b7280', marginTop: 4 }}>{label}</div>
+        <div style={{ fontSize: 13, color: '#87786c', marginTop: 4 }}>{label}</div>
         {sub && <div style={{ fontSize: 11, color: color, marginTop: 4, fontWeight: 600 }}>{sub}</div>}
       </div>
     </motion.div>
@@ -124,14 +126,14 @@ function StatusBadge({ status }: { status: string }) {
     rejected: { bg: 'rgba(239,68,68,0.12)', color: '#ef4444', text: 'Rejected' },
     active: { bg: 'rgba(176, 136, 80,0.12)', color: '#b08850', text: 'Active' },
     suspended: { bg: 'rgba(239,68,68,0.12)', color: '#ef4444', text: 'Suspended' },
-    resolved: { bg: 'rgba(107,114,128,0.12)', color: '#9ca3af', text: 'Resolved' },
+    resolved: { bg: 'rgba(107,114,128,0.12)', color: '#a0958b', text: 'Resolved' },
     investigating: { bg: 'rgba(16, 185, 129,0.12)', color: '#10b981', text: 'Investigating' },
     high: { bg: 'rgba(245,158,11,0.12)', color: '#f59e0b', text: 'High' },
     critical: { bg: 'rgba(239,68,68,0.2)', color: '#ef4444', text: 'Critical' },
     medium: { bg: 'rgba(251,191,36,0.12)', color: '#fbbf24', text: 'Medium' },
     low: { bg: 'rgba(176, 136, 80,0.12)', color: '#b08850', text: 'Low' },
   };
-  const c = colorMap[status] || { bg: '#2a2a2a', color: '#9ca3af', text: status };
+  const c = colorMap[status] || { bg: '#2a2a2a', color: '#a0958b', text: status };
   return (
     <span style={{
       padding: '4px 10px',
@@ -155,12 +157,12 @@ function ActionButton({
   variant: 'approve' | 'reject' | 'suspend' | 'activate' | 'investigate' | 'dismiss';
 }) {
   const colorMap = {
-    approve: { bg: 'rgba(176, 136, 80,0.15)', color: '#b08850', hover: 'rgba(176, 136, 80,0.25)' },
-    activate: { bg: 'rgba(176, 136, 80,0.15)', color: '#b08850', hover: 'rgba(176, 136, 80,0.25)' },
-    reject: { bg: 'rgba(239,68,68,0.12)', color: '#ef4444', hover: 'rgba(239,68,68,0.22)' },
-    suspend: { bg: 'rgba(239,68,68,0.12)', color: '#ef4444', hover: 'rgba(239,68,68,0.22)' },
-    investigate: { bg: 'rgba(16, 185, 129,0.12)', color: '#10b981', hover: 'rgba(16, 185, 129,0.22)' },
-    dismiss: { bg: '#1a1a1a', color: '#9ca3af', hover: '#252525' },
+    approve: { bg: 'rgba(176, 136, 80,0.12)', color: '#b08850', hover: 'rgba(176, 136, 80,0.22)' },
+    activate: { bg: 'rgba(176, 136, 80,0.12)', color: '#b08850', hover: 'rgba(176, 136, 80,0.22)' },
+    reject: { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', hover: 'rgba(239,68,68,0.18)' },
+    suspend: { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', hover: 'rgba(239,68,68,0.18)' },
+    investigate: { bg: 'rgba(16, 185, 129,0.1)', color: '#10b981', hover: 'rgba(16, 185, 129,0.18)' },
+    dismiss: { bg: 'rgba(43,34,26,0.05)', color: '#87786c', hover: 'rgba(43,34,26,0.1)' },
   };
   const c = colorMap[variant];
   return (
@@ -220,7 +222,7 @@ function ConfirmModal({
             style={{
               position: 'absolute',
               inset: 0,
-              background: 'rgba(0,0,0,0.75)',
+              background: 'rgba(43,34,26,0.55)',
               backdropFilter: 'blur(5px)',
             }}
           />
@@ -231,33 +233,33 @@ function ConfirmModal({
             transition={{ type: 'spring', damping: 20, stiffness: 300 }}
             style={{
               position: 'relative',
-              background: '#161616',
-              border: '1px solid #2a2a2a',
+              background: '#ffffff',
+              border: '1px solid rgba(43, 34, 26, 0.08)',
               borderRadius: 20,
               padding: '32px',
               zIndex: 951,
               width: 400,
               maxWidth: '90vw',
-              boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
+              boxShadow: '0 20px 40px rgba(43,34,26,0.12)',
             }}
           >
-            <div style={{ fontSize: 18, fontWeight: 800, color: '#fff', fontFamily: 'Outfit, sans-serif', marginBottom: 10 }}>
+            <div style={{ fontSize: 18, fontWeight: 800, color: '#221a15', fontFamily: 'Outfit, sans-serif', marginBottom: 10 }}>
               {title}
             </div>
-            <div style={{ fontSize: 14, color: '#9ca3af', lineHeight: 1.6, marginBottom: 28 }}>
+            <div style={{ fontSize: 14, color: '#87786c', lineHeight: 1.6, marginBottom: 28 }}>
               {message}
             </div>
             <div style={{ display: 'flex', gap: 12 }}>
               <motion.button
-                whileHover={{ background: '#252525' }}
+                whileHover={{ background: '#f4eede' }}
                 onClick={onCancel}
                 style={{
                   flex: 1,
                   padding: '12px',
                   borderRadius: 10,
-                  border: '1px solid #2a2a2a',
+                  border: '1px solid rgba(43, 34, 26, 0.1)',
                   background: 'transparent',
-                  color: '#9ca3af',
+                  color: '#87786c',
                   fontSize: 14,
                   fontWeight: 600,
                   cursor: 'pointer',
@@ -275,7 +277,7 @@ function ConfirmModal({
                   borderRadius: 10,
                   border: 'none',
                   background: confirmColor,
-                  color: '#fff',
+                  color: '#221a15',
                   fontSize: 14,
                   fontWeight: 700,
                   cursor: 'pointer',
@@ -318,7 +320,7 @@ function Modal({
             style={{
               position: 'absolute',
               inset: 0,
-              background: 'rgba(0,0,0,0.85)',
+              background: 'rgba(43,34,26,0.55)',
               backdropFilter: 'blur(8px)',
             }}
           />
@@ -329,8 +331,8 @@ function Modal({
             transition={{ type: 'spring', damping: 22, stiffness: 320 }}
             style={{
               position: 'relative',
-              background: '#161616',
-              border: '1px solid #2a2a2a',
+              background: '#ffffff',
+              border: '1px solid rgba(43, 34, 26, 0.08)',
               borderRadius: 24,
               padding: '32px',
               zIndex: 961,
@@ -338,20 +340,20 @@ function Modal({
               maxWidth: '90vw',
               maxHeight: '85vh',
               overflowY: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.7)',
+              boxShadow: '0 25px 50px rgba(43,34,26,0.15)',
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-              <h3 style={{ fontSize: 20, fontWeight: 800, color: '#fff', fontFamily: 'Outfit, sans-serif', margin: 0 }}>
+              <h3 style={{ fontSize: 20, fontWeight: 800, color: '#221a15', fontFamily: 'Outfit, sans-serif', margin: 0 }}>
                 {title}
               </h3>
               <motion.button
-                whileHover={{ rotate: 90, color: '#fff' }}
+                whileHover={{ rotate: 90, color: '#221a15' }}
                 onClick={onClose}
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: '#9ca3af',
+                  color: '#a0958b',
                   fontSize: 20,
                   cursor: 'pointer',
                   padding: 4,
@@ -470,22 +472,22 @@ function OverviewTab({
       {/* Charts Row 1 */}
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 20 }}>
         {/* Streams Over Time */}
-        <div style={{ background: '#121212', borderRadius: 16, padding: '24px', border: '1px solid #1a1a1a' }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: '#fff', marginBottom: 4 }}>Weekly Streams</div>
-          <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 20 }}>Daily active streams</div>
+        <div style={{ background: '#ffffff', borderRadius: 16, padding: '24px', border: '1px solid rgba(43, 34, 26, 0.07)', boxShadow: '0 2px 8px rgba(43,34,26,0.04)' }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#221a15', marginBottom: 4 }}>Weekly Streams</div>
+          <div style={{ fontSize: 12, color: '#87786c', marginBottom: 20 }}>Daily active streams</div>
           <ResponsiveContainer width="100%" height={200}>
             <AreaChart data={streamData}>
               <defs>
                 <linearGradient id="streamGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#b08850" stopOpacity={0.3} />
+                  <stop offset="0%" stopColor="#b08850" stopOpacity={0.25} />
                   <stop offset="100%" stopColor="#b08850" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1a1a1a" />
-              <XAxis dataKey="day" tick={{ fill: '#6b7280', fontSize: 12 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#6b7280', fontSize: 12 }} axisLine={false} tickLine={false} tickFormatter={formatStreams} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(43,34,26,0.07)" />
+              <XAxis dataKey="day" tick={{ fill: '#87786c', fontSize: 12 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: '#87786c', fontSize: 12 }} axisLine={false} tickLine={false} tickFormatter={formatStreams} />
               <Tooltip
-                contentStyle={{ background: '#1a1a1a', border: '1px solid #2a2a2a', borderRadius: 10, color: '#fff', fontSize: 12 }}
+                contentStyle={{ background: '#fff', border: '1px solid rgba(43,34,26,0.1)', borderRadius: 10, color: '#221a15', fontSize: 12 }}
                 formatter={(v: any) => [formatStreamsTooltip(Number(v)), 'Streams']}
               />
               <Area type="monotone" dataKey="streams" stroke="#b08850" strokeWidth={2.5} fill="url(#streamGrad)" />
@@ -494,16 +496,16 @@ function OverviewTab({
         </div>
 
         {/* Genre Breakdown */}
-        <div style={{ background: '#121212', borderRadius: 16, padding: '24px', border: '1px solid #1a1a1a' }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: '#fff', marginBottom: 4 }}>Genre Mix</div>
-          <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 16 }}>Stream share by genre</div>
+        <div style={{ background: '#ffffff', borderRadius: 16, padding: '24px', border: '1px solid rgba(43, 34, 26, 0.07)', boxShadow: '0 2px 8px rgba(43,34,26,0.04)' }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#221a15', marginBottom: 4 }}>Genre Mix</div>
+          <div style={{ fontSize: 12, color: '#87786c', marginBottom: 16 }}>Stream share by genre</div>
           <ResponsiveContainer width="100%" height={140}>
             <PieChart>
               <Pie data={genreData} innerRadius={45} outerRadius={68} paddingAngle={2} dataKey="value">
                 {genreData.map((entry: any, i: number) => <Cell key={i} fill={entry.color} />)}
               </Pie>
               <Tooltip
-                contentStyle={{ background: '#1a1a1a', border: '1px solid #2a2a2a', borderRadius: 10, color: '#fff', fontSize: 12 }}
+                contentStyle={{ background: '#1a1a1a', border: '1px solid #2a2a2a', borderRadius: 10, color: '#221a15', fontSize: 12 }}
                 formatter={(v: any) => [`${v}%`, 'Share']}
               />
             </PieChart>
@@ -512,7 +514,7 @@ function OverviewTab({
             {genreData.map((g: any) => (
               <div key={g.name} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: g.color }} />
-                <span style={{ fontSize: 11, color: '#9ca3af' }}>{g.name} ({g.value}%)</span>
+                <span style={{ fontSize: 11, color: '#87786c' }}>{g.name} ({g.value}%)</span>
               </div>
             ))}
           </div>
@@ -522,16 +524,16 @@ function OverviewTab({
       {/* Charts Row 2 */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
         {/* Monthly Users */}
-        <div style={{ background: '#121212', borderRadius: 16, padding: '24px', border: '1px solid #1a1a1a' }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: '#fff', marginBottom: 4 }}>User Growth</div>
-          <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 20 }}>Monthly registered users</div>
+        <div style={{ background: '#ffffff', borderRadius: 16, padding: '24px', border: '1px solid rgba(43, 34, 26, 0.07)', boxShadow: '0 2px 8px rgba(43,34,26,0.04)' }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#221a15', marginBottom: 4 }}>User Growth</div>
+          <div style={{ fontSize: 12, color: '#87786c', marginBottom: 20 }}>Monthly registered users</div>
           <ResponsiveContainer width="100%" height={180}>
             <BarChart data={monthlyData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1a1a1a" />
-              <XAxis dataKey="month" tick={{ fill: '#6b7280', fontSize: 12 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#6b7280', fontSize: 12 }} axisLine={false} tickLine={false} tickFormatter={formatStreams} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(43,34,26,0.07)" />
+              <XAxis dataKey="month" tick={{ fill: '#87786c', fontSize: 12 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: '#87786c', fontSize: 12 }} axisLine={false} tickLine={false} tickFormatter={formatStreams} />
               <Tooltip
-                contentStyle={{ background: '#1a1a1a', border: '1px solid #2a2a2a', borderRadius: 10, color: '#fff', fontSize: 12 }}
+                contentStyle={{ background: '#fff', border: '1px solid rgba(43,34,26,0.1)', borderRadius: 10, color: '#221a15', fontSize: 12 }}
                 formatter={(v: any) => [formatStreamsTooltip(Number(v)), 'Users']}
               />
               <Bar dataKey="users" fill="#10b981" radius={[4, 4, 0, 0]} />
@@ -540,16 +542,16 @@ function OverviewTab({
         </div>
 
         {/* Revenue */}
-        <div style={{ background: '#121212', borderRadius: 16, padding: '24px', border: '1px solid #1a1a1a' }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: '#fff', marginBottom: 4 }}>Revenue Trend</div>
-          <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 20 }}>Monthly platform revenue ({currencySymbol})</div>
+        <div style={{ background: '#ffffff', borderRadius: 16, padding: '24px', border: '1px solid rgba(43, 34, 26, 0.07)', boxShadow: '0 2px 8px rgba(43,34,26,0.04)' }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#221a15', marginBottom: 4 }}>Revenue Trend</div>
+          <div style={{ fontSize: 12, color: '#87786c', marginBottom: 20 }}>Monthly platform revenue ({currencySymbol})</div>
           <ResponsiveContainer width="100%" height={180}>
             <LineChart data={monthlyData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1a1a1a" />
-              <XAxis dataKey="month" tick={{ fill: '#6b7280', fontSize: 12 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#6b7280', fontSize: 12 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${currencySymbol}${formatCompact(v)}`} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(43,34,26,0.07)" />
+              <XAxis dataKey="month" tick={{ fill: '#87786c', fontSize: 12 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: '#87786c', fontSize: 12 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${currencySymbol}${formatCompact(v)}`} />
               <Tooltip
-                contentStyle={{ background: '#1a1a1a', border: '1px solid #2a2a2a', borderRadius: 10, color: '#fff', fontSize: 12 }}
+                contentStyle={{ background: '#fff', border: '1px solid rgba(43,34,26,0.1)', borderRadius: 10, color: '#221a15', fontSize: 12 }}
                 formatter={(v: any) => [`${currencySymbol}${Number(v).toLocaleString()}`, 'Revenue']}
               />
               <Line type="monotone" dataKey="revenue" stroke="#f59e0b" strokeWidth={2.5} dot={{ fill: '#f59e0b', r: 4 }} />
@@ -559,24 +561,24 @@ function OverviewTab({
       </div>
 
       {/* Top Artists Snapshot */}
-      <div style={{ background: '#121212', borderRadius: 16, padding: '24px', border: '1px solid #1a1a1a' }}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: '#fff', marginBottom: 20 }}>Top Performing Artists</div>
+      <div style={{ background: '#ffffff', borderRadius: 16, padding: '24px', border: '1px solid rgba(43, 34, 26, 0.07)', boxShadow: '0 2px 8px rgba(43,34,26,0.04)' }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: '#221a15', marginBottom: 20 }}>Top Performing Artists</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {topArtists.length === 0 ? (
-            <div style={{ fontSize: 13, color: '#6b7280', textAlign: 'center', padding: '10px 0' }}>No artist activity recorded yet</div>
+            <div style={{ fontSize: 13, color: '#87786c', textAlign: 'center', padding: '10px 0' }}>No artist activity recorded yet</div>
           ) : (
             topArtists.map((artist: any, i: number) => {
               const pct = (artist.monthlyListeners / maxListeners) * 100;
               return (
                 <div key={artist.id} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                  <div style={{ width: 20, fontSize: 13, color: '#6b7280', fontWeight: 700, textAlign: 'right', flexShrink: 0 }}>#{i + 1}</div>
+                  <div style={{ width: 20, fontSize: 13, color: '#87786c', fontWeight: 700, textAlign: 'right', flexShrink: 0 }}>#{i + 1}</div>
                   <img src={artist.image} alt={artist.name} style={{ width: 36, height: 36, borderRadius: '50%', flexShrink: 0, objectFit: 'cover' }} />
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                      <span style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>{artist.name}</span>
-                      <span style={{ fontSize: 12, color: '#6b7280' }}>{artist.monthlyListeners.toLocaleString()} plays</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: '#221a15' }}>{artist.name}</span>
+                      <span style={{ fontSize: 12, color: '#87786c' }}>{artist.monthlyListeners.toLocaleString()} plays</span>
                     </div>
-                    <div style={{ height: 4, background: '#1a1a1a', borderRadius: 2, overflow: 'hidden' }}>
+                    <div style={{ height: 4, background: 'rgba(43,34,26,0.08)', borderRadius: 2, overflow: 'hidden' }}>
                       <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${pct}%` }}
@@ -664,6 +666,17 @@ function ArtistsTab() {
     action: 'deactivate' | 'activate' | 'remove';
     name: string;
   }>({ open: false, artistId: '', action: 'deactivate', name: '' });
+
+  const totalArtists = artists.length;
+  const activeArtistsCount = artists.filter(a => a.isActive !== false).length;
+  const pendingApps = applications.filter(a => a.status === 'PENDING').length;
+  
+  const artistStats = [
+    { label: 'Total Artists', value: totalArtists, color: '#b08850' },
+    { label: 'Active Artists', value: activeArtistsCount, color: '#10b981' },
+    { label: 'Pending Review', value: pendingApps, color: '#f59e0b' },
+    { label: 'Verification Queue', value: pendingVerificationsCount, color: '#06b6d4' },
+  ];
 
   const fetchArtists = async () => {
     try {
@@ -861,7 +874,7 @@ function ArtistsTab() {
       >
         <form onSubmit={handleCreateArtist} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label style={{ fontSize: 12, color: '#9ca3af', fontWeight: 600 }}>Artist Name *</label>
+            <label style={{ fontSize: 12, color: '#a0958b', fontWeight: 600 }}>Artist Name *</label>
             <input
               type="text"
               required
@@ -873,7 +886,7 @@ function ArtistsTab() {
                 background: '#1a1a1a',
                 border: '1px solid #2a2a2a',
                 borderRadius: 8,
-                color: '#fff',
+                color: '#221a15',
                 fontSize: 13,
                 outline: 'none',
               }}
@@ -881,7 +894,7 @@ function ArtistsTab() {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label style={{ fontSize: 12, color: '#9ca3af', fontWeight: 600 }}>Email Address *</label>
+            <label style={{ fontSize: 12, color: '#a0958b', fontWeight: 600 }}>Email Address *</label>
             <input
               type="email"
               required
@@ -893,7 +906,7 @@ function ArtistsTab() {
                 background: '#1a1a1a',
                 border: '1px solid #2a2a2a',
                 borderRadius: 8,
-                color: '#fff',
+                color: '#221a15',
                 fontSize: 13,
                 outline: 'none',
               }}
@@ -901,7 +914,7 @@ function ArtistsTab() {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label style={{ fontSize: 12, color: '#9ca3af', fontWeight: 600 }}>Biography</label>
+            <label style={{ fontSize: 12, color: '#a0958b', fontWeight: 600 }}>Biography</label>
             <textarea
               value={newArtist.bio}
               onChange={(e) => setNewArtist({ ...newArtist, bio: e.target.value })}
@@ -912,7 +925,7 @@ function ArtistsTab() {
                 background: '#1a1a1a',
                 border: '1px solid #2a2a2a',
                 borderRadius: 8,
-                color: '#fff',
+                color: '#221a15',
                 fontSize: 13,
                 outline: 'none',
                 resize: 'vertical',
@@ -922,7 +935,7 @@ function ArtistsTab() {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={{ fontSize: 12, color: '#9ca3af', fontWeight: 600 }}>Country</label>
+              <label style={{ fontSize: 12, color: '#a0958b', fontWeight: 600 }}>Country</label>
               <input
                 type="text"
                 value={newArtist.country}
@@ -933,14 +946,14 @@ function ArtistsTab() {
                   background: '#1a1a1a',
                   border: '1px solid #2a2a2a',
                   borderRadius: 8,
-                  color: '#fff',
+                  color: '#221a15',
                   fontSize: 13,
                   outline: 'none',
                 }}
               />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={{ fontSize: 12, color: '#9ca3af', fontWeight: 600 }}>Initial Followers</label>
+              <label style={{ fontSize: 12, color: '#a0958b', fontWeight: 600 }}>Initial Followers</label>
               <input
                 type="number"
                 value={newArtist.followers}
@@ -951,7 +964,7 @@ function ArtistsTab() {
                   background: '#1a1a1a',
                   border: '1px solid #2a2a2a',
                   borderRadius: 8,
-                  color: '#fff',
+                  color: '#221a15',
                   fontSize: 13,
                   outline: 'none',
                 }}
@@ -960,7 +973,7 @@ function ArtistsTab() {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label style={{ fontSize: 12, color: '#9ca3af', fontWeight: 600 }}>Avatar URL</label>
+            <label style={{ fontSize: 12, color: '#a0958b', fontWeight: 600 }}>Avatar URL</label>
             <input
               type="text"
               value={newArtist.avatar}
@@ -971,7 +984,7 @@ function ArtistsTab() {
                 background: '#1a1a1a',
                 border: '1px solid #2a2a2a',
                 borderRadius: 8,
-                color: '#fff',
+                color: '#221a15',
                 fontSize: 13,
                 outline: 'none',
               }}
@@ -1008,7 +1021,7 @@ function ArtistsTab() {
       >
         <form onSubmit={handleAddSong} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label style={{ fontSize: 12, color: '#9ca3af', fontWeight: 600 }}>Song Title *</label>
+            <label style={{ fontSize: 12, color: '#a0958b', fontWeight: 600 }}>Song Title *</label>
             <input
               type="text"
               required
@@ -1020,7 +1033,7 @@ function ArtistsTab() {
                 background: '#1a1a1a',
                 border: '1px solid #2a2a2a',
                 borderRadius: 8,
-                color: '#fff',
+                color: '#221a15',
                 fontSize: 13,
                 outline: 'none',
               }}
@@ -1029,7 +1042,7 @@ function ArtistsTab() {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={{ fontSize: 12, color: '#9ca3af', fontWeight: 600 }}>Genre *</label>
+              <label style={{ fontSize: 12, color: '#a0958b', fontWeight: 600 }}>Genre *</label>
               <select
                 value={newSong.genre}
                 onChange={(e) => setNewSong({ ...newSong, genre: e.target.value })}
@@ -1038,7 +1051,7 @@ function ArtistsTab() {
                   background: '#1a1a1a',
                   border: '1px solid #2a2a2a',
                   borderRadius: 8,
-                  color: '#fff',
+                  color: '#221a15',
                   fontSize: 13,
                   outline: 'none',
                 }}
@@ -1049,7 +1062,7 @@ function ArtistsTab() {
               </select>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={{ fontSize: 12, color: '#9ca3af', fontWeight: 600 }}>Duration (seconds)</label>
+              <label style={{ fontSize: 12, color: '#a0958b', fontWeight: 600 }}>Duration (seconds)</label>
               <input
                 type="number"
                 value={newSong.duration}
@@ -1060,7 +1073,7 @@ function ArtistsTab() {
                   background: '#1a1a1a',
                   border: '1px solid #2a2a2a',
                   borderRadius: 8,
-                  color: '#fff',
+                  color: '#221a15',
                   fontSize: 13,
                   outline: 'none',
                 }}
@@ -1069,7 +1082,7 @@ function ArtistsTab() {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label style={{ fontSize: 12, color: '#9ca3af', fontWeight: 600 }}>Audio File URL</label>
+            <label style={{ fontSize: 12, color: '#a0958b', fontWeight: 600 }}>Audio File URL</label>
             <input
               type="text"
               value={newSong.audioUrl}
@@ -1080,7 +1093,7 @@ function ArtistsTab() {
                 background: '#1a1a1a',
                 border: '1px solid #2a2a2a',
                 borderRadius: 8,
-                color: '#fff',
+                color: '#221a15',
                 fontSize: 13,
                 outline: 'none',
               }}
@@ -1088,7 +1101,7 @@ function ArtistsTab() {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label style={{ fontSize: 12, color: '#9ca3af', fontWeight: 600 }}>Cover Image URL</label>
+            <label style={{ fontSize: 12, color: '#a0958b', fontWeight: 600 }}>Cover Image URL</label>
             <input
               type="text"
               value={newSong.coverImage}
@@ -1099,7 +1112,7 @@ function ArtistsTab() {
                 background: '#1a1a1a',
                 border: '1px solid #2a2a2a',
                 borderRadius: 8,
-                color: '#fff',
+                color: '#221a15',
                 fontSize: 13,
                 outline: 'none',
               }}
@@ -1143,8 +1156,20 @@ function ArtistsTab() {
 
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        {/* Stats Bar */}
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
+          style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 12 }}>
+          {artistStats.map((s, i) => (
+            <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+              style={{ background: 'rgba(43, 34, 26, 0.03)', border: '1px solid rgba(43, 34, 26, 0.08)', borderRadius: 16, padding: '20px 24px' }}>
+              <div style={{ fontSize: 32, fontWeight: 900, color: s.color, fontFamily: "'Outfit', sans-serif", lineHeight: 1 }}>{s.value}</div>
+              <div style={{ fontSize: 12, color: '#87786c', marginTop: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{s.label}</div>
+            </motion.div>
+          ))}
+        </motion.div>
+
         {/* Sub Navigation Bar */}
-        <div style={{ display: 'flex', gap: 12, borderBottom: '1px solid #1a1a1a', paddingBottom: 16 }}>
+        <div style={{ display: 'flex', gap: 12, borderBottom: '1px solid rgba(43, 34, 26, 0.08)', paddingBottom: 16 }}>
           <button
             onClick={() => setSubTab('directory')}
             style={{
@@ -1196,7 +1221,7 @@ function ArtistsTab() {
             {applications.filter(a => a.status === 'PENDING').length > 0 && (
               <span style={{
                 background: '#ef4444',
-                color: '#fff',
+                color: '#221a15',
                 padding: '2px 8px',
                 borderRadius: 20,
                 fontSize: 10,
@@ -1228,7 +1253,7 @@ function ArtistsTab() {
             {pendingVerificationsCount > 0 && (
               <span style={{
                 background: '#ef4444',
-                color: '#fff',
+                color: '#221a15',
                 padding: '2px 8px',
                 borderRadius: 20,
                 fontSize: 10,
@@ -1245,8 +1270,8 @@ function ArtistsTab() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
               <div>
-                <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', fontFamily: 'Outfit, sans-serif' }}>Artists Directory</div>
-                <div style={{ fontSize: 13, color: '#6b7280' }}>Manage all active and suspended platform creators</div>
+                <div style={{ fontSize: 22, fontWeight: 800, color: '#221a15', fontFamily: 'Outfit, sans-serif' }}>Artists Directory</div>
+                <div style={{ fontSize: 13, color: '#87786c' }}>Manage all active and suspended platform creators</div>
               </div>
               <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
                 <input
@@ -1258,7 +1283,7 @@ function ArtistsTab() {
                     background: '#121212',
                     border: '1px solid #2a2a2a',
                     borderRadius: 10,
-                    color: '#fff',
+                    color: '#221a15',
                     fontSize: 13,
                     outline: 'none',
                     width: 200,
@@ -1289,26 +1314,26 @@ function ArtistsTab() {
             </div>
 
             <div style={{
-              background: '#121212',
+              background: '#ffffff',
               borderRadius: 16,
-              border: '1px solid #1a1a1a',
+              border: '1px solid rgba(43, 34, 26, 0.08)',
               overflow: 'hidden',
             }}>
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: '2fr 100px 1.2fr 1.2fr 120px 280px',
                 padding: '14px 20px',
-                borderBottom: '1px solid #1a1a1a',
+                borderBottom: '1px solid rgba(43, 34, 26, 0.08)',
               }}>
                 {['Artist', 'Country', 'Followers', 'Songs', 'Status', 'Actions'].map((h) => (
-                  <div key={h} style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', letterSpacing: '0.06em' }}>{h.toUpperCase()}</div>
+                  <div key={h} style={{ fontSize: 11, fontWeight: 700, color: '#87786c', letterSpacing: '0.06em' }}>{h.toUpperCase()}</div>
                 ))}
               </div>
 
               {dirLoading ? (
-                <div style={{ padding: 40, textAlign: 'center', color: '#6b7280' }}>Loading artists...</div>
+                <div style={{ padding: 40, textAlign: 'center', color: '#87786c' }}>Loading artists...</div>
               ) : filteredArtists.length === 0 ? (
-                <div style={{ padding: 40, textAlign: 'center', color: '#6b7280' }}>No artists found</div>
+                <div style={{ padding: 40, textAlign: 'center', color: '#87786c' }}>No artists found</div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                   {filteredArtists.map((art, i) => (
@@ -1321,7 +1346,7 @@ function ArtistsTab() {
                         display: 'grid',
                         gridTemplateColumns: '2fr 100px 1.2fr 1.2fr 120px 280px',
                         padding: '16px 20px',
-                        borderBottom: i < filteredArtists.length - 1 ? '1px solid #1a1a1a' : 'none',
+                        borderBottom: i < filteredArtists.length - 1 ? '1px solid rgba(43, 34, 26, 0.08)' : 'none',
                         alignItems: 'center',
                         background: art.isActive ? 'transparent' : 'rgba(239, 68, 68, 0.02)',
                       }}
@@ -1330,7 +1355,7 @@ function ArtistsTab() {
                         <img src={art.avatar} alt={art.name} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }} />
                         <div>
                           <div style={{ fontSize: 14, fontWeight: 600, color: art.isActive ? '#fff' : '#9ca3af' }}>{art.name}</div>
-                          <div style={{ fontSize: 11, color: '#6b7280' }}>{art.email}</div>
+                          <div style={{ fontSize: 11, color: '#87786c' }}>{art.email}</div>
                         </div>
                       </div>
                       <div style={{ fontSize: 13, color: '#d1d5db' }}>{art.country}</div>
@@ -1406,8 +1431,8 @@ function ArtistsTab() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
               <div>
-                <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', fontFamily: 'Outfit, sans-serif' }}>Artist Applications</div>
-                <div style={{ fontSize: 13, color: '#6b7280' }}>{applications.filter(a => a.status === 'PENDING').length} applications pending review</div>
+                <div style={{ fontSize: 22, fontWeight: 800, color: '#221a15', fontFamily: 'Outfit, sans-serif' }}>Artist Applications</div>
+                <div style={{ fontSize: 13, color: '#87786c' }}>{applications.filter(a => a.status === 'PENDING').length} applications pending review</div>
               </div>
               <div style={{ display: 'flex', gap: 10 }}>
                 <input
@@ -1419,7 +1444,7 @@ function ArtistsTab() {
                     background: '#121212',
                     border: '1px solid #2a2a2a',
                     borderRadius: 10,
-                    color: '#fff',
+                    color: '#221a15',
                     fontSize: 13,
                     outline: 'none',
                     width: 200,
@@ -1448,19 +1473,19 @@ function ArtistsTab() {
             </div>
 
             <div style={{
-              background: '#121212',
+              background: '#ffffff',
               borderRadius: 16,
-              border: '1px solid #1a1a1a',
+              border: '1px solid rgba(43, 34, 26, 0.08)',
               overflow: 'hidden',
             }}>
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: '1.5fr 80px 2fr 1.5fr 110px 140px',
                 padding: '14px 20px',
-                borderBottom: '1px solid #1a1a1a',
+                borderBottom: '1px solid rgba(43, 34, 26, 0.08)',
               }}>
                 {['Artist', 'Country', 'Bio', 'Social Media', 'Status', 'Actions'].map((h) => (
-                  <div key={h} style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', letterSpacing: '0.06em' }}>{h.toUpperCase()}</div>
+                  <div key={h} style={{ fontSize: 11, fontWeight: 700, color: '#87786c', letterSpacing: '0.06em' }}>{h.toUpperCase()}</div>
                 ))}
               </div>
               <AnimatePresence>
@@ -1475,16 +1500,16 @@ function ArtistsTab() {
                       display: 'grid',
                       gridTemplateColumns: '1.5fr 80px 2fr 1.5fr 110px 140px',
                       padding: '16px 20px',
-                      borderBottom: i < filteredApps.length - 1 ? '1px solid #1a1a1a' : 'none',
+                      borderBottom: i < filteredApps.length - 1 ? '1px solid rgba(43, 34, 26, 0.08)' : 'none',
                       alignItems: 'center',
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                       <img src={app.profileImage} alt={app.artistName} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }} />
                       <div>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: '#fff' }}>{app.artistName}</div>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: '#221a15' }}>{app.artistName}</div>
                         {app.dob && <div style={{ fontSize: 11, color: '#f59e0b', fontWeight: 600 }}>DOB: {new Date(app.dob).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}</div>}
-                        <div style={{ fontSize: 11, color: '#6b7280' }}>Submitted {new Date(app.createdAt).toLocaleDateString()}</div>
+                        <div style={{ fontSize: 11, color: '#87786c' }}>Submitted {new Date(app.createdAt).toLocaleDateString()}</div>
                       </div>
                     </div>
                     <div style={{ fontSize: 13, color: '#d1d5db' }}>
@@ -1493,7 +1518,7 @@ function ArtistsTab() {
                     <div style={{ fontSize: 13, color: '#d1d5db', paddingRight: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={app.bio}>
                       {app.bio || 'No bio provided'}
                     </div>
-                    <div style={{ fontSize: 12, color: '#9ca3af', display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <div style={{ fontSize: 12, color: '#a0958b', display: 'flex', flexDirection: 'column', gap: 2 }}>
                       {app.socialLinks.instagram && <span>IG: {app.socialLinks.instagram}</span>}
                       {app.socialLinks.twitter && <span>TW: {app.socialLinks.twitter}</span>}
                       {app.socialLinks.website && <a href={`https://${app.socialLinks.website}`} target="_blank" rel="noreferrer" style={{ color: '#b08850', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 2 }}>Web <span style={{ fontSize: 10 }}>↗</span></a>}
@@ -1518,7 +1543,7 @@ function ArtistsTab() {
                 ))}
               </AnimatePresence>
               {filteredApps.length === 0 && (
-                <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280', fontSize: 14 }}>
+                <div style={{ padding: '40px', textAlign: 'center', color: '#87786c', fontSize: 14 }}>
                   No applications found
                 </div>
               )}
@@ -1588,10 +1613,10 @@ function ArtistVerificationPanel({ onUpdate }: { onUpdate: () => void }) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h2 style={{ color: '#fff', fontWeight: 900, fontSize: 18, margin: 0 }}>🏅 Artist Verification Requests</h2>
+          <h2 style={{ color: '#221a15', fontWeight: 900, fontSize: 18, margin: 0 }}>🏅 Artist Verification Requests</h2>
           <p style={{ color: '#737373', fontSize: 12.5, margin: '4px 0 0' }}>Review and approve artist verification requests with proof documents</p>
         </div>
-        <button type="button" onClick={load} style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: 8, padding: '6px 12px', fontSize: 11.5, cursor: 'pointer' }}>
+        <button type="button" onClick={load} style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', color: '#221a15', borderRadius: 8, padding: '6px 12px', fontSize: 11.5, cursor: 'pointer' }}>
           🔄 Refresh
         </button>
       </div>
@@ -1603,7 +1628,7 @@ function ArtistVerificationPanel({ onUpdate }: { onUpdate: () => void }) {
           { label: 'Approved', count: requests.filter(r => r.status === 'approved').length, color: '#b08850' },
           { label: 'Rejected', count: requests.filter(r => r.status === 'rejected').length, color: '#ef4444' },
         ].map(s => (
-          <div key={s.label} style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${s.color}25`, borderRadius: 12, padding: '12px 16px' }}>
+          <div key={s.label} style={{ background: 'rgba(43, 34, 26, 0.03)', border: '1px solid rgba(43, 34, 26, 0.08)', borderRadius: 12, padding: '12px 16px' }}>
             <div style={{ fontWeight: 900, fontSize: 24, color: s.color }}>{s.count}</div>
             <div style={{ fontSize: 11.5, color: '#737373' }}>{s.label}</div>
           </div>
@@ -1613,9 +1638,9 @@ function ArtistVerificationPanel({ onUpdate }: { onUpdate: () => void }) {
       {/* Document viewer overlay */}
       {viewDoc && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }} onClick={() => setViewDoc(null)}>
-          <div style={{ position: 'relative', maxWidth: '80vw', maxHeight: '80vh', background: '#111', borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }} onClick={e => e.stopPropagation()}>
+          <div style={{ position: 'relative', maxWidth: '80vw', maxHeight: '80vh', background: '#f4eede', borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-              <span style={{ color: '#fff', fontWeight: 700, fontSize: 13 }}>📄 Proof Document</span>
+              <span style={{ color: '#221a15', fontWeight: 700, fontSize: 13 }}>📄 Proof Document</span>
               <button type="button" onClick={() => setViewDoc(null)} style={{ background: 'none', border: 'none', color: '#737373', cursor: 'pointer', fontSize: 20, lineHeight: 1 }}>×</button>
             </div>
             {viewDoc.startsWith('data:image') ? (
@@ -1642,14 +1667,14 @@ function ArtistVerificationPanel({ onUpdate }: { onUpdate: () => void }) {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {requests.map(req => (
-            <div key={req.artistId} style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${req.status === 'under_review' ? 'rgba(245,158,11,0.2)' : 'rgba(255,255,255,0.06)'}`, borderRadius: 14, padding: 16, display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+            <div key={req.artistId} style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${req.status === 'under_review' ? 'rgba(245,158,11,0.2)' : 'rgba(43, 34, 26, 0.08)'}`, borderRadius: 14, padding: 16, display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
               {/* Avatar */}
               <div style={{ width: 44, height: 44, borderRadius: '50%', backgroundImage: req.avatar ? `url(${req.avatar})` : 'none', backgroundColor: req.avatar ? 'transparent' : 'rgba(60,60,60,1)', backgroundSize: 'cover', backgroundPosition: 'center', flexShrink: 0 }} />
 
               {/* Artist info */}
               <div style={{ flex: 1, minWidth: 160 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ color: '#fff', fontWeight: 800, fontSize: 14.5 }}>{req.artistName}</span>
+                  <span style={{ color: '#221a15', fontWeight: 800, fontSize: 14.5 }}>{req.artistName}</span>
                   <span style={{ fontSize: 10.5, fontWeight: 700, color: statusColor[req.status] || '#737373', background: `${statusColor[req.status]}15`, padding: '2px 8px', borderRadius: 20 }}>
                     {statusLabel[req.status] || req.status}
                   </span>
@@ -1665,7 +1690,7 @@ function ArtistVerificationPanel({ onUpdate }: { onUpdate: () => void }) {
                   <button
                     type="button"
                     onClick={() => setViewDoc(req.documents[0])}
-                    style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', borderRadius: 8, padding: '6px 12px', fontSize: 11.5, cursor: 'pointer', fontWeight: 600 }}
+                    style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: '#221a15', borderRadius: 8, padding: '6px 12px', fontSize: 11.5, cursor: 'pointer', fontWeight: 600 }}
                   >
                     👁️ View Proof
                   </button>
@@ -1735,9 +1760,60 @@ function SongsTab() {
   const [sortBy, setSortBy] = useState<'date' | 'title' | 'copyright'>('date');
   const [genreFilter, setGenreFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 20;
 
+  const [selectedSongs, setSelectedSongs] = useState<string[]>([]);
   const [confirm, setConfirm] = useState<{ open: boolean; songId: string; action: 'approve' | 'reject'; title: string }>({ open: false, songId: '', action: 'approve', title: '' });
+
+  const totalSongsCount = songs.length;
+  const approvedSongsCount = songs.filter(s => s.status === 'approved').length;
+  const pendingSongsCount = songs.filter(s => s.status === 'pending').length;
+  const rejectedSongsCount = songs.filter(s => s.status === 'rejected').length;
+
+  const songStats = [
+    { label: 'Total Tracks', value: totalSongsCount, color: '#b08850' },
+    { label: 'Approved Tracks', value: approvedSongsCount, color: '#10b981' },
+    { label: 'Pending Review', value: pendingSongsCount, color: '#f59e0b' },
+    { label: 'Rejected Tracks', value: rejectedSongsCount, color: '#ef4444' },
+  ];
+
+  const handleBulkApprove = async () => {
+    if (selectedSongs.length === 0) return;
+    let count = 0;
+    for (const id of selectedSongs) {
+      approveTrack(id);
+      try {
+        const song = songs.find(s => s.id === id);
+        await fetch('/api/admin/approve-song', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ songId: id, title: song?.title || 'Unknown', action: 'approve' }),
+        });
+        count++;
+      } catch (e) {}
+    }
+    toast.success(`Bulk approved ${count} songs!`);
+    setSelectedSongs([]);
+  };
+
+  const handleBulkReject = async () => {
+    if (selectedSongs.length === 0) return;
+    let count = 0;
+    for (const id of selectedSongs) {
+      rejectTrack(id);
+      try {
+        const song = songs.find(s => s.id === id);
+        await fetch('/api/admin/approve-song', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ songId: id, title: song?.title || 'Unknown', action: 'reject' }),
+        });
+        count++;
+      } catch (e) {}
+    }
+    toast.success(`Bulk rejected/revoked ${count} songs!`);
+    setSelectedSongs([]);
+  };
 
   const confirmAction = async () => {
     if (confirm.action === 'approve') {
@@ -1856,7 +1932,20 @@ function SongsTab() {
 
   useEffect(() => {
     setCurrentPage(1);
+    setSelectedSongs([]); // Reset selection when filters change
   }, [filter, searchQuery, genreFilter, sortBy]);
+
+  const toggleSelectAll = () => {
+    if (selectedSongs.length === sorted.length && sorted.length > 0) {
+      setSelectedSongs([]);
+    } else {
+      setSelectedSongs(sorted.map(s => s.id));
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedSongs(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  };
 
   return (
     <>
@@ -1871,7 +1960,30 @@ function SongsTab() {
       />
       
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-        
+        {/* Stats Bar */}
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
+          style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 12 }}>
+          {songStats.map((s, i) => (
+            <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+              style={{ background: 'rgba(43, 34, 26, 0.03)', border: '1px solid rgba(43, 34, 26, 0.08)', borderRadius: 16, padding: '20px 24px' }}>
+              <div style={{ fontSize: 32, fontWeight: 900, color: s.color, fontFamily: "'Outfit', sans-serif", lineHeight: 1 }}>{s.value}</div>
+              <div style={{ fontSize: 12, color: '#87786c', marginTop: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{s.label}</div>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* Bulk Actions Banner */}
+        {selectedSongs.length > 0 && (
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+            style={{ background: 'rgba(176, 136, 80, 0.1)', border: '1px solid rgba(176, 136, 80, 0.3)', borderRadius: 14, padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#b08850' }}>{selectedSongs.length} songs selected</span>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={handleBulkApprove} style={{ background: '#b08850', border: 'none', borderRadius: 8, color: '#000', padding: '6px 14px', fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>Approve Selected</button>
+              <button onClick={handleBulkReject} style={{ background: '#ef4444', border: 'none', borderRadius: 8, color: '#221a15', padding: '6px 14px', fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>Reject Selected</button>
+            </div>
+          </motion.div>
+        )}
+
         {/* Currently Playing Song Widget */}
         {currentTrack && (
           <div style={{
@@ -1897,7 +2009,7 @@ function SongsTab() {
                 justifyContent: 'center',
                 fontSize: 12,
                 fontWeight: 700,
-                color: '#fff',
+                color: '#221a15',
                 flexShrink: 0,
               }}>
                 {currentTrack.title[0]}
@@ -1905,7 +2017,7 @@ function SongsTab() {
             )}
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 11, color: '#b08850', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>Currently Playing</div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentTrack.title}</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#221a15', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentTrack.title}</div>
               <div style={{ fontSize: 12, color: '#a3a3a3', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentTrack.artistName} · {currentTrack.genre}</div>
             </div>
             
@@ -1940,8 +2052,8 @@ function SongsTab() {
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
           <div>
-            <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', fontFamily: 'Outfit, sans-serif' }}>Songs Queue</div>
-            <div style={{ fontSize: 13, color: '#6b7280' }}>{songs.filter((s) => s.status === 'pending').length} tracks pending review</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: '#221a15', fontFamily: 'Outfit, sans-serif' }}>Songs Queue</div>
+            <div style={{ fontSize: 13, color: '#87786c' }}>{songs.filter((s) => s.status === 'pending').length} tracks pending review</div>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
             {(['all', 'pending', 'approved', 'rejected'] as const).map((f) => (
@@ -1963,7 +2075,7 @@ function SongsTab() {
         </div>
 
         {/* Controls sub-bar */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, borderBottom: '1px solid #1a1a1a', paddingBottom: 16 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, borderBottom: '1px solid rgba(43, 34, 26, 0.08)', paddingBottom: 16 }}>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
             <input
               value={searchQuery}
@@ -1974,7 +2086,7 @@ function SongsTab() {
                 background: '#121212',
                 border: '1px solid #2a2a2a',
                 borderRadius: 10,
-                color: '#fff',
+                color: '#221a15',
                 fontSize: 13,
                 outline: 'none',
                 width: 240,
@@ -1989,7 +2101,7 @@ function SongsTab() {
                 background: '#121212',
                 border: '1px solid #2a2a2a',
                 borderRadius: 10,
-                color: '#fff',
+                color: '#221a15',
                 fontSize: 13,
                 outline: 'none',
                 cursor: 'pointer',
@@ -2008,7 +2120,7 @@ function SongsTab() {
                 background: '#121212',
                 border: '1px solid #2a2a2a',
                 borderRadius: 10,
-                color: '#fff',
+                color: '#221a15',
                 fontSize: 13,
                 outline: 'none',
                 cursor: 'pointer',
@@ -2063,20 +2175,22 @@ function SongsTab() {
           </div>
         </div>
 
-        <div style={{ background: '#121212', borderRadius: 16, border: '1px solid #1a1a1a', overflow: 'hidden' }}>
+        <div style={{ background: '#ffffff', borderRadius: 16, border: '1px solid rgba(43, 34, 26, 0.08)', overflow: 'hidden' }}>
           <div style={{
             display: 'grid',
-            gridTemplateColumns: '2.2fr 1fr 90px 110px 110px 90px 140px',
+            gridTemplateColumns: '40px 2.2fr 1fr 90px 110px 110px 90px 140px',
             padding: '14px 20px',
-            borderBottom: '1px solid #1a1a1a',
+            borderBottom: '1px solid rgba(43, 34, 26, 0.08)',
+            alignItems: 'center',
           }}>
+            <div><input type="checkbox" checked={selectedSongs.length === sorted.length && sorted.length > 0} onChange={toggleSelectAll} style={{ accentColor: '#b08850' }} /></div>
             {['Title', 'Artist', 'Genre', 'Uploaded', 'Copyright', 'Status', 'Actions'].map((h) => (
-              <div key={h} style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', letterSpacing: '0.06em' }}>{h.toUpperCase()}</div>
+              <div key={h} style={{ fontSize: 11, fontWeight: 700, color: '#87786c', letterSpacing: '0.06em' }}>{h.toUpperCase()}</div>
             ))}
           </div>
           
           {paginatedSongs.length === 0 ? (
-            <div style={{ padding: 40, textAlign: 'center', color: '#6b7280' }}>No songs found</div>
+            <div style={{ padding: 40, textAlign: 'center', color: '#87786c' }}>No songs found</div>
           ) : (
             paginatedSongs.map((song, i) => (
               <motion.div
@@ -2086,13 +2200,16 @@ function SongsTab() {
                 transition={{ delay: i * 0.03 }}
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '2.2fr 1fr 90px 110px 110px 90px 140px',
+                  gridTemplateColumns: '40px 2.2fr 1fr 90px 110px 110px 90px 140px',
                   padding: '14px 20px',
-                  borderBottom: i < paginatedSongs.length - 1 ? '1px solid #1a1a1a' : 'none',
+                  borderBottom: i < paginatedSongs.length - 1 ? '1px solid rgba(43, 34, 26, 0.08)' : 'none',
                   alignItems: 'center',
                   background: song.status === 'pending' ? 'rgba(245,158,11,0.03)' : 'transparent',
                 }}
               >
+                <div>
+                  <input type="checkbox" checked={selectedSongs.includes(song.id)} onChange={() => toggleSelect(song.id)} style={{ accentColor: '#b08850' }} />
+                </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
                   {song.coverImage && !song.coverImage.startsWith('linear-gradient') ? (
                     <img src={song.coverImage} alt={song.title} style={{ width: 36, height: 36, borderRadius: 6, objectFit: 'cover', flexShrink: 0 }} />
@@ -2108,16 +2225,16 @@ function SongsTab() {
                       justifyContent: 'center',
                       fontSize: 10,
                       fontWeight: 700,
-                      color: '#fff',
+                      color: '#221a15',
                     }}>
                       {song.title[0]}
                     </div>
                   )}
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{song.title}</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: '#221a15', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{song.title}</div>
                       {song.explicit && (
-                        <span style={{ fontSize: 9, background: '#ef4444', color: '#fff', padding: '1px 5px', borderRadius: 3, fontWeight: 700 }}>E</span>
+                        <span style={{ fontSize: 9, background: '#ef4444', color: '#221a15', padding: '1px 5px', borderRadius: 3, fontWeight: 700 }}>E</span>
                       )}
                     </div>
                   </div>
@@ -2133,9 +2250,9 @@ function SongsTab() {
                     {(user?.likedSongs || []).includes(song.id) ? '❤️' : '🤍'}
                   </button>
                 </div>
-                <div style={{ fontSize: 12, color: '#9ca3af', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{song.artistName}</div>
-                <div style={{ fontSize: 12, color: '#9ca3af' }}>{song.genre}</div>
-                <div style={{ fontSize: 12, color: '#6b7280' }}>{song.uploadedAt}</div>
+                <div style={{ fontSize: 12, color: '#a0958b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{song.artistName}</div>
+                <div style={{ fontSize: 12, color: '#a0958b' }}>{song.genre}</div>
+                <div style={{ fontSize: 12, color: '#87786c' }}>{song.uploadedAt}</div>
                 <div>
                   {song.copyrightIssue ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -2168,10 +2285,10 @@ function SongsTab() {
               alignItems: 'center',
               justifyContent: 'space-between',
               padding: '16px 20px',
-              borderTop: '1px solid #1a1a1a',
-              background: 'rgba(0, 0, 0, 0.2)',
+              borderTop: '1px solid rgba(43, 34, 26, 0.08)',
+              background: 'rgba(43, 34, 26, 0.02)',
             }}>
-              <div style={{ fontSize: 12, color: '#6b7280' }}>
+              <div style={{ fontSize: 12, color: '#87786c' }}>
                 Showing {startIndex + 1}-{Math.min(startIndex + itemsPerPage, sorted.length)} of {sorted.length} songs
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -2181,9 +2298,9 @@ function SongsTab() {
                   style={{
                     padding: '6px 12px',
                     borderRadius: 6,
-                    background: currentPage === 1 ? 'rgba(255,255,255,0.02)' : '#1a1a1a',
-                    color: currentPage === 1 ? '#4b5563' : '#9ca3af',
-                    border: '1.5px solid rgba(255,255,255,0.05)',
+                    background: currentPage === 1 ? 'rgba(43, 34, 26, 0.02)' : 'rgba(43, 34, 26, 0.05)',
+                    color: currentPage === 1 ? '#a0958b' : '#221a15',
+                    border: '1.5px solid rgba(43, 34, 26, 0.08)',
                     cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
                     fontSize: 12,
                     fontWeight: 700,
@@ -2201,7 +2318,7 @@ function SongsTab() {
                       height: 28,
                       borderRadius: 6,
                       background: currentPage === idx + 1 ? '#b08850' : 'transparent',
-                      color: currentPage === idx + 1 ? '#000' : '#9ca3af',
+                      color: currentPage === idx + 1 ? '#b08850' : '#87786c',
                       border: 'none',
                       cursor: 'pointer',
                       fontSize: 12,
@@ -2218,9 +2335,9 @@ function SongsTab() {
                   style={{
                     padding: '6px 12px',
                     borderRadius: 6,
-                    background: currentPage === totalPages ? 'rgba(255,255,255,0.02)' : '#1a1a1a',
-                    color: currentPage === totalPages ? '#4b5563' : '#9ca3af',
-                    border: '1.5px solid rgba(255,255,255,0.05)',
+                    background: currentPage === totalPages ? 'rgba(43, 34, 26, 0.02)' : 'rgba(43, 34, 26, 0.05)',
+                    color: currentPage === totalPages ? '#a0958b' : '#221a15',
+                    border: '1.5px solid rgba(43, 34, 26, 0.08)',
                     cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
                     fontSize: 12,
                     fontWeight: 700,
@@ -2241,9 +2358,45 @@ function SongsTab() {
 function ReportsTab() {
   const [reports, setReports] = useState(REPORTS);
   const [filter, setFilter] = useState<'all' | 'copyright' | 'content' | 'user'>('all');
+  const [selectedReports, setSelectedReports] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
   const updateStatus = (id: string, status: string) => {
     setReports((prev) => prev.map((r) => r.id === id ? { ...r, status } : r));
+  };
+
+  const handleBulkInvestigate = () => {
+    if (selectedReports.length === 0) return;
+    setReports(prev => prev.map(r => selectedReports.includes(r.id) ? { ...r, status: 'investigating' } : r));
+    toast.success(`Investigating ${selectedReports.length} reports.`);
+    setSelectedReports([]);
+  };
+
+  const handleBulkResolve = () => {
+    if (selectedReports.length === 0) return;
+    setReports(prev => prev.map(r => selectedReports.includes(r.id) ? { ...r, status: 'resolved' } : r));
+    toast.success(`Resolved ${selectedReports.length} reports.`);
+    setSelectedReports([]);
+  };
+
+  const handleBulkDismiss = () => {
+    if (selectedReports.length === 0) return;
+    setReports(prev => prev.map(r => selectedReports.includes(r.id) ? { ...r, status: 'resolved' } : r));
+    toast.success(`Dismissed ${selectedReports.length} reports.`);
+    setSelectedReports([]);
+  };
+
+  const toggleSelectReport = (id: string) => {
+    setSelectedReports(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  };
+
+  const toggleSelectAllReports = () => {
+    if (selectedReports.length === filtered.length && filtered.length > 0) {
+      setSelectedReports([]);
+    } else {
+      setSelectedReports(filtered.map(r => r.id));
+    }
   };
 
   const SEVERITY_ORDER: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 };
@@ -2252,14 +2405,61 @@ function ReportsTab() {
     .filter((r) => filter === 'all' || r.type === filter)
     .sort((a, b) => (SEVERITY_ORDER[a.severity] ?? 9) - (SEVERITY_ORDER[b.severity] ?? 9));
 
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedReports = filtered.slice(startIndex, startIndex + itemsPerPage);
+
+  useEffect(() => {
+    setCurrentPage(1);
+    setSelectedReports([]);
+  }, [filter]);
+
   const TYPE_ICON: Record<string, string> = { copyright: '©', content: '🚩', user: '👤' };
+
+  // Calculate stats
+  const totalReportsCount = reports.length;
+  const pendingReportsCount = reports.filter(r => r.status === 'pending').length;
+  const investigatingReportsCount = reports.filter(r => r.status === 'investigating').length;
+  const resolvedReportsCount = reports.filter(r => r.status === 'resolved').length;
+
+  const reportStats = [
+    { label: 'Total Reports', value: totalReportsCount, color: '#b08850' },
+    { label: 'Pending Review', value: pendingReportsCount, color: '#f59e0b' },
+    { label: 'Investigating', value: investigatingReportsCount, color: '#10b981' },
+    { label: 'Resolved / Closed', value: resolvedReportsCount, color: '#87786c' },
+  ];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      {/* Stats Bar */}
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
+        style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 12 }}>
+        {reportStats.map((s, i) => (
+          <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+            style={{ background: 'rgba(43, 34, 26, 0.03)', border: '1px solid rgba(43, 34, 26, 0.08)', borderRadius: 16, padding: '20px 24px' }}>
+            <div style={{ fontSize: 32, fontWeight: 900, color: s.color, fontFamily: "'Outfit', sans-serif", lineHeight: 1 }}>{s.value}</div>
+            <div style={{ fontSize: 12, color: '#87786c', marginTop: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{s.label}</div>
+          </motion.div>
+        ))}
+      </motion.div>
+
+      {/* Bulk Actions Banner */}
+      {selectedReports.length > 0 && (
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+          style={{ background: 'rgba(176, 136, 80, 0.1)', border: '1px solid rgba(176, 136, 80, 0.3)', borderRadius: 14, padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: '#b08850' }}>{selectedReports.length} reports selected</span>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button onClick={handleBulkInvestigate} style={{ background: '#b08850', border: 'none', borderRadius: 8, color: '#fff', padding: '6px 14px', fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>Investigate Selected</button>
+            <button onClick={handleBulkResolve} style={{ background: '#10b981', border: 'none', borderRadius: 8, color: '#fff', padding: '6px 14px', fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>Resolve Selected</button>
+            <button onClick={handleBulkDismiss} style={{ background: '#ef4444', border: 'none', borderRadius: 8, color: '#fff', padding: '6px 14px', fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>Dismiss Selected</button>
+          </div>
+        </motion.div>
+      )}
+
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', fontFamily: 'Outfit, sans-serif' }}>Reports & Flags</div>
-          <div style={{ fontSize: 13, color: '#6b7280' }}>
+          <div style={{ fontSize: 22, fontWeight: 800, color: '#221a15', fontFamily: 'Outfit, sans-serif' }}>Reports & Flags</div>
+          <div style={{ fontSize: 13, color: '#87786c' }}>
             {reports.filter((r) => r.status === 'pending').length} open reports requiring action
           </div>
         </div>
@@ -2269,15 +2469,16 @@ function ReportsTab() {
               key={f}
               onClick={() => setFilter(f)}
               style={{
-                padding: '8px 14px',
-                borderRadius: 8,
-                border: 'none',
-                background: filter === f ? '#b08850' : '#1a1a1a',
-                color: filter === f ? '#fff' : '#9ca3af',
+                padding: '6px 14px',
+                borderRadius: 20,
                 fontSize: 12,
                 fontWeight: 600,
                 cursor: 'pointer',
                 textTransform: 'capitalize',
+                transition: 'all 0.2s',
+                border: `1px solid ${filter === f ? '#b08850' : 'rgba(43, 34, 26, 0.08)'}`,
+                background: filter === f ? 'rgba(176, 136, 80, 0.12)' : 'transparent',
+                color: filter === f ? '#b08850' : '#87786c',
               }}
             >
               {f === 'all' ? 'All' : f === 'copyright' ? '© Copyright' : f === 'content' ? '🚩 Content' : '👤 User'}
@@ -2286,21 +2487,47 @@ function ReportsTab() {
         </div>
       </div>
 
+      {/* Select All Checkbox Bar */}
+      {filtered.length > 0 && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px', background: 'rgba(43, 34, 26, 0.02)', borderRadius: 8, border: '1px solid rgba(43, 34, 26, 0.06)' }}>
+          <input
+            type="checkbox"
+            checked={filtered.length > 0 && selectedReports.length === filtered.length}
+            onChange={toggleSelectAllReports}
+            style={{ accentColor: '#b08850', cursor: 'pointer' }}
+          />
+          <span style={{ fontSize: 11, fontWeight: 800, color: '#87786c', letterSpacing: '0.05em' }}>SELECT ALL IN THIS VIEW</span>
+        </div>
+      )}
+
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {filtered.map((report, i) => (
+        {paginatedReports.map((report, i) => (
           <motion.div
             key={report.id}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.06 }}
+            transition={{ delay: i * 0.03 }}
             style={{
-              background: '#121212',
+              background: '#ffffff',
               borderRadius: 14,
-              border: `1px solid ${report.severity === 'critical' ? 'rgba(239,68,68,0.3)' : '#1a1a1a'}`,
+              border: `1px solid ${report.severity === 'critical' ? 'rgba(239,68,68,0.3)' : 'rgba(43, 34, 26, 0.08)'}`,
               padding: '20px 24px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 16,
+              boxShadow: '0 2px 8px rgba(43,34,26,0.02)',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
+            <div style={{ flexShrink: 0 }}>
+              <input
+                type="checkbox"
+                checked={selectedReports.includes(report.id)}
+                onChange={() => toggleSelectReport(report.id)}
+                style={{ accentColor: '#b08850', cursor: 'pointer', width: 16, height: 16 }}
+              />
+            </div>
+            
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flex: 1 }}>
               <div style={{ display: 'flex', gap: 14, flex: 1 }}>
                 <div style={{
                   width: 44,
@@ -2317,14 +2544,14 @@ function ReportsTab() {
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{report.title}</span>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: '#221a15' }}>{report.title}</span>
                     <StatusBadge status={report.severity} />
                     <StatusBadge status={report.status} />
                   </div>
-                  <div style={{ fontSize: 13, color: '#9ca3af', lineHeight: 1.6, marginBottom: 8 }}>
+                  <div style={{ fontSize: 13, color: '#5c4f46', lineHeight: 1.6, marginBottom: 8 }}>
                     {report.description}
                   </div>
-                  <div style={{ display: 'flex', gap: 20, fontSize: 11, color: '#6b7280' }}>
+                  <div style={{ display: 'flex', gap: 20, fontSize: 11, color: '#87786c' }}>
                     <span>📅 {report.reportedAt}</span>
                     <span>👤 {report.reporter}</span>
                     {report.trackId && <span>🎵 {report.trackId}</span>}
@@ -2355,7 +2582,7 @@ function ReportsTab() {
                 </div>
               )}
               {report.status === 'resolved' && (
-                <div style={{ fontSize: 12, color: '#6b7280', padding: '6px 0' }}>Closed</div>
+                <div style={{ fontSize: 12, color: '#87786c', padding: '6px 0', fontWeight: 600 }}>Closed</div>
               )}
             </div>
           </motion.div>
@@ -2363,44 +2590,117 @@ function ReportsTab() {
 
         {filtered.length === 0 && (
           <div style={{
-            background: '#121212',
+            background: '#ffffff',
             borderRadius: 14,
-            border: '1px solid #1a1a1a',
+            border: '1px solid rgba(43, 34, 26, 0.08)',
             padding: '48px',
             textAlign: 'center',
-            color: '#6b7280',
+            color: '#87786c',
             fontSize: 14,
           }}>
             No reports in this category
           </div>
         )}
       </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '16px 20px',
+          borderTop: '1px solid rgba(43, 34, 26, 0.08)',
+          background: 'rgba(43, 34, 26, 0.02)',
+          borderRadius: 12,
+        }}>
+          <div style={{ fontSize: 12, color: '#87786c' }}>
+            Showing {startIndex + 1}-{Math.min(startIndex + itemsPerPage, filtered.length)} of {filtered.length} reports
+          </div>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              style={{
+                padding: '6px 12px',
+                borderRadius: 6,
+                background: currentPage === 1 ? 'rgba(43, 34, 26, 0.02)' : 'rgba(43, 34, 26, 0.05)',
+                color: currentPage === 1 ? '#a0958b' : '#221a15',
+                border: '1.5px solid rgba(43, 34, 26, 0.08)',
+                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                fontSize: 12,
+                fontWeight: 700,
+              }}
+            >
+              ← Previous
+            </button>
+            
+            {Array.from({ length: totalPages }).map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentPage(idx + 1)}
+                style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: 6,
+                  background: currentPage === idx + 1 ? '#b08850' : 'transparent',
+                  color: currentPage === idx + 1 ? '#fff' : '#87786c',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: 12,
+                  fontWeight: 800,
+                }}
+              >
+                {idx + 1}
+              </button>
+            ))}
+            
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              style={{
+                padding: '6px 12px',
+                borderRadius: 6,
+                background: currentPage === totalPages ? 'rgba(43, 34, 26, 0.02)' : 'rgba(43, 34, 26, 0.05)',
+                color: currentPage === totalPages ? '#a0958b' : '#221a15',
+                border: '1.5px solid rgba(43, 34, 26, 0.08)',
+                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                fontSize: 12,
+                fontWeight: 700,
+              }}
+            >
+              Next →
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 // ─── Main Dashboard Page ─────────────────────────────────────────────────────
-const TABS: { id: TabType; label: string; emoji?: string }[] = [
+const TABS: { id: TabType; label: string; emoji?: string; superAdminOnly?: boolean; permission?: string }[] = [
   { id: 'overview', label: 'Overview', emoji: '📊' },
-  { id: 'artists', label: 'Artists', emoji: '🎤' },
-  { id: 'songs', label: 'Songs', emoji: '🎵' },
-  { id: 'users', label: 'Users', emoji: '👥' },
-  { id: 'reports', label: 'Reports', emoji: '🚩' },
-  { id: 'subscriptions', label: 'Subscriptions', emoji: '💳' },
-  { id: 'payments', label: 'Payments', emoji: '💰' },
-  { id: 'analytics', label: 'Analytics', emoji: '📈' },
-  { id: 'marketing', label: 'Marketing', emoji: '📣' },
-  { id: 'notifications', label: 'Notifications', emoji: '🔔' },
-  { id: 'support', label: 'Support', emoji: '🎧' },
-  { id: 'payouts', label: 'Payouts', emoji: '💸' },
-  { id: 'geography', label: 'Geography', emoji: '🌍' },
-  { id: 'health', label: 'System Health', emoji: '⚡' },
-  { id: 'api', label: 'API Keys', emoji: '🔑' },
-  { id: 'audit', label: 'Audit Logs', emoji: '🔐' },
-  { id: 'abtests', label: 'A/B Testing', emoji: '🧪' },
-  { id: 'email', label: 'Email', emoji: '✉️' },
-  { id: 'content', label: 'Content Library', emoji: '📚' },
-  { id: 'settings', label: 'Settings', emoji: '⚙️' },
+  { id: 'artists', label: 'Artists', emoji: '🎤', permission: 'manage_artists' },
+  { id: 'songs', label: 'Songs', emoji: '🎵', permission: 'manage_songs' },
+  { id: 'users', label: 'Users', emoji: '👥', permission: 'manage_users' },
+  { id: 'reports', label: 'Reports', emoji: '🚩', permission: 'manage_reports' },
+  { id: 'subscriptions', label: 'Subscriptions', emoji: '💳', permission: 'manage_subscriptions' },
+  { id: 'payments', label: 'Payments', emoji: '💰', permission: 'manage_payments' },
+  { id: 'analytics', label: 'Analytics', emoji: '📈', permission: 'view_analytics' },
+  { id: 'marketing', label: 'Marketing', emoji: '📣', permission: 'manage_marketing' },
+  { id: 'notifications', label: 'Notifications', emoji: '🔔', permission: 'manage_notifications' },
+  { id: 'support', label: 'Support', emoji: '🎧', permission: 'manage_support' },
+  { id: 'payouts', label: 'Payouts', emoji: '💸', permission: 'manage_payouts' },
+  { id: 'geography', label: 'Geography', emoji: '🌍', permission: 'manage_geography' },
+  { id: 'health', label: 'System Health', emoji: '⚡', permission: 'manage_settings' },
+  { id: 'api', label: 'API Keys', emoji: '🔑', permission: 'manage_api_keys' },
+  { id: 'audit', label: 'Audit Logs', emoji: '🔐', permission: 'view_audit_logs' },
+  { id: 'abtests', label: 'A/B Testing', emoji: '🧪', permission: 'manage_ab_tests' },
+  { id: 'email', label: 'Email', emoji: '✉️', permission: 'manage_email' },
+  { id: 'content', label: 'Content Library', emoji: '📚', permission: 'manage_content' },
+  { id: 'settings', label: 'Settings', emoji: '⚙️', permission: 'manage_settings' },
+  { id: 'superadmin', label: 'Super Admin', emoji: '👑', superAdminOnly: true },
 ];
 
 function AdminDashboardContent() {
@@ -2410,7 +2710,43 @@ function AdminDashboardContent() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const searchParams = useSearchParams();
   const tab = searchParams.get('tab');
-  const activeTab = (tab && TABS.some(t => t.id === tab) ? tab : 'overview') as TabType;
+  
+  const hasPermission = (perm: string) => {
+    if (!user) return false;
+    const userRole = user.role || 'USER';
+    if (userRole === 'SUPER_ADMIN' || userRole === 'super_admin') return true;
+    
+    // Client-side fallback if not loaded yet
+    const getFallbackPermissions = (roleName: string, serverPermissions?: string[]) => {
+      if (serverPermissions && Array.isArray(serverPermissions) && serverPermissions.length > 0) {
+        return serverPermissions;
+      }
+      const r = roleName.toLowerCase();
+      if (r === 'admin') {
+        return ['manage_users','manage_artists','manage_songs','manage_subscriptions','manage_payments','view_analytics','manage_reports','manage_notifications','manage_support','manage_content','manage_marketing'];
+      }
+      if (r === 'moderator') {
+        return ['manage_artists','manage_songs','manage_reports','manage_support','manage_content'];
+      }
+      if (r === 'analyst') {
+        return ['view_analytics','manage_reports','export_data'];
+      }
+      return [];
+    };
+
+    const permissions = getFallbackPermissions(userRole, user.permissions);
+    return permissions.includes(perm);
+  };
+
+  let activeTab = (tab && TABS.some(t => t.id === tab) ? tab : 'overview') as TabType;
+  if (activeTab === 'superadmin' && user?.role !== 'SUPER_ADMIN' && user?.role !== 'super_admin') {
+    activeTab = 'overview';
+  } else {
+    const selectedTabObj = TABS.find(t => t.id === activeTab);
+    if (selectedTabObj?.permission && !hasPermission(selectedTabObj.permission)) {
+      activeTab = 'overview';
+    }
+  }
 
   const [liveStats, setLiveStats] = useState<any>({
     activeNow: 0,
@@ -2485,13 +2821,13 @@ function AdminDashboardContent() {
   const pendingReviewCount = uploadedTracks.filter(t => t.status === 'pending').length + applications.filter(a => a.status === 'PENDING').length;
 
   return (
-    <div style={{ fontFamily: 'Inter, sans-serif', minHeight: 'calc(100vh - 114px)', paddingBottom: 32, background: '#0a0a0a' }}>
+    <div className="admin-light-theme" style={{ fontFamily: 'Inter, sans-serif', minHeight: 'calc(100vh - 114px)', paddingBottom: 32, background: '#fbf9f5' }}>
       <TopBar transparent />
       <div style={{ padding: '0 24px' }}>
         {/* Global Stats Bar */}
       <div style={{
-        background: '#121212',
-        border: '1px solid #1a1a1a',
+        background: '#ffffff',
+        border: '1px solid rgba(43, 34, 26, 0.07)',
         borderRadius: 14,
         padding: '14px 24px',
         display: 'flex',
@@ -2500,6 +2836,7 @@ function AdminDashboardContent() {
         marginBottom: 28,
         overflowX: 'auto',
         flexWrap: 'nowrap',
+        boxShadow: '0 2px 8px rgba(43,34,26,0.04)',
       }}>
         {[
           { label: 'Live Streams', value: liveStats.liveStreams.toLocaleString(), color: '#b08850' },
@@ -2507,10 +2844,10 @@ function AdminDashboardContent() {
           { label: 'Active Now', value: `${liveStats.activeNow.toLocaleString()} users`, color: '#06b6d4' },
           { label: 'Pending Review', value: `${pendingReviewCount}`, color: '#f59e0b' },
           { label: 'Open Reports', value: `${REPORTS.filter(r => r.status === 'pending').length}`, color: '#ef4444' },
-          { label: 'Server Time', value: currentTime.toLocaleTimeString(), color: '#9ca3af' },
+          { label: 'Server Time', value: currentTime.toLocaleTimeString(), color: '#a0958b' },
         ].map((stat) => (
           <div key={stat.label} style={{ flexShrink: 0 }}>
-            <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 3, whiteSpace: 'nowrap' }}>{stat.label}</div>
+            <div style={{ fontSize: 11, color: '#87786c', marginBottom: 3, whiteSpace: 'nowrap' }}>{stat.label}</div>
             <motion.div
               key={stat.value}
               initial={{ scale: 0.95, opacity: 0.8 }}
@@ -2539,13 +2876,13 @@ function AdminDashboardContent() {
           fontFamily: 'Outfit, sans-serif',
           fontSize: 30,
           fontWeight: 800,
-          color: '#fff',
+          color: '#221a15',
           margin: 0,
           marginBottom: 4,
         }}>
           Admin Dashboard
         </h1>
-        <p style={{ fontSize: 14, color: '#6b7280', margin: 0 }}>
+        <p style={{ fontSize: 14, color: '#87786c', margin: 0 }}>
           Welcome back, {user?.name} · {currentTime.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
         </p>
       </div>
@@ -2585,6 +2922,7 @@ function AdminDashboardContent() {
           {activeTab === 'email' && <EmailTab />}
           {activeTab === 'content' && <ContentLibraryTab />}
           {activeTab === 'settings' && <SettingsTab />}
+          {activeTab === 'superadmin' && <SuperAdminTab />}
         </motion.div>
       </AnimatePresence>
       </div>
@@ -2597,11 +2935,11 @@ export default function AdminDashboardPage() {
     <Suspense fallback={
       <div style={{
         minHeight: '100vh',
-        background: '#0a0a0a',
+        background: '#fbf9f5',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        color: '#fff',
+        color: '#221a15',
         fontFamily: 'Inter, sans-serif',
       }}>
         Loading Dashboard...

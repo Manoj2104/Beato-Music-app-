@@ -78,6 +78,7 @@ export async function POST(request: NextRequest) {
         playlists: user.playlists || [],
         preferences: user.preferences,
         stats: user.stats,
+        permissions: db.getUserPermissions(user.id),
       },
     });
 

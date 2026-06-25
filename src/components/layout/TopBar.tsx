@@ -30,6 +30,23 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
   const isApproved = activeApp?.status === 'APPROVED';
 
   const isMobile = useIsMobile(); // ⚡ shared single resize listener
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const mainEl = document.getElementById('main-content');
+    if (!mainEl) return;
+
+    const handleScroll = () => {
+      setIsScrolled(mainEl.scrollTop > 15);
+    };
+
+    mainEl.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+
+    return () => {
+      mainEl.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   // Helper to read local cookies
   const getCookie = (name: string) => {
@@ -148,11 +165,26 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
   const barStyle: React.CSSProperties = {
     position: 'sticky', top: 0, zIndex: 50,
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    padding: isMobile ? 'calc(var(--sat, 0px) + 10px) 16px 10px 16px' : '10px 22px',
-    background: transparent ? 'transparent' : bgColor ? `linear-gradient(to bottom, ${bgColor}cc, transparent)` : 'rgba(251,249,245,0.9)',
-    backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
-    borderBottom: transparent ? 'none' : '1px solid rgba(43, 34, 26, 0.05)',
-    transition: 'background 0.3s',
+    padding: isMobile 
+      ? 'calc(var(--sat, 0px) + 10px) 16px 10px 16px' 
+      : isScrolled ? '12px 32px' : '18px 32px',
+    background: transparent 
+      ? (isScrolled ? 'rgba(251,249,245,0.85)' : 'transparent')
+      : bgColor 
+        ? `linear-gradient(to bottom, ${bgColor}cc, transparent)` 
+        : 'rgba(251,249,245,0.9)',
+    backdropFilter: transparent 
+      ? (isScrolled ? 'blur(20px)' : 'none')
+      : 'blur(20px)',
+    WebkitBackdropFilter: transparent 
+      ? (isScrolled ? 'blur(20px)' : 'none')
+      : 'blur(20px)',
+    borderBottom: transparent 
+      ? (isScrolled ? '1px solid rgba(43, 34, 26, 0.06)' : 'none')
+      : '1px solid rgba(43, 34, 26, 0.06)',
+    boxShadow: isScrolled ? '0 8px 30px rgba(43, 34, 26, 0.03)' : 'none',
+    transition: 'all 0.3s ease-in-out',
+    width: '100%',
   };
 
   const userMenuItems = [
@@ -217,14 +249,14 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
     <div style={barStyle}>
       {/* Nav buttons */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <button onClick={() => router.back()} className="flex" style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(43,34,26,0.05)', border: 'none', cursor: 'pointer', alignItems: 'center', justifyContent: 'center', color: '#221a15', transition: 'background 0.15s' }}
-          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(43,34,26,0.1)')}
-          onMouseLeave={e => (e.currentTarget.style.background = 'rgba(43,34,26,0.05)')}>
+        <button onClick={() => router.back()} className="flex" style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255, 255, 255, 0.6)', border: '1px solid rgba(43, 34, 26, 0.08)', cursor: 'pointer', alignItems: 'center', justifyContent: 'center', color: '#221a15', transition: 'all 0.2s', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.9)'; e.currentTarget.style.transform = 'scale(1.05)'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.6)'; e.currentTarget.style.transform = 'scale(1)'; }}>
           <ChevronLeft size={17} />
         </button>
-        <button onClick={() => router.forward()} className="hidden md:flex" style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(43,34,26,0.05)', border: 'none', cursor: 'pointer', alignItems: 'center', justifyContent: 'center', color: '#221a15', transition: 'background 0.15s' }}
-          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(43,34,26,0.1)')}
-          onMouseLeave={e => (e.currentTarget.style.background = 'rgba(43,34,26,0.05)')}>
+        <button onClick={() => router.forward()} className="hidden md:flex" style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255, 255, 255, 0.6)', border: '1px solid rgba(43, 34, 26, 0.08)', cursor: 'pointer', alignItems: 'center', justifyContent: 'center', color: '#221a15', transition: 'all 0.2s', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.9)'; e.currentTarget.style.transform = 'scale(1.05)'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.6)'; e.currentTarget.style.transform = 'scale(1)'; }}>
           <ChevronRight size={17} />
         </button>
 
@@ -286,25 +318,37 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
 
         {/* ── Search Box on TopBar ── */}
         {showSearch && (
-          <div className="hidden md:block relative w-[220px] z-[100]">
+          <div className="hidden md:block relative w-[260px] z-[100]">
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
               <Search size={14} color={searchQuery ? '#221a15' : '#87786c'} style={{ position: 'absolute', left: 12, flexShrink: 0 }} />
               <input
                 value={searchQuery}
                 onChange={e => { handleSearchChange(e.target.value); setShowSearchDropdown(true); }}
-                onFocus={() => setShowSearchDropdown(true)}
                 placeholder="Search..."
                 style={{
                   width: '100%',
-                  background: 'rgba(43,34,26,0.05)',
-                  border: `1px solid ${searchQuery ? G : 'transparent'}`,
+                  background: 'rgba(255, 255, 255, 0.6)',
+                  backdropFilter: 'blur(10px)',
+                  border: `1px solid ${searchQuery ? G : 'rgba(43, 34, 26, 0.08)'}`,
                   borderRadius: 20,
-                  padding: '6px 30px 6px 32px',
+                  padding: '8px 30px 8px 34px',
                   color: '#221a15',
-                  fontSize: 12,
+                  fontSize: 12.5,
                   outline: 'none',
                   fontFamily: 'Inter, sans-serif',
-                  transition: 'all 0.2s',
+                  transition: 'all 0.25s ease-in-out',
+                  boxShadow: '0 2px 10px rgba(0,0,0,0.02)'
+                }}
+                onFocus={e => {
+                  setShowSearchDropdown(true);
+                  e.currentTarget.style.borderColor = G;
+                  e.currentTarget.style.background = '#ffffff';
+                  e.currentTarget.style.boxShadow = '0 4px 15px rgba(176, 136, 80, 0.08)';
+                }}
+                onBlur={e => {
+                  e.currentTarget.style.borderColor = searchQuery ? G : 'rgba(43, 34, 26, 0.08)';
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.6)';
+                  e.currentTarget.style.boxShadow = '0 2px 10px rgba(0,0,0,0.02)';
                 }}
               />
               {searchQuery && (
@@ -448,17 +492,17 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
 
         {/* Explore Premium */}
         <Link href="/premium" className="hidden md:block" style={{ textDecoration: 'none' }}>
-          <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 100, background: 'rgba(43,34,26,0.05)', border: '1px solid rgba(43,34,26,0.1)', color: '#221a15', fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'background 0.15s' }}
-            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(43,34,26,0.08)')}
-            onMouseLeave={e => (e.currentTarget.style.background = 'rgba(43,34,26,0.05)')}>
-            <Crown size={13} color="#fbbf24" /> Explore Premium
+          <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 100, background: 'rgba(255, 255, 255, 0.6)', border: '1px solid rgba(176, 136, 80, 0.15)', color: '#221a15', fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(176, 136, 80, 0.06)'; e.currentTarget.style.borderColor = 'rgba(176, 136, 80, 0.4)'; e.currentTarget.style.transform = 'scale(1.02)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.6)'; e.currentTarget.style.borderColor = 'rgba(176, 136, 80, 0.15)'; e.currentTarget.style.transform = 'scale(1)'; }}>
+            <Crown size={13} color="#fbbf24" style={{ filter: 'drop-shadow(0 1px 2px rgba(251, 191, 36, 0.3))' }} /> Explore Premium
           </button>
         </Link>
 
         {/* Install App */}
-        <button className="hidden md:block" style={{ padding: '6px 14px', borderRadius: 100, background: '#221a15', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', border: 'none', transition: 'transform 0.15s' }}
-          onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.04)')}
-          onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}>
+        <button className="hidden md:block" style={{ padding: '8px 16px', borderRadius: 100, background: 'linear-gradient(135deg, #221a15 0%, #3a2e25 100%)', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', border: 'none', transition: 'all 0.2s', boxShadow: '0 4px 10px rgba(34, 26, 21, 0.15)' }}
+          onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.03)'; e.currentTarget.style.boxShadow = '0 6px 14px rgba(34, 26, 21, 0.25)'; }}
+          onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 4px 10px rgba(34, 26, 21, 0.15)'; }}>
           Install App
         </button>
 

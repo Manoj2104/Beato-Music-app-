@@ -46,14 +46,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const showRightPanel = (showQueue || showLyrics || (showNowPlaying && !showQueue && !showLyrics)) && !!currentTrack;
 
   useEffect(() => {
-    // ⚡ Throttle: only call initializeSession & fetchTracks once per browser tab session
-    const sessionKey = 'beato-layout-init';
-    const alreadyInit = typeof sessionStorage !== 'undefined' && sessionStorage.getItem(sessionKey);
-    if (!alreadyInit) {
-      if (typeof sessionStorage !== 'undefined') sessionStorage.setItem(sessionKey, '1');
-      initializeSession();
-      fetchTracks();
-    }
+    initializeSession(true); // force session reload on layout mount to sync permissions
+    fetchTracks();
   }, []);
 
   useEffect(() => {
@@ -96,10 +90,14 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         const unsubNotif = socketManager.on('NOTIFICATION', (n) => {
           addNotification(n);
         });
+        const unsubPerms = socketManager.on('ROLE_PERMISSION_UPDATE', () => {
+          console.log('[Socket] Received ROLE_PERMISSION_UPDATE event! Refreshing session in real time...');
+          initializeSession(true);
+        });
         // Return cleanup inside the timeout callback — attach to outer ref
         (window as any).__beatoRealtimeCleanup = () => {
           clearInterval(realtimePoll);
-          unsubNewSong(); unsubNotif();
+          unsubNewSong(); unsubNotif(); unsubPerms();
         };
       } else {
         (window as any).__beatoRealtimeCleanup = () => clearInterval(realtimePoll);

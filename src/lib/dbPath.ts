@@ -2,7 +2,7 @@ import path from 'path';
 import fs from 'fs';
 
 export function getDbFilePath(): string {
-  const isVercel = process.env.VERCEL || process.env.NOW_BUILDER || process.env.NODE_ENV === 'production';
+  const isVercel = !!(process.env.VERCEL || process.env.NOW_BUILDER);
   
   if (isVercel) {
     const tmpDir = '/tmp';

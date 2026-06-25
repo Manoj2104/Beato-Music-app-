@@ -141,7 +141,7 @@ export default function MobileDrawer() {
               )}
 
               {/* Artist Panel Accordion for ARTIST or SUPER_ADMIN */}
-              {(role === 'ARTIST' || role === 'SUPER_ADMIN') && (
+              {(role === 'ARTIST' || role === 'SUPER_ADMIN' || role === 'super_admin') && (
                 <div>
                   <div 
                     onClick={() => setIsArtistPanelOpen(!isArtistPanelOpen)}
@@ -196,7 +196,7 @@ export default function MobileDrawer() {
               )}
 
               {/* Admin Panel for ADMIN or SUPER_ADMIN */}
-              {(role === 'ADMIN' || role === 'SUPER_ADMIN') && (
+              {(role === 'ADMIN' || role === 'SUPER_ADMIN' || role === 'admin' || role === 'super_admin' || role === 'moderator' || role === 'analyst' || role === 'MODERATOR' || role === 'ANALYST') && (
                 <Link href="/admin/dashboard" onClick={() => setMobileDrawerOpen(false)} style={{ textDecoration: 'none' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 16, cursor: 'pointer', color: 'var(--color-ss-text-primary, #221a15)' }}>
                     <Shield size={24} color="var(--color-ss-text-primary, #221a15)" />

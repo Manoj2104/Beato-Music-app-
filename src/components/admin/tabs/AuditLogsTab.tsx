@@ -32,7 +32,7 @@ interface AuditEntry {
 }
 
 const inputStyle: React.CSSProperties = {
-  background: '#0c0c0c', border: '1px solid #222', borderRadius: 9,
+  background: '#ffffff', border: '1px solid rgba(43,34,26,0.1)', borderRadius: 9,
   padding: '9px 14px', color: '#e5e7eb', fontSize: 13, outline: 'none',
   transition: 'border-color 0.2s', width: '100%'
 };
@@ -62,7 +62,7 @@ const severityColor = (severity: 'low' | 'medium' | 'high') => {
 };
 
 const card = (style?: React.CSSProperties): React.CSSProperties => ({
-  background: '#0d0d0d', border: '1px solid #1a1a1a', borderRadius: 16, padding: 22,
+  background: '#ffffff', border: '1px solid rgba(43,34,26,0.07)', borderRadius: 16, padding: 22,
   boxShadow: '0 4px 30px rgba(0, 0, 0, 0.4)', ...style,
 });
 
@@ -224,7 +224,7 @@ export default function AuditLogsTab() {
             <Terminal size={24} className="text-emerald-500" />
             Audit Logging Portal
           </h2>
-          <p style={{ fontSize: 13, color: '#6b7280', margin: '4px 0 0' }}>Trace real-time administrator operations, security alerts, and system activities.</p>
+          <p style={{ fontSize: 13, color: '#87786c', margin: '4px 0 0' }}>Trace real-time administrator operations, security alerts, and system activities.</p>
         </div>
         
         {/* Live Stream Controls */}
@@ -252,8 +252,8 @@ export default function AuditLogsTab() {
             style={card({ display: 'flex', alignItems: 'center', gap: 14, position: 'relative', overflow: 'hidden' })}>
             <span style={{ fontSize: 26, background: '#181818', padding: 8, borderRadius: 10 }}>{s.icon}</span>
             <div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', lineHeight: 1.1 }}>{s.value}</div>
-              <div style={{ fontSize: 11, color: '#6b7280', marginTop: 4, fontWeight: 600, textTransform: 'uppercase' }}>{s.label}</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: '#221a15', lineHeight: 1.1 }}>{s.value}</div>
+              <div style={{ fontSize: 11, color: '#87786c', marginTop: 4, fontWeight: 600, textTransform: 'uppercase' }}>{s.label}</div>
             </div>
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, background: `linear-gradient(to right, ${s.color}00, ${s.color}40, ${s.color}00)` }} />
           </motion.div>
@@ -268,9 +268,9 @@ export default function AuditLogsTab() {
               <TrendingUp size={16} className="text-emerald-500" />
               Event Volume Distribution Trail
             </h3>
-            <p style={{ margin: '2px 0 0', fontSize: 11, color: '#6b7280' }}>Real-time logs load activity metrics by category.</p>
+            <p style={{ margin: '2px 0 0', fontSize: 11, color: '#87786c' }}>Real-time logs load activity metrics by category.</p>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 11, color: '#6b7280' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 11, color: '#87786c' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981' }} /> Admin</span>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444' }} /> Security</span>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#f59e0b' }} /> System</span>
@@ -284,14 +284,14 @@ export default function AuditLogsTab() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#161616" />
                 <XAxis dataKey="time" stroke="#6b7280" fontSize={10} tickLine={false} />
                 <YAxis stroke="#6b7280" fontSize={10} tickLine={false} />
-                <Tooltip contentStyle={{ background: '#090909', border: '1px solid #1c1c1c', borderRadius: 8, color: '#fff', fontSize: 12 }} />
+                <Tooltip contentStyle={{ background: '#090909', border: '1px solid #1c1c1c', borderRadius: 8, color: '#221a15', fontSize: 12 }} />
                 <Area type="monotone" dataKey="admin" stroke="#10b981" fill="#10b981" fillOpacity={0.05} strokeWidth={2} name="Admin Actions" />
                 <Area type="monotone" dataKey="security" stroke="#ef4444" fill="#ef4444" fillOpacity={0.05} strokeWidth={2} name="Security Events" />
                 <Area type="monotone" dataKey="system" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.05} strokeWidth={2} name="System Events" />
               </AreaChart>
             </ResponsiveContainer>
           ) : (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#6b7280', fontSize: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#87786c', fontSize: 12 }}>
               No audit logs captured. Waiting for real-time user events...
             </div>
           )}
@@ -332,18 +332,18 @@ export default function AuditLogsTab() {
             </div>
             
             <div style={{ display: 'flex', gap: 6 }}>
-              <button onClick={() => exportData('csv')} style={{ padding: '8px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer', border: '1px solid #222', background: '#141414', color: '#e5e7eb' }}>CSV</button>
-              <button onClick={() => exportData('json')} style={{ padding: '8px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer', border: '1px solid #222', background: '#141414', color: '#e5e7eb' }}>JSON</button>
+              <button onClick={() => exportData('csv')} style={{ padding: '8px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer', border: '1px solid rgba(43,34,26,0.1)', background: '#141414', color: '#e5e7eb' }}>CSV</button>
+              <button onClick={() => exportData('json')} style={{ padding: '8px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer', border: '1px solid rgba(43,34,26,0.1)', background: '#141414', color: '#e5e7eb' }}>JSON</button>
             </div>
           </div>
 
-          <div style={{ background: '#0d0d0d', borderRadius: 14, border: '1px solid #1a1a1a', overflow: 'hidden' }}>
+          <div style={{ background: '#ffffff', borderRadius: 14, border: '1px solid rgba(43,34,26,0.07)', overflow: 'hidden' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
               <thead>
-                <tr style={{ background: '#080808', borderBottom: '1px solid #1a1a1a' }}>
+                <tr style={{ background: '#ffffff', borderBottom: '1px solid #1a1a1a' }}>
                   <th style={{ width: 28, padding: '10px 14px' }} />
                   {['Admin / Service', 'Action Logged', 'Target Object', 'IP / Location', 'Timestamp', 'Gateway Code'].map(h => (
-                    <th key={h} style={{ padding: '10px 14px', textAlign: 'left', color: '#6b7280', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 }}>{h}</th>
+                    <th key={h} style={{ padding: '10px 14px', textAlign: 'left', color: '#87786c', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -351,14 +351,14 @@ export default function AuditLogsTab() {
                 <AnimatePresence>
                   {loading && logs.length === 0 ? (
                     <tr>
-                      <td colSpan={7} style={{ padding: 40, textAlign: 'center', color: '#6b7280' }}>
+                      <td colSpan={7} style={{ padding: 40, textAlign: 'center', color: '#87786c' }}>
                         <RefreshCw size={24} className="animate-spin" style={{ margin: '0 auto 10px' }} />
                         Tracing security audit logs...
                       </td>
                     </tr>
                   ) : paginated.length === 0 ? (
                     <tr>
-                      <td colSpan={7} style={{ padding: 40, textAlign: 'center', color: '#6b7280' }}>No matching audit traces found in database.</td>
+                      <td colSpan={7} style={{ padding: 40, textAlign: 'center', color: '#87786c' }}>No matching audit traces found in database.</td>
                     </tr>
                   ) : (
                     paginated.map((e, i) => {
@@ -378,33 +378,33 @@ export default function AuditLogsTab() {
                             <td style={{ padding: '12px 14px', textAlign: 'center' }}>
                               {isExpanded ? <ChevronUp size={14} className="text-zinc-500" /> : <ChevronDown size={14} className="text-zinc-500" />}
                             </td>
-                            <td style={{ padding: '12px 14px', color: '#fff', fontWeight: 700 }}>
+                            <td style={{ padding: '12px 14px', color: '#221a15', fontWeight: 700 }}>
                               <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                                 <User size={13} className="text-zinc-500" />
                                 {e.userName}
                               </span>
                             </td>
                             <td style={{ padding: '12px 14px' }}>
-                              <code style={{ background: '#161616', border: '1px solid #222', padding: '3px 8px', borderRadius: 6, fontSize: 10, color: '#a78bfa', fontFamily: 'monospace' }}>
+                              <code style={{ background: '#ffffff', border: '1px solid rgba(43,34,26,0.1)', padding: '3px 8px', borderRadius: 6, fontSize: 10, color: '#a78bfa', fontFamily: 'monospace' }}>
                                 {e.action}
                               </code>
                             </td>
                             <td style={{ padding: '12px 14px', color: '#a3a3a3', maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{e.target}</td>
                             <td style={{ padding: '12px 14px' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#fff' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#221a15' }}>
                                 <Globe size={11} className="text-zinc-500" />
                                 {e.ipAddress || '127.0.0.1'}
                               </div>
-                              <div style={{ color: '#6b7280', fontSize: 10, paddingLeft: 15 }}>{e.location || 'Internal'}</div>
+                              <div style={{ color: '#87786c', fontSize: 10, paddingLeft: 15 }}>{e.location || 'Internal'}</div>
                             </td>
-                            <td style={{ padding: '12px 14px', color: '#6b7280', whiteSpace: 'nowrap' }}>{e.timestamp}</td>
+                            <td style={{ padding: '12px 14px', color: '#87786c', whiteSpace: 'nowrap' }}>{e.timestamp}</td>
                             <td style={{ padding: '12px 14px' }}>{resultBadge(e.result)}</td>
                           </tr>
 
                           {/* Inspect Detail Sub-row */}
                           <AnimatePresence>
                             {isExpanded && (
-                              <tr key={`detail-${e.id}`} style={{ background: '#121212' }}>
+                              <tr key={`detail-${e.id}`} style={{ background: '#ffffff' }}>
                                 <td colSpan={8} style={{ padding: '12px 24px 20px 56px', borderBottom: '1px solid #1a1a1a' }}>
                                   <motion.div
                                     initial={{ opacity: 0, height: 0 }}
@@ -416,7 +416,7 @@ export default function AuditLogsTab() {
                                       
                                       {/* Event Details JSON */}
                                       <div style={{ background: '#090909', border: '1px solid #1c1c1c', borderRadius: 8, padding: 14 }}>
-                                        <span style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>Raw Action Metadata JSON</span>
+                                        <span style={{ fontSize: 11, fontWeight: 700, color: '#87786c', textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>Raw Action Metadata JSON</span>
                                         <pre style={{
                                           background: '#040404', border: '1px solid #161616', borderRadius: 6,
                                           padding: 10, margin: 0, overflowX: 'auto', fontFamily: 'monospace', fontSize: 10, color: '#10b981'
@@ -439,18 +439,18 @@ export default function AuditLogsTab() {
                                       {/* Security Action Controls */}
                                       <div style={{ background: '#090909', border: '1px solid #1c1c1c', borderRadius: 8, padding: 14, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                                         <div>
-                                          <span style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>Admin Controls</span>
+                                          <span style={{ fontSize: 11, fontWeight: 700, color: '#87786c', textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>Admin Controls</span>
                                           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                                             <div style={{ fontSize: 11, display: 'flex', justifyContent: 'space-between' }}>
-                                              <span style={{ color: '#6b7280' }}>Severity:</span>
+                                              <span style={{ color: '#87786c' }}>Severity:</span>
                                               <span style={{ color: severityColor(e.severity), fontWeight: 700, textTransform: 'capitalize' }}>{e.severity}</span>
                                             </div>
                                             <div style={{ fontSize: 11, display: 'flex', justifyContent: 'space-between' }}>
-                                              <span style={{ color: '#6b7280' }}>Category:</span>
-                                              <span style={{ color: '#fff', fontWeight: 600 }}>{e.category}</span>
+                                              <span style={{ color: '#87786c' }}>Category:</span>
+                                              <span style={{ color: '#221a15', fontWeight: 600 }}>{e.category}</span>
                                             </div>
                                             <div style={{ fontSize: 11, display: 'flex', justifyContent: 'space-between' }}>
-                                              <span style={{ color: '#6b7280' }}>Status Code:</span>
+                                              <span style={{ color: '#87786c' }}>Status Code:</span>
                                               <span style={{ color: e.result === 'success' ? '#10b981' : '#ef4444', fontWeight: 600 }}>{e.result === 'success' ? '200 OK' : '500 ERROR'}</span>
                                             </div>
                                           </div>
@@ -495,7 +495,7 @@ export default function AuditLogsTab() {
             {/* Pagination Controls */}
             {totalPages > 1 && (
               <div style={{ padding: '12px 16px', borderTop: '1px solid #1a1a1a', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: 11, color: '#6b7280' }}>Showing {(page - 1) * PER_PAGE + 1}–{Math.min(page * PER_PAGE, filtered.length)} of {filtered.length} logs</span>
+                <span style={{ fontSize: 11, color: '#87786c' }}>Showing {(page - 1) * PER_PAGE + 1}–{Math.min(page * PER_PAGE, filtered.length)} of {filtered.length} logs</span>
                 <div style={{ display: 'flex', gap: 4 }}>
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
                     <button key={p} onClick={() => setPage(p)}
@@ -514,7 +514,7 @@ export default function AuditLogsTab() {
 
         {/* Right Column: Dynamic Security Alerts Box */}
         <div>
-          <div style={{ background: '#0d0d0d', borderRadius: 14, border: '1px solid #2a1a1a', padding: 18 }}>
+          <div style={{ background: '#ffffff', borderRadius: 14, border: '1px solid #2a1a1a', padding: 18 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
               <div style={{ fontWeight: 800, fontSize: 14, color: '#ef4444', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span>🚨</span> Security Alerts
@@ -548,7 +548,7 @@ export default function AuditLogsTab() {
                         onClick={() => handleDismissAlert(a.id)}
                         style={{
                           padding: '3px 8px', borderRadius: 4, border: 'none', cursor: 'pointer',
-                          fontSize: 10, fontWeight: 700, background: '#161616', color: '#6b7280'
+                          fontSize: 10, fontWeight: 700, background: '#ffffff', color: '#87786c'
                         }}
                       >
                         Dismiss
@@ -569,7 +569,7 @@ export default function AuditLogsTab() {
               <button
                 onClick={() => toast('Security audit dispatch logs initialized.')}
                 style={{
-                  width: '100%', padding: '8px 0', borderRadius: 8, border: '1px solid #222',
+                  width: '100%', padding: '8px 0', borderRadius: 8, border: '1px solid rgba(43,34,26,0.1)',
                   background: '#141414', color: '#a3a3a3', fontSize: 11, fontWeight: 600, cursor: 'pointer'
                 }}
               >

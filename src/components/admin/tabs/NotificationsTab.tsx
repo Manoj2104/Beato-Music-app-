@@ -75,11 +75,11 @@ const audienceLabels: Record<Audience, string> = {
 // ─── Styles ────────────────────────────────────────────────────────────────────
 
 const cardStyle: React.CSSProperties = {
-  background: 'rgba(255, 255, 255, 0.03)',
+  background: 'rgba(43, 34, 26, 0.03)',
   border: '1px solid rgba(255, 255, 255, 0.07)',
   borderRadius: 18,
   padding: '24px',
-  boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.3)',
+  boxShadow: '0 8px 32px 0 rgba(43, 34, 26, 0.08)',
   backdropFilter: 'blur(10px)',
 };
 
@@ -88,7 +88,7 @@ const inputStyle: React.CSSProperties = {
   background: 'rgba(0, 0, 0, 0.4)',
   border: '1px solid rgba(255, 255, 255, 0.12)',
   borderRadius: 10,
-  color: '#fff',
+  color: '#221a15',
   padding: '12px 14px',
   fontSize: 14,
   fontFamily: 'Inter, sans-serif',
@@ -151,7 +151,7 @@ function EditTemplateModal({ template, onClose, onSave }: EditTemplateModalProps
       <motion.div initial={{ scale: 0.95, y: 15 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 15 }}
         style={{ ...cardStyle, width: 480, maxWidth: '95vw', background: '#101010', border: '1px solid rgba(255,255,255,0.1)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-          <div style={{ fontSize: 18, fontWeight: 800, fontFamily: 'Outfit, sans-serif', color: '#fff', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ fontSize: 18, fontWeight: 800, fontFamily: 'Outfit, sans-serif', color: '#221a15', display: 'flex', alignItems: 'center', gap: 8 }}>
             <Sparkles size={18} color={GREEN} /> {template ? 'Edit Template' : 'Create Template'}
           </div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#888', cursor: 'pointer', display: 'flex', padding: 4 }}
@@ -225,7 +225,7 @@ function LogDetailsModal({ notification, onClose }: LogDetailsProps) {
                 {sc.label}
               </span>
             </div>
-            <h3 style={{ margin: 0, fontSize: 20, fontWeight: 800, fontFamily: 'Outfit, sans-serif', color: '#fff' }}>{notification.title}</h3>
+            <h3 style={{ margin: 0, fontSize: 20, fontWeight: 800, fontFamily: 'Outfit, sans-serif', color: '#221a15' }}>{notification.title}</h3>
           </div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#666', cursor: 'pointer', display: 'flex', padding: 4 }}
             onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = '#666'}>
@@ -234,7 +234,7 @@ function LogDetailsModal({ notification, onClose }: LogDetailsProps) {
         </div>
 
         {/* Message Panel */}
-        <div style={{ background: 'rgba(0, 0, 0, 0.3)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: 12, padding: 16, marginBottom: 24 }}>
+        <div style={{ background: 'rgba(43, 34, 26, 0.08)', border: '1px solid rgba(43, 34, 26, 0.05)', borderRadius: 12, padding: 16, marginBottom: 24 }}>
           <label style={{ ...labelStyle, marginBottom: 4 }}>Broadcast Message</label>
           <p style={{ margin: 0, color: '#e5e7eb', fontSize: 14, lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{notification.message}</p>
         </div>
@@ -245,15 +245,15 @@ function LogDetailsModal({ notification, onClose }: LogDetailsProps) {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
             <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 10, padding: 12, textAlign: 'center' }}>
               <div style={{ fontSize: 10, color: '#555', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.05em', marginBottom: 4 }}>Sent Target</div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: '#fff', fontFamily: 'Outfit, sans-serif' }}>{notification.sentCount.toLocaleString()}</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: '#221a15', fontFamily: 'Outfit, sans-serif' }}>{notification.sentCount.toLocaleString()}</div>
             </div>
             <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 10, padding: 12, textAlign: 'center' }}>
               <div style={{ fontSize: 10, color: '#555', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.05em', marginBottom: 4 }}>Delivered</div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: '#fff', fontFamily: 'Outfit, sans-serif' }}>{notification.deliveredCount.toLocaleString()}</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: '#221a15', fontFamily: 'Outfit, sans-serif' }}>{notification.deliveredCount.toLocaleString()}</div>
             </div>
             <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 10, padding: 12, textAlign: 'center' }}>
               <div style={{ fontSize: 10, color: '#555', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.05em', marginBottom: 4 }}>Opened</div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: '#fff', fontFamily: 'Outfit, sans-serif' }}>{notification.openedCount.toLocaleString()}</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: '#221a15', fontFamily: 'Outfit, sans-serif' }}>{notification.openedCount.toLocaleString()}</div>
             </div>
           </div>
 
@@ -276,18 +276,18 @@ function LogDetailsModal({ notification, onClose }: LogDetailsProps) {
         {/* Info Block */}
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 16, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, fontSize: 12, color: '#888' }}>
           <div>
-            <div style={{ marginBottom: 4 }}>Target Group: <span style={{ color: '#fff', fontWeight: 600 }}>{audienceLabels[notification.audience]}</span></div>
-            <div>Sent Method: <span style={{ color: '#fff', fontWeight: 600, textTransform: 'uppercase' }}>{notification.type}</span></div>
+            <div style={{ marginBottom: 4 }}>Target Group: <span style={{ color: '#221a15', fontWeight: 600 }}>{audienceLabels[notification.audience]}</span></div>
+            <div>Sent Method: <span style={{ color: '#221a15', fontWeight: 600, textTransform: 'uppercase' }}>{notification.type}</span></div>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ marginBottom: 4 }}>Dispatched: <span style={{ color: '#fff' }}>{notification.sentAt ? new Date(notification.sentAt).toLocaleString() : 'Not Dispatched'}</span></div>
+            <div style={{ marginBottom: 4 }}>Dispatched: <span style={{ color: '#221a15' }}>{notification.sentAt ? new Date(notification.sentAt).toLocaleString() : 'Not Dispatched'}</span></div>
             {notification.scheduledTime && (
-              <div>Scheduled Time: <span style={{ color: '#fff' }}>{new Date(notification.scheduledTime).toLocaleString()}</span></div>
+              <div>Scheduled Time: <span style={{ color: '#221a15' }}>{new Date(notification.scheduledTime).toLocaleString()}</span></div>
             )}
           </div>
         </div>
 
-        <button onClick={onClose} style={{ width: '100%', marginTop: 24, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '12px', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}
+        <button onClick={onClose} style={{ width: '100%', marginTop: 24, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '12px', color: '#221a15', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}
           onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}>
           Close Log
         </button>
@@ -538,7 +538,7 @@ export default function NotificationsTab() {
   }
 
   return (
-    <div style={{ padding: '24px 0', fontFamily: 'Inter, sans-serif', color: '#fff' }}>
+    <div style={{ padding: '24px 0', fontFamily: 'Inter, sans-serif', color: '#221a15' }}>
 
       {/* Realtime Audit Statistics cards */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}
@@ -568,7 +568,7 @@ export default function NotificationsTab() {
           style={{ ...cardStyle, position: 'relative' }}>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-            <div style={{ fontSize: 16, fontWeight: 800, fontFamily: 'Outfit, sans-serif', color: '#fff', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ fontSize: 16, fontWeight: 800, fontFamily: 'Outfit, sans-serif', color: '#221a15', display: 'flex', alignItems: 'center', gap: 8 }}>
               <Send size={16} color={GREEN} /> Live Broadcast Center
             </div>
             <span style={{ fontSize: 11, color: '#737373', display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -663,7 +663,7 @@ export default function NotificationsTab() {
               {/* Smartphone Outer Container */}
               <div style={{
                 width: 190, height: 350, border: '5px solid #282828', borderRadius: 28, background: '#000', position: 'relative', overflow: 'hidden',
-                boxShadow: '0 12px 28px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', alignItems: 'center'
+                boxShadow: '0 12px 28px rgba(43, 34, 26, 0.1)', display: 'flex', flexDirection: 'column', alignItems: 'center'
               }}>
                 {/* Notch */}
                 <div style={{ width: 80, height: 12, background: '#282828', borderBottomLeftRadius: 10, borderBottomRightRadius: 10, position: 'absolute', top: 0, zIndex: 2 }} />
@@ -677,7 +677,7 @@ export default function NotificationsTab() {
 
                 {/* Clock */}
                 <div style={{ position: 'relative', zIndex: 1, marginTop: 32, textAlign: 'center' }}>
-                  <div style={{ fontSize: 28, fontWeight: 300, color: '#fff', fontFamily: 'Outfit, sans-serif' }}>12:04</div>
+                  <div style={{ fontSize: 28, fontWeight: 300, color: '#221a15', fontFamily: 'Outfit, sans-serif' }}>12:04</div>
                   <div style={{ fontSize: 9, color: '#737373', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.05em' }}>Wednesday, Jun 3</div>
                 </div>
 
@@ -695,7 +695,7 @@ export default function NotificationsTab() {
                           <span style={{ fontSize: 8, fontWeight: 700, color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Beato</span>
                           <span style={{ fontSize: 8, color: '#666', marginLeft: 'auto' }}>now</span>
                         </div>
-                        <div style={{ fontSize: 10, fontWeight: 800, color: '#fff', marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <div style={{ fontSize: 10, fontWeight: 800, color: '#221a15', marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {title.trim() ? title : 'New Broadcast Alert'}
                         </div>
                         <div style={{ fontSize: 8.5, color: '#ccc', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
@@ -721,7 +721,7 @@ export default function NotificationsTab() {
                   position: 'absolute', inset: 0, background: 'rgba(10, 10, 10, 0.92)', borderRadius: 18, zIndex: 10,
                   display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24, backdropFilter: 'blur(4px)'
                 }}>
-                <div style={{ fontSize: 16, fontWeight: 900, fontFamily: 'Outfit, sans-serif', color: '#fff', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ fontSize: 16, fontWeight: 900, fontFamily: 'Outfit, sans-serif', color: '#221a15', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
                   <Send size={18} color={GREEN} className="animate-pulse" /> Dispatching Broadcast
                 </div>
                 <div style={{ width: '80%', height: 6, background: 'rgba(255,255,255,0.06)', borderRadius: 100, overflow: 'hidden', marginBottom: 12 }}>
@@ -745,7 +745,7 @@ export default function NotificationsTab() {
           style={cardStyle}>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-            <div style={{ fontSize: 16, fontWeight: 800, fontFamily: 'Outfit, sans-serif', color: '#fff', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ fontSize: 16, fontWeight: 800, fontFamily: 'Outfit, sans-serif', color: '#221a15', display: 'flex', alignItems: 'center', gap: 8 }}>
               <Plus size={16} color={GREEN} /> Preset Templates
             </div>
             <button onClick={() => { setEditingTemplate(null); setShowTplModal(true); }}
@@ -764,7 +764,7 @@ export default function NotificationsTab() {
                     style={{ background: 'rgba(255,255,255,0.015)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 12, padding: '14px', position: 'relative' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
                       <div>
-                        <div style={{ fontWeight: 700, fontSize: 13, color: '#fff', marginBottom: 4 }}>{t.name}</div>
+                        <div style={{ fontWeight: 700, fontSize: 13, color: '#221a15', marginBottom: 4 }}>{t.name}</div>
                         <span style={{ background: tc.bg, color: tc.color, padding: '2px 8px', borderRadius: 10, fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.02em' }}>
                           {tc.icon} {t.type}
                         </span>
@@ -787,7 +787,7 @@ export default function NotificationsTab() {
                         </button>
                       </div>
                     </div>
-                    <div style={{ color: '#6b7280', fontSize: 11.5, lineHeight: 1.4, marginTop: 4 }}>{t.preview}</div>
+                    <div style={{ color: '#87786c', fontSize: 11.5, lineHeight: 1.4, marginTop: 4 }}>{t.preview}</div>
                   </motion.div>
                 );
               })}
@@ -803,7 +803,7 @@ export default function NotificationsTab() {
         
         {/* Table Filters header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 14 }}>
-          <div style={{ fontSize: 16, fontWeight: 800, fontFamily: 'Outfit, sans-serif', color: '#fff', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ fontSize: 16, fontWeight: 800, fontFamily: 'Outfit, sans-serif', color: '#221a15', display: 'flex', alignItems: 'center', gap: 8 }}>
             <BarChart2 size={16} color={GREEN} /> Realtime Audit Logs
           </div>
           
@@ -816,7 +816,7 @@ export default function NotificationsTab() {
             </div>
             
             {/* Filter chips */}
-            <div style={{ display: 'flex', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8, padding: 3, gap: 2 }}>
+            <div style={{ display: 'flex', background: 'rgba(43, 34, 26, 0.08)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8, padding: 3, gap: 2 }}>
               {(['all', 'sent', 'scheduled'] as const).map(f => (
                 <button key={f} onClick={() => setStatusFilter(f)}
                   style={{
@@ -835,7 +835,7 @@ export default function NotificationsTab() {
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', color: '#4b5563', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', color: '#87786c', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                 <th style={{ padding: '12px 16px' }}>Title & Vibe</th>
                 <th style={{ padding: '12px 16px' }}>Type</th>
                 <th style={{ padding: '12px 16px' }}>Audience</th>
@@ -861,8 +861,8 @@ export default function NotificationsTab() {
                       onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.015)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                       <td style={{ padding: '12px 16px' }}>
-                        <div style={{ fontWeight: 700, fontSize: 13, color: '#fff', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{n.title}</div>
-                        <div style={{ fontSize: 11, color: '#6b7280', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{n.message}</div>
+                        <div style={{ fontWeight: 700, fontSize: 13, color: '#221a15', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{n.title}</div>
+                        <div style={{ fontSize: 11, color: '#87786c', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{n.message}</div>
                       </td>
                       <td style={{ padding: '12px 16px' }}>
                         <span style={{ color: tc.color, fontSize: 12, fontWeight: 500 }}>{tc.icon} {n.type}</span>
@@ -870,7 +870,7 @@ export default function NotificationsTab() {
                       <td style={{ padding: '12px 16px', fontSize: 12, color: '#d1d5db' }}>
                         {audienceLabels[n.audience]}
                       </td>
-                      <td style={{ padding: '12px 16px', fontSize: 12, color: '#9ca3af', fontFamily: 'Outfit, sans-serif' }}>
+                      <td style={{ padding: '12px 16px', fontSize: 12, color: '#a0958b', fontFamily: 'Outfit, sans-serif' }}>
                         {n.status === 'scheduled' ? '—' : n.sentCount.toLocaleString()}
                       </td>
                       <td style={{ padding: '12px 16px' }}>
@@ -878,7 +878,7 @@ export default function NotificationsTab() {
                           <span style={{ color: n.ctr > 10 ? GREEN : YELLOW, fontWeight: 700, fontSize: 12 }}>{n.ctr}%</span>
                         )}
                       </td>
-                      <td style={{ padding: '12px 16px', fontSize: 11, color: '#6b7280' }}>
+                      <td style={{ padding: '12px 16px', fontSize: 11, color: '#87786c' }}>
                         {n.status === 'scheduled' && n.scheduledTime ? (
                           <span style={{ color: BLUE, display: 'flex', alignItems: 'center', gap: 4 }}>
                             <Clock size={11} /> {new Date(n.scheduledTime).toLocaleString()}
@@ -894,7 +894,7 @@ export default function NotificationsTab() {
                       </td>
                       <td style={{ padding: '12px 16px', textAlign: 'right' }}>
                         <button onClick={() => setViewLog(n)}
-                          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', borderRadius: 8, padding: '6px 12px', fontSize: 11, cursor: 'pointer', fontWeight: 600 }}
+                          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#221a15', borderRadius: 8, padding: '6px 12px', fontSize: 11, cursor: 'pointer', fontWeight: 600 }}
                           onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}>
                           View Analytics
                         </button>

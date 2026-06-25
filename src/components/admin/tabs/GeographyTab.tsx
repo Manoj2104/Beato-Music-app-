@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 type SortKey = 'users' | 'revenue' | 'growth';
 
 const card = (style?: React.CSSProperties): React.CSSProperties => ({
-  background: '#121212', border: '1px solid #1a1a1a', borderRadius: 14, padding: 20, ...style,
+  background: '#ffffff', border: '1px solid rgba(43,34,26,0.07)', borderRadius: 14, padding: 20, ...style,
 });
 
 const countryToRegion: Record<string, string> = {
@@ -91,7 +91,7 @@ export default function GeographyTab() {
           transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
           style={{ width: 40, height: 40, border: `3px solid rgba(176, 136, 80, 0.15)`, borderTopColor: '#b08850', borderRadius: '50%' }} 
         />
-        <div style={{ color: '#6b7280', fontSize: 14 }}>Aggregating Beato geographic data...</div>
+        <div style={{ color: '#87786c', fontSize: 14 }}>Aggregating Beato geographic data...</div>
       </div>
     );
   }
@@ -153,17 +153,17 @@ export default function GeographyTab() {
   });
 
   return (
-    <div style={{ color: '#fff', fontFamily: 'Inter, sans-serif' }}>
+    <div style={{ color: '#221a15', fontFamily: 'Inter, sans-serif' }}>
       {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 24 }}>
         {[
           { label: 'Countries Active', value: String(countriesActive), color: '#b08850' },
-          { label: 'Top Country', value: topCountry, color: '#fff' },
+          { label: 'Top Country', value: topCountry, color: '#221a15' },
           { label: 'Fastest Growing', value: fastestGrowing, color: '#f59e0b' },
           { label: 'Global Coverage', value: `${globalCoverage}%`, color: '#10b981' },
         ].map(s => (
           <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={card()}>
-            <p style={{ fontSize: 11, color: '#6b7280', margin: '0 0 6px' }}>{s.label}</p>
+            <p style={{ fontSize: 11, color: '#87786c', margin: '0 0 6px' }}>{s.label}</p>
             <p style={{ fontSize: 22, fontWeight: 800, margin: 0, color: s.color }}>{s.value}</p>
           </motion.div>
         ))}
@@ -173,15 +173,15 @@ export default function GeographyTab() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 24 }}>
         {regionStats.map(r => (
           <div key={r.name} style={{ ...card(), borderTop: `3px solid ${r.color}` }}>
-            <p style={{ margin: '0 0 8px', fontSize: 12, color: '#9ca3af', fontWeight: 600 }}>{r.name}</p>
-            <p style={{ margin: '0 0 2px', fontSize: 18, fontWeight: 800, color: '#fff' }}>{r.users}</p>
-            <p style={{ margin: '0 0 8px', fontSize: 12, color: '#6b7280' }}>users</p>
-            <div style={{ height: 6, background: '#1a1a1a', borderRadius: 3, overflow: 'hidden', marginBottom: 8 }}>
+            <p style={{ margin: '0 0 8px', fontSize: 12, color: '#a0958b', fontWeight: 600 }}>{r.name}</p>
+            <p style={{ margin: '0 0 2px', fontSize: 18, fontWeight: 800, color: '#221a15' }}>{r.users}</p>
+            <p style={{ margin: '0 0 8px', fontSize: 12, color: '#87786c' }}>users</p>
+            <div style={{ height: 6, background: '#f4eede', borderRadius: 3, overflow: 'hidden', marginBottom: 8 }}>
               <motion.div initial={{ width: 0 }} animate={{ width: `${r.pct}%` }} transition={{ duration: 1 }}
                 style={{ height: '100%', background: r.color, borderRadius: 3 }} />
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: 11, color: '#9ca3af' }}>{r.revenue}</span>
+              <span style={{ fontSize: 11, color: '#a0958b' }}>{r.revenue}</span>
               <span style={{ fontSize: 11, color: '#b08850', fontWeight: 700 }}>{r.growth}</span>
             </div>
           </div>
@@ -203,7 +203,7 @@ export default function GeographyTab() {
         </div>
         <div style={{ overflowX: 'auto' }}>
           {sortedCountries.length === 0 ? (
-            <div style={{ color: '#6b7280', fontSize: 12, padding: '20px 0', textAlign: 'center' }}>
+            <div style={{ color: '#87786c', fontSize: 12, padding: '20px 0', textAlign: 'center' }}>
               No active geographic records found in database.
             </div>
           ) : (
@@ -211,19 +211,19 @@ export default function GeographyTab() {
               <thead>
                 <tr style={{ borderBottom: '1px solid #1a1a1a' }}>
                   {['#', 'Country', 'Users', 'Streams', 'Revenue', 'Growth'].map(h => (
-                    <th key={h} style={{ textAlign: 'left', padding: '8px 12px', color: '#6b7280', fontWeight: 600 }}>{h}</th>
+                    <th key={h} style={{ textAlign: 'left', padding: '8px 12px', color: '#87786c', fontWeight: 600 }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {sortedCountries.map((c: any, index: number) => (
                   <tr key={c.countryCode} style={{ borderBottom: '1px solid #0f0f0f' }}>
-                    <td style={{ padding: '10px 12px', color: '#6b7280', fontWeight: 600 }}>{index + 1}</td>
-                    <td style={{ padding: '10px 12px', color: '#fff', fontWeight: 600 }}>
+                    <td style={{ padding: '10px 12px', color: '#87786c', fontWeight: 600 }}>{index + 1}</td>
+                    <td style={{ padding: '10px 12px', color: '#221a15', fontWeight: 600 }}>
                       <span style={{ marginRight: 8 }}>{getCountryFlag(c.countryCode)}</span>{getCountryName(c.countryCode)}
                     </td>
                     <td style={{ padding: '10px 12px', color: '#e5e7eb' }}>{formatNumber(c.users)}</td>
-                    <td style={{ padding: '10px 12px', color: '#9ca3af' }}>{formatNumber(c.streams)}</td>
+                    <td style={{ padding: '10px 12px', color: '#a0958b' }}>{formatNumber(c.streams)}</td>
                     <td style={{ padding: '10px 12px', color: '#b08850', fontWeight: 600 }}>{currencySymbol}{c.revenue.toLocaleString()}</td>
                     <td style={{ padding: '10px 12px' }}>
                       <span style={{ color: '#b08850', fontWeight: 700 }}>↑ +{c.growth}%</span>

@@ -295,11 +295,11 @@ export default function AbTestingTab() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
         <div>
-          <h2 style={{ fontSize: 22, fontWeight: 800, color: '#fff', margin: 0, letterSpacing: '-0.025em', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <h2 style={{ fontSize: 22, fontWeight: 800, color: '#221a15', margin: 0, letterSpacing: '-0.025em', display: 'flex', alignItems: 'center', gap: 10 }}>
             <Sparkles size={24} className="text-emerald-500" />
             A/B Testing & Feature Flags
           </h2>
-          <p style={{ color: '#6b7280', margin: '4px 0 0', fontSize: 13 }}>Verify user conversion rates & manage progressive rollout rules directly in database.</p>
+          <p style={{ color: '#87786c', margin: '4px 0 0', fontSize: 13 }}>Verify user conversion rates & manage progressive rollout rules directly in database.</p>
         </div>
         <button onClick={() => setShowCreateModal(true)}
           style={{ padding: '9px 18px', borderRadius: 10, border: 'none', background: '#10b981', color: '#000', fontWeight: 800, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, transition: 'transform 0.2s' }}>
@@ -311,7 +311,7 @@ export default function AbTestingTab() {
       {/* Experiments Grid */}
       <div style={{ marginBottom: 32 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <h3 style={{ fontSize: 13, fontWeight: 800, color: '#6b7280', textTransform: 'uppercase', letterSpacing: 0.5 }}>Active User Experiments</h3>
+          <h3 style={{ fontSize: 13, fontWeight: 800, color: '#87786c', textTransform: 'uppercase', letterSpacing: 0.5 }}>Active User Experiments</h3>
           <span style={{ fontSize: 11, color: '#10b981', display: 'flex', alignItems: 'center', gap: 4 }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981' }} />
             Database Synced: LIVE
@@ -319,18 +319,18 @@ export default function AbTestingTab() {
         </div>
 
         {loading && experiments.length === 0 ? (
-          <div style={{ color: '#6b7280', textAlign: 'center', padding: 40, background: '#0d0d0d', border: '1px solid #1a1a1a', borderRadius: 14 }}>
+          <div style={{ color: '#87786c', textAlign: 'center', padding: 40, background: '#ffffff', border: '1px solid rgba(43,34,26,0.07)', borderRadius: 14 }}>
             <RefreshCw size={24} className="animate-spin" style={{ margin: '0 auto 10px', color: '#10b981' }} />
             Syncing user test variants...
           </div>
         ) : experiments.length === 0 ? (
-          <div style={{ color: '#6b7280', textAlign: 'center', padding: 30, background: '#0d0d0d', border: '1px solid #1a1a1a', borderRadius: 14, fontSize: 13 }}>
+          <div style={{ color: '#87786c', textAlign: 'center', padding: 30, background: '#ffffff', border: '1px solid rgba(43,34,26,0.07)', borderRadius: 14, fontSize: 13 }}>
             No experiments found in database. Click "Create Experiment" to start.
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
             {experiments.map((exp, i) => {
-              const sc = statusColor[exp.status] || { bg: '#1a1a1a', color: '#fff' };
+              const sc = statusColor[exp.status] || { bg: '#1a1a1a', color: '#221a15' };
               const isExpanded = expandedExp === exp.id;
               
               // Calculate total split traffic check
@@ -338,17 +338,17 @@ export default function AbTestingTab() {
 
               return (
                 <motion.div key={exp.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-                  style={{ background: '#0d0d0d', borderRadius: 14, border: '1px solid #1e1e1e', padding: 20, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', cursor: 'pointer', transition: 'border-color 0.2s', boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }}
+                  style={{ background: '#ffffff', borderRadius: 14, border: '1px solid #1e1e1e', padding: 20, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', cursor: 'pointer', transition: 'border-color 0.2s', boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }}
                   onClick={() => setExpandedExp(isExpanded ? null : exp.id)}>
                   
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
                       <div>
-                        <div style={{ fontWeight: 800, fontSize: 15, color: '#fff', display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <div style={{ fontWeight: 800, fontSize: 15, color: '#221a15', display: 'flex', alignItems: 'center', gap: 6 }}>
                           <BarChart2 size={16} className="text-emerald-500" />
                           {exp.name}
                         </div>
-                        <div style={{ fontSize: 12, color: '#6b7280', marginTop: 4, lineHeight: 1.4 }}>{exp.description}</div>
+                        <div style={{ fontSize: 12, color: '#87786c', marginTop: 4, lineHeight: 1.4 }}>{exp.description}</div>
                       </div>
                       <span style={{ background: sc.bg, color: sc.color, borderRadius: 6, padding: '3px 8px', fontSize: 10, fontWeight: 700, whiteSpace: 'nowrap', border: `1px solid ${sc.color}22` }}>
                         {exp.status}
@@ -377,13 +377,13 @@ export default function AbTestingTab() {
                       {exp.variants.map((v, idx) => {
                         const colors = ['#10b981', '#10b981', '#f59e0b', '#10b981'];
                         return (
-                          <div key={v.name} style={{ background: '#050505', borderRadius: 8, padding: '10px 12px', border: '1px solid #1a1a1a', position: 'relative' }}>
-                            <div style={{ fontSize: 10, color: '#6b7280', display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <div key={v.name} style={{ background: '#050505', borderRadius: 8, padding: '10px 12px', border: '1px solid rgba(43,34,26,0.07)', position: 'relative' }}>
+                            <div style={{ fontSize: 10, color: '#87786c', display: 'flex', alignItems: 'center', gap: 4 }}>
                               <span style={{ width: 6, height: 6, borderRadius: '50%', background: colors[idx % colors.length] }} />
                               {v.name} · {v.traffic}%
                             </div>
-                            <div style={{ fontSize: 14, fontWeight: 800, color: '#fff', marginTop: 6 }}>{v.value}</div>
-                            <div style={{ fontSize: 9, color: '#4b5563', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 }}>{v.metric}</div>
+                            <div style={{ fontSize: 14, fontWeight: 800, color: '#221a15', marginTop: 6 }}>{v.value}</div>
+                            <div style={{ fontSize: 9, color: '#87786c', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 }}>{v.metric}</div>
                           </div>
                         );
                       })}
@@ -391,7 +391,7 @@ export default function AbTestingTab() {
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid #161616', paddingTop: 14, marginTop: 4 }}>
-                    <div style={{ fontSize: 11, color: '#4b5563' }}>
+                    <div style={{ fontSize: 11, color: '#87786c' }}>
                       Metrics: <span style={{ color: '#10b981', fontWeight: 700 }}>{exp.impact} Impact</span>
                     </div>
                     <div style={{ display: 'flex', gap: 6 }} onClick={e => e.stopPropagation()}>
@@ -416,10 +416,10 @@ export default function AbTestingTab() {
 
       {/* Feature Flags */}
       <div>
-        <h3 style={{ fontSize: 13, fontWeight: 800, color: '#6b7280', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 16 }}>Feature Toggles & Rollouts</h3>
-        <div style={{ background: '#0d0d0d', borderRadius: 14, border: '1px solid #1a1a1a', overflow: 'hidden' }}>
+        <h3 style={{ fontSize: 13, fontWeight: 800, color: '#87786c', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 16 }}>Feature Toggles & Rollouts</h3>
+        <div style={{ background: '#ffffff', borderRadius: 14, border: '1px solid rgba(43,34,26,0.07)', overflow: 'hidden' }}>
           {loading && flags.length === 0 ? (
-            <div style={{ color: '#6b7280', textAlign: 'center', padding: 30 }}>Syncing feature toggles...</div>
+            <div style={{ color: '#87786c', textAlign: 'center', padding: 30 }}>Syncing feature toggles...</div>
           ) : (
             flags.map((flag, i) => {
               const isExpanded = expandedFlag === flag.id;
@@ -434,7 +434,7 @@ export default function AbTestingTab() {
                     {/* Switch & Name */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                       <div onClick={() => toggleFlag(flag.id)}
-                        style={{ width: 42, height: 22, borderRadius: 11, background: flag.enabled ? '#10b981' : '#222', cursor: 'pointer', position: 'relative', transition: 'background 0.2s', flexShrink: 0, border: '1px solid #333' }}>
+                        style={{ width: 42, height: 22, borderRadius: 11, background: flag.enabled ? '#10b981' : '#222', cursor: 'pointer', position: 'relative', transition: 'background 0.2s', flexShrink: 0, border: '1px solid rgba(43,34,26,0.12)' }}>
                         <div style={{ width: 16, height: 16, borderRadius: '50%', background: '#000', position: 'absolute', top: 2, left: flag.enabled ? 22 : 2, transition: 'left 0.2s' }} />
                       </div>
                       <div>
@@ -446,35 +446,35 @@ export default function AbTestingTab() {
                             </span>
                           )}
                         </div>
-                        <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>{flag.description}</div>
+                        <div style={{ fontSize: 12, color: '#87786c', marginTop: 2 }}>{flag.description}</div>
                       </div>
                     </div>
 
                     {/* Rollout percentage indicator */}
                     <div style={{ textAlign: 'center' }}>
                       <div style={{ fontSize: 16, fontWeight: 800, color: flag.enabled ? '#10b981' : '#4b5563' }}>{flag.rollout}%</div>
-                      <div style={{ fontSize: 10, color: '#4b5563', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 1 }}>Target</div>
+                      <div style={{ fontSize: 10, color: '#87786c', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 1 }}>Target</div>
                     </div>
 
                     {/* Progressive Range Slider */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ fontSize: 10, color: '#4b5563' }}>0</span>
+                      <span style={{ fontSize: 10, color: '#87786c' }}>0</span>
                       <input type="range" min={0} max={100} value={flag.rollout} disabled={!flag.enabled}
                         onChange={e => setRollout(flag.id, Number(e.target.value))}
                         style={{ flex: 1, accentColor: '#10b981', cursor: flag.enabled ? 'pointer' : 'not-allowed', opacity: flag.enabled ? 1 : 0.3 }} />
-                      <span style={{ fontSize: 10, color: '#4b5563' }}>100</span>
+                      <span style={{ fontSize: 10, color: '#87786c' }}>100</span>
                     </div>
 
                     {/* Target Audience Dropdown */}
                     <select value={flag.audience} onChange={e => setAudience(flag.id, e.target.value)}
-                      style={{ background: '#050505', border: '1px solid #1a1a1a', borderRadius: 8, padding: '6px 10px', color: '#9ca3af', fontSize: 12, outline: 'none', cursor: 'pointer' }}>
+                      style={{ background: '#050505', border: '1px solid rgba(43,34,26,0.07)', borderRadius: 8, padding: '6px 10px', color: '#a0958b', fontSize: 12, outline: 'none', cursor: 'pointer' }}>
                       {AUDIENCES.map(a => <option key={a} value={a}>{a}</option>)}
                     </select>
 
                     {/* Expand overrides panel */}
                     <button 
                       onClick={() => setExpandedFlag(isExpanded ? null : flag.id)}
-                      style={{ background: 'transparent', border: 'none', color: '#6b7280', cursor: 'pointer', display: 'flex', justifyContent: 'center' }}
+                      style={{ background: 'transparent', border: 'none', color: '#87786c', cursor: 'pointer', display: 'flex', justifyContent: 'center' }}
                       title="Manage Whitelist User Overrides"
                     >
                       {isExpanded ? <ChevronUp size={16} /> : <Settings size={16} />}
@@ -488,10 +488,10 @@ export default function AbTestingTab() {
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
-                        style={{ overflow: 'hidden', background: '#080808', borderTop: '1px solid #141414', borderBottom: '1px solid #141414' }}
+                        style={{ overflow: 'hidden', background: '#ffffff', borderTop: '1px solid #141414', borderBottom: '1px solid #141414' }}
                       >
                         <div style={{ padding: '16px 20px 20px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#fff', fontSize: 12, fontWeight: 700, marginBottom: 12 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#221a15', fontSize: 12, fontWeight: 700, marginBottom: 12 }}>
                             <ShieldCheck size={14} className="text-emerald-500" />
                             Target User Whitelist Override Console
                           </div>
@@ -501,7 +501,7 @@ export default function AbTestingTab() {
                               value={newEmail}
                               onChange={e => setNewEmail(e.target.value)}
                               placeholder="Enter user email to bypass rollout rules (e.g. manoj@beato.io)..."
-                              style={{ flex: 1, background: '#020202', border: '1px solid #1a1a1a', borderRadius: 8, padding: '8px 12px', color: '#fff', fontSize: 12, outline: 'none' }}
+                              style={{ flex: 1, background: '#020202', border: '1px solid rgba(43,34,26,0.07)', borderRadius: 8, padding: '8px 12px', color: '#221a15', fontSize: 12, outline: 'none' }}
                             />
                             <button 
                               onClick={() => handleAddWhitelistEmail(flag.id)}
@@ -514,7 +514,7 @@ export default function AbTestingTab() {
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                             {flag.whitelist && flag.whitelist.length > 0 ? (
                               flag.whitelist.map(email => (
-                                <span key={email} style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#121212', border: '1px solid #1a1a1a', borderRadius: 6, padding: '4px 8px', fontSize: 11, color: '#fff' }}>
+                                <span key={email} style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#ffffff', border: '1px solid rgba(43,34,26,0.07)', borderRadius: 6, padding: '4px 8px', fontSize: 11, color: '#221a15' }}>
                                   <Users size={12} className="text-zinc-500" />
                                   {email}
                                   <button 
@@ -526,7 +526,7 @@ export default function AbTestingTab() {
                                 </span>
                               ))
                             ) : (
-                              <div style={{ color: '#4b5563', fontSize: 11 }}>
+                              <div style={{ color: '#87786c', fontSize: 11 }}>
                                 No active overrides. Users will be targeted purely according to the rollout slider rules.
                               </div>
                             )}
@@ -549,45 +549,45 @@ export default function AbTestingTab() {
             style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             onClick={() => setShowCreateModal(false)}>
             <motion.div initial={{ scale: 0.94, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.94, opacity: 0 }}
-              style={{ background: '#0d0d0d', borderRadius: 16, border: '1px solid #1a1a1a', padding: 24, width: 440, maxWidth: '95vw' }}
+              style={{ background: '#ffffff', borderRadius: 16, border: '1px solid rgba(43,34,26,0.07)', padding: 24, width: 440, maxWidth: '95vw' }}
               onClick={e => e.stopPropagation()}>
               
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
-                <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: '#221a15', display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Sparkles size={18} className="text-emerald-500" />
                   Launch New Experiment
                 </h3>
-                <button onClick={() => setShowCreateModal(false)} style={{ background: 'transparent', border: 'none', color: '#6b7280', cursor: 'pointer' }}>
+                <button onClick={() => setShowCreateModal(false)} style={{ background: 'transparent', border: 'none', color: '#87786c', cursor: 'pointer' }}>
                   <X size={18} />
                 </button>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 <div>
-                  <label style={{ fontSize: 11, color: '#6b7280', display: 'block', marginBottom: 6, textTransform: 'uppercase', fontWeight: 600 }}>Experiment Name *</label>
+                  <label style={{ fontSize: 11, color: '#87786c', display: 'block', marginBottom: 6, textTransform: 'uppercase', fontWeight: 600 }}>Experiment Name *</label>
                   <input value={newExpName} onChange={e => setNewExpName(e.target.value)} placeholder="e.g. Redesigned Premium Upsell Banner"
-                    style={{ width: '100%', background: '#050505', border: '1px solid #1a1a1a', borderRadius: 8, padding: '10px 12px', color: '#fff', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                    style={{ width: '100%', background: '#050505', border: '1px solid rgba(43,34,26,0.07)', borderRadius: 8, padding: '10px 12px', color: '#221a15', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
                 </div>
                 
                 <div>
-                  <label style={{ fontSize: 11, color: '#6b7280', display: 'block', marginBottom: 6, textTransform: 'uppercase', fontWeight: 600 }}>Description</label>
+                  <label style={{ fontSize: 11, color: '#87786c', display: 'block', marginBottom: 6, textTransform: 'uppercase', fontWeight: 600 }}>Description</label>
                   <textarea value={newExpDesc} onChange={e => setNewExpDesc(e.target.value)} rows={2} placeholder="Explain variant rules (e.g. testing banner conversions)"
-                    style={{ width: '100%', background: '#050505', border: '1px solid #1a1a1a', borderRadius: 8, padding: '10px 12px', color: '#fff', fontSize: 13, outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
+                    style={{ width: '100%', background: '#050505', border: '1px solid rgba(43,34,26,0.07)', borderRadius: 8, padding: '10px 12px', color: '#221a15', fontSize: 13, outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   <div>
-                    <label style={{ fontSize: 11, color: '#6b7280', display: 'block', marginBottom: 6, textTransform: 'uppercase', fontWeight: 600 }}>Target Metric</label>
+                    <label style={{ fontSize: 11, color: '#87786c', display: 'block', marginBottom: 6, textTransform: 'uppercase', fontWeight: 600 }}>Target Metric</label>
                     <select value={newExpMetric} onChange={e => setNewExpMetric(e.target.value)}
-                      style={{ width: '100%', background: '#050505', border: '1px solid #1a1a1a', borderRadius: 8, padding: '9px 10px', color: '#9ca3af', fontSize: 13, outline: 'none', cursor: 'pointer' }}>
+                      style={{ width: '100%', background: '#050505', border: '1px solid rgba(43,34,26,0.07)', borderRadius: 8, padding: '9px 10px', color: '#a0958b', fontSize: 13, outline: 'none', cursor: 'pointer' }}>
                       <option value="Conversion">Conversion Rate</option>
                       <option value="Revenue">Revenue Conversion</option>
                     </select>
                   </div>
                   <div>
-                    <label style={{ fontSize: 11, color: '#6b7280', display: 'block', marginBottom: 6, textTransform: 'uppercase', fontWeight: 600 }}>Split Groups</label>
+                    <label style={{ fontSize: 11, color: '#87786c', display: 'block', marginBottom: 6, textTransform: 'uppercase', fontWeight: 600 }}>Split Groups</label>
                     <select value={variantsCount} onChange={e => setVariantsCount(Number(e.target.value))}
-                      style={{ width: '100%', background: '#050505', border: '1px solid #1a1a1a', borderRadius: 8, padding: '9px 10px', color: '#9ca3af', fontSize: 13, outline: 'none', cursor: 'pointer' }}>
+                      style={{ width: '100%', background: '#050505', border: '1px solid rgba(43,34,26,0.07)', borderRadius: 8, padding: '9px 10px', color: '#a0958b', fontSize: 13, outline: 'none', cursor: 'pointer' }}>
                       <option value={2}>A/B (2 Variants)</option>
                       <option value={3}>A/B/C (3 Variants)</option>
                       <option value={4}>A/B/C/D (4 Variants)</option>
@@ -597,7 +597,7 @@ export default function AbTestingTab() {
 
                 <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
                   <button onClick={() => setShowCreateModal(false)}
-                    style={{ flex: 1, padding: '10px 0', borderRadius: 8, border: '1px solid #1a1a1a', background: '#121212', color: '#9ca3af', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
+                    style={{ flex: 1, padding: '10px 0', borderRadius: 8, border: '1px solid rgba(43,34,26,0.07)', background: '#ffffff', color: '#a0958b', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
                     Cancel
                   </button>
                   <button onClick={createExperiment}

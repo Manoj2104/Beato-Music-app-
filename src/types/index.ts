@@ -74,7 +74,7 @@ export interface Playlist {
   tags?: string[];
 }
 
-export type UserRole = 'USER' | 'ARTIST' | 'ADMIN' | 'SUPER_ADMIN';
+export type UserRole = 'USER' | 'ARTIST' | 'ADMIN' | 'SUPER_ADMIN' | 'MODERATOR' | 'ANALYST' | 'moderator' | 'analyst' | 'admin' | 'super_admin';
 
 export interface User {
   id: string;
@@ -103,6 +103,8 @@ export interface User {
     status: 'PENDING' | 'APPROVED' | 'REJECTED';
     submittedAt: string;
   };
+  customPermissions?: string[];
+  permissions?: string[];
 }
 
 export interface UserPreferences {

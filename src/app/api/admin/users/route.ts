@@ -32,6 +32,7 @@ export async function GET(request: NextRequest) {
         isActive: u.isActive !== false,
         tracksCount,
         verificationRequest: u.verificationRequest,
+        customPermissions: u.customPermissions || null,
       };
     });
 

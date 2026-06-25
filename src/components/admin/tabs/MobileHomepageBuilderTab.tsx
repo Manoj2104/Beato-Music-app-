@@ -22,7 +22,7 @@ import { EXTENDED_LAYOUT_OPTIONS } from '@/lib/layoutOptions';
 const C = {
   primary: '#b08850',
   primaryDim: 'rgba(176, 136, 80, 0.15)',
-  bg: '#0a0a0a',
+  bg: '#fbf9f5',
   surface: '#121212',
   card: '#1e1e1e',
   border: '#262626',
@@ -45,7 +45,7 @@ const cardSt = (extra?: React.CSSProperties): React.CSSProperties => ({
 });
 
 const inputSt: React.CSSProperties = {
-  background: '#0c0c0c',
+  background: '#ffffff',
   border: `1px solid ${C.border}`,
   borderRadius: 8,
   color: C.text,
@@ -677,7 +677,7 @@ export default function MobileHomepageBuilderTab() {
                       onClick={() => addBlockFromLibrary(block)}
                       style={{
                         padding: '12px',
-                        background: '#0d0d0d',
+                        background: '#ffffff',
                         border: `1px solid ${C.border}`,
                         borderRadius: 10,
                         cursor: 'pointer',
@@ -739,7 +739,7 @@ export default function MobileHomepageBuilderTab() {
                     >
                       <div style={{ height: 90, background: preset.thumbnail, position: 'relative', display: 'flex', gap: 4, padding: 8, alignItems: 'flex-start', justifyContent: 'flex-end' }}>
                         {preset.tags.slice(0, 2).map(t => (
-                          <span key={t} style={{ fontSize: 8, background: 'rgba(0,0,0,0.6)', padding: '2px 5px', borderRadius: 4, color: '#fff' }}>{t}</span>
+                          <span key={t} style={{ fontSize: 8, background: 'rgba(0,0,0,0.6)', padding: '2px 5px', borderRadius: 4, color: '#221a15' }}>{t}</span>
                         ))}
                       </div>
                       <div style={{ padding: 12 }}>
@@ -846,14 +846,14 @@ export default function MobileHomepageBuilderTab() {
                           <label style={{ fontSize: 10, color: C.muted }}>Custom Songs list ({settSongIds.length} added)</label>
                           <button onClick={() => setShowSongPicker(true)} style={{ background: 'transparent', border: 'none', color: C.primary, fontSize: 10, fontWeight: 700, cursor: 'pointer' }}>+ Add/Edit Songs</button>
                         </div>
-                        <div style={{ display: 'flex', gap: 4, overflowX: 'auto', background: '#080808', padding: 6, borderRadius: 6, border: `1px solid ${C.border}` }}>
+                        <div style={{ display: 'flex', gap: 4, overflowX: 'auto', background: '#ffffff', padding: 6, borderRadius: 6, border: `1px solid ${C.border}` }}>
                           {settSongIds.length === 0 ? (
                             <span style={{ fontSize: 10, color: '#444', padding: '2px 4px' }}>No songs selected (auto-generated)</span>
                           ) : (
                             settSongIds.map(sid => {
                               const track = mockTracks.find(t => t.id === sid);
                               return (
-                                <div key={sid} style={{ background: '#1a1a1a', borderRadius: 4, padding: '2px 6px', fontSize: 9, display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>
+                                <div key={sid} style={{ background: '#f4eede', borderRadius: 4, padding: '2px 6px', fontSize: 9, display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>
                                   <span>{track?.title || sid}</span>
                                   <button onClick={() => setSettSongIds(prev => prev.filter(x => x !== sid))} style={{ border: 'none', background: 'transparent', color: C.red, cursor: 'pointer', fontSize: 8 }}>×</button>
                                 </div>
@@ -866,7 +866,7 @@ export default function MobileHomepageBuilderTab() {
 
                     {/* Conditional Settings Fields */}
                     {settLayout === 'ad_break_banner' && (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: 8, background: '#0a0a0a', borderRadius: 8, border: `1px solid ${C.border}` }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: 8, background: '#fbf9f5', borderRadius: 8, border: `1px solid ${C.border}` }}>
                         <div style={{ fontSize: 10, fontWeight: 700, color: C.orange }}>AD settings</div>
                         <div>
                           <label style={{ fontSize: 9, color: C.muted }}>Advertiser Sponsor Name</label>
@@ -903,7 +903,7 @@ export default function MobileHomepageBuilderTab() {
                                 { name: 'Retro Grid', url: 'https://assets.mixkit.co/videos/preview/mixkit-retro-futuristic-grid-background-42862-large.mp4' },
                                 { name: 'Cyber Neon', url: 'https://assets.mixkit.co/videos/preview/mixkit-tunnel-of-futuristic-blue-neon-lights-42417-large.mp4' }
                               ].map(vid => (
-                                <button key={vid.name} type="button" onClick={() => setSettCustomVideo(vid.url)} style={{ background: '#222', border: settCustomVideo === vid.url ? `1px solid ${C.primary}` : '1px solid #444', color: '#fff', fontSize: 7, padding: '2px 6px', borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                                <button key={vid.name} type="button" onClick={() => setSettCustomVideo(vid.url)} style={{ background: 'rgba(43,34,26,0.08)', border: settCustomVideo === vid.url ? `1px solid ${C.primary}` : '1px solid #444', color: '#221a15', fontSize: 7, padding: '2px 6px', borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap' }}>
                                   {vid.name}
                                 </button>
                               ))}
@@ -1028,7 +1028,7 @@ export default function MobileHomepageBuilderTab() {
           style={{
             width: '372px',
             height: '780px',
-            background: '#0d0d0d',
+            background: '#ffffff',
             borderRadius: '42px',
             border: '10px solid #2d2d2d',
             boxShadow: '0 25px 60px rgba(0,0,0,0.85)',
@@ -1066,7 +1066,7 @@ export default function MobileHomepageBuilderTab() {
               alignItems: 'center',
               padding: '0 20px',
               fontSize: '10px',
-              color: '#ffffff',
+              color: '#221a15',
               fontWeight: '600',
               zIndex: 998,
               position: 'absolute',
@@ -1117,7 +1117,7 @@ export default function MobileHomepageBuilderTab() {
                     height: 30,
                     borderRadius: '50%',
                     background: '#34d399', // Pink circle like screenshot
-                    color: '#fff',
+                    color: '#221a15',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -1154,7 +1154,7 @@ export default function MobileHomepageBuilderTab() {
                   })}
                 </div>
                 {/* Bell Icon */}
-                <div style={{ color: '#fff', fontSize: 14, cursor: 'pointer', paddingRight: 2 }}>
+                <div style={{ color: '#221a15', fontSize: 14, cursor: 'pointer', paddingRight: 2 }}>
                   🔔
                 </div>
               </div>
@@ -1196,7 +1196,7 @@ export default function MobileHomepageBuilderTab() {
 
                   {/* Shelf Title & Subtitle */}
                   <div style={{ marginBottom: 8, padding: '0 2px' }}>
-                    <div style={{ fontSize: 12, fontWeight: 800, color: '#ffffff', fontFamily: 'Outfit, sans-serif' }}>{sec.title}</div>
+                    <div style={{ fontSize: 12, fontWeight: 800, color: '#221a15', fontFamily: 'Outfit, sans-serif' }}>{sec.title}</div>
                     {sec.subtitle && <div style={{ fontSize: 9, color: selectedPreset?.theme?.textMuted || C.muted, marginTop: 1 }}>{sec.subtitle}</div>}
                   </div>
 
@@ -1244,7 +1244,7 @@ export default function MobileHomepageBuilderTab() {
                               }}>
                                 {!hasImg && item.icon}
                               </div>
-                              <span style={{ fontSize: 9, fontWeight: 700, color: '#fff', padding: '0 6px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.label}</span>
+                              <span style={{ fontSize: 9, fontWeight: 700, color: '#221a15', padding: '0 6px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.label}</span>
                             </div>
                           );
                         });
@@ -1267,9 +1267,9 @@ export default function MobileHomepageBuilderTab() {
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <div style={{ width: 38, height: 38, borderRadius: 8, background: 'linear-gradient(135deg, #4338ca, #60a5fa)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, boxShadow: '0 4px 10px rgba(0,0,0,0.3)', color: '#fff' }}>♥</div>
+                        <div style={{ width: 38, height: 38, borderRadius: 8, background: 'linear-gradient(135deg, #4338ca, #60a5fa)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, boxShadow: '0 4px 10px rgba(43, 34, 26, 0.08)', color: '#221a15' }}>♥</div>
                         <div>
-                          <div style={{ fontSize: 11, fontWeight: 800, color: '#fff' }}>Liked Songs</div>
+                          <div style={{ fontSize: 11, fontWeight: 800, color: '#221a15' }}>Liked Songs</div>
                           <div style={{ fontSize: 8, color: selectedPreset?.theme?.textMuted || '#737373', marginTop: 1 }}>{likedTracks?.length || 0} tracks saved</div>
                         </div>
                       </div>
@@ -1297,7 +1297,7 @@ export default function MobileHomepageBuilderTab() {
                     >
                       {!sec.customImage && <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 0 }} />}
                       <div style={{ position: 'relative', zIndex: 1 }}>
-                        <div style={{ fontSize: 10, fontWeight: 900, color: '#fff' }}>{sec.title || 'Explore New Campaign'}</div>
+                        <div style={{ fontSize: 10, fontWeight: 900, color: '#221a15' }}>{sec.title || 'Explore New Campaign'}</div>
                         <div style={{ fontSize: 8, color: '#ddd', marginTop: 1 }}>{sec.subtitle || 'Listen to the featured tracks today.'}</div>
                         <button style={{ background: '#fff', color: '#000', border: 'none', borderRadius: 10, padding: '3px 8px', fontSize: 7, fontWeight: 800, marginTop: 6 }}>LISTEN NOW</button>
                       </div>
@@ -1328,7 +1328,7 @@ export default function MobileHomepageBuilderTab() {
                                 overflow: 'hidden'
                               }}
                             >
-                              <span style={{ fontSize: 11, fontWeight: 800, fontFamily: 'Outfit, sans-serif', color: '#fff', display: 'block', lineHeight: 1.1 }}>{genre.trim()}</span>
+                              <span style={{ fontSize: 11, fontWeight: 800, fontFamily: 'Outfit, sans-serif', color: '#221a15', display: 'block', lineHeight: 1.1 }}>{genre.trim()}</span>
                               <img
                                 src={defaultImages[i % defaultImages.length]}
                                 alt=""
@@ -1341,7 +1341,7 @@ export default function MobileHomepageBuilderTab() {
                                   transform: 'rotate(25deg)',
                                   borderRadius: 6,
                                   objectFit: 'cover',
-                                  boxShadow: '-2px 2px 8px rgba(0,0,0,0.3)'
+                                  boxShadow: '-2px 2px 8px rgba(43, 34, 26, 0.08)'
                                 }}
                               />
                             </div>
@@ -1364,7 +1364,7 @@ export default function MobileHomepageBuilderTab() {
                                 overflow: 'hidden'
                               }}
                             >
-                              <span style={{ fontSize: 10, fontWeight: 800, fontFamily: 'Outfit, sans-serif', color: '#fff', display: 'block', lineHeight: 1.1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '75%' }}>{track?.title || 'Song'}</span>
+                              <span style={{ fontSize: 10, fontWeight: 800, fontFamily: 'Outfit, sans-serif', color: '#221a15', display: 'block', lineHeight: 1.1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '75%' }}>{track?.title || 'Song'}</span>
                               <span style={{ fontSize: 7, color: 'rgba(255,255,255,0.7)', display: 'block', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '75%' }}>{track?.artistName || 'Artist'}</span>
                               <img
                                 src={coverImg}
@@ -1378,7 +1378,7 @@ export default function MobileHomepageBuilderTab() {
                                   transform: 'rotate(25deg)',
                                   borderRadius: 6,
                                   objectFit: 'cover',
-                                  boxShadow: '-2px 2px 8px rgba(0,0,0,0.3)'
+                                  boxShadow: '-2px 2px 8px rgba(43, 34, 26, 0.08)'
                                 }}
                               />
                             </div>
@@ -1396,9 +1396,9 @@ export default function MobileHomepageBuilderTab() {
                       height: '240px',
                       borderRadius: 12,
                       overflow: 'hidden',
-                      background: '#121212',
+                      background: '#ffffff',
                       border: '1px solid rgba(255,255,255,0.06)',
-                      boxShadow: '0 4px 15px rgba(0,0,0,0.5)',
+                      boxShadow: '0 4px 15px rgba(43, 34, 26, 0.1)',
                       marginBottom: 4
                     }}>
                       {sec.mediaType === 'video' && sec.customVideo ? (
@@ -1439,7 +1439,7 @@ export default function MobileHomepageBuilderTab() {
                         borderRadius: '10px',
                         fontSize: '7px',
                         fontWeight: 'bold',
-                        color: '#fff',
+                        color: '#221a15',
                         letterSpacing: '0.05em',
                         textTransform: 'uppercase',
                         zIndex: 5
@@ -1466,7 +1466,7 @@ export default function MobileHomepageBuilderTab() {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            color: '#fff',
+                            color: '#221a15',
                             fontSize: '8px'
                           }}>
                             🔇
@@ -1481,7 +1481,7 @@ export default function MobileHomepageBuilderTab() {
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          color: '#fff',
+                          color: '#221a15',
                           fontSize: '10px'
                         }}>
                           ⋮
@@ -1515,7 +1515,7 @@ export default function MobileHomepageBuilderTab() {
                       }}>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{
-                            color: '#fff',
+                            color: '#221a15',
                             fontSize: '11px',
                             fontWeight: '900',
                             fontFamily: 'Outfit, sans-serif',
@@ -1575,7 +1575,7 @@ export default function MobileHomepageBuilderTab() {
                                   <div key={ev.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: 6, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 8 }}>
                                     <img src={artist?.image || `https://images.unsplash.com/photo-1516912481808-3406841bd33c?w=100&h=100`} alt="" style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover' }} />
                                     <div style={{ flex: 1, minWidth: 0 }}>
-                                      <div style={{ fontSize: 9, fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.name}</div>
+                                      <div style={{ fontSize: 9, fontWeight: 700, color: '#221a15', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.name}</div>
                                       <div style={{ fontSize: 7, color: selectedPreset?.theme?.textMuted || '#737373', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.location} • {ev.date}</div>
                                     </div>
                                     <span style={{ fontSize: 8, fontWeight: 800, color: selectedPreset?.theme?.primary || '#b08850' }}>{ev.price}</span>
@@ -1595,7 +1595,7 @@ export default function MobileHomepageBuilderTab() {
                               overflow: 'hidden',
                               position: 'relative',
                               height: 100,
-                              border: '1px solid rgba(255, 255, 255, 0.08)',
+                              border: '1px solid rgba(43, 34, 26, 0.08)',
                               background: 'linear-gradient(135deg, #1e0b36 0%, #080312 100%)',
                               padding: 10,
                               display: 'flex',
@@ -1608,7 +1608,7 @@ export default function MobileHomepageBuilderTab() {
                               )}
                               <div style={{ position: 'relative', zIndex: 2 }}>
                                 <span style={{ color: '#ff0055', fontSize: 7, fontWeight: 800, letterSpacing: '0.05em', display: 'block', marginBottom: 2 }}>FEATURED LIVE SHOW</span>
-                                <div style={{ fontSize: 10, fontWeight: 950, color: '#fff' }}>{ev.name}</div>
+                                <div style={{ fontSize: 10, fontWeight: 950, color: '#221a15' }}>{ev.name}</div>
                                 <div style={{ fontSize: 7, color: '#ccc', marginTop: 1 }}>📍 {ev.location} • 📅 {ev.date}</div>
                                 <button style={{ background: selectedPreset?.theme?.primary || '#b08850', color: '#000', border: 'none', borderRadius: 8, padding: '3px 8px', fontSize: 7, fontWeight: 800, marginTop: 4 }}>Get Tickets • {ev.price}</button>
                               </div>
@@ -1625,13 +1625,13 @@ export default function MobileHomepageBuilderTab() {
                                 <div key={ev.id} style={{ flexShrink: 0, width: 130, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 10, padding: 8, display: 'flex', flexDirection: 'column', gap: 4 }}>
                                   <div style={{ position: 'relative', height: 60, borderRadius: 6, overflow: 'hidden' }}>
                                     <img src={artist?.image || `https://images.unsplash.com/photo-1516912481808-3406841bd33c?w=100&h=100`} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                    <div style={{ position: 'absolute', top: 4, left: 4, background: '#ff0055', color: '#fff', fontSize: 5, padding: '2px 4px', borderRadius: 2, fontWeight: 800 }}>LIVE</div>
+                                    <div style={{ position: 'absolute', top: 4, left: 4, background: '#ff0055', color: '#221a15', fontSize: 5, padding: '2px 4px', borderRadius: 2, fontWeight: 800 }}>LIVE</div>
                                   </div>
-                                  <div style={{ fontSize: 9, fontWeight: 800, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.name}</div>
+                                  <div style={{ fontSize: 9, fontWeight: 800, color: '#221a15', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.name}</div>
                                   <div style={{ fontSize: 7, color: selectedPreset?.theme?.textMuted || '#737373', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>📍 {ev.location}</div>
-                                  <div style={{ fontSize: 7, color: '#fff', fontWeight: 700, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 2 }}>
+                                  <div style={{ fontSize: 7, color: '#221a15', fontWeight: 700, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 2 }}>
                                     <span>{ev.price}</span>
-                                    <button style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: 4, padding: '2px 6px', fontSize: 6, color: '#fff', fontWeight: 800 }}>Tickets</button>
+                                    <button style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: 4, padding: '2px 6px', fontSize: 6, color: '#221a15', fontWeight: 800 }}>Tickets</button>
                                   </div>
                                 </div>
                               );
@@ -1675,7 +1675,7 @@ export default function MobileHomepageBuilderTab() {
                                 left: 10,
                                 fontSize: 11,
                                 fontWeight: 900,
-                                color: '#fff',
+                                color: '#221a15',
                                 fontFamily: 'Outfit, sans-serif'
                               }}>
                                 {tag.trim()}
@@ -1709,7 +1709,7 @@ export default function MobileHomepageBuilderTab() {
                                 left: 10,
                                 fontSize: 10,
                                 fontWeight: 900,
-                                color: '#fff',
+                                color: '#221a15',
                                 fontFamily: 'Outfit, sans-serif',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
@@ -1752,7 +1752,7 @@ export default function MobileHomepageBuilderTab() {
                                 <img src={coverImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                               </div>
                             </div>
-                            <span style={{ fontSize: 7.5, color: '#fff', fontWeight: 700, marginTop: 4, width: '100%', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            <span style={{ fontSize: 7.5, color: '#221a15', fontWeight: 700, marginTop: 4, width: '100%', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                               {track?.title || 'Story'}
                             </span>
                           </div>
@@ -1778,17 +1778,17 @@ export default function MobileHomepageBuilderTab() {
                             position: 'relative',
                             overflow: 'hidden',
                             border: '1px solid rgba(255,255,255,0.08)',
-                            boxShadow: '0 6px 16px rgba(0,0,0,0.3)'
+                            boxShadow: '0 6px 16px rgba(43, 34, 26, 0.08)'
                           }}>
                             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)', zIndex: 1 }} />
                             
                             <div style={{ position: 'absolute', right: 8, bottom: 35, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, zIndex: 2 }}>
-                              <div style={{ width: 20, height: 20, borderRadius: '50%', border: '1px solid #fff', overflow: 'hidden', background: '#333' }}>
+                              <div style={{ width: 20, height: 20, borderRadius: '50%', border: '1px solid #fff', overflow: 'hidden', background: 'rgba(43,34,26,0.1)' }}>
                                 <img src={coverImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                               </div>
-                              <span style={{ fontSize: 9, color: '#fff' }}>❤️</span>
-                              <span style={{ fontSize: 9, color: '#fff' }}>💬</span>
-                              <span style={{ fontSize: 9, color: '#fff' }}>📤</span>
+                              <span style={{ fontSize: 9, color: '#221a15' }}>❤️</span>
+                              <span style={{ fontSize: 9, color: '#221a15' }}>💬</span>
+                              <span style={{ fontSize: 9, color: '#221a15' }}>📤</span>
                             </div>
 
                             <div className="spinning-disc-mock" style={{
@@ -1798,7 +1798,7 @@ export default function MobileHomepageBuilderTab() {
                               width: 18,
                               height: 18,
                               borderRadius: '50%',
-                              background: '#111',
+                              background: '#ffffff',
                               border: '2px dashed #444',
                               zIndex: 2,
                               display: 'flex',
@@ -1810,7 +1810,7 @@ export default function MobileHomepageBuilderTab() {
                             </div>
 
                             <div style={{ position: 'absolute', bottom: 8, left: 8, right: 30, zIndex: 2 }}>
-                              <div style={{ fontSize: 9.5, fontWeight: 900, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>@{track?.artistName || 'artist'}</div>
+                              <div style={{ fontSize: 9.5, fontWeight: 900, color: '#221a15', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>@{track?.artistName || 'artist'}</div>
                               <div style={{ fontSize: 8, color: '#ddd', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 1 }}>🎵 {track?.title || 'Song title'}</div>
                             </div>
                           </div>
@@ -1856,7 +1856,7 @@ export default function MobileHomepageBuilderTab() {
                             <div style={{ width: '100%', paddingTop: '100%', position: 'relative', borderRadius: 6, overflow: 'hidden' }}>
                               <img src={coverImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
                             </div>
-                            <div style={{ fontSize: 9.5, fontWeight: 700, color: '#fff', marginTop: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track?.title}</div>
+                            <div style={{ fontSize: 9.5, fontWeight: 700, color: '#221a15', marginTop: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track?.title}</div>
                             <div style={{ fontSize: 7.5, color: '#888', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track?.artistName}</div>
                           </div>
                         );
@@ -1877,7 +1877,7 @@ export default function MobileHomepageBuilderTab() {
                               <img src={coverImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
                             </div>
                             <div style={{ fontSize: 9, fontWeight: 900, color: '#00f0ff', fontFamily: 'monospace', marginTop: 6, textShadow: '1px 1px 0px #ff007f', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track?.title?.toUpperCase()}</div>
-                            <div style={{ fontSize: 7, color: '#fff', opacity: 0.8, fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track?.artistName}</div>
+                            <div style={{ fontSize: 7, color: '#221a15', opacity: 0.8, fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track?.artistName}</div>
                           </div>
                         );
                       })}
@@ -1899,7 +1899,7 @@ export default function MobileHomepageBuilderTab() {
                               <img src={coverImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             </div>
                             <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ fontSize: 9.5, fontWeight: 800, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track?.title}</div>
+                              <div style={{ fontSize: 9.5, fontWeight: 800, color: '#221a15', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track?.title}</div>
                               <div style={{ fontSize: 7.5, color: C.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track?.artistName}</div>
                             </div>
                             <span style={{ fontSize: 7, color: '#888', fontWeight: 700 }}>{(4.2 - i * 0.9).toFixed(1)}M plays</span>
@@ -1928,14 +1928,14 @@ export default function MobileHomepageBuilderTab() {
                             <img src={coverImg} alt="" style={{ width: 42, height: 42, borderRadius: 6, objectFit: 'cover', border: '1px solid rgba(255,255,255,0.1)' }} />
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div style={{ fontSize: 6.5, fontWeight: 900, color: '#10b981', letterSpacing: '0.05em' }}>NEW RELEASE COUNTDOWN</div>
-                              <div style={{ fontSize: 9.5, fontWeight: 850, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 1 }}>{track.title}</div>
+                              <div style={{ fontSize: 9.5, fontWeight: 850, color: '#221a15', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 1 }}>{track.title}</div>
                               <div style={{ display: 'flex', gap: 3, marginTop: 4 }}>
                                 {['02d', '14h', '35m', '18s'].map((t, idx) => (
                                   <div key={idx} style={{ background: 'rgba(255,255,255,0.06)', borderRadius: 3, padding: '2px 4px', fontSize: 7, fontFamily: 'monospace', color: '#10b981', fontWeight: 800 }}>{t}</div>
                                 ))}
                               </div>
                             </div>
-                            <button style={{ background: '#10b981', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 7, fontWeight: 800, whiteSpace: 'nowrap' }}>Pre-save</button>
+                            <button style={{ background: '#10b981', color: '#221a15', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 7, fontWeight: 800, whiteSpace: 'nowrap' }}>Pre-save</button>
                           </>
                         );
                       })()}
@@ -1952,7 +1952,7 @@ export default function MobileHomepageBuilderTab() {
                           <>
                             <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 8, padding: 6, display: 'flex', flexDirection: 'column' }}>
                               <img src={sec.customImage || t1.coverImage} alt="" style={{ width: '100%', height: 62, objectFit: 'cover', borderRadius: 4 }} />
-                              <span style={{ fontSize: 10, fontWeight: 900, fontFamily: 'serif', color: '#fff', marginTop: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>{t1.title}</span>
+                              <span style={{ fontSize: 10, fontWeight: 900, fontFamily: 'serif', color: '#221a15', marginTop: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>{t1.title}</span>
                               <span style={{ fontSize: 7, color: '#999', marginTop: 2, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: 1.2 }}>Specially featured editorial layout showing track highlight.</span>
                             </div>
                             
@@ -1961,7 +1961,7 @@ export default function MobileHomepageBuilderTab() {
                                 <div key={idx} style={{ display: 'flex', gap: 4, alignItems: 'center', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: 6, padding: 4 }}>
                                   <img src={track.coverImage} alt="" style={{ width: 22, height: 22, borderRadius: 3, objectFit: 'cover' }} />
                                   <div style={{ flex: 1, minWidth: 0 }}>
-                                    <div style={{ fontSize: 8, fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.title}</div>
+                                    <div style={{ fontSize: 8, fontWeight: 700, color: '#221a15', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.title}</div>
                                     <div style={{ fontSize: 6.5, color: C.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.artistName}</div>
                                   </div>
                                 </div>
@@ -2018,9 +2018,9 @@ export default function MobileHomepageBuilderTab() {
                               flexDirection: 'column',
                               justifyContent: 'space-between'
                             }}>
-                              <div style={{ fontSize: 7, color: '#fff', opacity: 0.6, fontWeight: 800 }}>FEATURED</div>
+                              <div style={{ fontSize: 7, color: '#221a15', opacity: 0.6, fontWeight: 800 }}>FEATURED</div>
                               <img src={sec.customImage || t1.coverImage} alt="" style={{ width: '100%', height: 48, objectFit: 'cover', borderRadius: 6, margin: '6px 0' }} />
-                              <div style={{ fontSize: 9, fontWeight: 900, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t1.title}</div>
+                              <div style={{ fontSize: 9, fontWeight: 900, color: '#221a15', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t1.title}</div>
                             </div>
 
                             <div style={{
@@ -2035,7 +2035,7 @@ export default function MobileHomepageBuilderTab() {
                             }}>
                               <img src={t2.coverImage} alt="" style={{ width: 22, height: 22, borderRadius: 4, objectFit: 'cover' }} />
                               <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ fontSize: 8.5, fontWeight: 800, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t2.title}</div>
+                                <div style={{ fontSize: 8.5, fontWeight: 800, color: '#221a15', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t2.title}</div>
                               </div>
                             </div>
 
@@ -2051,7 +2051,7 @@ export default function MobileHomepageBuilderTab() {
                               alignItems: 'center'
                             }}>
                               <span style={{ fontSize: 11 }}>🔥</span>
-                              <span style={{ fontSize: 7.5, fontWeight: 800, color: '#fff', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%', textAlign: 'center' }}>{t3.title}</span>
+                              <span style={{ fontSize: 7.5, fontWeight: 800, color: '#221a15', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%', textAlign: 'center' }}>{t3.title}</span>
                             </div>
                           </>
                         );
@@ -2067,7 +2067,7 @@ export default function MobileHomepageBuilderTab() {
                           <div style={{ position: 'absolute', left: -16, width: 7, height: 7, borderRadius: '50%', background: selectedPreset?.theme?.primary || C.primary }} />
                           <span style={{ fontSize: 8, color: selectedPreset?.theme?.primary || C.primary, fontWeight: 700 }}>202{4-i}</span>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.03)', padding: 4, borderRadius: 5, flex: 1 }}>
-                            <div style={{ width: 18, height: 18, borderRadius: 3, background: '#333' }} />
+                            <div style={{ width: 18, height: 18, borderRadius: 3, background: 'rgba(43,34,26,0.1)' }} />
                             <div style={{ width: 60, height: 5, background: '#444', borderRadius: 2 }} />
                           </div>
                         </div>
@@ -2142,7 +2142,7 @@ export default function MobileHomepageBuilderTab() {
                               <img src={coverImg} alt="" style={{ width: '100%', height: '100%', borderRadius: isCircle ? '50%' : (isSquare ? 0 : 6), objectFit: 'cover' }} />
                               
                               {isCurrent && isPlaying && (
-                                <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: isCircle ? '50%' : (isSquare ? 0 : 6) }}>
+                                <div style={{ position: 'absolute', inset: 0, background: 'rgba(43, 34, 26, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: isCircle ? '50%' : (isSquare ? 0 : 6) }}>
                                   <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2 }}>
                                     {[1, 2, 3].map(bar => (
                                       <div key={bar} style={{ width: 2, background: selectedPreset?.theme?.primary || '#b08850', height: `${6 + bar * 4}px`, animation: `waveform 0.8s ease-in-out infinite` }} />
@@ -2240,7 +2240,7 @@ export default function MobileHomepageBuilderTab() {
           <div style={cardSt({ width: '500px', display: 'flex', flexDirection: 'column', gap: 12, height: '520px' })}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: 13, fontWeight: 800 }}>🎵 Add tracks to custom shelf</span>
-              <button onClick={() => setShowSongPicker(false)} style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: 14, cursor: 'pointer' }}>✕</button>
+              <button onClick={() => setShowSongPicker(false)} style={{ background: 'transparent', border: 'none', color: '#221a15', fontSize: 14, cursor: 'pointer' }}>✕</button>
             </div>
 
             <input
@@ -2262,7 +2262,7 @@ export default function MobileHomepageBuilderTab() {
                       alignItems: 'center',
                       justifyContent: 'space-between',
                       padding: '8px 10px',
-                      background: isAdded ? 'rgba(176, 136, 80, 0.08)' : '#0c0c0c',
+                      background: isAdded ? 'rgba(176, 136, 80, 0.08)' : '#ffffff',
                       borderRadius: 6,
                       border: `1px solid ${isAdded ? C.primary : 'transparent'}`
                     }}

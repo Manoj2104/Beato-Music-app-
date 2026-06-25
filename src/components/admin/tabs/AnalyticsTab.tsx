@@ -28,9 +28,9 @@ const chartTooltip = {
     background: '#181818',
     border: `1px solid ${COLORS.border}`,
     borderRadius: 12,
-    color: '#fff',
+    color: '#221a15',
     fontSize: 12,
-    boxShadow: '0 8px 30px rgba(0, 0, 0, 0.5)'
+    boxShadow: '0 8px 30px rgba(43, 34, 26, 0.1)'
   }
 };
 
@@ -167,7 +167,7 @@ export default function AnalyticsTab() {
           transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
           style={{ width: 40, height: 40, border: `3px solid ${COLORS.primaryBg}`, borderTopColor: COLORS.primary, borderRadius: '50%' }} 
         />
-        <div style={{ color: COLORS.textMuted, fontSize: 14 }}>Aggregating Beato data matrices...</div>
+        <div style={{ color: '#87786c', fontSize: 14 }}>Aggregating Beato data matrices...</div>
       </div>
     );
   }
@@ -285,7 +285,7 @@ export default function AnalyticsTab() {
   };
 
   return (
-    <div style={{ padding: '24px 0', fontFamily: 'Inter, sans-serif', color: COLORS.text }}>
+    <div style={{ padding: '24px 0', fontFamily: 'Inter, sans-serif', color: '#221a15' }}>
       <style jsx global>{`
         @media print {
           body * {
@@ -305,7 +305,7 @@ export default function AnalyticsTab() {
 
       {/* ─── Control Header ─── */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-        style={{ background: '#121212', border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: '16px 20px', marginBottom: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
+        style={{ background: '#ffffff', border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: '16px 20px', marginBottom: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
         
         {/* Top line controls */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
@@ -313,12 +313,12 @@ export default function AnalyticsTab() {
             <span style={{ fontSize: 20 }}>📊</span>
             <div>
               <h2 style={{ fontSize: 16, fontWeight: 800, margin: 0, fontFamily: 'Outfit, sans-serif' }}>Enterprise Analytical Intelligence</h2>
-              <p style={{ fontSize: 11, color: COLORS.textMuted, margin: 0 }}>Real-time user count auditing, forecasts, RFM cohort tables & simulation dashboards.</p>
+              <p style={{ fontSize: 11, color: '#87786c', margin: 0 }}>Real-time user count auditing, forecasts, RFM cohort tables & simulation dashboards.</p>
             </div>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={printReport}
-              style={{ background: '#1a1a1a', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '8px 14px', fontSize: 12, fontWeight: 600, color: '#ccc', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+              style={{ background: '#f4eede', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '8px 14px', fontSize: 12, fontWeight: 600, color: '#ccc', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
               🖨️ Export PDF Report
             </button>
             <button onClick={fetchAnalytics}
@@ -332,9 +332,9 @@ export default function AnalyticsTab() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, borderTop: `1px solid ${COLORS.border}`, paddingTop: 14 }}>
           {/* Timeframe */}
           <div>
-            <label style={{ fontSize: 11, color: COLORS.textMuted, display: 'block', marginBottom: 5, fontWeight: 600 }}>TIMEFRAME SELECTOR</label>
+            <label style={{ fontSize: 11, color: '#87786c', display: 'block', marginBottom: 5, fontWeight: 600 }}>TIMEFRAME SELECTOR</label>
             <select value={timeframe} onChange={(e: any) => setTimeframe(e.target.value)}
-              style={{ background: '#1a1a1a', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '8px', color: '#fff', fontSize: 12, width: '100%', cursor: 'pointer' }}>
+              style={{ background: '#f4eede', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '8px', color: '#221a15', fontSize: 12, width: '100%', cursor: 'pointer' }}>
               <option value="24h">Last 24 Hours</option>
               <option value="7d">Last 7 Days</option>
               <option value="30d">Last 30 Days (Default)</option>
@@ -344,9 +344,9 @@ export default function AnalyticsTab() {
 
           {/* Country */}
           <div>
-            <label style={{ fontSize: 11, color: COLORS.textMuted, display: 'block', marginBottom: 5, fontWeight: 600 }}>DEMOGRAPHIC REGION</label>
+            <label style={{ fontSize: 11, color: '#87786c', display: 'block', marginBottom: 5, fontWeight: 600 }}>DEMOGRAPHIC REGION</label>
             <select value={filterCountry} onChange={(e) => setFilterCountry(e.target.value)}
-              style={{ background: '#1a1a1a', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '8px', color: '#fff', fontSize: 12, width: '100%', cursor: 'pointer' }}>
+              style={{ background: '#f4eede', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '8px', color: '#221a15', fontSize: 12, width: '100%', cursor: 'pointer' }}>
               <option value="all">All Countries</option>
               <option value="IN">India (IN)</option>
               <option value="US">United States (US)</option>
@@ -358,9 +358,9 @@ export default function AnalyticsTab() {
 
           {/* Subscription Tier */}
           <div>
-            <label style={{ fontSize: 11, color: COLORS.textMuted, display: 'block', marginBottom: 5, fontWeight: 600 }}>MEMBERSHIP SUBSCRIPTION</label>
+            <label style={{ fontSize: 11, color: '#87786c', display: 'block', marginBottom: 5, fontWeight: 600 }}>MEMBERSHIP SUBSCRIPTION</label>
             <select value={filterTier} onChange={(e) => setFilterTier(e.target.value)}
-              style={{ background: '#1a1a1a', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '8px', color: '#fff', fontSize: 12, width: '100%', cursor: 'pointer' }}>
+              style={{ background: '#f4eede', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '8px', color: '#221a15', fontSize: 12, width: '100%', cursor: 'pointer' }}>
               <option value="all">All Tiers</option>
               <option value="free">Free Users</option>
               <option value="premium">Premium Core</option>
@@ -372,9 +372,9 @@ export default function AnalyticsTab() {
 
           {/* Status */}
           <div>
-            <label style={{ fontSize: 11, color: COLORS.textMuted, display: 'block', marginBottom: 5, fontWeight: 600 }}>USER ACCOUNT STATUS</label>
+            <label style={{ fontSize: 11, color: '#87786c', display: 'block', marginBottom: 5, fontWeight: 600 }}>USER ACCOUNT STATUS</label>
             <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}
-              style={{ background: '#1a1a1a', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '8px', color: '#fff', fontSize: 12, width: '100%', cursor: 'pointer' }}>
+              style={{ background: '#f4eede', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '8px', color: '#221a15', fontSize: 12, width: '100%', cursor: 'pointer' }}>
               <option value="all">All Statuses</option>
               <option value="active">Active Members Only</option>
               <option value="inactive">Inactive / Sleep Members</option>
@@ -398,17 +398,17 @@ export default function AnalyticsTab() {
             <div>
               <span style={{ fontSize: 11, fontWeight: 800, color: COLORS.primary, letterSpacing: '0.08em' }}>REAL-TIME STATUS INTAKE</span>
               <div style={{ display: 'flex', gap: 20, marginTop: 4, flexWrap: 'wrap' }}>
-                <span style={{ fontSize: 13, fontWeight: 500 }}>Listeners Browsing: <strong style={{ color: '#fff', fontSize: 16, fontFamily: 'Outfit' }}>{data.stats.activeNowUsers.toLocaleString()}</strong></span>
-                <span style={{ fontSize: 13, fontWeight: 500 }}>Active Stream Players: <strong style={{ color: '#fff', fontSize: 16, fontFamily: 'Outfit' }}>{data.stats.liveStreamsCount.toLocaleString()}</strong></span>
+                <span style={{ fontSize: 13, fontWeight: 500 }}>Listeners Browsing: <strong style={{ color: '#221a15', fontSize: 16, fontFamily: 'Outfit' }}>{data.stats.activeNowUsers.toLocaleString()}</strong></span>
+                <span style={{ fontSize: 13, fontWeight: 500 }}>Active Stream Players: <strong style={{ color: '#221a15', fontSize: 16, fontFamily: 'Outfit' }}>{data.stats.liveStreamsCount.toLocaleString()}</strong></span>
                 <span style={{ fontSize: 13, fontWeight: 500 }}>Cumulative Streams: <strong style={{ color: COLORS.primary, fontSize: 16, fontFamily: 'Outfit' }}>{data.stats.totalPlays.toLocaleString()}</strong></span>
               </div>
             </div>
           </div>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 11, color: COLORS.textMuted }}>Auto-Refresh Status Feed</span>
+            <span style={{ fontSize: 11, color: '#87786c' }}>Auto-Refresh Status Feed</span>
             <button onClick={() => setLiveAutoRefresh(!liveAutoRefresh)}
-              style={{ background: liveAutoRefresh ? COLORS.primary : '#333', border: 'none', color: '#fff', padding: '5px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+              style={{ background: liveAutoRefresh ? COLORS.primary : '#333', border: 'none', color: '#221a15', padding: '5px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
               {liveAutoRefresh ? 'ACTIVE (4s)' : 'MUTED'}
             </button>
           </div>
@@ -439,9 +439,9 @@ export default function AnalyticsTab() {
           ].map((kpi, idx) => (
             <motion.div key={kpi.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}
               style={{ background: COLORS.card, border: `1px solid ${COLORS.border}`, borderRadius: 14, padding: '16px 18px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
-              <span style={{ fontSize: 10, color: COLORS.textMuted, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{kpi.label}</span>
+              <span style={{ fontSize: 10, color: '#87786c', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{kpi.label}</span>
               <div style={{ fontSize: 26, fontWeight: 800, color: kpi.color, margin: '4px 0', fontFamily: 'Outfit, sans-serif' }}>{kpi.value}</div>
-              <span style={{ fontSize: 11, color: COLORS.textMuted }}>{kpi.desc}</span>
+              <span style={{ fontSize: 11, color: '#87786c' }}>{kpi.desc}</span>
             </motion.div>
           ))}
         </div>
@@ -452,7 +452,7 @@ export default function AnalyticsTab() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 18 }}>
             <div>
               <h3 style={{ fontSize: 15, fontWeight: 800, margin: 0, fontFamily: 'Outfit, sans-serif' }}>User Flow Metrics & Engagement Trends</h3>
-              <p style={{ fontSize: 11, color: COLORS.textMuted, margin: 0 }}>Visualizes daily DAU counts, onboarding signups, and churn vectors.</p>
+              <p style={{ fontSize: 11, color: '#87786c', margin: 0 }}>Visualizes daily DAU counts, onboarding signups, and churn vectors.</p>
             </div>
             
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
@@ -463,7 +463,7 @@ export default function AnalyticsTab() {
               </button>
               {/* Export Button */}
               <button onClick={exportTrendCSV}
-                style={{ background: '#1a1a1a', border: `1px solid ${COLORS.border}`, color: '#aaa', borderRadius: 8, padding: '6px 12px', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                style={{ background: '#f4eede', border: `1px solid ${COLORS.border}`, color: '#aaa', borderRadius: 8, padding: '6px 12px', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
                 📤 Export CSV
               </button>
             </div>
@@ -512,22 +512,22 @@ export default function AnalyticsTab() {
           <motion.div initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
             style={{ background: COLORS.card, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: '20px' }}>
             <h3 style={{ fontSize: 14, fontWeight: 800, margin: '0 0 4px 0', fontFamily: 'Outfit, sans-serif' }}>📊 Custom Query Analytics Sandbox</h3>
-            <p style={{ fontSize: 11, color: COLORS.textMuted, margin: '0 0 16px 0' }}>Plot user databases parameters against streams or conversion metrics dynamically.</p>
+            <p style={{ fontSize: 11, color: '#87786c', margin: '0 0 16px 0' }}>Plot user databases parameters against streams or conversion metrics dynamically.</p>
             
             <div style={{ display: 'flex', gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
               <div>
-                <label style={{ fontSize: 10, color: COLORS.textMuted, display: 'block', marginBottom: 4, fontWeight: 600 }}>DIMENSION (X-AXIS)</label>
+                <label style={{ fontSize: 10, color: '#87786c', display: 'block', marginBottom: 4, fontWeight: 600 }}>DIMENSION (X-AXIS)</label>
                 <select value={customXAxis} onChange={(e: any) => setCustomXAxis(e.target.value)}
-                  style={{ background: '#1a1a1a', border: `1px solid ${COLORS.border}`, borderRadius: 6, padding: '5px 10px', color: '#fff', fontSize: 11 }}>
+                  style={{ background: '#f4eede', border: `1px solid ${COLORS.border}`, borderRadius: 6, padding: '5px 10px', color: '#221a15', fontSize: 11 }}>
                   <option value="genre">Music Genre</option>
                   <option value="plan">Subscription Plans</option>
                   <option value="country">Country Code</option>
                 </select>
               </div>
               <div>
-                <label style={{ fontSize: 10, color: COLORS.textMuted, display: 'block', marginBottom: 4, fontWeight: 600 }}>MEASURE (Y-AXIS)</label>
+                <label style={{ fontSize: 10, color: '#87786c', display: 'block', marginBottom: 4, fontWeight: 600 }}>MEASURE (Y-AXIS)</label>
                 <select value={customYAxis} onChange={(e: any) => setCustomYAxis(e.target.value)}
-                  style={{ background: '#1a1a1a', border: `1px solid ${COLORS.border}`, borderRadius: 6, padding: '5px 10px', color: '#fff', fontSize: 11 }}>
+                  style={{ background: '#f4eede', border: `1px solid ${COLORS.border}`, borderRadius: 6, padding: '5px 10px', color: '#221a15', fontSize: 11 }}>
                   <option value="streams">Volume of Plays (Streams)</option>
                   <option value="users">Unique Accounts Count</option>
                   <option value="revenue">Financial Revenue Value</option>
@@ -552,7 +552,7 @@ export default function AnalyticsTab() {
           <motion.div initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }}
             style={{ background: COLORS.card, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: '20px' }}>
             <h3 style={{ fontSize: 14, fontWeight: 800, margin: '0 0 4px 0', fontFamily: 'Outfit, sans-serif' }}>🧪 Onboarding Funnel Conversion Optimizer</h3>
-            <p style={{ fontSize: 11, color: COLORS.textMuted, margin: '0 0 14px 0' }}>Drag conversion vectors sliders below to compute forecasted MRR calculations.</p>
+            <p style={{ fontSize: 11, color: '#87786c', margin: '0 0 14px 0' }}>Drag conversion vectors sliders below to compute forecasted MRR calculations.</p>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div>
@@ -583,13 +583,13 @@ export default function AnalyticsTab() {
               </div>
             </div>
 
-            <div style={{ background: '#181818', border: `1px solid ${COLORS.border}`, borderRadius: 10, padding: '12px', marginTop: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ background: 'rgba(43, 34, 26, 0.03)', border: `1px solid ${COLORS.border}`, borderRadius: 10, padding: '12px', marginTop: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <div style={{ fontSize: 10, color: COLORS.textMuted }}>PROJECTED PREMIUM MEMBERS</div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#fff' }}>{simulatedRevenue.premiumCount}</div>
+                <div style={{ fontSize: 10, color: '#87786c' }}>PROJECTED PREMIUM MEMBERS</div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#221a15' }}>{simulatedRevenue.premiumCount}</div>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: 10, color: COLORS.textMuted }}>ESTIMATED MRR</div>
+                <div style={{ fontSize: 10, color: '#87786c' }}>ESTIMATED MRR</div>
                 <div style={{ fontSize: 18, fontWeight: 800, color: COLORS.primary }}>
                   {data.currency.symbol}{simulatedRevenue.revenue}
                 </div>
@@ -612,10 +612,10 @@ export default function AnalyticsTab() {
                     <span style={{ color: '#ccc', fontWeight: 500 }}>{step.label}</span>
                     <div style={{ textAlign: 'right' }}>
                       <span style={{ color: step.color, fontWeight: 700 }}>{step.count.toLocaleString()}</span>
-                      <span style={{ color: COLORS.textMuted, marginLeft: 6 }}>({step.pct}%)</span>
+                      <span style={{ color: '#87786c', marginLeft: 6 }}>({step.pct}%)</span>
                     </div>
                   </div>
-                  <div style={{ background: '#1a1a1a', borderRadius: 8, height: 10, overflow: 'hidden' }}>
+                  <div style={{ background: '#f4eede', borderRadius: 8, height: 10, overflow: 'hidden' }}>
                     <motion.div initial={{ width: 0 }} animate={{ width: `${step.pct}%` }} transition={{ duration: 0.8 }}
                       style={{ height: '100%', background: step.color, borderRadius: 8 }} />
                   </div>
@@ -640,7 +640,7 @@ export default function AnalyticsTab() {
                     <span style={{ color: '#ccc', fontWeight: 500 }}>{dev.name}</span>
                     <span style={{ color: dev.color, fontWeight: 700 }}>{dev.pct}%</span>
                   </div>
-                  <div style={{ background: '#1a1a1a', borderRadius: 6, height: 8, overflow: 'hidden' }}>
+                  <div style={{ background: '#f4eede', borderRadius: 6, height: 8, overflow: 'hidden' }}>
                     <motion.div initial={{ width: 0 }} animate={{ width: `${dev.pct}%` }} transition={{ duration: 0.7 }}
                       style={{ height: '100%', background: dev.color, borderRadius: 6 }} />
                   </div>
@@ -700,17 +700,17 @@ export default function AnalyticsTab() {
           <motion.div initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
             style={{ background: COLORS.card, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: '20px' }}>
             <h3 style={{ fontSize: 15, fontWeight: 800, margin: '0 0 4px 0', fontFamily: 'Outfit, sans-serif' }}>RFM Cohort Engagement Segments</h3>
-            <p style={{ fontSize: 11, color: COLORS.textMuted, margin: '0 0 16px 0' }}>Customer segregation analyzing Listening Recency, Playback Frequency, and Premium Tier Monetary value.</p>
+            <p style={{ fontSize: 11, color: '#87786c', margin: '0 0 16px 0' }}>Customer segregation analyzing Listening Recency, Playback Frequency, and Premium Tier Monetary value.</p>
             
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
               {data.rfmSegments.map(segment => (
-                <div key={segment.name} style={{ background: '#1a1a1a', border: `1px solid ${COLORS.border}`, borderRadius: 10, padding: '12px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <div key={segment.name} style={{ background: '#f4eede', border: `1px solid ${COLORS.border}`, borderRadius: 10, padding: '12px', display: 'flex', flexDirection: 'column', gap: 4 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>{segment.name}</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: '#221a15' }}>{segment.name}</span>
                     <span style={{ fontSize: 11, fontWeight: 800, color: segment.color }}>{segment.pct}%</span>
                   </div>
                   <div style={{ fontSize: 16, fontWeight: 800, color: segment.color, fontFamily: 'Outfit' }}>{segment.count.toLocaleString()} users</div>
-                  <span style={{ fontSize: 10, color: COLORS.textMuted }}>{segment.desc}</span>
+                  <span style={{ fontSize: 10, color: '#87786c' }}>{segment.desc}</span>
                 </div>
               ))}
             </div>
@@ -726,11 +726,11 @@ export default function AnalyticsTab() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5, fontSize: 12 }}>
                     <span style={{ color: '#ccc', fontWeight: 500 }}>{item.name}</span>
                     <div style={{ textAlign: 'right' }}>
-                      <span style={{ color: '#fff', fontWeight: 600, marginRight: 8 }}>{item.count.toLocaleString()} {item.count === 1 ? 'user' : 'users'}</span>
+                      <span style={{ color: '#221a15', fontWeight: 600, marginRight: 8 }}>{item.count.toLocaleString()} {item.count === 1 ? 'user' : 'users'}</span>
                       <span style={{ color: item.color, fontWeight: 700 }}>({item.pct}%)</span>
                     </div>
                   </div>
-                  <div style={{ background: '#1a1a1a', borderRadius: 6, height: 8, overflow: 'hidden' }}>
+                  <div style={{ background: '#f4eede', borderRadius: 6, height: 8, overflow: 'hidden' }}>
                     <motion.div initial={{ width: 0 }} animate={{ width: `${item.pct}%` }} transition={{ duration: 0.7 }}
                       style={{ height: '100%', background: item.color, borderRadius: 6 }} />
                   </div>
@@ -746,11 +746,11 @@ export default function AnalyticsTab() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 14 }}>
             <div>
               <h3 style={{ fontSize: 15, fontWeight: 800, margin: 0, fontFamily: 'Outfit, sans-serif' }}>Weekly Cohort Retention Matrix</h3>
-              <p style={{ fontSize: 11, color: COLORS.textMuted, margin: 0 }}>Indicates percentage of unique active users returning week after signup.</p>
+              <p style={{ fontSize: 11, color: '#87786c', margin: 0 }}>Indicates percentage of unique active users returning week after signup.</p>
             </div>
             
             <button onClick={exportCohortCSV}
-              style={{ background: '#1a1a1a', border: `1px solid ${COLORS.border}`, color: '#aaa', borderRadius: 8, padding: '6px 12px', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+              style={{ background: '#f4eede', border: `1px solid ${COLORS.border}`, color: '#aaa', borderRadius: 8, padding: '6px 12px', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
               📤 Export Cohort Matrix
             </button>
           </div>
@@ -759,16 +759,16 @@ export default function AnalyticsTab() {
             <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600 }}>
               <thead>
                 <tr style={{ borderBottom: `1px solid ${COLORS.border}` }}>
-                  <th style={{ padding: '10px 14px', textAlign: 'left', color: COLORS.textMuted, fontSize: 11, fontWeight: 700 }}>Cohort Month</th>
+                  <th style={{ padding: '10px 14px', textAlign: 'left', color: '#87786c', fontSize: 11, fontWeight: 700 }}>Cohort Month</th>
                   {Array.from({ length: 8 }, (_, i) => (
-                    <th key={i} style={{ padding: '10px 8px', textAlign: 'center', color: COLORS.textMuted, fontSize: 11, fontWeight: 700 }}>Week {i + 1}</th>
+                    <th key={i} style={{ padding: '10px 8px', textAlign: 'center', color: '#87786c', fontSize: 11, fontWeight: 700 }}>Week {i + 1}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {Object.entries(data.cohortData).map(([month, vals]) => (
-                  <tr key={month} style={{ borderBottom: '1px solid #161616' }}>
-                    <td style={{ padding: '12px 14px', color: '#fff', fontSize: 12, fontWeight: 700 }}>{month}</td>
+                  <tr key={month} style={{ borderBottom: `1px solid ${COLORS.border}` }}>
+                    <td style={{ padding: '12px 14px', color: '#221a15', fontSize: 12, fontWeight: 700 }}>{month}</td>
                     {vals.map((pct, idx) => {
                       // Apply shades of green based on retention values
                       let bg = 'transparent';
@@ -785,7 +785,7 @@ export default function AnalyticsTab() {
                               {pct}%
                             </button>
                           ) : (
-                            <span style={{ color: '#2a2a2a' }}>—</span>
+                            <span style={{ color: '#ccc' }}>—</span>
                           )}
                         </td>
                       );
@@ -803,15 +803,15 @@ export default function AnalyticsTab() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 14 }}>
             <div>
               <h3 style={{ fontSize: 15, fontWeight: 800, margin: 0, fontFamily: 'Outfit, sans-serif' }}>Geographic Streaming & Revenue Matrix</h3>
-              <p style={{ fontSize: 11, color: COLORS.textMuted, margin: 0 }}>Sort and track platform stream quantities, active accounts and premium conversions by country code.</p>
+              <p style={{ fontSize: 11, color: '#87786c', margin: 0 }}>Sort and track platform stream quantities, active accounts and premium conversions by country code.</p>
             </div>
             
             <div style={{ display: 'flex', gap: 10 }}>
               <input type="text" placeholder="Filter Country..." value={geoSearch} onChange={(e) => setGeoSearch(e.target.value)}
-                style={{ background: '#1a1a1a', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '6px 12px', color: '#fff', fontSize: 12, width: 160 }} />
+                style={{ background: '#f4eede', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '6px 12px', color: '#221a15', fontSize: 12, width: 160 }} />
               
               <select value={geoSort} onChange={(e: any) => setGeoSort(e.target.value)}
-                style={{ background: '#1a1a1a', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '6px 10px', color: '#fff', fontSize: 12 }}>
+                style={{ background: '#f4eede', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '6px 10px', color: '#221a15', fontSize: 12 }}>
                 <option value="streams">Sort by Streams</option>
                 <option value="revenue">Sort by Revenue</option>
                 <option value="users">Sort by Users</option>
@@ -822,7 +822,7 @@ export default function AnalyticsTab() {
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600 }}>
               <thead>
-                <tr style={{ borderBottom: `1px solid ${COLORS.border}`, color: COLORS.textMuted, fontSize: 11, textAlign: 'left' }}>
+                <tr style={{ borderBottom: `1px solid ${COLORS.border}`, color: '#87786c', fontSize: 11, textAlign: 'left' }}>
                   <th style={{ padding: '10px 14px' }}>Country Code</th>
                   <th style={{ padding: '10px 10px' }}>Country Name</th>
                   <th style={{ padding: '10px 10px' }}>Streams Audited</th>
@@ -840,9 +840,9 @@ export default function AnalyticsTab() {
                     return b.users - a.users;
                   })
                   .map(country => (
-                    <tr key={country.countryCode} style={{ borderBottom: '1px solid #161616', fontSize: 12 }}>
+                    <tr key={country.countryCode} style={{ borderBottom: `1px solid ${COLORS.border}`, fontSize: 12 }}>
                       <td style={{ padding: '12px 14px', color: COLORS.primary, fontWeight: 700 }}>{country.countryCode}</td>
-                      <td style={{ padding: '12px 10px', color: '#fff', fontWeight: 500 }}>{country.countryName}</td>
+                      <td style={{ padding: '12px 10px', color: '#221a15', fontWeight: 500 }}>{country.countryName}</td>
                       <td style={{ padding: '12px 10px' }}>{country.streams.toLocaleString()}</td>
                       <td style={{ padding: '12px 10px' }}>{country.users.toLocaleString()}</td>
                       <td style={{ padding: '12px 10px', fontWeight: 700, color: COLORS.primary }}>
@@ -851,7 +851,7 @@ export default function AnalyticsTab() {
                       <td style={{ padding: '12px 10px', textAlign: 'center' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                           <span style={{ fontSize: 11, fontWeight: 600 }}>{country.convRate}%</span>
-                          <div style={{ width: 60, height: 6, background: '#1a1a1a', borderRadius: 3, overflow: 'hidden' }}>
+                          <div style={{ width: 60, height: 6, background: '#f4eede', borderRadius: 3, overflow: 'hidden' }}>
                             <div style={{ width: `${country.convRate}%`, height: '100%', background: COLORS.primary }} />
                           </div>
                         </div>
@@ -870,20 +870,20 @@ export default function AnalyticsTab() {
           <motion.div initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
             style={{ background: COLORS.card, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: '20px' }}>
             <h3 style={{ fontSize: 14, fontWeight: 800, margin: '0 0 4px 0', fontFamily: 'Outfit, sans-serif' }}>🚨 Analytic Alerts Rules Manager</h3>
-            <p style={{ fontSize: 11, color: COLORS.textMuted, margin: '0 0 16px 0' }}>Configure automated alerts when critical performance metrics pass custom thresholds.</p>
+            <p style={{ fontSize: 11, color: '#87786c', margin: '0 0 16px 0' }}>Configure automated alerts when critical performance metrics pass custom thresholds.</p>
             
             <form onSubmit={handleAddAlert} style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
               <select value={newMetric} onChange={(e) => setNewMetric(e.target.value)}
-                style={{ background: '#1a1a1a', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '6px 10px', color: '#fff', fontSize: 11 }}>
+                style={{ background: '#f4eede', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '6px 10px', color: '#221a15', fontSize: 11 }}>
                 <option value="Skip Rate">Skip Rate %</option>
                 <option value="Daily Churn">Daily Churn (Users)</option>
                 <option value="Unsubscribe">Unsubscribe Rates</option>
                 <option value="Failures">Stream Errors %</option>
               </select>
               <input type="text" placeholder="Threshold e.g. > 10%" value={newThreshold} onChange={(e) => setNewThreshold(e.target.value)}
-                style={{ background: '#1a1a1a', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '6px 12px', color: '#fff', fontSize: 11, width: 140 }} />
+                style={{ background: '#f4eede', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '6px 12px', color: '#221a15', fontSize: 11, width: 140 }} />
               <button type="submit"
-                style={{ background: COLORS.primary, border: 'none', color: '#fff', padding: '6px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+                style={{ background: COLORS.primary, border: 'none', color: '#221a15', padding: '6px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
                 + Add Rule
               </button>
             </form>
@@ -892,8 +892,8 @@ export default function AnalyticsTab() {
               {alertRules.map(rule => (
                 <div key={rule.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#181818', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '8px 12px' }}>
                   <div>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: '#fff' }}>Metric: {rule.metric}</span>
-                    <div style={{ fontSize: 11, color: COLORS.textMuted }}>Alert on: <strong style={{ color: COLORS.orange }}>{rule.threshold}</strong></div>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: '#221a15' }}>Metric: {rule.metric}</span>
+                    <div style={{ fontSize: 11, color: '#87786c' }}>Alert on: <strong style={{ color: COLORS.orange }}>{rule.threshold}</strong></div>
                   </div>
                   <div style={{ display: 'flex', gap: 6 }}>
                     <button onClick={() => {
@@ -916,15 +916,15 @@ export default function AnalyticsTab() {
           <motion.div initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }}
             style={{ background: COLORS.card, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: '20px' }}>
             <h3 style={{ fontSize: 14, fontWeight: 800, margin: '0 0 4px 0', fontFamily: 'Outfit, sans-serif' }}>📃 Live Operations Audit Stream</h3>
-            <p style={{ fontSize: 11, color: COLORS.textMuted, margin: '0 0 12px 0' }}>Rolling system events and client statistics capture logs (auto-updates).</p>
+            <p style={{ fontSize: 11, color: '#87786c', margin: '0 0 12px 0' }}>Rolling system events and client statistics capture logs (auto-updates).</p>
             
-            <div style={{ background: '#0a0a0a', borderRadius: 12, padding: '12px', border: '1px solid #161616', height: 160, overflowY: 'auto', fontFamily: 'Courier New, monospace', fontSize: 11 }}>
+            <div style={{ background: '#fbf9f5', borderRadius: 12, padding: '12px', border: '1px solid #161616', height: 160, overflowY: 'auto', fontFamily: 'Courier New, monospace', fontSize: 11 }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 <AnimatePresence>
                   {auditEvents.map(evt => (
                     <motion.div key={evt.id} initial={{ opacity: 0, x: -5 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}
                       style={{ display: 'flex', gap: 10, borderBottom: '1px solid #111', paddingBottom: 4 }}>
-                      <span style={{ color: COLORS.textMuted }}>[{evt.time}]</span>
+                      <span style={{ color: '#87786c' }}>[{evt.time}]</span>
                       <span style={{ color: evt.type === 'upgrade' ? COLORS.primary : evt.type === 'system' ? COLORS.blue : COLORS.orange }}>
                         {evt.msg}
                       </span>
@@ -949,22 +949,22 @@ export default function AnalyticsTab() {
                 🚀 Cohort Drill-Down Audit
               </h3>
               <button onClick={() => setCohortModal(null)}
-                style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: 18, cursor: 'pointer' }}>
+                style={{ background: 'transparent', border: 'none', color: '#221a15', fontSize: 18, cursor: 'pointer' }}>
                 ✕
               </button>
             </div>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontSize: 13, marginBottom: 20 }}>
               <p style={{ margin: 0 }}>You are inspecting user retention data for users registered in <strong>{cohortModal.month} 2026</strong> returning on <strong>Week {cohortModal.week}</strong>.</p>
-              <div style={{ background: '#121212', borderRadius: 8, padding: '12px', border: `1px solid ${COLORS.border}`, display: 'flex', justifyContent: 'space-between' }}>
+              <div style={{ background: '#ffffff', borderRadius: 8, padding: '12px', border: `1px solid ${COLORS.border}`, display: 'flex', justifyContent: 'space-between' }}>
                 <span>Retention Target:</span>
                 <strong style={{ color: COLORS.primary }}>{cohortModal.pct}%</strong>
               </div>
-              <div style={{ background: '#121212', borderRadius: 8, padding: '12px', border: `1px solid ${COLORS.border}`, display: 'flex', justifyContent: 'space-between' }}>
+              <div style={{ background: '#ffffff', borderRadius: 8, padding: '12px', border: `1px solid ${COLORS.border}`, display: 'flex', justifyContent: 'space-between' }}>
                 <span>Estimated Returning Users:</span>
                 <strong style={{ color: COLORS.blue }}>{Math.round(data.stats.totalUsers * (cohortModal.pct / 100)).toLocaleString()} users</strong>
               </div>
-              <div style={{ fontSize: 11, color: COLORS.textMuted, fontStyle: 'italic' }}>
+              <div style={{ fontSize: 11, color: '#87786c', fontStyle: 'italic' }}>
                 💡 Recommendation: Retention levels in Week {cohortModal.week} are optimal. Introduce localized playlist notifications to maximize conversion.
               </div>
             </div>
@@ -973,7 +973,7 @@ export default function AnalyticsTab() {
               setCohortModal(null);
               toast.success('Audited cohort segment downloaded.');
             }}
-              style={{ background: COLORS.primary, border: 'none', color: '#fff', borderRadius: 8, padding: '10px 16px', fontSize: 12, fontWeight: 700, cursor: 'pointer', width: '100%' }}>
+              style={{ background: COLORS.primary, border: 'none', color: '#221a15', borderRadius: 8, padding: '10px 16px', fontSize: 12, fontWeight: 700, cursor: 'pointer', width: '100%' }}>
               Download Specific Segment CSV
             </button>
           </motion.div>

@@ -46,11 +46,14 @@ interface AuthStore {
   token: string | null;
   login: (email: string, password: string, allowMockFallback?: boolean) => Promise<void>;
   loginWithSocial: (provider: string) => Promise<void>;
+  loginWithGooglePayload: (payload: { email: string; name: string; avatar?: string; idToken?: string }) => Promise<{ success: boolean; isNewUser: boolean }>;
   signup: (name: string, email: string, password: string, confirmPassword: string) => Promise<void>;
   sendOtp: (phone: string) => Promise<{ success: boolean; message?: string; developmentSandboxCode?: string }>;
   verifyOtp: (phone: string, code: string) => Promise<void>;
+  sendEmailOtp: (email: string) => Promise<{ success: boolean; message?: string; developmentSandboxCode?: string }>;
+  verifyEmailOtp: (email: string, code: string) => Promise<void>;
   logout: () => Promise<void>;
-  initializeSession: () => Promise<void>;
+  initializeSession: (force?: boolean) => Promise<void>;
   updateUser: (updates: Partial<User>) => void;
   upgradeToArtist: (userId: string) => void;
   toggleLikeSong: (trackId: string) => void;
@@ -247,6 +250,77 @@ export const useAuthStore = create<AuthStore>()(
         }
       },
 
+      loginWithGooglePayload: async (payload) => {
+        set({ isLoading: true });
+        try {
+          let data;
+          let isOk = false;
+          try {
+            const res = await fetch('/api/auth/google', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            });
+            isOk = res.ok;
+            const text = await res.text();
+            data = JSON.parse(text);
+          } catch (err) {
+            console.warn('Network error or offline during social login, using client fallback');
+            throw new Error('FALLBACK_TO_MOCK');
+          }
+
+          if (!isOk) {
+            throw new Error(data.error || 'Google login failed');
+          }
+
+          // Force-set session cookies on client-side for mobile WebView compatibility
+          if (typeof document !== 'undefined' && data.token) {
+            document.cookie = `beato-token=${data.token}; path=/; max-age=31536000; SameSite=Lax`;
+            if (data.user && data.user.role) {
+              document.cookie = `beato-role=${data.user.role}; path=/; max-age=31536000; SameSite=Lax`;
+            }
+          }
+
+          set({
+            user: data.user,
+            isAuthenticated: true,
+            token: data.token || 'secure-session-active',
+          });
+          return { success: true, isNewUser: !!data.isNewUser };
+        } catch (error: any) {
+          if (error.message === 'FALLBACK_TO_MOCK') {
+            const mockUser = {
+              id: 'user-google-mock-' + Date.now(),
+              name: payload.name || payload.email.split('@')[0],
+              email: payload.email,
+              role: 'USER' as const,
+              avatar: payload.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop',
+              subscription: 'free' as const,
+              country: 'IN',
+              joinedAt: new Date().toISOString(),
+              followers: 0,
+              following: 0,
+              likedSongs: [],
+              savedAlbums: [],
+              followedArtists: [],
+              playlists: [],
+              preferences: DEFAULT_PREFERENCES,
+              stats: DEFAULT_STATS,
+            };
+            set({
+              user: mockUser,
+              isAuthenticated: true,
+              token: 'mock-session-active',
+            });
+            return { success: true, isNewUser: true };
+          }
+          set({ user: null, isAuthenticated: false, token: null });
+          throw error;
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+
       signup: async (name, email, password, confirmPassword) => {
         set({ isLoading: true });
         try {
@@ -417,6 +491,148 @@ export const useAuthStore = create<AuthStore>()(
         }
       },
 
+      sendEmailOtp: async (email) => {
+        set({ isLoading: true });
+        try {
+          let data;
+          let isOk = false;
+          try {
+            const res = await fetch('/api/auth/email/send-otp', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email }),
+            });
+            isOk = res.ok;
+            const text = await res.text();
+            try {
+              data = JSON.parse(text);
+            } catch (jsonErr) {
+              const isOffline = await checkIsOffline();
+              if (isOffline) {
+                throw new Error('FALLBACK_TO_MOCK');
+              }
+              throw new Error('Invalid server response. Please try again.');
+            }
+          } catch (err: any) {
+            if (err.message === 'FALLBACK_TO_MOCK' || err.message === 'Invalid server response. Please try again.') {
+              throw err;
+            }
+            console.warn('Network error or offline during sendEmailOtp:', err);
+            const isOffline = await checkIsOffline();
+            if (isOffline) {
+              throw new Error('FALLBACK_TO_MOCK');
+            }
+            throw new Error('Network error. Cannot reach API server. Please check connection.');
+          }
+
+          if (!isOk) {
+            throw new Error(data?.error || 'Failed to send OTP');
+          }
+          return data;
+        } catch (error: any) {
+          if (error.message === 'FALLBACK_TO_MOCK') {
+            return {
+              success: true,
+              developmentSandboxCode: '123456',
+            };
+          }
+          throw error;
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+
+      verifyEmailOtp: async (email, code) => {
+        set({ isLoading: true });
+        try {
+          let data;
+          let isOk = false;
+          try {
+            const res = await fetch('/api/auth/email/verify-otp', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email, code }),
+            });
+            isOk = res.ok;
+            const text = await res.text();
+            try {
+              data = JSON.parse(text);
+            } catch (jsonErr) {
+              const isOffline = await checkIsOffline();
+              if (isOffline) {
+                throw new Error('FALLBACK_TO_MOCK');
+              }
+              throw new Error('Invalid server response. Please try again.');
+            }
+          } catch (err: any) {
+            if (err.message === 'FALLBACK_TO_MOCK' || err.message === 'Invalid server response. Please try again.') {
+              throw err;
+            }
+            console.warn('Network error or offline during verifyEmailOtp:', err);
+            const isOffline = await checkIsOffline();
+            if (isOffline) {
+              throw new Error('FALLBACK_TO_MOCK');
+            }
+            throw new Error('Network error. Cannot reach API server. Please check connection.');
+          }
+
+          if (!isOk) {
+            throw new Error(data?.error || 'Invalid verification code');
+          }
+
+          // Force-set session cookies on client-side for mobile WebView compatibility
+          if (typeof document !== 'undefined' && data.token) {
+            document.cookie = `beato-token=${data.token}; path=/; max-age=31536000; SameSite=Lax`;
+            if (data.user && data.user.role) {
+              document.cookie = `beato-role=${data.user.role}; path=/; max-age=31536000; SameSite=Lax`;
+            }
+          }
+
+          set({
+            user: data.user,
+            isAuthenticated: true,
+            token: data.token || 'secure-session-active',
+          });
+        } catch (error: any) {
+          if (error.message === 'FALLBACK_TO_MOCK') {
+            if (code !== '123456' && code !== '000000') {
+              throw new Error('Invalid verification code');
+            }
+
+            const mockUser = {
+              id: `mock-otp-user-${Date.now()}`,
+              name: email.split('@')[0],
+              email,
+              role: 'USER' as const,
+              avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop',
+              subscription: 'free' as const,
+              country: 'IN',
+              joinedAt: new Date().toISOString(),
+              followers: 0,
+              following: 0,
+              likedSongs: [],
+              savedAlbums: [],
+              followedArtists: [],
+              playlists: [],
+              preferences: DEFAULT_PREFERENCES,
+              stats: DEFAULT_STATS,
+            };
+
+            set({
+              user: mockUser,
+              isAuthenticated: true,
+              token: 'mock-session-active',
+            });
+            return;
+          }
+
+          set({ user: null, isAuthenticated: false, token: null });
+          throw error;
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+
       logout: async () => {
         set({ isLoading: true });
         try {
@@ -437,9 +653,9 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       // ⚡ Module-level variables to throttle and deduplicate session checks
-      initializeSession: async () => {
+      initializeSession: async (force = false) => {
         const now = Date.now();
-        if (get().isAuthenticated && get().user && now - lastSessionInitTime < 15000) {
+        if (!force && get().isAuthenticated && get().user && now - lastSessionInitTime < 15000) {
           return;
         }
         if (activeSessionPromise) {

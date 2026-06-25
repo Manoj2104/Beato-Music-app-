@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Eye, EyeOff, ArrowRight, Music2, Check, Sparkles, Mail, Lock, Settings2 } from 'lucide-react';
+import { Eye, EyeOff, ArrowRight, Music2, Check, Mail, Lock, Settings2, ArrowLeft, Smartphone } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
@@ -10,27 +10,88 @@ import toast from 'react-hot-toast';
 
 const PRIMARY = '#b08850';
 const PRIMARY_DARK = '#937041';
-const BG = '#fbf9f5';
-const SURFACE = '#f4eede';
+const BG = '#f4eede';
+const SURFACE = '#fbf9f5';
 const ELEVATED = '#ffffff';
 const TEXT = '#221a15';
 const TEXT_SEC = '#4d3f35';
 const TEXT_MUTED = '#87786c';
 const BORDER = 'rgba(43, 34, 26, 0.1)';
 
+const GoogleIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" style={{ position: 'absolute', left: '20px' }}>
+    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+  </svg>
+);
+
+const FacebookIcon = () => (
+  <svg width="20" height="20" fill="#1877F2" viewBox="0 0 24 24" style={{ position: 'absolute', left: '20px' }}>
+    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+  </svg>
+);
+
 export default function LoginPage() {
-  const [step, setStep] = useState<'email' | 'password' | 'otp'>('email');
+  const [step, setStep] = useState<'welcome' | 'login-email' | 'login-password' | 'email-otp' | 'whatsapp-send' | 'whatsapp-otp'>('login-email');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [phone, setPhone] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [sandboxCode, setSandboxCode] = useState('');
+  const [emailSandboxCode, setEmailSandboxCode] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const { login, loginWithSocial, sendOtp, verifyOtp } = useAuthStore();
+  const [showQuickAccounts, setShowQuickAccounts] = useState(false);
+  const [emailExists, setEmailExists] = useState<boolean | null>(null);
+  const [checkingEmail, setCheckingEmail] = useState(false);
+  const [showGoogleChooser, setShowGoogleChooser] = useState(false);
+  const [googleEmail, setGoogleEmail] = useState('');
+  const [googleName, setGoogleName] = useState('');
+  const [googleClientId, setGoogleClientId] = useState('');
+
+  const { login, loginWithSocial, sendOtp, verifyOtp, sendEmailOtp, verifyEmailOtp, loginWithGooglePayload } = useAuthStore();
   const router = useRouter();
+
+  useEffect(() => {
+    let isMounted = true;
+    const checkEmailRegistered = async () => {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || !emailRegex.test(email)) {
+        if (isMounted) {
+          setEmailExists(null);
+          setCheckingEmail(false);
+        }
+        return;
+      }
+      if (isMounted) setCheckingEmail(true);
+      try {
+        const response = await fetch('/api/auth/check-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const data = await response.json();
+        if (isMounted) {
+          setEmailExists(!!data.exists);
+        }
+      } catch (err) {
+        console.error('Error checking email existence:', err);
+        if (isMounted) setEmailExists(null);
+      } finally {
+        if (isMounted) setCheckingEmail(false);
+      }
+    };
+
+    const timer = setTimeout(checkEmailRegistered, 500);
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+    };
+  }, [email]);
 
   const [showServerSettings, setShowServerSettings] = useState(false);
   const [serverUrl, setServerUrl] = useState(() => {
@@ -56,11 +117,54 @@ export default function LoginPage() {
     }
   };
 
-  const handleEmailContinue = (e: React.FormEvent) => {
+  const handleSendEmailOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) { toast.error('Enter your email'); return; }
+
+    // Redirect to register if not registered
+    if (emailExists === false) {
+      router.push(`/register?email=${encodeURIComponent(email)}`);
+      return;
+    }
+
+    setIsLoading(true);
     setError('');
-    setStep('password');
+    setOtp(Array(6).fill(''));
+    try {
+      const data = await sendEmailOtp(email);
+      setStep('email-otp');
+      if (data.developmentSandboxCode) {
+        setEmailSandboxCode(data.developmentSandboxCode);
+        toast.success(`[Sandbox] Email OTP: ${data.developmentSandboxCode}`);
+      } else {
+        toast.success('Verification code sent to your email!');
+      }
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : String(error);
+      setError(msg || 'Failed to send verification code');
+      toast.error(msg || 'Failed to send verification code');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerifyEmailOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const code = otp.join('');
+    if (code.length < 6) { toast.error('Enter 6-digit verification code'); return; }
+    setIsLoading(true);
+    setError('');
+    try {
+      await verifyEmailOtp(email, code);
+      toast.success('Welcome back! 🎵');
+      router.push('/home');
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : String(error);
+      setError(msg || 'Invalid verification code');
+      toast.error(msg || 'Invalid verification code');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -75,10 +179,145 @@ export default function LoginPage() {
       const msg = err instanceof Error ? err.message : String(err);
       setError(msg || 'Invalid email or password');
       toast.error('Invalid credentials');
-    } finally { setIsLoading(false); }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Load Google Client dynamically
+  useEffect(() => {
+    let isMounted = true;
+    const loadGoogleClientId = async () => {
+      try {
+        const res = await fetch('/api/auth/google');
+        const data = await res.json();
+        if (isMounted && data.clientId) {
+          setGoogleClientId(data.clientId);
+          
+          // Load official Google GSI SDK if not present
+          if (!document.querySelector('script[src="https://accounts.google.com/gsi/client"]')) {
+            const script = document.createElement('script');
+            script.src = 'https://accounts.google.com/gsi/client';
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load Google Client ID:', err);
+      }
+    };
+
+    if (typeof window !== 'undefined') {
+      loadGoogleClientId();
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const handleGoogleSandboxSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!googleEmail) {
+      toast.error('Please enter or select an email address');
+      return;
+    }
+    setIsLoading(true);
+    setError('');
+    try {
+      const res = await loginWithGooglePayload({
+        email: googleEmail,
+        name: googleName || googleEmail.split('@')[0],
+      });
+      if (res.success) {
+        setShowGoogleChooser(false);
+        toast.success('Logged in with Google (Sandbox)! 🎵');
+        router.push('/home');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Google Sandbox login failed');
+      toast.error(err.message || 'Google Sandbox login failed');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSocialLogin = async (provider: string) => {
+    if (provider === 'Google') {
+      const clientId = googleClientId;
+      if (clientId) {
+        try {
+          setIsLoading(true);
+          setError('');
+
+          // Ensure Google Accounts GSI script is fully loaded and parsed
+          const checkGSI = () => {
+            return new Promise<boolean>((resolve) => {
+              if ((window as any).google?.accounts?.id) {
+                resolve(true);
+                return;
+              }
+              let attempts = 0;
+              const interval = setInterval(() => {
+                attempts++;
+                if ((window as any).google?.accounts?.id) {
+                  clearInterval(interval);
+                  resolve(true);
+                } else if (attempts > 30) {
+                  clearInterval(interval);
+                  resolve(false);
+                }
+              }, 100);
+            });
+          };
+
+          const gsiLoaded = await checkGSI();
+          if (!gsiLoaded) {
+            throw new Error('Google Sign-In service is temporarily unavailable. Please try again.');
+          }
+
+          (window as any).google.accounts.id.initialize({
+            client_id: clientId,
+            callback: async (response: any) => {
+              try {
+                const res = await loginWithGooglePayload({ idToken: response.credential, email: '', name: '' });
+                if (res.success) {
+                  toast.success('Logged in with Google! 🎵');
+                  router.push('/home');
+                }
+              } catch (err: any) {
+                setError(err.message || 'Google Login failed');
+                toast.error(err.message || 'Google Login failed');
+              } finally {
+                setIsLoading(false);
+              }
+            }
+          });
+          (window as any).google.accounts.id.prompt();
+          const googleBtnDiv = document.createElement('div');
+          googleBtnDiv.id = 'google-hidden-btn';
+          document.body.appendChild(googleBtnDiv);
+          (window as any).google.accounts.id.renderButton(googleBtnDiv, { type: 'icon', size: 'large' });
+          const clickTarget = googleBtnDiv.querySelector('div[role=button]');
+          if (clickTarget) {
+            (clickTarget as HTMLElement).click();
+          }
+          document.body.removeChild(googleBtnDiv);
+        } catch (err: any) {
+          console.error('Google Auth GSI Error:', err);
+          setError(err.message || 'Google Login failed to initialize');
+          toast.error(err.message || 'Google Login failed to initialize');
+          setShowGoogleChooser(true);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setShowGoogleChooser(true);
+      }
+      return;
+    }
+
     setIsLoading(true);
     setError('');
     try {
@@ -89,8 +328,9 @@ export default function LoginPage() {
       const msg = err instanceof Error ? err.message : String(err);
       setError(msg || 'Login failed');
       toast.error('Login failed');
+    } finally {
+      setIsLoading(false);
     }
-    finally { setIsLoading(false); }
   };
 
   const handleOtpChange = (i: number, val: string) => {
@@ -104,9 +344,10 @@ export default function LoginPage() {
     if (!phone) { toast.error('Enter your phone number'); return; }
     setIsLoading(true);
     setError('');
+    setOtp(Array(6).fill(''));
     try {
       const data = await sendOtp(phone);
-      setOtpSent(true);
+      setStep('whatsapp-otp');
       if (data.developmentSandboxCode) {
         setSandboxCode(data.developmentSandboxCode);
         toast.success(`[Sandbox] OTP: ${data.developmentSandboxCode}`);
@@ -145,8 +386,8 @@ export default function LoginPage() {
     width: '100%',
     background: ELEVATED,
     border: `1.5px solid ${BORDER}`,
-    borderRadius: 12,
-    padding: '13px 16px',
+    borderRadius: 8,
+    padding: '14px 16px',
     color: TEXT,
     fontSize: 15,
     outline: 'none',
@@ -157,12 +398,11 @@ export default function LoginPage() {
 
   const labelStyle: React.CSSProperties = {
     display: 'block',
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: 700,
-    color: TEXT_MUTED,
-    textTransform: 'uppercase',
-    letterSpacing: '0.1em',
+    color: TEXT,
     marginBottom: 8,
+    fontFamily: 'Inter, sans-serif'
   };
 
   return (
@@ -174,57 +414,42 @@ export default function LoginPage() {
           min-height: 100vh;
           background: ${BG};
           font-family: 'Inter', sans-serif;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+          box-sizing: border-box;
         }
 
-        /* ── Desktop ── */
-        .auth-desktop {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          min-height: 100vh;
-        }
-        .auth-mobile {
-          display: none;
+        .auth-card {
+          width: 100%;
+          max-width: 420px;
+          background: ${SURFACE};
+          border-radius: 24px;
+          padding: 40px 32px;
+          box-shadow: 0 10px 40px rgba(43, 34, 26, 0.04);
+          border: 1px solid ${BORDER};
+          box-sizing: border-box;
+          min-height: 600px;
+          display: flex;
+          flex-direction: column;
+          position: relative;
         }
 
-        /* Input focus glow */
         .auth-input:focus {
           border-color: ${PRIMARY} !important;
           box-shadow: 0 0 0 3px rgba(176, 136, 80, 0.12) !important;
         }
         .auth-input::placeholder { color: #b0a391; }
 
-        /* Social button */
-        .social-btn {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 12px 18px;
-          border-radius: 12px;
-          border: 1.5px solid ${BORDER};
-          background: ${ELEVATED};
-          color: ${TEXT};
-          font-size: 14px;
-          font-weight: 600;
-          cursor: pointer;
-          font-family: 'Inter', sans-serif;
-          transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
-          box-shadow: 0 1px 4px rgba(43,34,26,0.06);
-        }
-        .social-btn:hover {
-          background: ${SURFACE};
-          border-color: rgba(176, 136, 80, 0.35);
-          box-shadow: 0 2px 8px rgba(43,34,26,0.08);
-        }
-
-        /* Primary CTA */
         .auth-btn-primary {
           width: 100%;
-          padding: 14px;
-          border-radius: 12px;
+          padding: 15px;
+          border-radius: 30px;
           background: ${PRIMARY};
           color: #fff;
           font-weight: 800;
-          font-size: 16px;
+          font-size: 15px;
           cursor: pointer;
           border: none;
           display: flex;
@@ -233,12 +458,12 @@ export default function LoginPage() {
           gap: 8px;
           font-family: 'Outfit', sans-serif;
           transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
-          box-shadow: 0 4px 16px rgba(176, 136, 80, 0.3);
+          box-shadow: 0 4px 16px rgba(176, 136, 80, 0.25);
           letter-spacing: 0.02em;
         }
         .auth-btn-primary:hover:not(:disabled) {
           background: ${PRIMARY_DARK};
-          box-shadow: 0 6px 20px rgba(176, 136, 80, 0.4);
+          box-shadow: 0 6px 20px rgba(176, 136, 80, 0.35);
         }
         .auth-btn-primary:active:not(:disabled) {
           transform: scale(0.98);
@@ -248,556 +473,632 @@ export default function LoginPage() {
           cursor: not-allowed;
         }
 
-        /* Secondary outline */
         .auth-btn-secondary {
           width: 100%;
-          padding: 13px;
-          border-radius: 12px;
+          padding: 14px;
+          border-radius: 30px;
           background: transparent;
           border: 1.5px solid ${BORDER};
-          color: ${TEXT_SEC};
-          font-size: 14px;
-          font-weight: 600;
+          color: ${TEXT};
+          font-size: 15px;
+          font-weight: 800;
           cursor: pointer;
-          font-family: 'Inter', sans-serif;
+          font-family: 'Outfit', sans-serif;
           transition: background 0.2s, border-color 0.2s;
+          box-sizing: border-box;
         }
         .auth-btn-secondary:hover {
           background: ${SURFACE};
-          border-color: rgba(176, 136, 80, 0.3);
+          border-color: rgba(176, 136, 80, 0.35);
         }
 
-        /* Mobile input wrapper */
-        .m-input-wrap {
+        .social-oauth-btn {
           display: flex;
           align-items: center;
-          background: ${ELEVATED};
-          border: 1.5px solid ${BORDER};
-          border-radius: 12px;
-          padding: 13px 16px;
-          margin-bottom: 14px;
-          transition: border-color 0.2s, box-shadow 0.2s;
-          box-shadow: 0 1px 3px rgba(43,34,26,0.05);
-        }
-        .m-input-wrap:focus-within {
-          border-color: ${PRIMARY};
-          box-shadow: 0 0 0 3px rgba(176, 136, 80, 0.12);
-        }
-        .m-input {
-          background: transparent;
-          border: none;
-          outline: none;
-          color: ${TEXT};
-          font-size: 15px;
+          justify-content: center;
           width: 100%;
-          margin-left: 12px;
-          padding: 0;
-          font-family: 'Inter', sans-serif;
-        }
-        .m-input::placeholder { color: #b0a391; }
-
-        /* Waveform animation */
-        @keyframes waveAnim {
-          0%, 100% { transform: scaleY(0.4); }
-          50% { transform: scaleY(1); }
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes pulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.6; transform: scale(0.9); }
-        }
-        @keyframes shimmer {
-          0% { background-position: -200% center; }
-          100% { background-position: 200% center; }
-        }
-        @keyframes floatUp {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-12px); }
-        }
-
-        /* Vinyl rotate */
-        @keyframes vinylSpin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-
-        /* Quick login grid */
-        .quick-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 8px;
-        }
-        .quick-card {
-          padding: 10px 12px;
-          background: ${ELEVATED};
-          border: 1.5px solid ${BORDER};
-          border-radius: 10px;
+          background: transparent;
           color: ${TEXT};
-          text-align: left;
+          border: 1.5px solid ${BORDER};
+          border-radius: 30px;
+          padding: 13px;
+          font-size: 14px;
+          font-weight: 700;
           cursor: pointer;
-          font-size: 12px;
-          display: flex;
-          flex-direction: column;
-          gap: 3px;
-          transition: all 0.2s;
-          box-shadow: 0 1px 3px rgba(43,34,26,0.05);
+          position: relative;
+          font-family: 'Inter', sans-serif;
+          transition: background 0.2s, border-color 0.2s;
+          box-sizing: border-box;
         }
-        .quick-card:hover {
+        .social-oauth-btn:hover {
           background: ${SURFACE};
-          border-color: rgba(176, 136, 80, 0.4);
-          box-shadow: 0 3px 12px rgba(43,34,26,0.1);
+          border-color: rgba(176, 136, 80, 0.35);
         }
 
-        @media (max-width: 768px) {
-          .auth-desktop { display: none !important; }
-          .auth-mobile {
-            display: flex !important;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
+        @media (max-width: 480px) {
+          .login-page-wrapper {
+            padding: 0;
             background: ${BG};
-            padding-top: calc(var(--sat, 0px) + 24px);
-            padding-bottom: 24px;
-            padding-left: 20px;
-            padding-right: 20px;
-            box-sizing: border-box;
+          }
+          .auth-card {
+            box-shadow: none !important;
+            border: none !important;
+            background: transparent !important;
+            padding: 24px 16px !important;
+            min-height: 100vh !important;
+            border-radius: 0 !important;
           }
         }
       `}</style>
 
-      {/* ════════════════════ DESKTOP ════════════════════ */}
-      <div className="auth-desktop">
+      <div className="auth-card">
+        {/* Settings gear always accessible on card top right */}
+        <button
+          type="button"
+          onClick={() => setShowServerSettings(true)}
+          style={{
+            position: 'absolute',
+            top: 20,
+            right: 20,
+            background: 'none',
+            border: 'none',
+            color: TEXT_MUTED,
+            cursor: 'pointer',
+            zIndex: 10
+          }}
+        >
+          <Settings2 size={18} />
+        </button>
 
-        {/* ── LEFT: Brand panel ── */}
-        <div style={{
-          position: 'relative',
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          padding: 60,
-          background: `linear-gradient(145deg, ${SURFACE} 0%, #ede3d0 60%, #f7f0e6 100%)`,
-          borderRight: `1px solid ${BORDER}`,
-        }}>
-          {/* Subtle texture orbs */}
-          <div style={{ position: 'absolute', top: -60, right: -60, width: 340, height: 340, borderRadius: '50%', background: 'rgba(176,136,80,0.08)', filter: 'blur(60px)', pointerEvents: 'none' }} />
-          <div style={{ position: 'absolute', bottom: -60, left: -60, width: 280, height: 280, borderRadius: '50%', background: 'rgba(140,108,68,0.06)', filter: 'blur(60px)', pointerEvents: 'none' }} />
-          <div style={{ position: 'absolute', top: '40%', left: '10%', width: 160, height: 160, borderRadius: '50%', background: 'rgba(176,136,80,0.05)', filter: 'blur(40px)', pointerEvents: 'none' }} />
-
-          {/* Floating music notes */}
-          {['♪', '♫', '♩', '♬', '♪'].map((note, i) => (
+        <AnimatePresence mode="wait">
+          {/* STEP 1: WELCOME SCREEN (IMAGE 1) */}
+          {step === 'welcome' && (
             <motion.div
-              key={i}
-              style={{
-                position: 'absolute',
-                left: `${[15, 75, 30, 65, 50][i]}%`,
-                top: `${[20, 15, 72, 78, 48][i]}%`,
-                color: `rgba(176,136,80,${[0.18, 0.12, 0.15, 0.1, 0.2][i]})`,
-                fontSize: [28, 22, 26, 20, 24][i],
-                pointerEvents: 'none',
-                userSelect: 'none',
-              }}
-              animate={{ y: [0, -20, 0], opacity: [[0.18, 0.12, 0.15, 0.1, 0.2][i] as number, [0.35, 0.25, 0.3, 0.2, 0.4][i] as number, [0.18, 0.12, 0.15, 0.1, 0.2][i] as number] }}
-              transition={{ duration: [4.2, 3.8, 5, 4.6, 3.5][i], delay: [0, 1, 0.7, 1.5, 0.4][i], repeat: Infinity, ease: 'easeInOut' }}
-            >
-              {note}
-            </motion.div>
-          ))}
-
-          <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', maxWidth: 400 }}>
-            {/* Logo */}
-            <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, textDecoration: 'none', marginBottom: 48 }}>
-              <div style={{ width: 44, height: 44, borderRadius: '50%', background: `linear-gradient(135deg, ${PRIMARY}, #8c6c44)`, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 6px 20px rgba(176,136,80,0.35)` }}>
-                <Music2 size={22} color="#fff" />
-              </div>
-              <span style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: 26, color: TEXT, letterSpacing: '-0.5px' }}>Beato</span>
-            </Link>
-
-            {/* Vinyl record */}
-            <div style={{ position: 'relative', margin: '0 auto 40px', width: 200, height: 200 }}>
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-                style={{
-                  width: 200, height: 200, borderRadius: '50%',
-                  background: `conic-gradient(from 0deg, #d4c4a0, #e8dcc0, #c8b080, #e0d4b8, #d4c4a0, #c0aa70, #d4c4a0)`,
-                  boxShadow: `0 12px 40px rgba(176,136,80,0.2), 0 4px 16px rgba(43,34,26,0.12)`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}
-              >
-                {/* Grooves */}
-                {[55, 80, 110].map(r => (
-                  <div key={r} style={{ position: 'absolute', borderRadius: '50%', border: '1px solid rgba(43,34,26,0.08)', inset: `${(200 - r) / 2}px` }} />
-                ))}
-                <div style={{
-                  width: 60, height: 60, borderRadius: '50%',
-                  background: `linear-gradient(135deg, ${PRIMARY}, #8c6c44)`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  boxShadow: `0 4px 16px rgba(176,136,80,0.4)`,
-                }}>
-                  <Music2 size={26} color="#fff" />
-                </div>
-              </motion.div>
-              {/* Glow ring */}
-              <div style={{ position: 'absolute', inset: -12, borderRadius: '50%', border: `2px solid rgba(176,136,80,0.15)`, animation: 'pulse 2s ease-in-out infinite' }} />
-            </div>
-
-            <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 38, fontWeight: 900, color: TEXT, marginBottom: 12, letterSpacing: '-0.5px', lineHeight: 1.15 }}>
-              Welcome back to{' '}
-              <span style={{ background: `linear-gradient(135deg, ${PRIMARY}, #8c6c44)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-                Beato
-              </span>
-            </h2>
-            <p style={{ color: TEXT_MUTED, fontSize: 15, lineHeight: 1.7 }}>
-              Your music, your universe. Pick up right where you left off.
-            </p>
-
-            {/* Now playing card */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              key="welcome"
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              style={{
-                marginTop: 36,
-                padding: '14px 18px',
-                borderRadius: 16,
-                background: ELEVATED,
-                border: `1px solid ${BORDER}`,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 14,
-                boxShadow: '0 4px 20px rgba(43,34,26,0.08)',
-              }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.2 }}
+              style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between' }}
             >
-              <div style={{ display: 'flex', alignItems: 'end', gap: 3, height: 20 }}>
-                {[12, 18, 14, 20, 16].map((h, i) => (
-                  <div key={i} style={{
-                    width: 3, borderRadius: 2, background: PRIMARY, height: h,
-                    animation: `waveAnim 0.8s ease-in-out infinite alternate`,
-                    animationDelay: `${i * 0.12}s`,
-                    transformOrigin: 'bottom',
-                  }} />
-                ))}
+              <div style={{ textAlign: 'center', marginTop: '40px' }}>
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
+                  <div style={{
+                    width: 64,
+                    height: 64,
+                    borderRadius: '50%',
+                    background: `linear-gradient(135deg, ${PRIMARY}, #8c6c44)`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: `0 6px 20px rgba(176,136,80,0.3)`
+                  }}>
+                    <Music2 size={30} color="#fff" />
+                  </div>
+                </div>
+
+                <h1 style={{
+                  fontFamily: 'Outfit, sans-serif',
+                  fontSize: '30px',
+                  fontWeight: 900,
+                  color: TEXT,
+                  lineHeight: '1.25',
+                  marginBottom: '10px',
+                  letterSpacing: '-0.5px'
+                }}>
+                  Millions of songs.<br />Free on Beato.
+                </h1>
               </div>
-              <div style={{ textAlign: 'left' }}>
-                <p style={{ color: TEXT, fontSize: 13, fontWeight: 700 }}>Midnight Cascade</p>
-                <p style={{ color: TEXT_MUTED, fontSize: 11 }}>Aurora Nightfall • 2.1M listeners</p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: 'auto', marginBottom: '20px' }}>
+                <button onClick={() => router.push('/register')} className="auth-btn-primary">
+                  Sign up free
+                </button>
+                <button onClick={() => setStep('login-email')} className="auth-btn-secondary">
+                  Log In
+                </button>
               </div>
-              <div style={{ marginLeft: 'auto', width: 8, height: 8, borderRadius: '50%', background: PRIMARY, animation: 'pulse 1.5s ease-in-out infinite' }} />
             </motion.div>
-          </div>
-        </div>
-
-        {/* ── RIGHT: Form panel ── */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '60px 72px',
-          background: BG,
-          overflowY: 'auto',
-        }}>
-          <div style={{ width: '100%', maxWidth: 400 }}>
-            <AnimatePresence mode="wait">
-
-              {/* EMAIL STEP */}
-              {step === 'email' && (
-                <motion.div key="email" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
-                  <div style={{ marginBottom: 36 }}>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 12px', borderRadius: 100, background: 'rgba(176,136,80,0.1)', border: `1px solid rgba(176,136,80,0.25)`, marginBottom: 14 }}>
-                      <Sparkles size={12} color={PRIMARY} />
-                      <span style={{ color: PRIMARY, fontSize: 12, fontWeight: 600 }}>Sign in to your account</span>
-                    </div>
-                    <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 34, fontWeight: 900, color: TEXT, marginBottom: 6, letterSpacing: '-0.5px' }}>Welcome back</h1>
-                    <p style={{ color: TEXT_MUTED, fontSize: 15 }}>Log in to continue streaming</p>
-                  </div>
-
-                  {/* Social buttons */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
-                    {[
-                      { label: 'Continue with Google', icon: '🌐' },
-                      { label: 'Continue with Apple', icon: '🍎' },
-                      { label: 'Continue with GitHub', icon: '⚡' },
-                    ].map(p => (
-                      <button key={p.label} onClick={() => handleSocialLogin(p.label)} disabled={isLoading} className="social-btn">
-                        <span style={{ fontSize: 18 }}>{p.icon}</span> {p.label}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Divider */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24 }}>
-                    <div style={{ flex: 1, height: 1, background: BORDER }} />
-                    <span style={{ color: TEXT_MUTED, fontSize: 13 }}>or with email</span>
-                    <div style={{ flex: 1, height: 1, background: BORDER }} />
-                  </div>
-
-                  <form onSubmit={handleEmailContinue}>
-                    <div style={{ marginBottom: 16 }}>
-                      <label style={labelStyle}>Email address</label>
-                      <input
-                        type="email" value={email} onChange={e => setEmail(e.target.value)}
-                        placeholder="name@email.com" autoFocus required
-                        className="auth-input"
-                        style={inputStyle}
-                        suppressHydrationWarning
-                      />
-                    </div>
-                    <button type="submit" className="auth-btn-primary">
-                      Continue <ArrowRight size={18} />
-                    </button>
-                  </form>
-
-                  <p style={{ textAlign: 'center', color: TEXT_MUTED, fontSize: 14, marginTop: 24 }}>
-                    Don&apos;t have an account?{' '}
-                    <Link href="/register" style={{ color: PRIMARY, fontWeight: 700, textDecoration: 'none' }}>Sign up free</Link>
-                  </p>
-                </motion.div>
-              )}
-
-              {/* PASSWORD STEP */}
-              {step === 'password' && (
-                <motion.div key="password" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
-                  <div style={{ marginBottom: 36 }}>
-                    <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 34, fontWeight: 900, color: TEXT, marginBottom: 6 }}>Enter password</h1>
-                    <p style={{ color: TEXT_MUTED, fontSize: 15 }}>Logging in as <span style={{ color: TEXT, fontWeight: 600 }}>{email}</span></p>
-                  </div>
-
-                  {/* Email pill */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 16px', borderRadius: 12, background: SURFACE, border: `1px solid ${BORDER}`, marginBottom: 20 }}>
-                    <span style={{ color: TEXT_SEC, fontSize: 14 }}>{email}</span>
-                    <button onClick={() => { setStep('email'); setError(''); }} style={{ color: PRIMARY, fontSize: 13, fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}>Change</button>
-                  </div>
-
-                  {error && (
-                    <div style={{ padding: '12px 16px', background: 'rgba(220,38,38,0.06)', border: '1px solid rgba(220,38,38,0.2)', borderRadius: 12, color: '#b91c1c', fontSize: 14, fontWeight: 500, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span>⚠️</span> {error}
-                    </div>
-                  )}
-
-                  <form onSubmit={handleLogin}>
-                    <div style={{ marginBottom: 20 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                        <label style={labelStyle}>Password</label>
-                        <button type="button" style={{ color: PRIMARY, fontSize: 12, fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}>Forgot?</button>
-                      </div>
-                      <div style={{ position: 'relative' }}>
-                        <input type={showPassword ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="Your password" autoFocus required
-                          className="auth-input"
-                          style={{ ...inputStyle, paddingRight: 48 }}
-                          suppressHydrationWarning
-                        />
-                        <button type="button" onClick={() => setShowPassword(v => !v)}
-                          style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: TEXT_MUTED }}>
-                          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                        </button>
-                      </div>
-                    </div>
-                    <button type="submit" disabled={isLoading} className="auth-btn-primary">
-                      {isLoading
-                        ? <div style={{ width: 22, height: 22, border: '2.5px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-                        : <>Log In <ArrowRight size={18} /></>}
-                    </button>
-                    <button type="button" onClick={() => { setStep('otp'); setError(''); }} className="auth-btn-secondary" style={{ marginTop: 12 }}>
-                      Use OTP instead
-                    </button>
-                  </form>
-                </motion.div>
-              )}
-
-              {/* OTP STEP */}
-              {step === 'otp' && (
-                <motion.div key="otp" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
-                  {!otpSent ? (
-                    <form onSubmit={handleSendOtp}>
-                      <div style={{ marginBottom: 36 }}>
-                        <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 34, fontWeight: 900, color: TEXT, marginBottom: 6 }}>WhatsApp OTP</h1>
-                        <p style={{ color: TEXT_MUTED, fontSize: 15 }}>Enter your WhatsApp number to log in without a password</p>
-                      </div>
-                      {error && (
-                        <div style={{ padding: '12px 16px', background: 'rgba(220,38,38,0.06)', border: '1px solid rgba(220,38,38,0.2)', borderRadius: 12, color: '#b91c1c', fontSize: 14, marginBottom: 20 }}>
-                          ⚠️ {error}
-                        </div>
-                      )}
-                      <div style={{ marginBottom: 20 }}>
-                        <label style={labelStyle}>WhatsApp Number</label>
-                        <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+919999999999" autoFocus required
-                          className="auth-input"
-                          style={inputStyle}
-                          suppressHydrationWarning
-                        />
-                      </div>
-                      <button type="submit" disabled={isLoading} className="auth-btn-primary" style={{ marginBottom: 12 }}>
-                        {isLoading ? <div style={{ width: 22, height: 22, border: '2.5px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} /> : <>Send OTP via WhatsApp <ArrowRight size={18} /></>}
-                      </button>
-                      <button type="button" onClick={() => { setStep('email'); setError(''); setOtpSent(false); }} style={{ background: 'none', border: 'none', color: TEXT_MUTED, fontSize: 14, cursor: 'pointer', fontFamily: 'Inter, sans-serif', width: '100%', textAlign: 'center' }}>← Back to Email</button>
-                    </form>
-                  ) : (
-                    <form onSubmit={handleVerifyOtp}>
-                      <div style={{ marginBottom: 36 }}>
-                        <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 34, fontWeight: 900, color: TEXT, marginBottom: 6 }}>Verify OTP</h1>
-                        <p style={{ color: TEXT_MUTED, fontSize: 15 }}>We sent a 6-digit code to <span style={{ color: TEXT, fontWeight: 600 }}>{phone}</span></p>
-                      </div>
-                      {error && <div style={{ padding: '12px 16px', background: 'rgba(220,38,38,0.06)', border: '1px solid rgba(220,38,38,0.2)', borderRadius: 12, color: '#b91c1c', fontSize: 14, marginBottom: 20 }}>⚠️ {error}</div>}
-                      {sandboxCode && (
-                        <div style={{ padding: '10px 14px', borderRadius: 10, background: `rgba(176,136,80,0.08)`, border: `1px solid rgba(176,136,80,0.2)`, marginBottom: 20, textAlign: 'center' }}>
-                          <p style={{ color: PRIMARY, fontSize: 13, fontWeight: 600 }}>[Dev Sandbox] Simulated WhatsApp:</p>
-                          <p style={{ color: TEXT, fontSize: 22, fontWeight: 800, letterSpacing: 3, marginTop: 4 }}>{sandboxCode}</p>
-                        </div>
-                      )}
-                      <div style={{ display: 'flex', gap: 10, marginBottom: 24, justifyContent: 'center' }}>
-                        {otp.map((digit, i) => (
-                          <input key={i} id={`otp-${i}`} type="text" inputMode="numeric" value={digit} onChange={e => handleOtpChange(i, e.target.value)} maxLength={1}
-                            suppressHydrationWarning
-                            style={{
-                              width: 52, height: 60, borderRadius: 12,
-                              border: `2px solid ${digit ? PRIMARY : BORDER}`,
-                              background: ELEVATED, color: TEXT, fontSize: 22, fontWeight: 700,
-                              textAlign: 'center', outline: 'none', transition: 'border-color 0.2s, box-shadow 0.2s',
-                              fontFamily: 'Outfit, sans-serif', boxShadow: digit ? `0 0 0 3px rgba(176,136,80,0.12)` : 'none',
-                            }}
-                            onFocus={e => { e.target.style.borderColor = PRIMARY; e.target.style.boxShadow = '0 0 0 3px rgba(176,136,80,0.15)'; }}
-                            onBlur={e => { e.target.style.borderColor = digit ? PRIMARY : BORDER; e.target.style.boxShadow = digit ? '0 0 0 3px rgba(176,136,80,0.12)' : 'none'; }} />
-                        ))}
-                      </div>
-                      <button type="submit" disabled={otp.join('').length < 6 || isLoading} className="auth-btn-primary" style={{ marginBottom: 16, opacity: otp.join('').length < 6 ? 0.5 : 1 }}>
-                        {isLoading ? <div style={{ width: 22, height: 22, border: '2.5px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} /> : <>Verify & Log in <Check size={18} /></>}
-                      </button>
-                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <button type="button" onClick={() => { setOtpSent(false); setError(''); }} style={{ background: 'none', border: 'none', color: TEXT_MUTED, fontSize: 14, cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}>← Change Number</button>
-                        <button type="button" onClick={handleSendOtp} style={{ background: 'none', border: 'none', color: PRIMARY, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}>Resend Code</button>
-                      </div>
-                    </form>
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Quick Login Section */}
-            <div style={{ marginTop: 32, padding: 20, background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 16, boxShadow: '0 2px 8px rgba(43,34,26,0.05)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                <span style={{ fontSize: 14 }}>🔐</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Test Accounts</span>
-              </div>
-              <div className="quick-grid">
-                {[
-                  { role: 'SUPER_ADMIN', email: 'superadmin@beato.com', label: 'Super Admin', dot: '#84cc16' },
-                  { role: 'ADMIN', email: 'admin@beato.com', label: 'Admin / Mod', dot: '#10b981' },
-                  { role: 'ARTIST', email: 'artist@beato.com', label: 'Artist User', dot: PRIMARY },
-                  { role: 'USER', email: 'manoj@beato.io', label: 'Standard User', dot: '#34d399' },
-                ].map(acc => (
-                  <button key={acc.email} onClick={() => handleQuickLogin(acc.email)} disabled={isLoading} className="quick-card">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <div style={{ width: 7, height: 7, borderRadius: '50%', background: acc.dot, flexShrink: 0 }} />
-                      <span style={{ fontWeight: 700, fontSize: 12, color: TEXT }}>{acc.label}</span>
-                    </div>
-                    <span style={{ color: TEXT_MUTED, fontSize: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', paddingLeft: 13 }}>{acc.email}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <p style={{ textAlign: 'center', color: TEXT_MUTED, fontSize: 11, marginTop: 24, lineHeight: 1.6 }}>
-              Protected by reCAPTCHA.{' '}
-              <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>Privacy Policy</span>{' '}and{' '}
-              <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>Terms</span> apply.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* ════════════════════ MOBILE ════════════════════ */}
-      <div className="auth-mobile">
-        {/* Logo */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 32 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-            <div style={{ width: 40, height: 40, borderRadius: '50%', background: `linear-gradient(135deg, ${PRIMARY}, #8c6c44)`, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 6px 18px rgba(176,136,80,0.3)` }}>
-              <Music2 size={20} color="#fff" />
-            </div>
-            <span style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: 30, color: TEXT, letterSpacing: '-0.5px' }}>Beato</span>
-          </div>
-          <p style={{ color: TEXT_MUTED, fontSize: 13, margin: 0 }}>Let streaming define your space.</p>
-        </div>
-
-        {/* Card */}
-        <div style={{ width: '100%', maxWidth: 400, background: ELEVATED, borderRadius: 24, padding: '28px 22px', border: `1px solid ${BORDER}`, boxShadow: '0 8px 32px rgba(43,34,26,0.1)', boxSizing: 'border-box' }}>
-          <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 24, fontWeight: 800, color: TEXT, marginBottom: 22 }}>Welcome Back</h2>
-
-          {error && (
-            <div style={{ padding: '11px 14px', background: 'rgba(220,38,38,0.06)', border: '1px solid rgba(220,38,38,0.2)', borderRadius: 10, color: '#b91c1c', fontSize: 13, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
-              ⚠️ {error}
-            </div>
           )}
 
-          <form onSubmit={(e) => {
-            e.preventDefault();
-            if (!email || !password) { toast.error('Enter email and password'); return; }
-            handleLogin(e);
-          }}>
-            <div className="m-input-wrap">
-              <Mail size={18} color={TEXT_MUTED} style={{ flexShrink: 0 }} />
-              <input type="email" placeholder="Email Address" className="m-input" value={email} onChange={e => setEmail(e.target.value)} required suppressHydrationWarning />
-            </div>
-            <div className="m-input-wrap" style={{ marginBottom: 22 }}>
-              <Lock size={18} color={TEXT_MUTED} style={{ flexShrink: 0 }} />
-              <input type={showPassword ? 'text' : 'password'} placeholder="Password" className="m-input" value={password} onChange={e => setPassword(e.target.value)} required suppressHydrationWarning />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ background: 'none', border: 'none', color: TEXT_MUTED, cursor: 'pointer', padding: 0, marginLeft: 6, display: 'flex', alignItems: 'center' }}>
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          {/* STEP 2: EMAIL LOGIN (IMAGE 2) */}
+          {step === 'login-email' && (
+            <motion.div
+              key="login-email"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
+              style={{ display: 'flex', flexDirection: 'column', flex: 1 }}
+            >
+              {/* Header with back button */}
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '32px', position: 'relative' }}>
+                <button onClick={() => setStep('welcome')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '6px', color: TEXT, display: 'flex', alignItems: 'center' }}>
+                  <ArrowLeft size={20} />
+                </button>
+                <span style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', fontFamily: 'Outfit, sans-serif', fontWeight: 'bold', fontSize: '15px', color: TEXT }}>
+                  Log In
+                </span>
+              </div>
+
+              <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '26px', fontWeight: 800, color: TEXT, marginBottom: '24px', letterSpacing: '-0.5px' }}>
+                Log in to Beato
+              </h2>
+
+              <form onSubmit={handleSendEmailOtp} style={{ width: '100%' }}>
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={labelStyle}>Email</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    placeholder="Email address"
+                    required
+                    autoFocus
+                    className="auth-input"
+                    style={{
+                      ...inputStyle,
+                      borderColor: emailExists === false ? '#dc2626' : BORDER
+                    }}
+                  />
+                  {checkingEmail && (
+                    <p style={{ color: TEXT_MUTED, fontSize: '12px', marginTop: '6px' }}>
+                      Checking availability...
+                    </p>
+                  )}
+                  {emailExists === false && (
+                    <p style={{ color: '#dc2626', fontSize: '12px', marginTop: '6px', fontWeight: 500 }}>
+                      ⚠️ Account not found. Please sign up.
+                    </p>
+                  )}
+                </div>
+                <button
+                  type="submit"
+                  disabled={isLoading || checkingEmail || emailExists === null}
+                  className="auth-btn-primary"
+                >
+                  {isLoading ? (
+                    <div style={{ width: 20, height: 20, border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                  ) : checkingEmail ? (
+                    'Checking...'
+                  ) : emailExists === false ? (
+                    'Continue to Sign Up'
+                  ) : (
+                    'Continue'
+                  )}
+                </button>
+              </form>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', margin: '24px 0', width: '100%' }}>
+                <div style={{ flex: 1, height: '1px', background: BORDER }} />
+                <span style={{ color: TEXT_MUTED, fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Or log in with</span>
+                <div style={{ flex: 1, height: '1px', background: BORDER }} />
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%', marginBottom: '24px' }}>
+                <button onClick={() => setStep('whatsapp-send')} className="social-oauth-btn">
+                  <Smartphone size={16} style={{ position: 'absolute', left: '20px' }} />
+                  <span>Phone number</span>
+                </button>
+                <button onClick={() => handleSocialLogin('Google')} className="social-oauth-btn">
+                  <GoogleIcon />
+                  <span>Google</span>
+                </button>
+              </div>
+
+              <div style={{ textAlign: 'center', marginTop: 'auto', paddingBottom: '10px' }}>
+                <span style={{ color: TEXT_MUTED, fontSize: '13px', fontWeight: 600 }}>Don't have an account? </span>
+                <Link href="/register" style={{ color: PRIMARY, fontWeight: 'bold', textDecoration: 'none', fontSize: '13px' }}>
+                  Sign up
+                </Link>
+              </div>
+            </motion.div>
+          )}
+
+          {/* STEP 3: PASSWORD LOGIN */}
+          {step === 'login-password' && (
+            <motion.div
+              key="login-password"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
+              style={{ display: 'flex', flexDirection: 'column', flex: 1 }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '32px', position: 'relative' }}>
+                <button onClick={() => setStep('login-email')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '6px', color: TEXT, display: 'flex', alignItems: 'center' }}>
+                  <ArrowLeft size={20} />
+                </button>
+                <span style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', fontFamily: 'Outfit, sans-serif', fontWeight: 'bold', fontSize: '15px', color: TEXT }}>
+                  Password Login
+                </span>
+              </div>
+
+              <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '26px', fontWeight: 800, color: TEXT, marginBottom: '8px', letterSpacing: '-0.5px' }}>
+                Log in with password
+              </h2>
+              {email && (
+                <p style={{ color: TEXT_MUTED, fontSize: '14px', marginBottom: '24px' }}>
+                  Logging in as <span style={{ color: TEXT, fontWeight: 700 }}>{email}</span>
+                </p>
+              )}
+
+              {error && (
+                <div style={{ padding: '12px 14px', background: 'rgba(220,38,38,0.06)', border: '1px solid rgba(220,38,38,0.2)', borderRadius: 10, color: '#b91c1c', fontSize: '13px', marginBottom: '18px', fontWeight: 500 }}>
+                  ⚠️ {error}
+                </div>
+              )}
+
+              <form onSubmit={handleLogin} style={{ width: '100%' }}>
+                <div style={{ marginBottom: '24px', position: 'relative' }}>
+                  <label style={labelStyle}>Password</label>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    placeholder="Your password"
+                    required
+                    autoFocus
+                    className="auth-input"
+                    style={{ ...inputStyle, paddingRight: '48px' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(v => !v)}
+                    style={{
+                      position: 'absolute',
+                      right: '14px',
+                      top: '42px',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      color: TEXT_MUTED
+                    }}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+                <button type="submit" disabled={isLoading} className="auth-btn-primary">
+                  {isLoading ? <div style={{ width: 20, height: 20, border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} /> : 'Log In'}
+                </button>
+              </form>
+
+              <button
+                type="button"
+                onClick={() => setStep('login-email')}
+                className="auth-btn-secondary"
+                style={{ marginTop: '14px' }}
+              >
+                Login with Email OTP instead
               </button>
-            </div>
 
-            <button type="submit" disabled={isLoading} className="auth-btn-primary">
-              {isLoading ? <div style={{ width: 20, height: 20, border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} /> : 'Log In'}
-            </button>
+              {/* Dev Accounts Helper Accordion */}
+              <div style={{ marginTop: 'auto', paddingTop: '20px' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowQuickAccounts(!showQuickAccounts)}
+                  style={{
+                    width: '100%',
+                    background: 'none',
+                    border: 'none',
+                    color: PRIMARY,
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    textAlign: 'center',
+                    fontFamily: 'Inter, sans-serif'
+                  }}
+                >
+                  {showQuickAccounts ? 'Hide Quick Login Accounts' : 'Show Quick Login Accounts (Demo)'}
+                </button>
 
-            <Link href="/register" style={{ display: 'block', textAlign: 'center', color: PRIMARY, fontSize: 13, fontWeight: 700, marginTop: 18, textDecoration: 'none' }}>
-              New to Beato? Sign Up Free
-            </Link>
-          </form>
-        </div>
+                {showQuickAccounts && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1fr 1fr',
+                      gap: '8px',
+                      marginTop: '12px',
+                      background: SURFACE,
+                      padding: '12px',
+                      borderRadius: '12px',
+                      border: `1px solid ${BORDER}`
+                    }}
+                  >
+                    {[
+                      { role: 'SUPER_ADMIN', email: 'superadmin@beato.com', label: 'Super Admin' },
+                      { role: 'ADMIN', email: 'admin@beato.com', label: 'Admin / Mod' },
+                      { role: 'ARTIST', email: 'artist@beato.com', label: 'Artist User' },
+                      { role: 'USER', email: 'manoj@beato.io', label: 'Standard User' }
+                    ].map(acc => (
+                      <button
+                        key={acc.email}
+                        onClick={() => handleQuickLogin(acc.email)}
+                        disabled={isLoading}
+                        style={{
+                          padding: '8px',
+                          background: ELEVATED,
+                          border: `1.5px solid ${BORDER}`,
+                          borderRadius: '8px',
+                          color: TEXT,
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          textAlign: 'left'
+                        }}
+                      >
+                        <div>{acc.label}</div>
+                        <div style={{ color: TEXT_MUTED, fontSize: '9px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{acc.email}</div>
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </div>
+            </motion.div>
+          )}
 
-        {/* Divider */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, margin: '24px 0 16px', width: '100%', maxWidth: 400 }}>
-          <div style={{ flex: 1, height: 1, background: BORDER }} />
-          <span style={{ color: TEXT_MUTED, fontSize: 12 }}>or connect with</span>
-          <div style={{ flex: 1, height: 1, background: BORDER }} />
-        </div>
+          {/* STEP 4: EMAIL OTP VERIFICATION */}
+          {step === 'email-otp' && (
+            <motion.div
+              key="email-otp"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
+              style={{ display: 'flex', flexDirection: 'column', flex: 1 }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '32px', position: 'relative' }}>
+                <button onClick={() => setStep('login-email')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '6px', color: TEXT, display: 'flex', alignItems: 'center' }}>
+                  <ArrowLeft size={20} />
+                </button>
+                <span style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', fontFamily: 'Outfit, sans-serif', fontWeight: 'bold', fontSize: '15px', color: TEXT }}>
+                  Verify Email
+                </span>
+              </div>
 
-        {/* Demo Login */}
-        <button onClick={() => handleQuickLogin('manoj@beato.io')} disabled={isLoading}
-          style={{ background: SURFACE, color: PRIMARY, border: `1.5px solid rgba(176,136,80,0.3)`, fontSize: 13, fontWeight: 700, padding: '12px 28px', borderRadius: 100, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s', boxShadow: '0 2px 8px rgba(43,34,26,0.06)' }}
-          onMouseEnter={e => { e.currentTarget.style.background = '#ede3d0'; e.currentTarget.style.borderColor = 'rgba(176,136,80,0.5)'; }}
-          onMouseLeave={e => { e.currentTarget.style.background = SURFACE; e.currentTarget.style.borderColor = 'rgba(176,136,80,0.3)'; }}>
-          Instant Demo Login
-        </button>
+              <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '26px', fontWeight: 800, color: TEXT, marginBottom: 8, letterSpacing: '-0.5px' }}>
+                Verify your email
+              </h2>
+              <p style={{ color: TEXT_MUTED, fontSize: '14px', marginBottom: '12px' }}>
+                We sent a 6-digit code to <span style={{ color: TEXT, fontWeight: 700 }}>{email}</span>
+              </p>
+              <p style={{ color: '#8c7662', fontSize: '12.5px', marginBottom: '24px', fontStyle: 'italic', lineHeight: '1.4' }}>
+                📩 <strong>Note:</strong> If you don't see the mail in your inbox, please check your <strong>Spam or Junk folder</strong> (Gmail SMTP can sometimes flag automated verification codes as spam).
+              </p>
 
-        <button type="button" onClick={() => setShowServerSettings(true)}
-          style={{ background: 'none', border: 'none', color: TEXT_MUTED, fontSize: 12, fontWeight: 600, marginTop: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'Inter, sans-serif' }}
-          onMouseEnter={e => e.currentTarget.style.color = PRIMARY}
-          onMouseLeave={e => e.currentTarget.style.color = TEXT_MUTED}>
-          <Settings2 size={14} /> Change Server IP / URL
-        </button>
+              {error && (
+                <div style={{ padding: '12px 14px', background: 'rgba(220,38,38,0.06)', border: '1px solid rgba(220,38,38,0.2)', borderRadius: 10, color: '#b91c1c', fontSize: '13px', marginBottom: '18px' }}>
+                  ⚠️ {error}
+                </div>
+              )}
+
+              {emailSandboxCode && (
+                <div style={{ padding: '12px', borderRadius: 10, background: `rgba(176,136,80,0.08)`, border: `1px solid rgba(176,136,80,0.15)`, marginBottom: '24px', textAlign: 'center' }}>
+                  <p style={{ color: PRIMARY, fontSize: '12px', fontWeight: 700, margin: 0 }}>[Dev Sandbox] Email Code:</p>
+                  <p style={{ color: TEXT, fontSize: '24px', fontWeight: 800, letterSpacing: 4, margin: '6px 0 0 0' }}>{emailSandboxCode}</p>
+                </div>
+              )}
+
+              <form onSubmit={handleVerifyEmailOtp} style={{ width: '100%' }}>
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', justifyContent: 'center' }}>
+                  {otp.map((digit, i) => (
+                    <input
+                      key={i}
+                      id={`otp-${i}`}
+                      type="text"
+                      inputMode="numeric"
+                      value={digit}
+                      onChange={e => handleOtpChange(i, e.target.value)}
+                      maxLength={1}
+                      suppressHydrationWarning
+                      style={{
+                        width: '46px',
+                        height: '54px',
+                        borderRadius: '8px',
+                        border: `2px solid ${digit ? PRIMARY : BORDER}`,
+                        background: ELEVATED,
+                        color: TEXT,
+                        fontSize: '20px',
+                        fontWeight: 700,
+                        textAlign: 'center',
+                        outline: 'none',
+                        transition: 'border-color 0.2s, box-shadow 0.2s',
+                        fontFamily: 'Outfit, sans-serif',
+                        boxShadow: digit ? `0 0 0 3px rgba(176,136,80,0.1)` : 'none'
+                      }}
+                      onFocus={e => { e.target.style.borderColor = PRIMARY; e.target.style.boxShadow = '0 0 0 3px rgba(176,136,80,0.15)'; }}
+                      onBlur={e => { e.target.style.borderColor = digit ? PRIMARY : BORDER; e.target.style.boxShadow = digit ? '0 0 0 3px rgba(176,136,80,0.1)' : 'none'; }}
+                    />
+                  ))}
+                </div>
+
+                <button type="submit" disabled={otp.join('').length < 6 || isLoading} className="auth-btn-primary" style={{ opacity: otp.join('').length < 6 ? 0.55 : 1 }}>
+                  {isLoading ? <div style={{ width: 20, height: 20, border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} /> : 'Verify & Log in'}
+                </button>
+              </form>
+
+              <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                <button
+                  type="button"
+                  onClick={() => { setStep('login-password'); setError(''); }}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: PRIMARY,
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                  }}
+                >
+                  Log in with password instead
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
+                <button type="button" onClick={() => { setStep('login-email'); setError(''); }} style={{ background: 'none', border: 'none', color: TEXT_MUTED, fontSize: '13px', cursor: 'pointer', fontWeight: 600 }}>← Change Email</button>
+                <button type="button" onClick={handleSendEmailOtp} style={{ background: 'none', border: 'none', color: PRIMARY, fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>Resend Code</button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* STEP 5: WHATSAPP NUMBER INPUT */}
+          {step === 'whatsapp-send' && (
+            <motion.div
+              key="whatsapp-send"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
+              style={{ display: 'flex', flexDirection: 'column', flex: 1 }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '32px', position: 'relative' }}>
+                <button onClick={() => setStep('login-email')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '6px', color: TEXT, display: 'flex', alignItems: 'center' }}>
+                  <ArrowLeft size={20} />
+                </button>
+                <span style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', fontFamily: 'Outfit, sans-serif', fontWeight: 'bold', fontSize: '15px', color: TEXT }}>
+                  Phone Login
+                </span>
+              </div>
+
+              <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '26px', fontWeight: 800, color: TEXT, marginBottom: '8px', letterSpacing: '-0.5px' }}>
+                WhatsApp OTP
+              </h2>
+              <p style={{ color: TEXT_MUTED, fontSize: '14px', marginBottom: '24px' }}>
+                Enter your WhatsApp number to log in without a password
+              </p>
+
+              {error && (
+                <div style={{ padding: '12px 14px', background: 'rgba(220,38,38,0.06)', border: '1px solid rgba(220,38,38,0.2)', borderRadius: 10, color: '#b91c1c', fontSize: '13px', marginBottom: '18px' }}>
+                  ⚠️ {error}
+                </div>
+              )}
+
+              <form onSubmit={handleSendOtp} style={{ width: '100%' }}>
+                <div style={{ marginBottom: '24px' }}>
+                  <label style={labelStyle}>WhatsApp Number</label>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={e => setPhone(e.target.value)}
+                    placeholder="+919999999999"
+                    required
+                    autoFocus
+                    className="auth-input"
+                    style={inputStyle}
+                  />
+                </div>
+                <button type="submit" disabled={isLoading} className="auth-btn-primary">
+                  {isLoading ? <div style={{ width: 20, height: 20, border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} /> : 'Send OTP via WhatsApp'}
+                </button>
+              </form>
+            </motion.div>
+          )}
+
+          {/* STEP 6: WHATSAPP OTP VERIFICATION */}
+          {step === 'whatsapp-otp' && (
+            <motion.div
+              key="whatsapp-otp"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
+              style={{ display: 'flex', flexDirection: 'column', flex: 1 }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '32px', position: 'relative' }}>
+                <button onClick={() => setStep('whatsapp-send')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '6px', color: TEXT, display: 'flex', alignItems: 'center' }}>
+                  <ArrowLeft size={20} />
+                </button>
+                <span style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', fontFamily: 'Outfit, sans-serif', fontWeight: 'bold', fontSize: '15px', color: TEXT }}>
+                  Verify Code
+                </span>
+              </div>
+
+              <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '26px', fontWeight: 800, color: TEXT, marginBottom: 8, letterSpacing: '-0.5px' }}>
+                Verify OTP code
+              </h2>
+              <p style={{ color: TEXT_MUTED, fontSize: '14px', marginBottom: '24px' }}>
+                We sent a 6-digit code to <span style={{ color: TEXT, fontWeight: 700 }}>{phone}</span>
+              </p>
+
+              {error && (
+                <div style={{ padding: '12px 14px', background: 'rgba(220,38,38,0.06)', border: '1px solid rgba(220,38,38,0.2)', borderRadius: 10, color: '#b91c1c', fontSize: '13px', marginBottom: '18px' }}>
+                  ⚠️ {error}
+                </div>
+              )}
+
+              {sandboxCode && (
+                <div style={{ padding: '12px', borderRadius: 10, background: `rgba(176,136,80,0.08)`, border: `1px solid rgba(176,136,80,0.15)`, marginBottom: '24px', textAlign: 'center' }}>
+                  <p style={{ color: PRIMARY, fontSize: '12px', fontWeight: 700, margin: 0 }}>[Dev Sandbox] WhatsApp Code:</p>
+                  <p style={{ color: TEXT, fontSize: '24px', fontWeight: 800, letterSpacing: 4, margin: '6px 0 0 0' }}>{sandboxCode}</p>
+                </div>
+              )}
+
+              <form onSubmit={handleVerifyOtp} style={{ width: '100%' }}>
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', justifyContent: 'center' }}>
+                  {otp.map((digit, i) => (
+                    <input
+                      key={i}
+                      id={`otp-${i}`}
+                      type="text"
+                      inputMode="numeric"
+                      value={digit}
+                      onChange={e => handleOtpChange(i, e.target.value)}
+                      maxLength={1}
+                      suppressHydrationWarning
+                      style={{
+                        width: '46px',
+                        height: '54px',
+                        borderRadius: '8px',
+                        border: `2px solid ${digit ? PRIMARY : BORDER}`,
+                        background: ELEVATED,
+                        color: TEXT,
+                        fontSize: '20px',
+                        fontWeight: 700,
+                        textAlign: 'center',
+                        outline: 'none',
+                        transition: 'border-color 0.2s, box-shadow 0.2s',
+                        fontFamily: 'Outfit, sans-serif',
+                        boxShadow: digit ? `0 0 0 3px rgba(176,136,80,0.1)` : 'none'
+                      }}
+                      onFocus={e => { e.target.style.borderColor = PRIMARY; e.target.style.boxShadow = '0 0 0 3px rgba(176,136,80,0.15)'; }}
+                      onBlur={e => { e.target.style.borderColor = digit ? PRIMARY : BORDER; e.target.style.boxShadow = digit ? '0 0 0 3px rgba(176,136,80,0.1)' : 'none'; }}
+                    />
+                  ))}
+                </div>
+
+                <button type="submit" disabled={otp.join('').length < 6 || isLoading} className="auth-btn-primary" style={{ opacity: otp.join('').length < 6 ? 0.55 : 1 }}>
+                  {isLoading ? <div style={{ width: 20, height: 20, border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} /> : 'Verify & Log in'}
+                </button>
+              </form>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
+                <button type="button" onClick={() => { setStep('whatsapp-send'); setError(''); }} style={{ background: 'none', border: 'none', color: TEXT_MUTED, fontSize: '13px', cursor: 'pointer', fontWeight: 600 }}>← Change Number</button>
+                <button type="button" onClick={handleSendOtp} style={{ background: 'none', border: 'none', color: PRIMARY, fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>Resend Code</button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
-      {/* Server Settings Modal */}
+      {/* Server Connection Settings Modal */}
       <AnimatePresence>
         {showServerSettings && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            style={{ position: 'fixed', inset: 0, background: 'rgba(43,34,26,0.5)', backdropFilter: 'blur(6px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(43,34,26,0.4)', backdropFilter: 'blur(6px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
           >
             <motion.div
               initial={{ scale: 0.95, y: 15 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 15 }}
-              style={{ width: '100%', maxWidth: 400, background: ELEVATED, borderRadius: 24, border: `1px solid ${BORDER}`, padding: 28, boxShadow: '0 20px 50px rgba(43,34,26,0.2)' }}
+              style={{ width: '100%', maxWidth: 380, background: ELEVATED, borderRadius: 24, border: `1px solid ${BORDER}`, padding: 28, boxShadow: '0 20px 50px rgba(43,34,26,0.15)' }}
             >
-              <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 20, fontWeight: 800, color: TEXT, marginBottom: 10 }}>Connection Settings</h3>
-              <p style={{ fontSize: 13, color: TEXT_MUTED, lineHeight: 1.5, marginBottom: 20 }}>
+              <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '20px', fontWeight: 800, color: TEXT, marginBottom: 10 }}>Connection Settings</h3>
+              <p style={{ fontSize: '13px', color: TEXT_MUTED, lineHeight: 1.5, marginBottom: 20 }}>
                 Enter your computer's local IP or a public tunnel URL so the app can reach the backend.
               </p>
               <div style={{ marginBottom: 20 }}>
@@ -809,7 +1110,7 @@ export default function LoginPage() {
               </div>
               <div style={{ display: 'flex', gap: 12 }}>
                 <button type="button" onClick={() => setShowServerSettings(false)}
-                  style={{ flex: 1, padding: 12, borderRadius: 12, background: SURFACE, border: `1px solid ${BORDER}`, color: TEXT, fontWeight: 700, fontSize: 14, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
+                  style={{ flex: 1, padding: 12, borderRadius: 30, background: SURFACE, border: `1.5px solid ${BORDER}`, color: TEXT, fontWeight: 700, fontSize: 14, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
                   Cancel
                 </button>
                 <button type="button" onClick={() => {
@@ -822,10 +1123,113 @@ export default function LoginPage() {
                     setTimeout(() => window.location.reload(), 1200);
                   }
                 }}
-                  style={{ flex: 1, padding: 12, borderRadius: 12, background: PRIMARY, color: '#fff', fontWeight: 800, fontSize: 14, border: 'none', cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
+                  style={{ flex: 1, padding: 12, borderRadius: 30, background: PRIMARY, color: '#fff', fontWeight: 800, fontSize: 14, border: 'none', cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
                   Save & Reload
                 </button>
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Google Account Chooser Sandbox Modal */}
+      <AnimatePresence>
+        {showGoogleChooser && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(43,34,26,0.4)', backdropFilter: 'blur(6px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 15 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 15 }}
+              style={{ width: '100%', maxWidth: 380, background: ELEVATED, borderRadius: 24, border: `1px solid ${BORDER}`, padding: 28, boxShadow: '0 20px 50px rgba(43,34,26,0.15)' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                <svg width="24" height="24" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                </svg>
+                <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '20px', fontWeight: 800, color: TEXT, margin: 0 }}>Sign in with Google</h3>
+              </div>
+              <p style={{ fontSize: '13px', color: TEXT_MUTED, lineHeight: 1.5, marginBottom: 20 }}>
+                Choose an account to continue to <strong>Beato</strong> (Sandbox Mode).
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
+                {[
+                  { name: 'Manoj Lastro', email: 'manoj93456355@gmail.com', avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop' },
+                  { name: 'Manoj Secondary', email: 'manoj4104s@gmail.com', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop' }
+                ].map((acc) => (
+                  <button
+                    key={acc.email}
+                    type="button"
+                    onClick={() => {
+                      setGoogleEmail(acc.email);
+                      setGoogleName(acc.name);
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 12,
+                      padding: '12px 16px',
+                      borderRadius: 12,
+                      background: googleEmail === acc.email ? 'rgba(176,136,80,0.1)' : SURFACE,
+                      border: `2px solid ${googleEmail === acc.email ? PRIMARY : BORDER}`,
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      width: '100%',
+                      transition: 'all 0.2s',
+                    }}
+                  >
+                    <img src={acc.avatar} alt={acc.name} style={{ width: 32, height: 32, borderRadius: '50%' }} />
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: 13.5, color: TEXT }}>{acc.name}</div>
+                      <div style={{ fontSize: 12, color: TEXT_MUTED }}>{acc.email}</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              <form onSubmit={handleGoogleSandboxSubmit}>
+                <div style={{ marginBottom: 20 }}>
+                  <label style={labelStyle}>Or enter custom Google account</label>
+                  <input
+                    type="email"
+                    value={googleEmail}
+                    onChange={(e) => {
+                      setGoogleEmail(e.target.value);
+                      if (!googleName) setGoogleName(e.target.value.split('@')[0]);
+                    }}
+                    placeholder="Enter email address"
+                    className="auth-input"
+                    style={inputStyle}
+                  />
+                </div>
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowGoogleChooser(false);
+                      setGoogleEmail('');
+                    }}
+                    style={{ flex: 1, padding: 12, borderRadius: 30, background: SURFACE, border: `1.5px solid ${BORDER}`, color: TEXT, fontWeight: 700, fontSize: 14, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={!googleEmail || isLoading}
+                    style={{ flex: 1, padding: 12, borderRadius: 30, background: PRIMARY, color: '#fff', fontWeight: 800, fontSize: 14, border: 'none', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', opacity: !googleEmail ? 0.5 : 1 }}
+                  >
+                    {isLoading ? 'Signing in...' : 'Continue'}
+                  </button>
+                </div>
+              </form>
             </motion.div>
           </motion.div>
         )}

@@ -12,15 +12,15 @@ import {
 } from 'lucide-react';
 
 const COLORS = {
-  bg: '#0a0a0a',
-  card: 'rgba(18, 18, 18, 0.7)',
-  card2: '#161616',
-  cardHover: 'rgba(30, 30, 30, 0.85)',
-  border: 'rgba(255, 255, 255, 0.08)',
+  bg: '#fbf9f5',
+  card: '#ffffff',
+  card2: '#ffffff',
+  cardHover: '#f4eede',
+  border: 'rgba(43, 34, 26, 0.08)',
   borderActive: 'rgba(176, 136, 80, 0.3)',
   green: '#b08850',
-  text: '#ffffff',
-  muted: '#a0a0a0',
+  text: '#221a15',
+  muted: '#87786c',
   yellow: '#eab308',
   blue: '#10b981',
   red: '#ef4444',
@@ -432,7 +432,7 @@ export default function PayoutsTab() {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 400, gap: 16 }}>
         <div style={{ width: 40, height: 40, border: `3px solid ${COLORS.border}`, borderTopColor: COLORS.green, borderRadius: '50%' }} className="spin" />
-        <p style={{ color: COLORS.muted, fontSize: 14, fontFamily: fontInter }}>Synthesizing ledger data and risk statistics...</p>
+        <p style={{ color: '#87786c', fontSize: 14, fontFamily: fontInter }}>Synthesizing ledger data and risk statistics...</p>
       </div>
     );
   }
@@ -441,9 +441,9 @@ export default function PayoutsTab() {
     return (
       <div style={{ padding: 24, textAlign: 'center', background: 'rgba(239, 68, 68, 0.05)', border: `1px solid ${COLORS.red}30', borderRadius: 12` }}>
         <AlertTriangle size={36} color={COLORS.red} style={{ marginBottom: 12 }} />
-        <h3 style={{ fontFamily: fontOutfit, color: '#fff', margin: '0 0 8px' }}>Ledger Connection Failed</h3>
-        <p style={{ color: COLORS.muted, fontSize: 13, margin: '0 0 16px' }}>{error || 'Unable to load real-time accounting services'}</p>
-        <button onClick={() => loadPayoutData()} style={{ padding: '8px 18px', background: COLORS.red, color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontFamily: fontOutfit, fontWeight: 600 }}>
+        <h3 style={{ fontFamily: fontOutfit, color: '#221a15', margin: '0 0 8px' }}>Ledger Connection Failed</h3>
+        <p style={{ color: '#87786c', fontSize: 13, margin: '0 0 16px' }}>{error || 'Unable to load real-time accounting services'}</p>
+        <button onClick={() => loadPayoutData()} style={{ padding: '8px 18px', background: COLORS.red, color: '#221a15', border: 'none', borderRadius: 8, cursor: 'pointer', fontFamily: fontOutfit, fontWeight: 600 }}>
           Retry Auditing Sync
         </button>
       </div>
@@ -477,7 +477,7 @@ export default function PayoutsTab() {
   ];
 
   return (
-    <div style={{ fontFamily: fontInter, color: COLORS.text }}>
+    <div style={{ fontFamily: fontInter, color: '#221a15' }}>
       
       {/* ─── STUNNING GLASSMORPHIC HEADER ACTION CARD ─── */}
       <div style={{ 
@@ -489,7 +489,7 @@ export default function PayoutsTab() {
           <h2 style={{ margin: 0, fontFamily: fontOutfit, fontSize: 24, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Award color={COLORS.green} size={26} /> Royalty & Payout Control Room
           </h2>
-          <p style={{ margin: '4px 0 0', color: COLORS.muted, fontSize: 13, lineHeight: 1.5 }}>
+          <p style={{ margin: '4px 0 0', color: '#87786c', fontSize: 13, lineHeight: 1.5 }}>
             Real-time stream auditing, fraud detection vectors, and automated bulk settlements.
           </p>
         </div>
@@ -498,7 +498,7 @@ export default function PayoutsTab() {
             onClick={() => { setIsRefreshing(true); loadPayoutData(true); }}
             style={{ 
               display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px', borderRadius: 8, 
-              border: `1.5px solid ${COLORS.border}`, background: 'transparent', color: COLORS.text, 
+              border: `1.5px solid ${COLORS.border}`, background: 'transparent', color: '#221a15', 
               fontWeight: 600, cursor: 'pointer', fontSize: 13, transition: '0.2s'
             }}
             onMouseEnter={e => e.currentTarget.style.borderColor = '#555'}
@@ -562,7 +562,7 @@ export default function PayoutsTab() {
             }}
           >
             <div>
-              <div style={{ fontSize: 12, color: COLORS.muted, fontWeight: 500, fontFamily: fontInter }}>{s.label}</div>
+              <div style={{ fontSize: 12, color: '#87786c', fontWeight: 500, fontFamily: fontInter }}>{s.label}</div>
               <div style={{ fontSize: 22, fontWeight: 800, color: s.color, fontFamily: fontOutfit, marginTop: 4 }}>{s.value}</div>
             </div>
             <div style={{ fontSize: 10, color: '#666', marginTop: 8, borderTop: `1px solid ${COLORS.border}`, paddingTop: 6 }}>
@@ -587,7 +587,7 @@ export default function PayoutsTab() {
                 const sym = data?.currency === 'INR' ? '₹' : '$';
                 return `${sym}${(v / 1000).toFixed(0)}K`;
               }} />
-              <Tooltip formatter={(v: any) => [formatCurrency(Number(v)), 'Settled Outflow']} contentStyle={{ background: COLORS.card2, border: `1px solid ${COLORS.border}`, borderRadius: 8, color: COLORS.text }} />
+              <Tooltip formatter={(v: any) => [formatCurrency(Number(v)), 'Settled Outflow']} contentStyle={{ background: COLORS.card2, border: `1px solid ${COLORS.border}`, borderRadius: 8, color: '#221a15' }} />
               <Line type="monotone" dataKey="amount" stroke={COLORS.green} strokeWidth={2.5} activeDot={{ r: 6 }} dot={{ fill: COLORS.green, r: 4 }} />
             </LineChart>
           </ResponsiveContainer>
@@ -606,14 +606,14 @@ export default function PayoutsTab() {
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(v: any) => [formatCurrency(Number(v)), 'Total Share']} contentStyle={{ background: COLORS.card2, border: `1px solid ${COLORS.border}`, borderRadius: 8, color: COLORS.text }} />
+                <Tooltip formatter={(v: any) => [formatCurrency(Number(v)), 'Total Share']} contentStyle={{ background: COLORS.card2, border: `1px solid ${COLORS.border}`, borderRadius: 8, color: '#221a15' }} />
               </PieChart>
             </ResponsiveContainer>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 11, marginTop: 10 }}>
             {allocationPieData.map(e => (
               <div key={e.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: COLORS.muted }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#87786c' }}>
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: e.color }} />
                   {e.name}
                 </span>
@@ -645,7 +645,7 @@ export default function PayoutsTab() {
           >
             {t.label}
             <span style={{ 
-              fontSize: 10, background: activeTab === t.id ? 'rgba(176, 136, 80, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+              fontSize: 10, background: activeTab === t.id ? 'rgba(176, 136, 80, 0.15)' : 'rgba(43, 34, 26, 0.05)',
               color: activeTab === t.id ? COLORS.green : COLORS.muted, padding: '2px 6px', borderRadius: 10, fontWeight: 700
             }}>{t.count}</span>
           </button>
@@ -665,7 +665,7 @@ export default function PayoutsTab() {
             placeholder="Search by artist or voucher ID..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            style={{ background: 'transparent', border: 'none', outline: 'none', color: '#fff', fontSize: 13, width: '100%' }}
+            style={{ background: 'transparent', border: 'none', outline: 'none', color: '#221a15', fontSize: 13, width: '100%' }}
           />
         </div>
 
@@ -674,11 +674,11 @@ export default function PayoutsTab() {
           <div style={{ display: 'flex', gap: 10 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <Filter size={13} color={COLORS.muted} />
-              <span style={{ fontSize: 12, color: COLORS.muted }}>Status:</span>
+              <span style={{ fontSize: 12, color: '#87786c' }}>Status:</span>
               <select 
                 value={statusFilter}
                 onChange={e => setStatusFilter(e.target.value)}
-                style={{ background: COLORS.card2, border: `1.5px solid ${COLORS.border}`, borderRadius: 6, color: '#fff', padding: '6px 10px', fontSize: 12, outline: 'none' }}
+                style={{ background: COLORS.card2, border: `1.5px solid ${COLORS.border}`, borderRadius: 6, color: '#221a15', padding: '6px 10px', fontSize: 12, outline: 'none' }}
               >
                 <option value="all">All Statuses</option>
                 <option value="pending">Pending</option>
@@ -692,11 +692,11 @@ export default function PayoutsTab() {
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <Shield size={13} color={COLORS.muted} />
-              <span style={{ fontSize: 12, color: COLORS.muted }}>Risk Vector:</span>
+              <span style={{ fontSize: 12, color: '#87786c' }}>Risk Vector:</span>
               <select 
                 value={riskFilter}
                 onChange={e => setRiskFilter(e.target.value)}
-                style={{ background: COLORS.card2, border: `1.5px solid ${COLORS.border}`, borderRadius: 6, color: '#fff', padding: '6px 10px', fontSize: 12, outline: 'none' }}
+                style={{ background: COLORS.card2, border: `1.5px solid ${COLORS.border}`, borderRadius: 6, color: '#221a15', padding: '6px 10px', fontSize: 12, outline: 'none' }}
               >
                 <option value="all">All Risks</option>
                 <option value="low">Low Risk</option>
@@ -745,14 +745,14 @@ export default function PayoutsTab() {
                       />
                     </th>
                     {['Voucher ID', 'Artist Account', 'Date Created', 'Amount', 'Target Method', 'Risk Rating', 'Status State', 'Actions'].map(h => (
-                      <th key={h} style={{ padding: '14px 16px', color: COLORS.muted, fontWeight: 600, fontFamily: fontOutfit }}>{h}</th>
+                      <th key={h} style={{ padding: '14px 16px', color: '#87786c', fontWeight: 600, fontFamily: fontOutfit }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {filteredWithdrawals.length === 0 ? (
                     <tr>
-                      <td colSpan={9} style={{ padding: '40px 16px', textAlign: 'center', color: COLORS.muted }}>
+                      <td colSpan={9} style={{ padding: '40px 16px', textAlign: 'center', color: '#87786c' }}>
                         No withdrawal requests matched active search filters.
                       </td>
                     </tr>
@@ -774,9 +774,9 @@ export default function PayoutsTab() {
                         </td>
                         <td style={{ padding: '14px 16px', fontFamily: 'monospace', fontWeight: 600 }}>{w.id}</td>
                         <td style={{ padding: '14px 16px', fontWeight: 600 }}>{w.artistName}</td>
-                        <td style={{ padding: '14px 16px', color: COLORS.muted }}>{formatDate(w.created)}</td>
+                        <td style={{ padding: '14px 16px', color: '#87786c' }}>{formatDate(w.created)}</td>
                         <td style={{ padding: '14px 16px', color: COLORS.green, fontWeight: 700 }}>{formatCurrency(w.amount)}</td>
-                        <td style={{ padding: '14px 16px', color: COLORS.muted, textTransform: 'uppercase', fontSize: 11, fontWeight: 700 }}>
+                        <td style={{ padding: '14px 16px', color: '#87786c', textTransform: 'uppercase', fontSize: 11, fontWeight: 700 }}>
                           {w.method === 'bank' ? '🏦 Bank' : w.method === 'paypal' ? '💼 PayPal' : w.method}
                         </td>
                         <td style={{ padding: '14px 16px' }}>{getRiskBadge(w.fraudScore)}</td>
@@ -788,7 +788,7 @@ export default function PayoutsTab() {
                               style={{ 
                                 display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 8px', 
                                 borderRadius: 6, border: `1px solid ${COLORS.border}`, background: 'transparent', 
-                                color: '#fff', cursor: 'pointer', fontSize: 11 
+                                color: '#221a15', cursor: 'pointer', fontSize: 11 
                               }}
                             >
                               <Eye size={12} /> Inspect
@@ -846,14 +846,14 @@ export default function PayoutsTab() {
                 <thead>
                   <tr style={{ borderBottom: `1px solid ${COLORS.border}`, background: 'rgba(255, 255, 255, 0.02)' }}>
                     {['Artist Profile', 'Email Address', 'Available Balance', 'Pending Balance', 'Lifetime Earnings', 'Compliance Status', 'Risk Factor', 'Actions'].map(h => (
-                      <th key={h} style={{ padding: '14px 16px', color: COLORS.muted, fontWeight: 600, fontFamily: fontOutfit }}>{h}</th>
+                      <th key={h} style={{ padding: '14px 16px', color: '#87786c', fontWeight: 600, fontFamily: fontOutfit }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {filteredArtists.length === 0 ? (
                     <tr>
-                      <td colSpan={8} style={{ padding: '40px 16px', textAlign: 'center', color: COLORS.muted }}>No artist ledger matches search term.</td>
+                      <td colSpan={8} style={{ padding: '40px 16px', textAlign: 'center', color: '#87786c' }}>No artist ledger matches search term.</td>
                     </tr>
                   ) : (
                     filteredArtists.map((a, idx) => (
@@ -871,14 +871,14 @@ export default function PayoutsTab() {
                             </div>
                             <div>
                               <div style={{ fontWeight: 700 }}>{a.name}</div>
-                              <div style={{ fontSize: 10, color: COLORS.muted, fontFamily: 'monospace' }}>ID: {a.id}</div>
+                              <div style={{ fontSize: 10, color: '#87786c', fontFamily: 'monospace' }}>ID: {a.id}</div>
                             </div>
                           </div>
                         </td>
-                        <td style={{ padding: '14px 16px', color: COLORS.muted }}>{a.email}</td>
+                        <td style={{ padding: '14px 16px', color: '#87786c' }}>{a.email}</td>
                         <td style={{ padding: '14px 16px', color: COLORS.green, fontWeight: 700 }}>{formatCurrency(a.availableBalance)}</td>
                         <td style={{ padding: '14px 16px', color: COLORS.yellow }}>{formatCurrency(a.pendingBalance)}</td>
-                        <td style={{ padding: '14px 16px', color: '#fff', fontWeight: 600 }}>{formatCurrency(a.lifetimeEarnings)}</td>
+                        <td style={{ padding: '14px 16px', color: '#221a15', fontWeight: 600 }}>{formatCurrency(a.lifetimeEarnings)}</td>
                         <td style={{ padding: '14px 16px' }}>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                             <span style={{ fontSize: 10, color: a.kycStatus === 'verified' ? COLORS.green : COLORS.yellow }}>
@@ -894,7 +894,7 @@ export default function PayoutsTab() {
                           <div style={{ display: 'flex', gap: 6 }}>
                             <button 
                               onClick={() => setInspectItem({ type: 'artist', record: a })}
-                              style={{ padding: '4px 8px', borderRadius: 6, border: `1px solid ${COLORS.border}`, background: 'transparent', color: '#fff', cursor: 'pointer', fontSize: 11 }}
+                              style={{ padding: '4px 8px', borderRadius: 6, border: `1px solid ${COLORS.border}`, background: 'transparent', color: '#221a15', cursor: 'pointer', fontSize: 11 }}
                             >
                               Inspect Details
                             </button>
@@ -938,14 +938,14 @@ export default function PayoutsTab() {
                 <thead>
                   <tr style={{ borderBottom: `1px solid ${COLORS.border}`, background: 'rgba(255, 255, 255, 0.02)' }}>
                     {['Ticket ID', 'Artist Name', 'Date Filed', 'Issue Reported', 'Supporting Evidence', 'Status', 'Resolution Actions'].map(h => (
-                      <th key={h} style={{ padding: '14px 16px', color: COLORS.muted, fontWeight: 600, fontFamily: fontOutfit }}>{h}</th>
+                      <th key={h} style={{ padding: '14px 16px', color: '#87786c', fontWeight: 600, fontFamily: fontOutfit }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {filteredDisputes.length === 0 ? (
                     <tr>
-                      <td colSpan={7} style={{ padding: '40px 16px', textAlign: 'center', color: COLORS.muted }}>No outstanding royalty disputes.</td>
+                      <td colSpan={7} style={{ padding: '40px 16px', textAlign: 'center', color: '#87786c' }}>No outstanding royalty disputes.</td>
                     </tr>
                   ) : (
                     filteredDisputes.map((d, idx) => (
@@ -955,11 +955,11 @@ export default function PayoutsTab() {
                       >
                         <td style={{ padding: '14px 16px', fontFamily: 'monospace', fontWeight: 600 }}>{d.id}</td>
                         <td style={{ padding: '14px 16px', fontWeight: 600 }}>{d.artistName}</td>
-                        <td style={{ padding: '14px 16px', color: COLORS.muted }}>{formatDate(d.created)}</td>
+                        <td style={{ padding: '14px 16px', color: '#87786c' }}>{formatDate(d.created)}</td>
                         <td style={{ padding: '14px 16px', fontWeight: 500, maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {d.issue}
                         </td>
-                        <td style={{ padding: '14px 16px', color: COLORS.muted, fontStyle: 'italic', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <td style={{ padding: '14px 16px', color: '#87786c', fontStyle: 'italic', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {d.evidence}
                         </td>
                         <td style={{ padding: '14px 16px' }}>
@@ -995,7 +995,7 @@ export default function PayoutsTab() {
                               </button>
                             </div>
                           ) : (
-                            <span style={{ fontSize: 11, color: COLORS.muted }}>Processed: Audit complete</span>
+                            <span style={{ fontSize: 11, color: '#87786c' }}>Processed: Audit complete</span>
                           )}
                         </td>
                       </tr>
@@ -1012,7 +1012,7 @@ export default function PayoutsTab() {
           <motion.div 
             key="audits" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             style={{ 
-              background: '#0d0d0d', border: `1.5px solid ${COLORS.border}`, borderRadius: 12, padding: 18,
+              background: '#ffffff', border: `1.5px solid ${COLORS.border}`, borderRadius: 12, padding: 18,
               fontFamily: 'monospace', fontSize: 12, maxHeight: 400, overflowY: 'auto'
             }}
           >
@@ -1021,7 +1021,7 @@ export default function PayoutsTab() {
                 # Beato Security Ledger -- Financial Clearance Stream (Live Logs)
               </div>
               {auditLogs.length === 0 ? (
-                <div style={{ color: COLORS.muted }}>Ledger empty. No recorded financial transactions in session.</div>
+                <div style={{ color: '#87786c' }}>Ledger empty. No recorded financial transactions in session.</div>
               ) : (
                 auditLogs.slice().reverse().map(log => {
                   let actionColor = COLORS.green;
@@ -1032,8 +1032,8 @@ export default function PayoutsTab() {
                     <div key={log.id} style={{ display: 'flex', gap: 12, padding: '4px 8px', borderLeft: '2px solid #333' }}>
                       <span style={{ color: '#555' }}>[{formatDate(log.timestamp)}]</span>
                       <span style={{ color: actionColor, fontWeight: 700 }}>{log.action}</span>
-                      <span style={{ color: COLORS.muted }}>by {log.performedBy}:</span>
-                      <span style={{ color: '#fff' }}>{log.details}</span>
+                      <span style={{ color: '#87786c' }}>by {log.performedBy}:</span>
+                      <span style={{ color: '#221a15' }}>{log.details}</span>
                     </div>
                   );
                 })
@@ -1060,27 +1060,27 @@ export default function PayoutsTab() {
               onClick={e => e.stopPropagation()}
             >
               <h3 style={{ fontFamily: fontOutfit, margin: '0 0 10px', color: COLORS.red }}>Reject Payout Request</h3>
-              <p style={{ color: COLORS.muted, fontSize: 13, margin: '0 0 18px', lineHeight: 1.6 }}>
+              <p style={{ color: '#87786c', fontSize: 13, margin: '0 0 18px', lineHeight: 1.6 }}>
                 You are rejecting the payout request <strong>{rejectItem.id}</strong> for <strong>{rejectItem.artistName}</strong> of <strong>{formatCurrency(rejectItem.amount)}</strong>. Specify audit reason to return funds to available balance.
               </p>
               <div style={{ marginBottom: 20 }}>
-                <label style={{ display: 'block', fontSize: 11, color: COLORS.muted, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Rejection Audit Reason</label>
+                <label style={{ display: 'block', fontSize: 11, color: '#87786c', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Rejection Audit Reason</label>
                 <textarea 
                   value={rejectReason}
                   onChange={e => setRejectReason(e.target.value)}
                   placeholder="E.g., Suspicious streaming farm activity detected. Identity validation discrepancy."
-                  style={{ width: '100%', minHeight: 90, background: COLORS.bg, border: `1px solid ${COLORS.border}`, borderRadius: 8, color: '#fff', padding: 12, boxSizing: 'border-box', outline: 'none', fontSize: 13, resize: 'vertical' }}
+                  style={{ width: '100%', minHeight: 90, background: COLORS.bg, border: `1px solid ${COLORS.border}`, borderRadius: 8, color: '#221a15', padding: 12, boxSizing: 'border-box', outline: 'none', fontSize: 13, resize: 'vertical' }}
                 />
               </div>
               <div style={{ display: 'flex', gap: 10 }}>
                 <button 
                   onClick={handleRejectConfirm}
                   disabled={isSubmittingAction}
-                  style={{ flex: 1, padding: '10px', borderRadius: 8, border: 'none', background: COLORS.red, color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: 13 }}
+                  style={{ flex: 1, padding: '10px', borderRadius: 8, border: 'none', background: COLORS.red, color: '#221a15', fontWeight: 700, cursor: 'pointer', fontSize: 13 }}
                 >
                   Confirm Rejection
                 </button>
-                <button onClick={() => setRejectItem(null)} style={{ flex: 1, padding: '10px', borderRadius: 8, border: `1px solid ${COLORS.border}`, background: 'transparent', color: '#fff', cursor: 'pointer', fontSize: 13 }}>Cancel</button>
+                <button onClick={() => setRejectItem(null)} style={{ flex: 1, padding: '10px', borderRadius: 8, border: `1px solid ${COLORS.border}`, background: 'transparent', color: '#221a15', cursor: 'pointer', fontSize: 13 }}>Cancel</button>
               </div>
             </motion.div>
           </motion.div>
@@ -1099,30 +1099,30 @@ export default function PayoutsTab() {
               onClick={e => e.stopPropagation()}
             >
               <h3 style={{ fontFamily: fontOutfit, margin: '0 0 10px', color: COLORS.purple }}>Manual Balance Adjustment</h3>
-              <p style={{ color: COLORS.muted, fontSize: 13, margin: '0 0 18px', lineHeight: 1.5 }}>
+              <p style={{ color: '#87786c', fontSize: 13, margin: '0 0 18px', lineHeight: 1.5 }}>
                 Directly debit or credit the available balance for artist <strong>{adjustArtist.name}</strong>. Positive adds funds, negative deducts.
               </p>
               
               <div style={{ marginBottom: 14 }}>
-                <label style={{ display: 'block', fontSize: 11, color: COLORS.muted, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Adjustment Amount (USD)</label>
+                <label style={{ display: 'block', fontSize: 11, color: '#87786c', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Adjustment Amount (USD)</label>
                 <input 
                   type="number" 
                   step="0.01"
                   placeholder="e.g. 150.00 or -50.00"
                   value={adjustAmount}
                   onChange={e => setAdjustAmount(e.target.value)}
-                  style={{ width: '100%', background: COLORS.bg, border: `1px solid ${COLORS.border}`, borderRadius: 8, color: '#fff', padding: 10, boxSizing: 'border-box', outline: 'none', fontSize: 14 }}
+                  style={{ width: '100%', background: COLORS.bg, border: `1px solid ${COLORS.border}`, borderRadius: 8, color: '#221a15', padding: 10, boxSizing: 'border-box', outline: 'none', fontSize: 14 }}
                 />
               </div>
 
               <div style={{ marginBottom: 20 }}>
-                <label style={{ display: 'block', fontSize: 11, color: COLORS.muted, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Override Justification</label>
+                <label style={{ display: 'block', fontSize: 11, color: '#87786c', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Override Justification</label>
                 <input 
                   type="text" 
                   placeholder="Promo bonus, stream correction penalty etc."
                   value={adjustReason}
                   onChange={e => setAdjustReason(e.target.value)}
-                  style={{ width: '100%', background: COLORS.bg, border: `1px solid ${COLORS.border}`, borderRadius: 8, color: '#fff', padding: 10, boxSizing: 'border-box', outline: 'none', fontSize: 13 }}
+                  style={{ width: '100%', background: COLORS.bg, border: `1px solid ${COLORS.border}`, borderRadius: 8, color: '#221a15', padding: 10, boxSizing: 'border-box', outline: 'none', fontSize: 13 }}
                 />
               </div>
 
@@ -1130,11 +1130,11 @@ export default function PayoutsTab() {
                 <button 
                   onClick={handleAdjustConfirm}
                   disabled={isSubmittingAction}
-                  style={{ flex: 1, padding: '10px', borderRadius: 8, border: 'none', background: COLORS.purple, color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: 13 }}
+                  style={{ flex: 1, padding: '10px', borderRadius: 8, border: 'none', background: COLORS.purple, color: '#221a15', fontWeight: 700, cursor: 'pointer', fontSize: 13 }}
                 >
                   Apply Override
                 </button>
-                <button onClick={() => setAdjustArtist(null)} style={{ flex: 1, padding: '10px', borderRadius: 8, border: `1px solid ${COLORS.border}`, background: 'transparent', color: '#fff', cursor: 'pointer', fontSize: 13 }}>Cancel</button>
+                <button onClick={() => setAdjustArtist(null)} style={{ flex: 1, padding: '10px', borderRadius: 8, border: `1px solid ${COLORS.border}`, background: 'transparent', color: '#221a15', cursor: 'pointer', fontSize: 13 }}>Cancel</button>
               </div>
             </motion.div>
           </motion.div>
@@ -1153,12 +1153,12 @@ export default function PayoutsTab() {
               onClick={e => e.stopPropagation()}
             >
               <h3 style={{ fontFamily: fontOutfit, margin: '0 0 10px', color: COLORS.green }}>Manually Wire Payout</h3>
-              <p style={{ color: COLORS.muted, fontSize: 13, margin: '0 0 18px', lineHeight: 1.5 }}>
+              <p style={{ color: '#87786c', fontSize: 13, margin: '0 0 18px', lineHeight: 1.5 }}>
                 Instantly bypass normal queue timelines and issue a wire payment to <strong>{directPayArtist.name}</strong> out of their available balance ({formatCurrency(directPayArtist.availableBalance)}).
               </p>
               
               <div style={{ marginBottom: 20 }}>
-                <label style={{ display: 'block', fontSize: 11, color: COLORS.muted, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Wire Amount (USD)</label>
+                <label style={{ display: 'block', fontSize: 11, color: '#87786c', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Wire Amount (USD)</label>
                 <input 
                   type="number" 
                   step="0.01"
@@ -1166,7 +1166,7 @@ export default function PayoutsTab() {
                   value={directPayAmount}
                   placeholder={`Max: ${directPayArtist.availableBalance}`}
                   onChange={e => setDirectPayAmount(e.target.value)}
-                  style={{ width: '100%', background: COLORS.bg, border: `1px solid ${COLORS.border}`, borderRadius: 8, color: '#fff', padding: 10, boxSizing: 'border-box', outline: 'none', fontSize: 14 }}
+                  style={{ width: '100%', background: COLORS.bg, border: `1px solid ${COLORS.border}`, borderRadius: 8, color: '#221a15', padding: 10, boxSizing: 'border-box', outline: 'none', fontSize: 14 }}
                 />
               </div>
 
@@ -1178,7 +1178,7 @@ export default function PayoutsTab() {
                 >
                   Authorize Direct Wire
                 </button>
-                <button onClick={() => setDirectPayArtist(null)} style={{ flex: 1, padding: '10px', borderRadius: 8, border: `1px solid ${COLORS.border}`, background: 'transparent', color: '#fff', cursor: 'pointer', fontSize: 13 }}>Cancel</button>
+                <button onClick={() => setDirectPayArtist(null)} style={{ flex: 1, padding: '10px', borderRadius: 8, border: `1px solid ${COLORS.border}`, background: 'transparent', color: '#221a15', cursor: 'pointer', fontSize: 13 }}>Cancel</button>
               </div>
             </motion.div>
           </motion.div>
@@ -1197,12 +1197,12 @@ export default function PayoutsTab() {
               onClick={e => e.stopPropagation()}
             >
               <h3 style={{ fontFamily: fontOutfit, margin: '0 0 10px', color: COLORS.yellow }}>Update Payout Dispute</h3>
-              <p style={{ color: COLORS.muted, fontSize: 13, margin: '0 0 18px', lineHeight: 1.5 }}>
+              <p style={{ color: '#87786c', fontSize: 13, margin: '0 0 18px', lineHeight: 1.5 }}>
                 Resolving dispute ticket <strong>{disputeResponseId}</strong>. Send formal resolution explanation to the artist.
               </p>
               
               <div style={{ marginBottom: 14 }}>
-                <label style={{ display: 'block', fontSize: 11, color: COLORS.muted, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Selected Action</label>
+                <label style={{ display: 'block', fontSize: 11, color: '#87786c', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Selected Action</label>
                 <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
                   {(['resolved', 'investigating', 'rejected'] as const).map(actionType => (
                     <button
@@ -1221,12 +1221,12 @@ export default function PayoutsTab() {
               </div>
 
               <div style={{ marginBottom: 20 }}>
-                <label style={{ display: 'block', fontSize: 11, color: COLORS.muted, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Resolution Message / Audit Findings</label>
+                <label style={{ display: 'block', fontSize: 11, color: '#87786c', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Resolution Message / Audit Findings</label>
                 <textarea 
                   value={disputeResponseText}
                   onChange={e => setDisputeResponseText(e.target.value)}
                   placeholder="Explain resolution (e.g. Credited discrepancy to balance. Checked plays list)."
-                  style={{ width: '100%', minHeight: 90, background: COLORS.bg, border: `1px solid ${COLORS.border}`, borderRadius: 8, color: '#fff', padding: 12, boxSizing: 'border-box', outline: 'none', fontSize: 13, resize: 'vertical' }}
+                  style={{ width: '100%', minHeight: 90, background: COLORS.bg, border: `1px solid ${COLORS.border}`, borderRadius: 8, color: '#221a15', padding: 12, boxSizing: 'border-box', outline: 'none', fontSize: 13, resize: 'vertical' }}
                 />
               </div>
 
@@ -1238,7 +1238,7 @@ export default function PayoutsTab() {
                 >
                   Submit Adjudication
                 </button>
-                <button onClick={() => setDisputeResponseId(null)} style={{ flex: 1, padding: '10px', borderRadius: 8, border: `1px solid ${COLORS.border}`, background: 'transparent', color: '#fff', cursor: 'pointer', fontSize: 13 }}>Cancel</button>
+                <button onClick={() => setDisputeResponseId(null)} style={{ flex: 1, padding: '10px', borderRadius: 8, border: `1px solid ${COLORS.border}`, background: 'transparent', color: '#221a15', cursor: 'pointer', fontSize: 13 }}>Cancel</button>
               </div>
             </motion.div>
           </motion.div>
@@ -1256,10 +1256,10 @@ export default function PayoutsTab() {
               style={{ background: COLORS.card2, border: `1.5px solid ${COLORS.border}`, borderRadius: 20, padding: 32, width: 620, maxWidth: '95%' }}
               onClick={e => e.stopPropagation()}
             >
-              <h2 style={{ fontFamily: fontOutfit, margin: '0 0 4px', fontSize: 22, color: '#fff' }}>
+              <h2 style={{ fontFamily: fontOutfit, margin: '0 0 4px', fontSize: 22, color: '#221a15' }}>
                 System Entity Inspector
               </h2>
-              <p style={{ color: COLORS.muted, fontSize: 12, margin: '0 0 20px', borderBottom: `1px solid ${COLORS.border}`, paddingBottom: 10 }}>
+              <p style={{ color: '#87786c', fontSize: 12, margin: '0 0 20px', borderBottom: `1px solid ${COLORS.border}`, paddingBottom: 10 }}>
                 Compliance Auditing & Integrity Review Session. Type: {inspectItem.type.toUpperCase()} · ID: {inspectItem.record.id}
               </p>
 
@@ -1268,56 +1268,56 @@ export default function PayoutsTab() {
                 {inspectItem.type === 'withdrawal' ? (
                   <>
                     <div>
-                      <span style={{ fontSize: 11, color: COLORS.muted }}>Artist Profile Name</span>
+                      <span style={{ fontSize: 11, color: '#87786c' }}>Artist Profile Name</span>
                       <p style={{ margin: '3px 0 0', fontWeight: 700, fontSize: 14 }}>{inspectItem.record.artistName}</p>
                     </div>
                     <div>
-                      <span style={{ fontSize: 11, color: COLORS.muted }}>Withdrawal Sum (USD)</span>
+                      <span style={{ fontSize: 11, color: '#87786c' }}>Withdrawal Sum (USD)</span>
                       <p style={{ margin: '3px 0 0', fontWeight: 700, fontSize: 14, color: COLORS.green }}>{formatCurrency(inspectItem.record.amount)}</p>
                     </div>
                     <div>
-                      <span style={{ fontSize: 11, color: COLORS.muted }}>Target Routing Method</span>
+                      <span style={{ fontSize: 11, color: '#87786c' }}>Target Routing Method</span>
                       <p style={{ margin: '3px 0 0', fontWeight: 700, fontSize: 13, textTransform: 'uppercase' }}>{inspectItem.record.method}</p>
                     </div>
                     <div>
-                      <span style={{ fontSize: 11, color: COLORS.muted }}>Date Requested</span>
-                      <p style={{ margin: '3px 0 0', fontWeight: 600, fontSize: 13, color: COLORS.muted }}>{formatDate(inspectItem.record.created)}</p>
+                      <span style={{ fontSize: 11, color: '#87786c' }}>Date Requested</span>
+                      <p style={{ margin: '3px 0 0', fontWeight: 600, fontSize: 13, color: '#87786c' }}>{formatDate(inspectItem.record.created)}</p>
                     </div>
                     <div>
-                      <span style={{ fontSize: 11, color: COLORS.muted }}>Fraud Risk Scoring</span>
+                      <span style={{ fontSize: 11, color: '#87786c' }}>Fraud Risk Scoring</span>
                       <div style={{ margin: '4px 0 0' }}>{getRiskBadge(inspectItem.record.fraudScore)}</div>
                     </div>
                     <div>
-                      <span style={{ fontSize: 11, color: COLORS.muted }}>Settlement Status</span>
+                      <span style={{ fontSize: 11, color: '#87786c' }}>Settlement Status</span>
                       <div style={{ margin: '4px 0 0' }}>{getStatusBadge(inspectItem.record.status)}</div>
                     </div>
                   </>
                 ) : (
                   <>
                     <div>
-                      <span style={{ fontSize: 11, color: COLORS.muted }}>Artist Profile Name</span>
+                      <span style={{ fontSize: 11, color: '#87786c' }}>Artist Profile Name</span>
                       <p style={{ margin: '3px 0 0', fontWeight: 700, fontSize: 14 }}>{inspectItem.record.name}</p>
                     </div>
                     <div>
-                      <span style={{ fontSize: 11, color: COLORS.muted }}>Email Address</span>
+                      <span style={{ fontSize: 11, color: '#87786c' }}>Email Address</span>
                       <p style={{ margin: '3px 0 0', fontWeight: 700, fontSize: 13 }}>{inspectItem.record.email}</p>
                     </div>
                     <div>
-                      <span style={{ fontSize: 11, color: COLORS.muted }}>Available Balance</span>
+                      <span style={{ fontSize: 11, color: '#87786c' }}>Available Balance</span>
                       <p style={{ margin: '3px 0 0', fontWeight: 700, fontSize: 14, color: COLORS.green }}>{formatCurrency(inspectItem.record.availableBalance)}</p>
                     </div>
                     <div>
-                      <span style={{ fontSize: 11, color: COLORS.muted }}>Pending Hold Balance</span>
+                      <span style={{ fontSize: 11, color: '#87786c' }}>Pending Hold Balance</span>
                       <p style={{ margin: '3px 0 0', fontWeight: 700, fontSize: 14, color: COLORS.yellow }}>{formatCurrency(inspectItem.record.pendingBalance)}</p>
                     </div>
                     <div>
-                      <span style={{ fontSize: 11, color: COLORS.muted }}>Compliance Audits</span>
+                      <span style={{ fontSize: 11, color: '#87786c' }}>Compliance Audits</span>
                       <p style={{ margin: '3px 0 0', fontWeight: 600, fontSize: 12, color: inspectItem.record.kycStatus === 'verified' ? COLORS.green : COLORS.yellow }}>
                         KYC Verification: {inspectItem.record.kycStatus.toUpperCase()}
                       </p>
                     </div>
                     <div>
-                      <span style={{ fontSize: 11, color: COLORS.muted }}>Tax Verification</span>
+                      <span style={{ fontSize: 11, color: '#87786c' }}>Tax Verification</span>
                       <p style={{ margin: '3px 0 0', fontWeight: 600, fontSize: 12, color: inspectItem.record.taxVerified ? COLORS.green : COLORS.red }}>
                         Form 1099/W-8BEN: {inspectItem.record.taxVerified ? 'VERIFIED' : 'MISSING'}
                       </p>
@@ -1331,7 +1331,7 @@ export default function PayoutsTab() {
                 <h4 style={{ margin: '0 0 8px', fontFamily: fontOutfit, fontSize: 13, color: COLORS.red, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <ShieldAlert size={14} /> Security Compliance Evaluation
                 </h4>
-                <p style={{ margin: 0, fontSize: 11.5, lineHeight: 1.5, color: COLORS.muted }}>
+                <p style={{ margin: 0, fontSize: 11.5, lineHeight: 1.5, color: '#87786c' }}>
                   {inspectItem.record.fraudScore > 85 ? (
                     <span>
                       ⚠️ <strong>CRITICAL RISK LIMIT EXCEEDED</strong>. Payout process automatically suspended. System triggered hold due to stream farm patterns or concurrent multi-geography plays. Verify account identity manually.
@@ -1366,7 +1366,7 @@ export default function PayoutsTab() {
                     </button>
                   </>
                 )}
-                <button onClick={() => setInspectItem(null)} style={{ padding: '10px 18px', borderRadius: 8, border: `1px solid ${COLORS.border}`, background: 'transparent', color: '#fff', cursor: 'pointer', fontSize: 13 }}>
+                <button onClick={() => setInspectItem(null)} style={{ padding: '10px 18px', borderRadius: 8, border: `1px solid ${COLORS.border}`, background: 'transparent', color: '#221a15', cursor: 'pointer', fontSize: 13 }}>
                   Close Inspector
                 </button>
               </div>

@@ -99,6 +99,7 @@ export async function POST(request: NextRequest) {
         stats: user.stats,
         verified: user.verified,
         verificationRequest: user.verificationRequest,
+        permissions: db.getUserPermissions(user.id),
       },
     });
 

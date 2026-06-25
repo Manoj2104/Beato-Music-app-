@@ -14,8 +14,8 @@ const PLAN_COLORS: Record<string, string> = {
 };
 
 const inputStyle: React.CSSProperties = {
-  width: '100%', background: '#0a0a0a', border: '1px solid #2a2a2a', borderRadius: 8,
-  color: '#fff', padding: '9px 12px', fontSize: 13, outline: 'none', boxSizing: 'border-box',
+  width: '100%', background: '#fbf9f5', border: '1px solid rgba(43,34,26,0.1)', borderRadius: 8,
+  color: '#221a15', padding: '9px 12px', fontSize: 13, outline: 'none', boxSizing: 'border-box',
 };
 
 export default function UsersTab() {
@@ -86,6 +86,14 @@ export default function UsersTab() {
 
       toast.success(data.message || 'Action executed successfully');
       fetchUsers();
+
+      if (action === 'edit' || action === 'suspend' || action === 'activate') {
+        import('@/lib/socket').then(({ socketManager }) => {
+          if (socketManager) {
+            socketManager.emit('ROLE_PERMISSION_UPDATE', { type: 'userUpdate', data: { userId, action, payload } });
+          }
+        }).catch(console.error);
+      }
     } catch (e: any) {
       toast.error(e.message || 'Failed to execute action');
     }
@@ -170,10 +178,34 @@ export default function UsersTab() {
     return 0;
   });
 
+  const totalUsers = users.length;
+  const premiumUsers = users.filter(u => ['premium', 'family', 'student', 'creator'].includes(u.plan?.toLowerCase())).length;
+  const activeArtists = users.filter(u => u.role?.toLowerCase() === 'artist').length;
+  const suspendedUsers = users.filter(u => !u.isActive).length;
+
+  const stats = [
+    { label: 'Total Users', value: totalUsers, color: '#b08850' },
+    { label: 'Premium Subscriptions', value: premiumUsers, color: '#10b981' },
+    { label: 'Active Artists', value: activeArtists, color: '#06b6d4' },
+    { label: 'Suspended Accounts', value: suspendedUsers, color: '#ef4444' },
+  ];
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      {/* Stats Bar */}
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
+        style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 12 }}>
+        {stats.map((s, i) => (
+          <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+            style={{ background: 'rgba(43, 34, 26, 0.03)', border: '1px solid rgba(43, 34, 26, 0.08)', borderRadius: 16, padding: '20px 24px' }}>
+            <div style={{ fontSize: 32, fontWeight: 900, color: s.color, fontFamily: "'Outfit', sans-serif", lineHeight: 1 }}>{s.value}</div>
+            <div style={{ fontSize: 12, color: '#87786c', marginTop: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{s.label}</div>
+          </motion.div>
+        ))}
+      </motion.div>
+
       {/* Subtab Navigation */}
-      <div style={{ display: 'flex', borderBottom: '1px solid #1a1a1a', paddingBottom: 10, gap: 16, marginBottom: 10 }}>
+      <div style={{ display: 'flex', borderBottom: '1px solid rgba(43, 34, 26, 0.08)', paddingBottom: 10, gap: 16, marginBottom: 10 }}>
         <button 
           onClick={() => setSubView('directory')}
           style={{
@@ -211,7 +243,7 @@ export default function UsersTab() {
           {users.filter(u => u.verificationRequest?.status === 'PENDING').length > 0 && (
             <span style={{
               background: '#ef4444',
-              color: '#fff',
+              color: '#221a15',
               padding: '1px 6px',
               borderRadius: 10,
               fontSize: 9,
@@ -229,7 +261,7 @@ export default function UsersTab() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14 }}>
         <div style={{ display: 'flex', gap: 10 }}>
           <button onClick={() => setShowAddModal(true)} style={{ background: '#b08850', border: 'none', borderRadius: 8, color: '#000', padding: '9px 16px', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>+ Add User</button>
-          <button onClick={exportCSV} style={{ background: '#1a1a1a', border: '1px solid #333', borderRadius: 8, color: '#fff', padding: '9px 16px', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>Download CSV</button>
+          <button onClick={exportCSV} style={{ background: '#f4eede', border: '1px solid rgba(43,34,26,0.12)', borderRadius: 8, color: '#221a15', padding: '9px 16px', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>Download CSV</button>
         </div>
 
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -268,22 +300,22 @@ export default function UsersTab() {
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={() => executeBulkAction('bulk_activate')} style={{ background: '#b08850', border: 'none', borderRadius: 6, color: '#000', padding: '6px 12px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Activate Selected</button>
             <button onClick={() => executeBulkAction('bulk_suspend')} style={{ background: '#f59e0b', border: 'none', borderRadius: 6, color: '#000', padding: '6px 12px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Suspend Selected</button>
-            <button onClick={() => { if(confirm('Are you sure you want to permanently delete these users?')) executeBulkAction('bulk_remove'); }} style={{ background: '#ef4444', border: 'none', borderRadius: 6, color: '#fff', padding: '6px 12px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Delete Selected</button>
+            <button onClick={() => { if(confirm('Are you sure you want to permanently delete these users?')) executeBulkAction('bulk_remove'); }} style={{ background: '#ef4444', border: 'none', borderRadius: 6, color: '#221a15', padding: '6px 12px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Delete Selected</button>
           </div>
         </motion.div>
       )}
 
       {/* Users Table */}
-      <div style={{ background: '#121212', borderRadius: 16, border: '1px solid #1a1a1a', overflow: 'hidden' }}>
+      <div style={{ background: '#ffffff', borderRadius: 16, border: '1px solid rgba(43,34,26,0.07)', overflow: 'hidden' }}>
         <div style={{
           display: 'grid',
           gridTemplateColumns: '40px 2fr 2fr 120px 120px 100px 80px',
           padding: '14px 20px',
-          borderBottom: '1px solid #1a1a1a',
+          borderBottom: '1px solid rgba(43, 34, 26, 0.08)',
         }}>
           <div><input type="checkbox" checked={selectedUsers.length === filteredUsers.length && filteredUsers.length > 0} onChange={toggleSelectAll} style={{ accentColor: '#b08850' }} /></div>
           {['Name', 'Email', 'Plan', 'Joined', 'Status', 'Actions'].map((h, i) => (
-            <div key={h} onClick={() => handleSort(h.toLowerCase() === 'joined' ? 'joinedAt' : h.toLowerCase())} style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', letterSpacing: '0.06em', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div key={h} onClick={() => handleSort(h.toLowerCase() === 'joined' ? 'joinedAt' : h.toLowerCase())} style={{ fontSize: 11, fontWeight: 700, color: '#87786c', letterSpacing: '0.06em', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
               {h.toUpperCase()}
               {(sortField === h.toLowerCase() || (h === 'Joined' && sortField === 'joinedAt')) && (
                 <span style={{ fontSize: 10 }}>{sortOrder === 'asc' ? '↑' : '↓'}</span>
@@ -293,9 +325,9 @@ export default function UsersTab() {
         </div>
         
         {loading ? (
-          <div style={{ padding: 40, textAlign: 'center', color: '#6b7280' }}>Loading users...</div>
+          <div style={{ padding: 40, textAlign: 'center', color: '#87786c' }}>Loading users...</div>
         ) : filteredUsers.length === 0 ? (
-          <div style={{ padding: 40, textAlign: 'center', color: '#6b7280' }}>No users found</div>
+          <div style={{ padding: 40, textAlign: 'center', color: '#87786c' }}>No users found</div>
         ) : (
           filteredUsers.map((u, i) => {
             const isSelf = u.id === user?.id || u.email === user?.email;
@@ -310,7 +342,7 @@ export default function UsersTab() {
                   display: 'grid',
                   gridTemplateColumns: '40px 2fr 2fr 120px 120px 100px 80px',
                   padding: '12px 20px',
-                  borderBottom: i < filteredUsers.length - 1 ? '1px solid #1a1a1a' : 'none',
+                  borderBottom: i < filteredUsers.length - 1 ? '1px solid rgba(43, 34, 26, 0.08)' : 'none',
                   alignItems: 'center',
                   background: u.isActive ? (selectedUsers.includes(u.id) ? 'rgba(176, 136, 80, 0.05)' : 'transparent') : 'rgba(239, 68, 68, 0.02)',
                 }}
@@ -322,34 +354,34 @@ export default function UsersTab() {
                   <img src={u.avatar} alt={u.name} style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover' }} />
                   <div>
                     <div style={{ fontSize: 13, fontWeight: 600, color: u.isActive ? '#fff' : '#9ca3af' }}>{u.name} {isAdmin && '🛡️'}</div>
-                    <div style={{ fontSize: 11, color: '#6b7280' }}>{u.role} • {u.country}</div>
+                    <div style={{ fontSize: 11, color: '#87786c' }}>{u.role} • {u.country}</div>
                   </div>
                 </div>
-                <div style={{ fontSize: 12, color: '#9ca3af' }}>{u.email}</div>
+                <div style={{ fontSize: 12, color: '#a0958b' }}>{u.email}</div>
                 <div>
                   <span style={{ padding: '4px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: `${PLAN_COLORS[u.plan] || '#6b7280'}18`, color: PLAN_COLORS[u.plan] || '#6b7280', textTransform: 'capitalize' }}>
                     {u.plan}
                   </span>
                 </div>
-                <div style={{ fontSize: 12, color: '#6b7280' }}>{u.joinedAt}</div>
+                <div style={{ fontSize: 12, color: '#87786c' }}>{u.joinedAt}</div>
                 <div>
                   <span style={{ padding: '4px 10px', borderRadius: 20, fontSize: 10, fontWeight: 700, background: u.isActive ? 'rgba(176, 136, 80, 0.12)' : 'rgba(239, 68, 68, 0.12)', color: u.isActive ? '#b08850' : '#ef4444' }}>
                     {u.isActive ? 'ACTIVE' : 'SUSPENDED'}
                   </span>
                 </div>
                 <div style={{ position: 'relative' }}>
-                  <button onClick={() => setActiveMenu(activeMenu === u.id ? null : u.id)} style={{ background: 'transparent', border: '1px solid #333', borderRadius: 6, color: '#fff', padding: '4px 8px', cursor: 'pointer' }}>
+                  <button onClick={() => setActiveMenu(activeMenu === u.id ? null : u.id)} style={{ background: 'transparent', border: '1px solid rgba(43,34,26,0.12)', borderRadius: 6, color: '#221a15', padding: '4px 8px', cursor: 'pointer' }}>
                     •••
                   </button>
                   
                   <AnimatePresence>
                     {activeMenu === u.id && (
                       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                        style={{ position: 'absolute', right: 0, top: 30, background: '#1a1a1a', border: '1px solid #333', borderRadius: 8, padding: 4, width: 150, zIndex: 10 }}>
+                        style={{ position: 'absolute', right: 0, top: 30, background: '#f4eede', border: '1px solid rgba(43,34,26,0.12)', borderRadius: 8, padding: 4, width: 150, zIndex: 10 }}>
                         <div onClick={() => { setShowDetailsModal(u); setActiveMenu(null); }} style={{ padding: '8px 12px', fontSize: 12, cursor: 'pointer', borderRadius: 4, color: '#e5e7eb' }} onMouseEnter={e => e.currentTarget.style.background = '#2a2a2a'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>View Details</div>
                         <div onClick={() => { setFormData({ name: u.name, email: u.email, role: u.role, plan: u.plan, country: u.country || 'US' }); setShowEditModal(u); setActiveMenu(null); }} style={{ padding: '8px 12px', fontSize: 12, cursor: 'pointer', borderRadius: 4, color: '#e5e7eb' }} onMouseEnter={e => e.currentTarget.style.background = '#2a2a2a'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>Edit User</div>
                         <div onClick={() => { executeAction(u.id, 'reset_password'); setActiveMenu(null); }} style={{ padding: '8px 12px', fontSize: 12, cursor: 'pointer', borderRadius: 4, color: '#e5e7eb' }} onMouseEnter={e => e.currentTarget.style.background = '#2a2a2a'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>Reset Password</div>
-                        <div style={{ height: 1, background: '#333', margin: '4px 0' }} />
+                        <div style={{ height: 1, background: 'rgba(43,34,26,0.1)', margin: '4px 0' }} />
                         {!isSelf && (
                           <>
                             {u.isActive ? (
@@ -377,30 +409,30 @@ export default function UsersTab() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {/* Header */}
           <div>
-            <div style={{ fontSize: 16, fontWeight: 800, color: '#fff', fontFamily: 'Outfit, sans-serif' }}>User Profile Verifications</div>
-            <div style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>Approve or reject user identity proof requests to grant verified checkmarks</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#221a15', fontFamily: 'Outfit, sans-serif' }}>User Profile Verifications</div>
+            <div style={{ fontSize: 12, color: '#87786c', marginTop: 4 }}>Approve or reject user identity proof requests to grant verified checkmarks</div>
           </div>
 
           {/* Verification Requests List */}
-          <div style={{ background: '#121212', borderRadius: 16, border: '1px solid #1a1a1a', overflow: 'hidden' }}>
+          <div style={{ background: '#ffffff', borderRadius: 16, border: '1px solid rgba(43,34,26,0.07)', overflow: 'hidden' }}>
             <div style={{
               display: 'grid',
               gridTemplateColumns: '1.5fr 1.5fr 1fr 1.5fr 1fr 1.8fr',
               padding: '14px 20px',
-              borderBottom: '1px solid #1a1a1a',
-              background: '#151515'
+              borderBottom: '1px solid rgba(43, 34, 26, 0.08)',
+              background: 'rgba(43, 34, 26, 0.02)'
             }}>
               {['User', 'Name in Proof', 'Type', 'ID Number', 'Proof Image', 'Actions'].map((h) => (
-                <div key={h} style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', letterSpacing: '0.06em' }}>
+                <div key={h} style={{ fontSize: 11, fontWeight: 700, color: '#87786c', letterSpacing: '0.06em' }}>
                   {h.toUpperCase()}
                 </div>
               ))}
             </div>
  
             {loading ? (
-              <div style={{ padding: 40, textAlign: 'center', color: '#6b7280' }}>Loading requests...</div>
+              <div style={{ padding: 40, textAlign: 'center', color: '#87786c' }}>Loading requests...</div>
             ) : users.filter(u => u.verificationRequest).length === 0 ? (
-              <div style={{ padding: 40, textAlign: 'center', color: '#6b7280' }}>No verification requests found</div>
+              <div style={{ padding: 40, textAlign: 'center', color: '#87786c' }}>No verification requests found</div>
             ) : (
               users.filter(u => u.verificationRequest).map((u, i) => {
                 const req = u.verificationRequest;
@@ -413,7 +445,7 @@ export default function UsersTab() {
                       display: 'grid',
                       gridTemplateColumns: '1.5fr 1.5fr 1fr 1.5fr 1fr 1.8fr',
                       padding: '16px 20px',
-                      borderBottom: i < users.filter(u => u.verificationRequest).length - 1 ? '1px solid #1a1a1a' : 'none',
+                      borderBottom: i < users.filter(u => u.verificationRequest).length - 1 ? '1px solid rgba(43, 34, 26, 0.08)' : 'none',
                       alignItems: 'center',
                     }}
                   >
@@ -421,19 +453,19 @@ export default function UsersTab() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                       <img src={u.avatar} alt={u.name} style={{ width: 30, height: 30, borderRadius: '50%', objectFit: 'cover' }} />
                       <div style={{ minWidth: 0 }}>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: '#fff', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{u.name}</div>
-                        <div style={{ fontSize: 10, color: '#6b7280' }}>{u.email}</div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: '#221a15', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{u.name}</div>
+                        <div style={{ fontSize: 10, color: '#87786c' }}>{u.email}</div>
                       </div>
                     </div>
  
                     {/* Name in Proof */}
-                    <div style={{ fontSize: 13, fontWeight: 500, color: '#fff' }}>{req.name}</div>
+                    <div style={{ fontSize: 13, fontWeight: 500, color: '#221a15' }}>{req.name}</div>
  
                     {/* Proof Type */}
-                    <div style={{ fontSize: 12, color: '#9ca3af', textTransform: 'capitalize' }}>{req.type === 'aadhaar' ? 'Aadhaar' : 'PAN Card'}</div>
+                    <div style={{ fontSize: 12, color: '#a0958b', textTransform: 'capitalize' }}>{req.type === 'aadhaar' ? 'Aadhaar' : 'PAN Card'}</div>
  
                     {/* Document Number */}
-                    <div style={{ fontSize: 12, fontFamily: 'monospace', color: '#9ca3af' }}>{req.number}</div>
+                    <div style={{ fontSize: 12, fontFamily: 'monospace', color: '#a0958b' }}>{req.number}</div>
  
                     {/* Proof Document Image */}
                     <div>
@@ -444,7 +476,7 @@ export default function UsersTab() {
                             background: 'rgba(255,255,255,0.06)',
                             border: '1px solid rgba(255,255,255,0.1)',
                             borderRadius: 6,
-                            color: '#fff',
+                            color: '#221a15',
                             padding: '4px 10px',
                             fontSize: 11,
                             fontWeight: 600,
@@ -457,7 +489,7 @@ export default function UsersTab() {
                           👁 View Image
                         </button>
                       ) : (
-                        <span style={{ fontSize: 11, color: '#6b7280' }}>No Image</span>
+                        <span style={{ fontSize: 11, color: '#87786c' }}>No Image</span>
                       )}
                     </div>
  
@@ -489,7 +521,7 @@ export default function UsersTab() {
                               background: '#ef4444',
                               border: 'none',
                               borderRadius: 6,
-                              color: '#fff',
+                              color: '#221a15',
                               padding: '5px 10px',
                               fontSize: 11,
                               fontWeight: 700,
@@ -507,7 +539,7 @@ export default function UsersTab() {
                               background: '#10b981',
                               border: 'none',
                               borderRadius: 6,
-                              color: '#fff',
+                              color: '#221a15',
                               padding: '5px 10px',
                               fontSize: 11,
                               fontWeight: 700,
@@ -576,25 +608,25 @@ export default function UsersTab() {
             onClick={() => { setShowAddModal(false); setShowEditModal(null); }}>
             <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
               onClick={e => e.stopPropagation()}
-              style={{ background: '#121212', border: '1px solid #2a2a2a', borderRadius: 16, padding: 28, width: 400 }}>
+              style={{ background: '#ffffff', border: '1px solid rgba(43,34,26,0.1)', borderRadius: 16, padding: 28, width: 400 }}>
               <h3 style={{ margin: '0 0 20px', fontSize: 18, fontWeight: 700 }}>{showAddModal ? 'Add New User' : 'Edit User'}</h3>
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                <div><label style={{ fontSize: 12, color: '#9ca3af', display: 'block', marginBottom: 6 }}>Full Name</label>
+                <div><label style={{ fontSize: 12, color: '#a0958b', display: 'block', marginBottom: 6 }}>Full Name</label>
                   <input style={inputStyle} value={formData.name} onChange={e => setFormData(p => ({ ...p, name: e.target.value }))} placeholder="John Doe" /></div>
                 
-                <div><label style={{ fontSize: 12, color: '#9ca3af', display: 'block', marginBottom: 6 }}>Email Address</label>
+                <div><label style={{ fontSize: 12, color: '#a0958b', display: 'block', marginBottom: 6 }}>Email Address</label>
                   <input type="email" style={inputStyle} value={formData.email} onChange={e => setFormData(p => ({ ...p, email: e.target.value }))} placeholder="john@example.com" disabled={!!showEditModal} /></div>
                 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                  <div><label style={{ fontSize: 12, color: '#9ca3af', display: 'block', marginBottom: 6 }}>Role</label>
+                  <div><label style={{ fontSize: 12, color: '#a0958b', display: 'block', marginBottom: 6 }}>Role</label>
                     <select style={inputStyle} value={formData.role} onChange={e => setFormData(p => ({ ...p, role: e.target.value }))}>
                       <option value="USER">User</option>
                       <option value="ARTIST">Artist</option>
                       <option value="ADMIN">Admin</option>
                     </select>
                   </div>
-                  <div><label style={{ fontSize: 12, color: '#9ca3af', display: 'block', marginBottom: 6 }}>Plan</label>
+                  <div><label style={{ fontSize: 12, color: '#a0958b', display: 'block', marginBottom: 6 }}>Plan</label>
                     <select style={inputStyle} value={formData.plan} onChange={e => setFormData(p => ({ ...p, plan: e.target.value }))}>
                       <option value="free">Free</option>
                       <option value="premium">Premium</option>
@@ -605,11 +637,11 @@ export default function UsersTab() {
                   </div>
                 </div>
 
-                <div><label style={{ fontSize: 12, color: '#9ca3af', display: 'block', marginBottom: 6 }}>Country Code</label>
+                <div><label style={{ fontSize: 12, color: '#a0958b', display: 'block', marginBottom: 6 }}>Country Code</label>
                   <input style={inputStyle} value={formData.country} onChange={e => setFormData(p => ({ ...p, country: e.target.value }))} placeholder="US" maxLength={2} /></div>
                 
                 <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 10 }}>
-                  <button onClick={() => { setShowAddModal(false); setShowEditModal(null); }} style={{ background: '#1a1a1a', border: 'none', borderRadius: 8, color: '#9ca3af', padding: '10px 18px', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
+                  <button onClick={() => { setShowAddModal(false); setShowEditModal(null); }} style={{ background: '#f4eede', border: 'none', borderRadius: 8, color: '#a0958b', padding: '10px 18px', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
                   <button onClick={showAddModal ? handleAddUser : handleEditUser} style={{ background: '#b08850', border: 'none', borderRadius: 8, color: '#000', padding: '10px 20px', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>{showAddModal ? 'Create User' : 'Save Changes'}</button>
                 </div>
               </div>
@@ -626,48 +658,48 @@ export default function UsersTab() {
             onClick={() => setShowDetailsModal(null)}>
             <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
               onClick={e => e.stopPropagation()}
-              style={{ background: '#121212', border: '1px solid #2a2a2a', borderRadius: 16, padding: 28, width: 450 }}>
+              style={{ background: '#ffffff', border: '1px solid rgba(43,34,26,0.1)', borderRadius: 16, padding: 28, width: 450 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
                 <img src={showDetailsModal.avatar} style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover' }} />
                 <div>
                   <h3 style={{ margin: '0 0 4px', fontSize: 20, fontWeight: 700 }}>{showDetailsModal.name}</h3>
-                  <p style={{ margin: 0, color: '#9ca3af', fontSize: 13 }}>{showDetailsModal.email}</p>
+                  <p style={{ margin: 0, color: '#a0958b', fontSize: 13 }}>{showDetailsModal.email}</p>
                 </div>
               </div>
               
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
-                <div style={{ background: '#0a0a0a', padding: 12, borderRadius: 8, border: '1px solid #1a1a1a' }}>
-                  <p style={{ margin: '0 0 4px', fontSize: 11, color: '#6b7280' }}>ROLE</p>
+                <div style={{ background: '#fbf9f5', padding: 12, borderRadius: 8, border: '1px solid rgba(43,34,26,0.07)' }}>
+                  <p style={{ margin: '0 0 4px', fontSize: 11, color: '#87786c' }}>ROLE</p>
                   <p style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>{showDetailsModal.role}</p>
                 </div>
-                <div style={{ background: '#0a0a0a', padding: 12, borderRadius: 8, border: '1px solid #1a1a1a' }}>
-                  <p style={{ margin: '0 0 4px', fontSize: 11, color: '#6b7280' }}>PLAN</p>
+                <div style={{ background: '#fbf9f5', padding: 12, borderRadius: 8, border: '1px solid rgba(43,34,26,0.07)' }}>
+                  <p style={{ margin: '0 0 4px', fontSize: 11, color: '#87786c' }}>PLAN</p>
                   <p style={{ margin: 0, fontSize: 14, fontWeight: 600, textTransform: 'capitalize', color: PLAN_COLORS[showDetailsModal.plan] }}>{showDetailsModal.plan}</p>
                 </div>
-                <div style={{ background: '#0a0a0a', padding: 12, borderRadius: 8, border: '1px solid #1a1a1a' }}>
-                  <p style={{ margin: '0 0 4px', fontSize: 11, color: '#6b7280' }}>JOINED</p>
+                <div style={{ background: '#fbf9f5', padding: 12, borderRadius: 8, border: '1px solid rgba(43,34,26,0.07)' }}>
+                  <p style={{ margin: '0 0 4px', fontSize: 11, color: '#87786c' }}>JOINED</p>
                   <p style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>{showDetailsModal.joinedAt}</p>
                 </div>
-                <div style={{ background: '#0a0a0a', padding: 12, borderRadius: 8, border: '1px solid #1a1a1a' }}>
-                  <p style={{ margin: '0 0 4px', fontSize: 11, color: '#6b7280' }}>STATUS</p>
+                <div style={{ background: '#fbf9f5', padding: 12, borderRadius: 8, border: '1px solid rgba(43,34,26,0.07)' }}>
+                  <p style={{ margin: '0 0 4px', fontSize: 11, color: '#87786c' }}>STATUS</p>
                   <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: showDetailsModal.isActive ? '#b08850' : '#ef4444' }}>{showDetailsModal.isActive ? 'Active' : 'Suspended'}</p>
                 </div>
               </div>
 
-              <h4 style={{ fontSize: 13, color: '#6b7280', margin: '0 0 10px' }}>RECENT ACTIVITY</h4>
+              <h4 style={{ fontSize: 13, color: '#87786c', margin: '0 0 10px' }}>RECENT ACTIVITY</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
                 <div style={{ fontSize: 12, color: '#e5e7eb', display: 'flex', justifyContent: 'space-between' }}>
-                  <span>Logged in from new device</span> <span style={{ color: '#6b7280' }}>2 hours ago</span>
+                  <span>Logged in from new device</span> <span style={{ color: '#87786c' }}>2 hours ago</span>
                 </div>
                 <div style={{ fontSize: 12, color: '#e5e7eb', display: 'flex', justifyContent: 'space-between' }}>
-                  <span>Upgraded to Premium</span> <span style={{ color: '#6b7280' }}>3 days ago</span>
+                  <span>Upgraded to Premium</span> <span style={{ color: '#87786c' }}>3 days ago</span>
                 </div>
                 <div style={{ fontSize: 12, color: '#e5e7eb', display: 'flex', justifyContent: 'space-between' }}>
-                  <span>Created playlist "Summer Vibes"</span> <span style={{ color: '#6b7280' }}>1 week ago</span>
+                  <span>Created playlist "Summer Vibes"</span> <span style={{ color: '#87786c' }}>1 week ago</span>
                 </div>
               </div>
 
-              <button onClick={() => setShowDetailsModal(null)} style={{ width: '100%', background: '#1a1a1a', border: '1px solid #333', borderRadius: 8, color: '#fff', padding: '10px', fontSize: 13, cursor: 'pointer' }}>Close Details</button>
+              <button onClick={() => setShowDetailsModal(null)} style={{ width: '100%', background: '#f4eede', border: '1px solid rgba(43,34,26,0.12)', borderRadius: 8, color: '#221a15', padding: '10px', fontSize: 13, cursor: 'pointer' }}>Close Details</button>
             </motion.div>
           </motion.div>
         )}
@@ -681,10 +713,10 @@ export default function UsersTab() {
             onClick={() => setPreviewImage(null)}>
             <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
               onClick={e => e.stopPropagation()}
-              style={{ background: '#1c1c1e', border: '1px solid #333', borderRadius: 16, padding: 20, maxWidth: '90vw', maxHeight: '90vh', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+              style={{ background: '#1c1c1e', border: '1px solid rgba(43,34,26,0.12)', borderRadius: 16, padding: 20, maxWidth: '90vw', maxHeight: '90vh', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
               <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>Identity Proof Image Preview</span>
-                <button onClick={() => setPreviewImage(null)} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 18 }}>×</button>
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#221a15' }}>Identity Proof Image Preview</span>
+                <button onClick={() => setPreviewImage(null)} style={{ background: 'none', border: 'none', color: '#221a15', cursor: 'pointer', fontSize: 18 }}>×</button>
               </div>
               <div style={{ width: '100%', overflow: 'auto', display: 'flex', justifyContent: 'center' }}>
                 <img src={previewImage} alt="Document Proof" style={{ maxWidth: '100%', maxHeight: '70vh', objectFit: 'contain', borderRadius: 8 }} />

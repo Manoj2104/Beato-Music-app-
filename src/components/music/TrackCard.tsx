@@ -93,7 +93,7 @@ export default function TrackCard({ track, index, queue = [], showAlbum = true, 
               ))}
             </div>
           ) : (
-            <span style={{ fontSize: 13, color: isCurrentTrack ? GREEN : '#87786c' }}>{index !== undefined ? index + 1 : '•'}</span>
+            <span className={isCurrentTrack ? '' : 'text-ss-text-muted'} style={{ fontSize: 13, color: isCurrentTrack ? GREEN : 'inherit' }}>{index !== undefined ? index + 1 : '•'}</span>
           )
         )}
       </div>
@@ -138,9 +138,9 @@ export default function TrackCard({ track, index, queue = [], showAlbum = true, 
           }}
           style={{ textDecoration: 'none', cursor: 'pointer' }}
         >
-          <p style={{ color: '#87786c', fontSize: 12.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 1 }}
-            onMouseEnter={e => { e.currentTarget.style.color = '#221a15'; e.currentTarget.style.textDecoration = 'underline'; }}
-            onMouseLeave={e => { e.currentTarget.style.color = '#87786c'; e.currentTarget.style.textDecoration = 'none'; }}>
+          <p className="text-ss-text-muted" style={{ fontSize: 12.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 1 }}
+            onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-ss-text-primary, #221a15)'; e.currentTarget.style.textDecoration = 'underline'; }}
+            onMouseLeave={e => { e.currentTarget.style.color = 'inherit'; e.currentTarget.style.textDecoration = 'none'; }}>
             {track.artistName}
           </p>
         </div>
@@ -157,9 +157,9 @@ export default function TrackCard({ track, index, queue = [], showAlbum = true, 
           }}
           style={{ textDecoration: 'none', cursor: 'pointer' }}
         >
-          <p style={{ color: '#87786c', fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-            onMouseEnter={e => { e.currentTarget.style.color = '#221a15'; e.currentTarget.style.textDecoration = 'underline'; }}
-            onMouseLeave={e => { e.currentTarget.style.color = '#87786c'; e.currentTarget.style.textDecoration = 'none'; }}>
+          <p className="text-ss-text-muted" style={{ fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+            onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-ss-text-primary, #221a15)'; e.currentTarget.style.textDecoration = 'underline'; }}
+            onMouseLeave={e => { e.currentTarget.style.color = 'inherit'; e.currentTarget.style.textDecoration = 'none'; }}>
             {track.albumName}
           </p>
         </div>
@@ -234,7 +234,7 @@ export default function TrackCard({ track, index, queue = [], showAlbum = true, 
             </div>
           )}
         </button>
-        <span className="track-card-duration" style={{ color: '#87786c', fontSize: 12, fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>
+        <span className="track-card-duration text-ss-text-muted" style={{ fontSize: 12, fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>
           {formatDuration(track.duration)}
         </span>
         <button className="track-card-more hidden md:block" onClick={e => e.stopPropagation()} title="More options"

@@ -41,9 +41,9 @@ interface ContentItem {
 }
 
 const STATUS_STYLE: Record<ContentStatus, { bg: string; color: string }> = {
-  Approved: { bg: '#1a3a27', color: '#b08850' },
-  Pending: { bg: '#2a2a10', color: '#f59e0b' },
-  Rejected: { bg: '#3a1a1a', color: '#ff4d4d' },
+  Approved: { bg: 'rgba(176, 136, 80, 0.12)', color: '#b08850' },
+  Pending: { bg: 'rgba(245, 158, 11, 0.12)', color: '#f59e0b' },
+  Rejected: { bg: 'rgba(239, 68, 68, 0.12)', color: '#ef4444' },
 };
 
 function formatPlays(n: number): string {
@@ -57,11 +57,11 @@ const TYPES: TypeFilter[] = ['All', 'Tracks', 'Albums', 'Playlists'];
 const STATUSES: StatusFilter[] = ['All', 'Approved', 'Pending', 'Rejected'];
 const EXPLICITS: ExplicitFilter[] = ['All', 'Explicit', 'Clean'];
 const SORTS: SortMode[] = ['Newest', 'Most Played', 'Alphabetical'];
-const PER_PAGE = 8;
+const PER_PAGE = 20;
 
 const inputStyle: React.CSSProperties = {
-  width: '100%', background: '#0a0a0a', border: '1px solid #2a2a2a', borderRadius: 8,
-  color: '#fff', padding: '9px 12px', fontSize: 13, outline: 'none', boxSizing: 'border-box',
+  width: '100%', background: '#fbf9f5', border: '1px solid rgba(43,34,26,0.1)', borderRadius: 8,
+  color: '#221a15', padding: '9px 12px', fontSize: 13, outline: 'none', boxSizing: 'border-box',
 };
 
 export default function ContentLibraryTab() {
@@ -328,12 +328,12 @@ export default function ContentLibraryTab() {
 
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
-      style={{ ...FONT, background: '#0a0a0a', minHeight: '100vh', padding: '28px 24px', color: '#e5e7eb' }}>
+      style={{ ...FONT, background: '#fbf9f5', minHeight: '100vh', padding: '28px 24px', color: '#e5e7eb' }}>
 
       {/* Featured Content */}
       <div style={{ marginBottom: 28 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-          <h3 style={{ fontSize: 14, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 1, margin: 0 }}>⭐ Featured Content</h3>
+          <h3 style={{ fontSize: 14, fontWeight: 700, color: '#a0958b', textTransform: 'uppercase', letterSpacing: 1, margin: 0 }}>⭐ Featured Content</h3>
           <button 
             onClick={() => setAddFeatureModal(true)}
             style={{ padding: '6px 12px', borderRadius: 8, border: 'none', background: '#b08850', color: '#000', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
@@ -342,16 +342,16 @@ export default function ContentLibraryTab() {
           </button>
         </div>
         {featured.length === 0 ? (
-          <div style={{ color: '#6b7280', fontSize: 12, padding: 10, background: '#121212', borderRadius: 10 }}>No featured content currently. Click 'Add Featured' to feature tracks.</div>
+          <div style={{ color: '#87786c', fontSize: 12, padding: 10, background: '#ffffff', borderRadius: 10 }}>No featured content currently. Click 'Add Featured' to feature tracks.</div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 12 }}>
             {featured.map((item, i) => (
               <motion.div key={item.id} initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.08 }}
-                style={{ background: '#121212', borderRadius: 12, border: '1px solid #1e1e1e', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+                style={{ background: '#ffffff', borderRadius: 12, border: '1px solid #1e1e1e', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{ width: 44, height: 44, borderRadius: 8, background: item.color.startsWith('linear-gradient') ? item.color : `url(${item.color}) center/cover`, flexShrink: 0 }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontWeight: 700, fontSize: 13, color: '#e5e7eb', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.title}</div>
-                  <div style={{ fontSize: 11, color: '#6b7280' }}>{item.artist} · {item.type}</div>
+                  <div style={{ fontSize: 11, color: '#87786c' }}>{item.artist} · {item.type}</div>
                 </div>
                 <button onClick={() => toggleFeature(item.id, item.title, item.featured)}
                   style={{ padding: '5px 11px', borderRadius: 7, border: '1px solid #2a1a1a', background: '#1a1010', color: '#ff4d4d', fontSize: 11, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>Unfeature</button>
@@ -363,13 +363,13 @@ export default function ContentLibraryTab() {
 
       {/* Trending */}
       <div style={{ marginBottom: 28 }}>
-        <h3 style={{ fontSize: 14, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 1, margin: '0 0 12px' }}>🔥 Trending Right Now (24h)</h3>
+        <h3 style={{ fontSize: 14, fontWeight: 700, color: '#a0958b', textTransform: 'uppercase', letterSpacing: 1, margin: '0 0 12px' }}>🔥 Trending Right Now (24h)</h3>
         {trending.length === 0 ? (
-          <div style={{ color: '#6b7280', fontSize: 12 }}>No trending songs recorded.</div>
+          <div style={{ color: '#87786c', fontSize: 12 }}>No trending songs recorded.</div>
         ) : (
           <div style={{ display: 'flex', gap: 10 }}>
             {trending.slice(0, 5).map((item, i) => (
-              <div key={item.id} style={{ background: '#121212', borderRadius: 10, border: '1px solid #1e1e1e', padding: '10px 14px', flex: 1, display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div key={item.id} style={{ background: '#ffffff', borderRadius: 10, border: '1px solid #1e1e1e', padding: '10px 14px', flex: 1, display: 'flex', alignItems: 'center', gap: 10 }}>
                 <span style={{ fontSize: 16, fontWeight: 800, color: i === 0 ? '#b08850' : '#4b5563', minWidth: 20 }}>#{i + 1}</span>
                 <div style={{ width: 32, height: 32, borderRadius: 6, background: item.color.startsWith('linear-gradient') ? item.color : `url(${item.color}) center/cover`, flexShrink: 0 }} />
                 <div style={{ minWidth: 0 }}>
@@ -385,24 +385,24 @@ export default function ContentLibraryTab() {
       {/* Filters */}
       <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 16, flexWrap: 'wrap' }}>
         <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} placeholder="Search title or artist…"
-          style={{ background: '#1a1a1a', border: '1px solid #2a2a2a', borderRadius: 9, padding: '8px 14px', color: '#e5e7eb', fontSize: 13, outline: 'none', minWidth: 200 }} />
+          style={{ background: '#f4eede', border: '1px solid rgba(43,34,26,0.1)', borderRadius: 9, padding: '8px 14px', color: '#e5e7eb', fontSize: 13, outline: 'none', minWidth: 200 }} />
         {([['Type', TYPES, typeFilter, (v: string) => { setTypeFilter(v as TypeFilter); setPage(1); }],
           ['Genre', GENRES, genreFilter, (v: string) => { setGenreFilter(v as GenreFilter); setPage(1); }],
           ['Status', STATUSES, statusFilter, (v: string) => { setStatusFilter(v as StatusFilter); setPage(1); }],
           ['Explicit', EXPLICITS, explicitFilter, (v: string) => { setExplicitFilter(v as ExplicitFilter); setPage(1); }],
           ['Sort', SORTS, sort, (v: string) => { setSort(v as SortMode); setPage(1); }]] as any[]).map(([label, opts, val, setter]) => (
           <select key={label} value={val} onChange={e => setter(e.target.value)}
-            style={{ background: '#1a1a1a', border: '1px solid #2a2a2a', borderRadius: 8, padding: '8px 12px', color: '#9ca3af', fontSize: 12, outline: 'none', cursor: 'pointer' }}>
+            style={{ background: '#f4eede', border: '1px solid rgba(43,34,26,0.1)', borderRadius: 8, padding: '8px 12px', color: '#a0958b', fontSize: 12, outline: 'none', cursor: 'pointer' }}>
             {opts.map((o: string) => <option key={o} value={o}>{o}</option>)}
           </select>
         ))}
         
         {/* Export buttons */}
         <div style={{ display: 'flex', gap: 6 }}>
-          <button onClick={() => exportContent('csv')} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '8px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer', border: '1px solid #222', background: '#141414', color: '#e5e7eb' }}>
+          <button onClick={() => exportContent('csv')} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '8px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer', border: '1px solid rgba(43,34,26,0.1)', background: '#141414', color: '#e5e7eb' }}>
             <FileSpreadsheet size={12} className="text-emerald-500" /> CSV
           </button>
-          <button onClick={() => exportContent('json')} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '8px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer', border: '1px solid #222', background: '#141414', color: '#e5e7eb' }}>
+          <button onClick={() => exportContent('json')} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '8px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer', border: '1px solid rgba(43,34,26,0.1)', background: '#141414', color: '#e5e7eb' }}>
             <FileJson size={12} className="text-emerald-500" /> JSON
           </button>
         </div>
@@ -421,55 +421,55 @@ export default function ContentLibraryTab() {
       <AnimatePresence>
         {selected.size > 0 && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
-            style={{ background: '#1a2a3a', borderRadius: 10, padding: '10px 16px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 12, border: '1px solid #1e3a5f', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 13, color: '#60a5fa', fontWeight: 700 }}>{selected.size} selected</span>
-            <button onClick={() => bulkAction('approve')} style={{ padding: '5px 13px', borderRadius: 7, border: 'none', background: '#1a3a27', color: '#b08850', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>✓ Approve All</button>
-            <button onClick={() => bulkAction('reject')} style={{ padding: '5px 13px', borderRadius: 7, border: 'none', background: '#3a1a1a', color: '#ff4d4d', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>✗ Reject All</button>
-            <button onClick={() => bulkAction('feature')} style={{ padding: '5px 13px', borderRadius: 7, border: 'none', background: '#2a2010', color: '#f59e0b', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>⭐ Feature All</button>
-            <button onClick={() => bulkAction('unfeature')} style={{ padding: '5px 13px', borderRadius: 7, border: 'none', background: '#2a1a1a', color: '#ffaa44', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>⭐ Unfeature All</button>
-            <button onClick={() => bulkAction('delete')} style={{ padding: '5px 13px', borderRadius: 7, border: 'none', background: '#451a1a', color: '#ef4444', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>🗑 Delete All</button>
+            style={{ background: 'rgba(176, 136, 80, 0.1)', borderRadius: 10, padding: '10px 16px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 12, border: '1px solid rgba(176, 136, 80, 0.3)', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 13, color: '#b08850', fontWeight: 700 }}>{selected.size} selected</span>
+            <button onClick={() => bulkAction('approve')} style={{ padding: '5px 13px', borderRadius: 7, border: 'none', background: '#b08850', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>✓ Approve All</button>
+            <button onClick={() => bulkAction('reject')} style={{ padding: '5px 13px', borderRadius: 7, border: 'none', background: '#ef4444', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>✗ Reject All</button>
+            <button onClick={() => bulkAction('feature')} style={{ padding: '5px 13px', borderRadius: 7, border: 'none', background: '#f59e0b', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>⭐ Feature All</button>
+            <button onClick={() => bulkAction('unfeature')} style={{ padding: '5px 13px', borderRadius: 7, border: 'none', background: 'rgba(245,158,11,0.12)', color: '#f59e0b', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>⭐ Unfeature All</button>
+            <button onClick={() => bulkAction('delete')} style={{ padding: '5px 13px', borderRadius: 7, border: 'none', background: '#ef444422', color: '#ef4444', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>🗑 Delete All</button>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* List View */}
       {view === 'list' ? (
-        <div style={{ background: '#121212', borderRadius: 14, border: '1px solid #1e1e1e', overflow: 'auto' }}>
+        <div style={{ background: '#ffffff', borderRadius: 14, border: '1px solid rgba(43, 34, 26, 0.08)', overflow: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
-              <tr style={{ background: '#161616', borderBottom: '1px solid #1e1e1e' }}>
+              <tr style={{ background: '#ffffff', borderBottom: '1px solid rgba(43, 34, 26, 0.08)' }}>
                 <th style={{ padding: '12px 14px' }}><input type="checkbox" checked={allSelected} onChange={toggleAll} style={{ accentColor: '#b08850', cursor: 'pointer' }} /></th>
                 {['Cover', 'Title', 'Artist', 'Type', 'Genre', 'Duration', 'Plays', 'Status', 'Uploaded', 'Actions'].map(h => (
-                  <th key={h} style={{ padding: '12px 12px', textAlign: 'left', color: '#6b7280', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.7, whiteSpace: 'nowrap' }}>{h}</th>
+                  <th key={h} style={{ padding: '12px 12px', textAlign: 'left', color: '#87786c', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.7, whiteSpace: 'nowrap' }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {loading && items.length === 0 ? (
                 <tr>
-                  <td colSpan={11} style={{ padding: 24, textAlign: 'center', color: '#6b7280' }}>Loading content library...</td>
+                  <td colSpan={11} style={{ padding: 24, textAlign: 'center', color: '#87786c' }}>Loading content library...</td>
                 </tr>
               ) : paginated.length === 0 ? (
                 <tr>
-                  <td colSpan={11} style={{ padding: 24, textAlign: 'center', color: '#6b7280' }}>No content matches current filters.</td>
+                  <td colSpan={11} style={{ padding: 24, textAlign: 'center', color: '#87786c' }}>No content matches current filters.</td>
                 </tr>
               ) : (
                 paginated.map((item, i) => {
-                  const ss = STATUS_STYLE[item.status] || { bg: '#111', color: '#888' };
+                  const ss = STATUS_STYLE[item.status] || { bg: '#f4eede', color: '#888' };
                   const isExpanded = expandedItemId === item.id;
                   return (
-                    <tr key={item.id} style={{ borderBottom: '1px solid #1a1a1a', background: selected.has(item.id) ? 'rgba(176, 136, 80,0.04)' : 'transparent' }}>
+                    <tr key={item.id} style={{ borderBottom: '1px solid rgba(43, 34, 26, 0.08)', background: selected.has(item.id) ? 'rgba(176, 136, 80,0.04)' : 'transparent' }}>
                       <td style={{ padding: '10px 14px' }}><input type="checkbox" checked={selected.has(item.id)} onChange={() => toggleOne(item.id)} style={{ accentColor: '#b08850', cursor: 'pointer' }} /></td>
                       
                       {/* Click cover to preview audio */}
                       <td style={{ padding: '10px 12px' }}>
                         <div 
-                          onClick={() => { if (item.type === 'Track') { setPreviewTrack(item); toast.success(`Playing preview for "${item.title}"`); } }}
+                           onClick={() => { if (item.type === 'Track') { setPreviewTrack(item); toast.success(`Playing preview for "${item.title}"`); } }}
                           style={{ width: 36, height: 36, borderRadius: 7, background: item.color.startsWith('linear-gradient') ? item.color : `url(${item.color}) center/cover`, cursor: item.type === 'Track' ? 'pointer' : 'default', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                           title={item.type === 'Track' ? 'Click to preview audio' : ''}
                         >
                           {item.type === 'Track' && (
-                            <div className="hover-overlay" style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', borderRadius: 7, opacity: 0, transition: 'opacity 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <div className="hover-overlay" style={{ position: 'absolute', inset: 0, background: 'rgba(43, 34, 26, 0.1)', borderRadius: 7, opacity: 0, transition: 'opacity 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                               <Volume2 size={14} color="#fff" />
                             </div>
                           )}
@@ -479,19 +479,19 @@ export default function ContentLibraryTab() {
                       {/* Expandable row toggler click on title */}
                       <td 
                         onClick={() => setExpandedItemId(isExpanded ? null : item.id)}
-                        style={{ padding: '10px 12px', fontWeight: 700, color: '#e5e7eb', whiteSpace: 'nowrap', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', cursor: 'pointer' }}
+                        style={{ padding: '10px 12px', fontWeight: 700, color: '#221a15', whiteSpace: 'nowrap', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', cursor: 'pointer' }}
                         title="Click to view detailed stats inspector"
                       >
                         <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                           {item.title} 
-                          {item.explicit && <span style={{ background: '#333', color: '#fff', fontSize: 9, fontWeight: 700, padding: '1px 4px', borderRadius: 3 }}>E</span>}
+                          {item.explicit && <span style={{ background: 'rgba(43,34,26,0.1)', color: '#221a15', fontSize: 9, fontWeight: 700, padding: '1px 4px', borderRadius: 3 }}>E</span>}
                         </span>
                       </td>
 
-                      <td style={{ padding: '10px 12px', color: '#9ca3af', whiteSpace: 'nowrap' }}>{item.artist}</td>
-                      <td style={{ padding: '10px 12px', color: '#6b7280' }}>{item.type}</td>
-                      <td style={{ padding: '10px 12px', color: '#6b7280' }}>{item.genre}</td>
-                      <td style={{ padding: '10px 12px', color: '#4b5563', whiteSpace: 'nowrap' }}>{item.duration}</td>
+                      <td style={{ padding: '10px 12px', color: '#87786c', whiteSpace: 'nowrap' }}>{item.artist}</td>
+                      <td style={{ padding: '10px 12px', color: '#87786c' }}>{item.type}</td>
+                      <td style={{ padding: '10px 12px', color: '#87786c' }}>{item.genre}</td>
+                      <td style={{ padding: '10px 12px', color: '#87786c', whiteSpace: 'nowrap' }}>{item.duration}</td>
                       <td style={{ padding: '10px 12px', color: '#b08850', fontWeight: 700 }}>
                         {formatPlays(item.plays)}
                         {milestoneBadge(item.plays)}
@@ -499,13 +499,13 @@ export default function ContentLibraryTab() {
                       <td style={{ padding: '10px 12px' }}>
                         <span style={{ background: ss.bg, color: ss.color, borderRadius: 20, padding: '2px 9px', fontSize: 11, fontWeight: 700 }}>{item.status}</span>
                       </td>
-                      <td style={{ padding: '10px 12px', color: '#4b5563', whiteSpace: 'nowrap', fontSize: 12 }}>{item.uploaded?.split('T')[0]}</td>
+                      <td style={{ padding: '10px 12px', color: '#87786c', whiteSpace: 'nowrap', fontSize: 12 }}>{item.uploaded?.split('T')[0]}</td>
                       <td style={{ padding: '10px 12px' }}>
                         <div style={{ display: 'flex', gap: 5 }}>
-                          <button onClick={() => openEditModal(item)} style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid #2a2a2a', background: '#1a1a1a', color: '#9ca3af', fontSize: 10, cursor: 'pointer' }} title="Edit Metadata">✎</button>
-                          {item.status !== 'Approved' && <button onClick={() => approveItem(item.id, item.title)} style={{ padding: '4px 8px', borderRadius: 6, border: 'none', background: '#1a3a27', color: '#b08850', fontSize: 10, fontWeight: 700, cursor: 'pointer' }} title="Approve">✓</button>}
-                          {item.status !== 'Rejected' && <button onClick={() => rejectItem(item.id, item.title)} style={{ padding: '4px 8px', borderRadius: 6, border: 'none', background: '#3a1a1a', color: '#ff4d4d', fontSize: 10, fontWeight: 700, cursor: 'pointer' }} title="Reject">✗</button>}
-                          <button onClick={() => toggleFeature(item.id, item.title, item.featured)} style={{ padding: '4px 8px', borderRadius: 6, border: 'none', background: item.featured ? '#2a2010' : '#1e1e1e', color: item.featured ? '#f59e0b' : '#4b5563', fontSize: 10, cursor: 'pointer' }} title="Toggle Feature">⭐</button>
+                          <button onClick={() => openEditModal(item)} style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid rgba(43,34,26,0.1)', background: '#f4eede', color: '#a0958b', fontSize: 10, cursor: 'pointer' }} title="Edit Metadata">✎</button>
+                          {item.status !== 'Approved' && <button onClick={() => approveItem(item.id, item.title)} style={{ padding: '4px 8px', borderRadius: 6, border: 'none', background: 'rgba(176,136,80,0.12)', color: '#b08850', fontSize: 10, fontWeight: 700, cursor: 'pointer' }} title="Approve">✓</button>}
+                          {item.status !== 'Rejected' && <button onClick={() => rejectItem(item.id, item.title)} style={{ padding: '4px 8px', borderRadius: 6, border: 'none', background: 'rgba(239,68,68,0.1)', color: '#ef4444', fontSize: 10, fontWeight: 700, cursor: 'pointer' }} title="Reject">✗</button>}
+                          <button onClick={() => toggleFeature(item.id, item.title, item.featured)} style={{ padding: '4px 8px', borderRadius: 6, border: 'none', background: item.featured ? 'rgba(245,158,11,0.12)' : 'rgba(43,34,26,0.05)', color: item.featured ? '#f59e0b' : '#87786c', fontSize: 10, cursor: 'pointer' }} title="Toggle Feature">⭐</button>
                           <button onClick={() => deleteItem(item.id, item.title)} style={{ padding: '4px 8px', borderRadius: 6, border: 'none', background: '#ef444422', color: '#ef4444', fontSize: 10, cursor: 'pointer' }} title="Delete">🗑</button>
                         </div>
                       </td>
@@ -529,11 +529,11 @@ export default function ContentLibraryTab() {
                         <h4 style={{ margin: '0 0 10px', fontSize: 12, fontWeight: 700, color: '#10b981', textTransform: 'uppercase', letterSpacing: 0.5 }}>Metadata Inspector & Stats</h4>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 16px', fontSize: 12 }}>
                           <div><span style={{ color: '#525252', fontWeight: 600 }}>Track ID:</span> <code style={{ color: '#a78bfa', fontSize: 11 }}>{item.id}</code></div>
-                          <div><span style={{ color: '#525252', fontWeight: 600 }}>Uploader Email:</span> <span style={{ color: '#fff' }}>{(item as any).uploadedBy || 'System/Seeded'}</span></div>
-                          <div><span style={{ color: '#525252', fontWeight: 600 }}>Release Year:</span> <span style={{ color: '#fff' }}>{(item as any).year || '2026'}</span></div>
+                          <div><span style={{ color: '#525252', fontWeight: 600 }}>Uploader Email:</span> <span style={{ color: '#221a15' }}>{(item as any).uploadedBy || 'System/Seeded'}</span></div>
+                          <div><span style={{ color: '#525252', fontWeight: 600 }}>Release Year:</span> <span style={{ color: '#221a15' }}>{(item as any).year || '2026'}</span></div>
                           <div><span style={{ color: '#525252', fontWeight: 600 }}>Audio Source:</span> <a href={(item as any).audioUrl || '#'} target="_blank" rel="noreferrer" style={{ color: '#10b981', textDecoration: 'none' }}>{(item as any).audioUrl ? 'Direct File Link ↗' : 'No Audio URL'}</a></div>
                           <div><span style={{ color: '#525252', fontWeight: 600 }}>Content Rating:</span> <span style={{ color: item.explicit ? '#ef4444' : '#10b981', fontWeight: 600 }}>{item.explicit ? 'Explicit (18+)' : 'Clean'}</span></div>
-                          <div><span style={{ color: '#525252', fontWeight: 600 }}>Plays Milestone:</span> <span style={{ color: '#fff' }}>{item.plays >= 50 ? 'Platinum Tier' : item.plays >= 10 ? 'Gold Tier' : 'Standard Tier'}</span></div>
+                          <div><span style={{ color: '#525252', fontWeight: 600 }}>Plays Milestone:</span> <span style={{ color: '#221a15' }}>{item.plays >= 50 ? 'Platinum Tier' : item.plays >= 10 ? 'Gold Tier' : 'Standard Tier'}</span></div>
                         </div>
                       </div>
                       <div style={{ borderLeft: '1px solid #1a1a1a', paddingLeft: 20 }}>
@@ -552,7 +552,7 @@ export default function ContentLibraryTab() {
           {/* Pagination */}
           {totalPages > 1 && (
             <div style={{ padding: '14px 16px', borderTop: '1px solid #1e1e1e', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: 12, color: '#4b5563' }}>Showing {(page - 1) * PER_PAGE + 1}–{Math.min(page * PER_PAGE, filtered.length)} of {filtered.length}</span>
+              <span style={{ fontSize: 12, color: '#87786c' }}>Showing {(page - 1) * PER_PAGE + 1}–{Math.min(page * PER_PAGE, filtered.length)} of {filtered.length}</span>
               <div style={{ display: 'flex', gap: 6 }}>
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
                   <button key={p} onClick={() => setPage(p)}
@@ -568,27 +568,27 @@ export default function ContentLibraryTab() {
         /* Grid View */
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14 }}>
           {loading && items.length === 0 ? (
-            <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: 20, color: '#6b7280' }}>Loading content library...</div>
+            <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: 20, color: '#87786c' }}>Loading content library...</div>
           ) : paginated.length === 0 ? (
-            <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: 20, color: '#6b7280' }}>No content matches current filters.</div>
+            <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: 20, color: '#87786c' }}>No content matches current filters.</div>
           ) : (
             <AnimatePresence>
               {paginated.map((item, i) => {
-                const ss = STATUS_STYLE[item.status] || { bg: '#111', color: '#888' };
+                const ss = STATUS_STYLE[item.status] || { bg: '#f4eede', color: '#888' };
                 return (
                   <motion.div key={item.id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.05 }}
-                    style={{ background: '#121212', borderRadius: 13, border: `1px solid ${selected.has(item.id) ? '#b0885040' : '#1e1e1e'}`, overflow: 'hidden' }}>
+                    style={{ background: '#ffffff', borderRadius: 13, border: `1px solid ${selected.has(item.id) ? '#b0885040' : '#1e1e1e'}`, overflow: 'hidden' }}>
                     <div 
                       onClick={() => { if (item.type === 'Track') setPreviewTrack(item); }}
                       style={{ height: 100, background: item.color.startsWith('linear-gradient') ? item.color : `url(${item.color}) center/cover`, position: 'relative', cursor: item.type === 'Track' ? 'pointer' : 'default' }}
                     >
                       {item.featured && <span style={{ position: 'absolute', top: 8, right: 8, background: '#f59e0b', borderRadius: 20, padding: '2px 8px', fontSize: 10, fontWeight: 700, color: '#000' }}>Featured</span>}
-                      {item.explicit && <span style={{ position: 'absolute', bottom: 8, left: 8, background: '#000', borderRadius: 4, padding: '2px 6px', fontSize: 9, fontWeight: 800, color: '#fff' }}>EXPLICIT</span>}
+                      {item.explicit && <span style={{ position: 'absolute', bottom: 8, left: 8, background: '#000', borderRadius: 4, padding: '2px 6px', fontSize: 9, fontWeight: 800, color: '#221a15' }}>EXPLICIT</span>}
                       {selected.has(item.id) && <div style={{ position: 'absolute', inset: 0, background: 'rgba(176, 136, 80,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32 }}>✓</div>}
                     </div>
                     <div style={{ padding: '12px 14px' }}>
                       <div style={{ fontWeight: 700, fontSize: 13, color: '#e5e7eb', marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.title}</div>
-                      <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 8 }}>{item.artist} · {item.type}</div>
+                      <div style={{ fontSize: 12, color: '#87786c', marginBottom: 8 }}>{item.artist} · {item.type}</div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                         <span style={{ background: ss.bg, color: ss.color, borderRadius: 20, padding: '2px 8px', fontSize: 10, fontWeight: 700 }}>{item.status}</span>
                         <span style={{ color: '#b08850', fontSize: 12, fontWeight: 700 }}>
@@ -597,7 +597,7 @@ export default function ContentLibraryTab() {
                         </span>
                       </div>
                       <div style={{ display: 'flex', gap: 5, marginTop: 8 }}>
-                        <button onClick={() => openEditModal(item)} style={{ flex: 1, padding: '5px 0', borderRadius: 6, border: '1px solid #2a2a2a', background: '#1a1a1a', color: '#9ca3af', fontSize: 11, cursor: 'pointer' }}>✎ Edit</button>
+                        <button onClick={() => openEditModal(item)} style={{ flex: 1, padding: '5px 0', borderRadius: 6, border: '1px solid rgba(43,34,26,0.1)', background: '#f4eede', color: '#a0958b', fontSize: 11, cursor: 'pointer' }}>✎ Edit</button>
                         {item.status !== 'Approved' && <button onClick={() => approveItem(item.id, item.title)} style={{ flex: 1, padding: '5px 0', borderRadius: 6, border: 'none', background: '#1a3a27', color: '#b08850', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>✓ Approve</button>}
                         <button onClick={() => deleteItem(item.id, item.title)} style={{ padding: '5px 8px', borderRadius: 6, border: 'none', background: '#ef444422', color: '#ef4444', fontSize: 11, cursor: 'pointer' }}>🗑</button>
                       </div>
@@ -619,15 +619,15 @@ export default function ContentLibraryTab() {
             exit={{ opacity: 0, y: 50 }}
             style={{ 
               position: 'fixed', bottom: 20, right: 20, zIndex: 1000, 
-              background: '#121212', border: '1px solid #b08850', borderRadius: 12, 
-              padding: '14px 20px', width: 320, boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
+              background: '#ffffff', border: '1px solid #b08850', borderRadius: 12, 
+              padding: '14px 20px', width: 320, boxShadow: '0 10px 30px rgba(43, 34, 26, 0.1)'
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
               <div style={{ fontSize: 11, color: '#b08850', fontWeight: 800 }}>Now Previewing</div>
               <button 
                 onClick={() => setPreviewTrack(null)} 
-                style={{ background: 'transparent', border: 'none', color: '#6b7280', cursor: 'pointer', padding: 0 }}
+                style={{ background: 'transparent', border: 'none', color: '#87786c', cursor: 'pointer', padding: 0 }}
               >
                 ✕
               </button>
@@ -635,7 +635,7 @@ export default function ContentLibraryTab() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
               <div style={{ width: 40, height: 40, borderRadius: 6, background: previewTrack.color.startsWith('linear-gradient') ? previewTrack.color : `url(${previewTrack.color}) center/cover` }} />
               <div>
-                <div style={{ fontWeight: 700, fontSize: 13, color: '#fff' }}>{previewTrack.title}</div>
+                <div style={{ fontWeight: 700, fontSize: 13, color: '#221a15' }}>{previewTrack.title}</div>
                 <div style={{ fontSize: 11, color: '#888' }}>{previewTrack.artist}</div>
               </div>
             </div>
@@ -657,42 +657,42 @@ export default function ContentLibraryTab() {
             onClick={() => setEditingItem(null)}>
             <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
               onClick={e => e.stopPropagation()}
-              style={{ background: '#121212', border: '1px solid #2a2a2a', borderRadius: 16, padding: 28, width: 440 }}>
+              style={{ background: '#ffffff', border: '1px solid rgba(43,34,26,0.1)', borderRadius: 16, padding: 28, width: 440 }}>
               <h3 style={{ margin: '0 0 20px', fontSize: 16, fontWeight: 700 }}>Edit Content Metadata</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   <div>
-                    <label style={{ fontSize: 11, color: '#9ca3af', display: 'block', marginBottom: 6 }}>Title</label>
+                    <label style={{ fontSize: 11, color: '#a0958b', display: 'block', marginBottom: 6 }}>Title</label>
                     <input style={inputStyle} value={editForm.title} onChange={e => setEditForm(p => ({ ...p, title: e.target.value }))} />
                   </div>
                   <div>
-                    <label style={{ fontSize: 11, color: '#9ca3af', display: 'block', marginBottom: 6 }}>Artist</label>
+                    <label style={{ fontSize: 11, color: '#a0958b', display: 'block', marginBottom: 6 }}>Artist</label>
                     <input style={inputStyle} value={editForm.artist} onChange={e => setEditForm(p => ({ ...p, artist: e.target.value }))} />
                   </div>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   <div>
-                    <label style={{ fontSize: 11, color: '#9ca3af', display: 'block', marginBottom: 6 }}>Genre</label>
+                    <label style={{ fontSize: 11, color: '#a0958b', display: 'block', marginBottom: 6 }}>Genre</label>
                     <select style={inputStyle} value={editForm.genre} onChange={e => setEditForm(p => ({ ...p, genre: e.target.value }))}>
                       {GENRES.filter(g => g !== 'All').map(g => <option key={g} value={g}>{g}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label style={{ fontSize: 11, color: '#9ca3af', display: 'block', marginBottom: 6 }}>Release Year</label>
+                    <label style={{ fontSize: 11, color: '#a0958b', display: 'block', marginBottom: 6 }}>Release Year</label>
                     <input type="number" style={inputStyle} value={editForm.year} onChange={e => setEditForm(p => ({ ...p, year: Number(e.target.value) }))} />
                   </div>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 12 }}>
                   <div>
-                    <label style={{ fontSize: 11, color: '#9ca3af', display: 'block', marginBottom: 6 }}>Plays Count</label>
+                    <label style={{ fontSize: 11, color: '#a0958b', display: 'block', marginBottom: 6 }}>Plays Count</label>
                     <input type="number" style={inputStyle} value={editForm.plays} onChange={e => setEditForm(p => ({ ...p, plays: Number(e.target.value) }))} />
                   </div>
                 </div>
 
                 <div>
-                  <label style={{ fontSize: 11, color: '#9ca3af', display: 'block', marginBottom: 6 }}>Lyrics Editor</label>
+                  <label style={{ fontSize: 11, color: '#a0958b', display: 'block', marginBottom: 6 }}>Lyrics Editor</label>
                   <textarea rows={3} style={{ ...inputStyle, resize: 'none' }} value={editForm.lyrics} onChange={e => setEditForm(p => ({ ...p, lyrics: e.target.value }))} placeholder="Paste lyrics here..." />
                 </div>
 
@@ -704,7 +704,7 @@ export default function ContentLibraryTab() {
                 </div>
 
                 <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 12 }}>
-                  <button onClick={() => setEditingItem(null)} style={{ background: '#1a1a1a', border: 'none', borderRadius: 8, color: '#9ca3af', padding: '10px 18px', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
+                  <button onClick={() => setEditingItem(null)} style={{ background: '#f4eede', border: 'none', borderRadius: 8, color: '#a0958b', padding: '10px 18px', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
                   <button onClick={handleSaveEdit} style={{ background: '#b08850', border: 'none', borderRadius: 8, color: '#000', padding: '10px 20px', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Save Changes</button>
                 </div>
               </div>
@@ -721,10 +721,10 @@ export default function ContentLibraryTab() {
             onClick={() => setAddFeatureModal(false)}>
             <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
               onClick={e => e.stopPropagation()}
-              style={{ background: '#121212', border: '1px solid #2a2a2a', borderRadius: 16, padding: 28, width: 480, maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
+              style={{ background: '#ffffff', border: '1px solid rgba(43,34,26,0.1)', borderRadius: 16, padding: 28, width: 480, maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
               <h3 style={{ margin: '0 0 16px', fontSize: 16, fontWeight: 700, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span>Add Featured Content</span>
-                <button onClick={() => setAddFeatureModal(false)} style={{ background: 'none', border: 'none', color: '#6b7280', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24 }}>✕</button>
+                <button onClick={() => setAddFeatureModal(false)} style={{ background: 'none', border: 'none', color: '#87786c', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24 }}>✕</button>
               </h3>
               <input 
                 placeholder="Search tracks to feature..." 
@@ -737,11 +737,11 @@ export default function ContentLibraryTab() {
                   .filter(item => item.type === 'Track' && !item.featured)
                   .filter(item => !featureSearch || item.title.toLowerCase().includes(featureSearch.toLowerCase()) || item.artist.toLowerCase().includes(featureSearch.toLowerCase()))
                   .map(item => (
-                    <div key={item.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#181818', borderRadius: 10, padding: '10px 14px', border: '1px solid #222', gap: 12 }}>
+                    <div key={item.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#181818', borderRadius: 10, padding: '10px 14px', border: '1px solid rgba(43,34,26,0.1)', gap: 12 }}>
                       <div style={{ width: 36, height: 36, borderRadius: 6, background: item.color.startsWith('linear-gradient') ? item.color : `url(${item.color}) center/cover`, flexShrink: 0 }} />
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontWeight: 700, fontSize: 13, color: '#e5e7eb', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.title}</div>
-                        <div style={{ fontSize: 11, color: '#6b7280' }}>{item.artist}</div>
+                        <div style={{ fontSize: 11, color: '#87786c' }}>{item.artist}</div>
                       </div>
                       <button onClick={() => { toggleFeature(item.id, item.title, false); }}
                         style={{ padding: '5px 11px', borderRadius: 7, border: 'none', background: '#b08850', color: '#000', fontSize: 11, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
@@ -751,7 +751,7 @@ export default function ContentLibraryTab() {
                   ))
                 }
                 {items.filter(item => item.type === 'Track' && !item.featured).length === 0 && (
-                  <div style={{ color: '#6b7280', fontSize: 12, textAlign: 'center', padding: 20 }}>All available tracks are already featured.</div>
+                  <div style={{ color: '#87786c', fontSize: 12, textAlign: 'center', padding: 20 }}>All available tracks are already featured.</div>
                 )}
               </div>
             </motion.div>

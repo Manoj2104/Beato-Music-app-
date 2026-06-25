@@ -12,10 +12,10 @@ import { socketManager } from '@/lib/socket';
 // ─── Theme Colors ─────────────────────────────────────────────────────────────
 
 const COLORS = {
-  bg: '#0a0a0a',
-  card: 'rgba(255, 255, 255, 0.03)',
-  card2: 'rgba(255, 255, 255, 0.05)',
-  border: 'rgba(255, 255, 255, 0.08)',
+  bg: '#fbf9f5',
+  card: 'rgba(43, 34, 26, 0.03)',
+  card2: 'rgba(43, 34, 26, 0.05)',
+  border: 'rgba(43, 34, 26, 0.08)',
   green: '#b08850',
   text: '#ffffff',
   muted: '#888888',
@@ -71,7 +71,7 @@ const inputStyle: React.CSSProperties = {
   background: 'rgba(0, 0, 0, 0.4)',
   border: '1px solid rgba(255, 255, 255, 0.12)',
   borderRadius: 8,
-  color: '#fff',
+  color: '#221a15',
   padding: '9px 12px',
   fontSize: 13,
   outline: 'none',
@@ -393,7 +393,7 @@ export default function SupportTab() {
   }
 
   return (
-    <div style={{ fontFamily: "'Inter', sans-serif", color: COLORS.text, minHeight: '100%' }}>
+    <div style={{ fontFamily: "'Inter', sans-serif", color: '#221a15', minHeight: '100%' }}>
       
       {/* Stats Bar */}
       <fm.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
@@ -402,7 +402,7 @@ export default function SupportTab() {
           <fm.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
             style={{ background: COLORS.card, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: '20px 24px' }}>
             <div style={{ fontSize: 32, fontWeight: 900, color: s.color, fontFamily: "'Outfit', sans-serif", lineHeight: 1 }}>{s.value}</div>
-            <div style={{ fontSize: 12, color: COLORS.muted, marginTop: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{s.label}</div>
+            <div style={{ fontSize: 12, color: '#87786c', marginTop: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{s.label}</div>
           </fm.div>
         ))}
       </fm.div>
@@ -429,7 +429,7 @@ export default function SupportTab() {
             <button onClick={() => setSelectedTicketIds([])}
               style={{
                 padding: '6px 14px', borderRadius: 8, background: 'rgba(255,255,255,0.05)',
-                color: COLORS.text, border: `1px solid ${COLORS.border}`, cursor: 'pointer', fontSize: 12, fontWeight: 600
+                color: '#221a15', border: `1px solid ${COLORS.border}`, cursor: 'pointer', fontSize: 12, fontWeight: 600
               }}>
               Clear Selection
             </button>
@@ -479,7 +479,7 @@ export default function SupportTab() {
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, textAlign: 'left' }}>
             <thead>
-              <tr style={{ borderBottom: `1px solid ${COLORS.border}`, color: '#4b5563', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              <tr style={{ borderBottom: `1px solid ${COLORS.border}`, color: '#87786c', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                 <th style={{ padding: '14px 16px', width: 30 }}>
                   <input type="checkbox" checked={filtered.length > 0 && selectedTicketIds.length === filtered.length}
                     onChange={e => {
@@ -528,7 +528,7 @@ export default function SupportTab() {
                           style={{ accentColor: COLORS.green, cursor: 'pointer' }}
                         />
                       </td>
-                      <td style={{ padding: '14px 16px', color: COLORS.muted }}>{t.id}</td>
+                      <td style={{ padding: '14px 16px', color: '#87786c' }}>{t.id}</td>
                       <td style={{ padding: '14px 16px', fontWeight: 600 }}>{t.user}</td>
                       <td style={{ padding: '14px 16px', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.subject}</td>
                       <td style={{ padding: '14px 16px' }}>
@@ -558,7 +558,7 @@ export default function SupportTab() {
                       <td style={{ padding: '14px 16px', textAlign: 'right' }}>
                         <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
                           <button onClick={() => setSelectedTicket(t)} 
-                            style={{ padding: '4px 10px', borderRadius: 6, border: `1px solid ${COLORS.border}`, background: 'rgba(255,255,255,0.03)', color: COLORS.text, cursor: 'pointer', fontSize: 11, fontWeight: 600 }}
+                            style={{ padding: '4px 10px', borderRadius: 6, border: `1px solid ${COLORS.border}`, background: 'rgba(255,255,255,0.03)', color: '#221a15', cursor: 'pointer', fontSize: 11, fontWeight: 600 }}
                             onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}>
                             View
                           </button>
@@ -598,8 +598,8 @@ export default function SupportTab() {
               {/* Modal Header */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20, flexShrink: 0 }}>
                 <div>
-                  <div style={{ fontSize: 11, color: COLORS.muted, fontWeight: 700, letterSpacing: '0.04em' }}>{selectedTicket.id} · SLA {selectedTicket.slaHours}h Target</div>
-                  <h2 style={{ fontSize: 20, fontFamily: "'Outfit', sans-serif", margin: '4px 0 0 0', color: '#fff' }}>{selectedTicket.subject}</h2>
+                  <div style={{ fontSize: 11, color: '#87786c', fontWeight: 700, letterSpacing: '0.04em' }}>{selectedTicket.id} · SLA {selectedTicket.slaHours}h Target</div>
+                  <h2 style={{ fontSize: 20, fontFamily: "'Outfit', sans-serif", margin: '4px 0 0 0', color: '#221a15' }}>{selectedTicket.subject}</h2>
                 </div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   {(selectedTicket.status === 'resolved' || selectedTicket.status === 'closed') && (
@@ -609,7 +609,7 @@ export default function SupportTab() {
                       <Trash2 size={12} /> Delete Log
                     </button>
                   )}
-                  <button onClick={() => setSelectedTicket(null)} style={{ background: 'transparent', border: 'none', color: COLORS.muted, fontSize: 20, cursor: 'pointer', display: 'flex', padding: 4 }}
+                  <button onClick={() => setSelectedTicket(null)} style={{ background: 'transparent', border: 'none', color: '#87786c', fontSize: 20, cursor: 'pointer', display: 'flex', padding: 4 }}
                     onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = COLORS.muted}>
                     <X size={20} />
                   </button>
@@ -624,15 +624,15 @@ export default function SupportTab() {
                   ['Current Status', selectedTicket.status.toUpperCase(), statusColor[selectedTicket.status]],
                 ].map(([k, v, sub]) => (
                   <div key={k} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 8, padding: '10px 12px' }}>
-                    <div style={{ fontSize: 9, color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 700, marginBottom: 3 }}>{k}</div>
+                    <div style={{ fontSize: 9, color: '#87786c', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 700, marginBottom: 3 }}>{k}</div>
                     <div style={{ fontSize: 12, fontWeight: 700, color: sub && typeof sub === 'string' && sub.startsWith('#') ? sub : '#fff' }}>{v}</div>
-                    {sub && !sub.startsWith('#') && <div style={{ fontSize: 9.5, color: COLORS.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{sub}</div>}
+                    {sub && !sub.startsWith('#') && <div style={{ fontSize: 9.5, color: '#87786c', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{sub}</div>}
                   </div>
                 ))}
 
                 {/* Feature 7: Administrative Department Routing dropdown */}
                 <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 8, padding: '10px 12px' }}>
-                  <div style={{ fontSize: 9, color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 700, marginBottom: 3 }}>Department Routing</div>
+                  <div style={{ fontSize: 9, color: '#87786c', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 700, marginBottom: 3 }}>Department Routing</div>
                   <select value={selectedTicket.assignedDept || 'General Support'}
                     onChange={e => handleAssignDept(e.target.value)}
                     style={{ background: 'transparent', border: 'none', color: COLORS.green, fontSize: 12, fontWeight: 700, outline: 'none', cursor: 'pointer', width: '100%' }}>
@@ -667,19 +667,19 @@ export default function SupportTab() {
               </div>
 
               {/* Scrollable Conversations Panel */}
-              <div style={{ flex: 1, overflowY: 'auto', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 12, padding: 18, marginBottom: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div style={{ flex: 1, overflowY: 'auto', background: 'rgba(43, 34, 26, 0.08)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 12, padding: 18, marginBottom: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
                 
                 {detailTab === 'chat' ? (
                   <>
                     {/* Original Ticket Description */}
                     <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                      <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, color: '#fff', flexShrink: 0 }}>
+                      <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, color: '#221a15', flexShrink: 0 }}>
                         {selectedTicket.user[0]}
                       </div>
                       <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '0 12px 12px 12px', padding: 12, maxWidth: '80%' }}>
                         <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 4 }}>
-                          <span style={{ fontSize: 11, fontWeight: 700, color: '#fff' }}>{selectedTicket.user}</span>
-                          <span style={{ fontSize: 9, color: COLORS.muted }}>{selectedTicket.created}</span>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: '#221a15' }}>{selectedTicket.user}</span>
+                          <span style={{ fontSize: 9, color: '#87786c' }}>{selectedTicket.created}</span>
                         </div>
                         <p style={{ margin: 0, fontSize: 13, lineHeight: 1.5, color: '#e5e7eb' }}>{selectedTicket.message}</p>
                         
@@ -718,7 +718,7 @@ export default function SupportTab() {
                           }}>
                             <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 4 }}>
                               <span style={{ fontSize: 11, fontWeight: 700, color: isSupport ? COLORS.green : '#fff' }}>{msg.sender}</span>
-                              <span style={{ fontSize: 9, color: COLORS.muted }}>{msg.time}</span>
+                              <span style={{ fontSize: 9, color: '#87786c' }}>{msg.time}</span>
                             </div>
                             <p style={{ margin: 0, fontSize: 13, lineHeight: 1.5, color: '#e5e7eb' }}>{msg.text}</p>
                           </div>
@@ -731,7 +731,7 @@ export default function SupportTab() {
                     {/* Private Internal notes stream list */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                       {(!selectedTicket.internalNotes || selectedTicket.internalNotes.length === 0) ? (
-                        <div style={{ padding: '30px 0', textAlign: 'center', color: COLORS.muted, fontSize: 12.5 }}>
+                        <div style={{ padding: '30px 0', textAlign: 'center', color: '#87786c', fontSize: 12.5 }}>
                           No administrative notes recorded on this ticket yet.
                         </div>
                       ) : (
@@ -756,7 +756,7 @@ export default function SupportTab() {
                   <div>
                     {/* Feature 6: Preset canned messages templates selector */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                      <span style={{ fontSize: 11, color: COLORS.muted, fontWeight: 700 }}>Inject Canned Reply Template:</span>
+                      <span style={{ fontSize: 11, color: '#87786c', fontWeight: 700 }}>Inject Canned Reply Template:</span>
                       <select defaultValue="" onChange={e => {
                         const val = e.target.value;
                         if (val) {
@@ -774,8 +774,8 @@ export default function SupportTab() {
                     <div style={{ display: 'flex', gap: 10, position: 'relative' }}>
                       <textarea value={replyText} onChange={e => setReplyText(e.target.value)} placeholder="Write an administrative reply..." rows={2}
                         style={{ 
-                          width: '100%', background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '12px 16px', 
-                          color: '#fff', fontSize: 13, resize: 'none', outline: 'none', fontFamily: 'Inter, sans-serif', boxSizing: 'border-box' 
+                          width: '100%', background: 'rgba(43, 34, 26, 0.1)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '12px 16px', 
+                          color: '#221a15', fontSize: 13, resize: 'none', outline: 'none', fontFamily: 'Inter, sans-serif', boxSizing: 'border-box' 
                         }} 
                         onKeyDown={e => {
                           if (e.key === 'Enter' && !e.shiftKey) {
