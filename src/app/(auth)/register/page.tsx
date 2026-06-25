@@ -627,6 +627,7 @@ export default function RegisterPage() {
 
         .register-page-wrapper {
           min-height: 100vh;
+          min-height: 100dvh;
           background: ${BG};
           font-family: 'Inter', sans-serif;
           display: flex;
@@ -1051,15 +1052,19 @@ export default function RegisterPage() {
         @media (max-width: 480px) {
           .register-page-wrapper {
             padding: 0;
+            align-items: flex-start;
             background: ${BG};
           }
           .auth-card {
             box-shadow: none !important;
             border: none !important;
             background: transparent !important;
-            padding: 24px 16px !important;
+            padding: calc(var(--sat, 44px) + 20px) 20px 32px !important;
             min-height: 100vh !important;
+            min-height: 100dvh !important;
             border-radius: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
           }
           .auth-card.dark-onboarding {
             background: transparent !important;
