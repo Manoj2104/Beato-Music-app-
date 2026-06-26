@@ -17,7 +17,7 @@ function addCorsHeaders(request: NextRequest, res: NextResponse): NextResponse {
   return res;
 }
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // 1. Handle Preflight OPTIONS requests for API
