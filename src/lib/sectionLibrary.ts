@@ -80,6 +80,8 @@ export const SECTION_BLOCKS: BlockDef[] = [
   { id: 'nature_sounds',     label: 'Nature Sounds',         icon: '🌲', category: 'Browse',     defaultLayout: 'carousel', defaultSource: 'mood',            description: 'Birds, forest, ocean sounds' },
   { id: 'soundscapes',       label: 'Ambient Soundscapes',   icon: '🌌', category: 'Browse',     defaultLayout: 'grid',     defaultSource: 'genre',           description: 'Sci-fi and drone ambient textures' },
   { id: 'podcast_shows',     label: 'Podcast Talk Shows',    icon: '🗣️', category: 'Browse',     defaultLayout: 'grid',     defaultSource: 'genre',           description: 'Filter by comedy, news, tech podcast' },
+  { id: 'portal_category_grid', label: 'Portal Category Grid (MMT Style)', icon: '🗺️', category: 'Browse', defaultLayout: 'portal_category_grid', defaultSource: 'genre', description: 'MakeMyTrip style navigation portal with 4 large headers and a toggleable 2x4 grid card' },
+
 
   // ── 5. Marketing Sections (10 Blocks) ───────────────────────────────────────────
   { id: 'premium_promo',     label: 'Premium Promotion',     icon: '👑', category: 'Marketing',  defaultLayout: 'hero',     defaultSource: 'made_for_you',    description: 'Premium subscription upsell banner' },

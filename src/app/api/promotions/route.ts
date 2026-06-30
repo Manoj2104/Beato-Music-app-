@@ -16,6 +16,12 @@ export async function GET(req: NextRequest) {
       activeTheme: homeData.activeTheme,
       activePreset: homeData.activePreset,
       events: homeData.events,
+    }, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      }
     });
   } catch (e: any) {
     console.error('Public Promotions GET error:', e);

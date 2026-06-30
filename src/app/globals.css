@@ -1150,3 +1150,70 @@ div[style*="background: rgb(18,18,18)"] span[style*="font-weight: 800"],
 div[style*="background: #121212"] span[style*="font-weight: 800"] {
   color: #221a15 !important;
 }
+
+.admin-dark-theme [style*="background: #ffffff"],
+.admin-dark-theme [style*="background: #fff"] {
+    background: #121212 !important;
+    border-color: #2a2a2a !important;
+}
+
+.admin-dark-theme [style*="color: #221a15"] {
+    color: #ffffff !important;
+}
+
+.admin-dark-theme [style*="background: rgba(176, 136, 80, 0.12)"] {
+    background: rgba(176, 136, 80, 0.2) !important;
+}
+
+.admin-dark-theme [style*="background: rgba(245, 158, 11, 0.12)"] {
+    background: rgba(245, 158, 11, 0.2) !important;
+}
+
+.admin-dark-theme [style*="background: rgba(239, 68, 68, 0.12)"] {
+    background: rgba(239, 68, 68, 0.2) !important;
+}
+
+.admin-dark-theme [style*="border: 1px solid rgba(43, 34, 26, 0.07)"],
+.admin-dark-theme [style*="border: 1px solid rgba(43, 34, 26, 0.08)"] {
+    border: 1px solid #2a2a2a !important;
+}
+
+.admin-dark-theme [style*="background: #fbf9f5"] {
+    background: #000000 !important;
+}
+
+/* ── Jam Room responsive layout overrides ── */
+.jam-room-page {
+  width: 100%;
+  max-width: 430px;
+  margin: 0 auto;
+  padding: 24px;
+  box-sizing: border-box;
+}
+.jam-room-grid {
+  grid-template-columns: 1fr;
+}
+.jam-player-card {
+  padding: 32px;
+}
+.jam-browse-card {
+  padding: 24px;
+}
+
+@media (max-width: 768px) {
+  .jam-room-page {
+    padding: 16px !important;
+  }
+  .jam-room-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+  .jam-player-card {
+    padding: 16px !important;
+  }
+  .jam-browse-card {
+    padding: 16px !important;
+  }
+}
+
+

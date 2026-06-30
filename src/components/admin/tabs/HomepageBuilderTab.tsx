@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Home, Search, Library, Heart, Download, Wifi, Music2, Plus } from 'lucide-react';
 
 // Lazily-loaded Advanced Designer overlay
 const AdvancedDesigner = lazy(() => import('../designer/AdvancedDesigner'));
@@ -20,7 +21,7 @@ import {
 } from '@/lib/mlPersonalization';
 import { useMusicStore } from '@/store/musicStore';
 import { useAuthStore } from '@/store/authStore';
-import { mockTracks, mockArtists, mockPlaylists } from '@/lib/mockData';
+import { mockTracks, mockArtists, mockPlaylists, mockAlbums } from '@/lib/mockData';
 import {
   SECTION_BLOCKS, BLOCK_CATEGORIES, BlockDef
 } from '@/lib/sectionLibrary';
@@ -108,6 +109,7 @@ const CORE_LAYOUTS = [
   { value: 'ad_break_banner', label: 'Sponsor Ad Banner (Search)' },
   { value: 'hashtag_slides', label: 'Hashtag Slides (Search)' },
   { value: 'grid_deals', label: 'Campaign Grid (Zepto Style)' },
+  { value: 'portal_category_grid', label: 'Portal Category Grid (MMT Style)' },
 ];
 
 // ─── Image Fallback Helper ────────────────────────────────────────────────────
@@ -163,7 +165,7 @@ interface BuilderSection extends SectionConfig {
 }
 
 export default function HomepageBuilderTab() {
-  const { genreScores, recentlyPlayed } = useMusicStore();
+  const { genreScores, recentlyPlayed, getAllTracks } = useMusicStore();
   const { user } = useAuthStore();
 
   // ── States ───────────────────────────────────────────────────────────────
@@ -1044,7 +1046,7 @@ export default function HomepageBuilderTab() {
     return matchCat && matchSearch;
   });
 
-  const tracksList = mockTracks.slice(0, 10);
+  const tracksList = getAllTracks().length > 0 ? getAllTracks() : mockTracks;
 
   // ── Rendering Section Layout for Preview ───────────────────────────────────────
   const renderMockSection = (sec: BuilderSection, isLaptopMode: boolean) => {
@@ -1236,11 +1238,11 @@ export default function HomepageBuilderTab() {
 
       // Presets mapping
       const cardDesign = {
-        classic: { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 8, padding: 8 },
-        glass: { background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 8 },
-        neo: { background: '#000', border: `1px solid ${C.primary}`, borderRadius: 0, padding: 8, boxShadow: `0 0 8px ${C.primary}30` },
+        classic: { background: 'rgba(34,26,21,0.03)', border: '1px solid rgba(34,26,21,0.06)', borderRadius: 8, padding: 8 },
+        glass: { background: 'rgba(34,26,21,0.06)', backdropFilter: 'blur(8px)', border: '1px solid rgba(34,26,21,0.08)', borderRadius: 12, padding: 8 },
+        neo: { background: '#ffffff', border: `1px solid ${C.primary}`, borderRadius: 0, padding: 8, boxShadow: `0 0 8px ${C.primary}20` },
         retro: { background: '#1e0b36', border: '2px solid #ff007f', borderRadius: 4, padding: 8, boxShadow: '3px 3px 0px #00f0ff' },
-        gradient: { background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(0,0,0,0.4) 100%)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 10, padding: 8 },
+        gradient: { background: 'linear-gradient(135deg, rgba(34,26,21,0.02) 0%, rgba(34,26,21,0.12) 100%)', border: '1px solid rgba(34,26,21,0.06)', borderRadius: 10, padding: 8 },
         none: { background: 'transparent', border: 'none', borderRadius: 0, padding: 0 }
       }[cStyle] || { background: 'transparent', border: 'none', borderRadius: 8, padding: 0 };
 
@@ -1288,8 +1290,8 @@ export default function HomepageBuilderTab() {
             <SafeImage src={customImg} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ width: '85%', height: 7, background: '#fff', opacity: 0.8, borderRadius: 2, marginBottom: 4, overflow: 'hidden' }} />
-            <div style={{ width: '50%', height: 5, background: '#fff', opacity: 0.3, borderRadius: 2 }} />
+            <p style={{ color: '#221a15', fontSize: isLaptopMode ? 9.5 : 7.5, fontWeight: 700, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.title}</p>
+            <p style={{ color: '#706155', fontSize: isLaptopMode ? 8 : 6.5, margin: '2px 0 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.artistName || 'Artist'}</p>
           </div>
         </div>
       );
@@ -1302,13 +1304,13 @@ export default function HomepageBuilderTab() {
         <div style={{ display: 'grid', gridTemplateColumns: cols, gap: 8 }}>
           {[
             { label: 'Liked Songs', color: 'linear-gradient(135deg, #4338ca, #60a5fa)', icon: '♥' },
-            { label: 'Manoj', color: 'linear-gradient(135deg, #1e3a5f, #7c3aed)', icon: '👦' },
-            { label: 'Manojjj', color: 'linear-gradient(135deg, #92400e, #dc2626)', icon: '👨' },
-            { label: 'Mano', color: 'linear-gradient(135deg, #065f46, #0e7490)', icon: '🎵' },
             { label: 'Discover Weekly', color: 'linear-gradient(135deg, #5b21b6, #be185d)', icon: '✦' },
-            { label: 'Daily Mix 1', color: 'linear-gradient(135deg, #1e40af, #4338ca)', icon: '★' }
+            { label: 'Daily Mix 1', color: 'linear-gradient(135deg, #1e40af, #4338ca)', icon: '★' },
+            { label: 'Midnight Vibes', color: 'linear-gradient(135deg, #1e3a5f, #7c3aed)', icon: '🌙' },
+            { label: 'Workout Energy', color: 'linear-gradient(135deg, #92400e, #dc2626)', icon: '⚡' },
+            { label: 'Chill Lounge', color: 'linear-gradient(135deg, #065f46, #0e7490)', icon: '🌊' }
           ].map((item, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', borderRadius: 8, background: 'rgba(255,255,255,0.06)', height: 42, overflow: 'hidden', minWidth: 0 }}>
+            <div key={i} style={{ display: 'flex', alignItems: 'center', borderRadius: 8, background: 'rgba(34,26,21,0.05)', height: 42, overflow: 'hidden', minWidth: 0 }}>
               <div style={{ width: 42, height: 42, background: item.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>{item.icon}</div>
               <span style={{ fontSize: 10, fontWeight: 800, color: '#221a15', padding: '0 10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>{item.label}</span>
             </div>
@@ -2024,7 +2026,7 @@ export default function HomepageBuilderTab() {
     // 4.1 RENDER CASE: Campaign Grid (Zepto Style)
     if (sec.layout === 'grid_deals') {
       const mainTrack = mockTracks[0];
-      const gridTracks = mockTracks.slice(1, 5);
+      const gridTracks = tracksList.slice(1, 5);
       
       const badges = ['Free Stream', 'HQ Audio', 'Offline Play', 'Exclusive'];
       const cardTitles = [
@@ -2248,8 +2250,121 @@ export default function HomepageBuilderTab() {
       );
     }
 
+    if (sec.layout === 'portal_category_grid') {
+      const topCategories = [
+        { title: 'Super Hits', icon: '🔥', bg: 'linear-gradient(135deg, #fef3c7, #fde68a)' },
+        { title: 'New Releases', icon: '🆕', bg: 'linear-gradient(135deg, #dcfce7, #bbf7d0)' },
+        { title: 'Live Concerts', icon: '🎤', bg: 'linear-gradient(135deg, #fee2e2, #fecaca)' },
+        { title: 'Artist Radio', icon: '📻', bg: 'linear-gradient(135deg, #e0f2fe, #bae6fd)' }
+      ];
+
+      const gridCategories = [
+        { title: 'Trending Playlists', icon: '📋' },
+        { title: 'Mood Mixes', icon: '🌊' },
+        { title: 'Top Podcasts', icon: '🎙️' },
+        { title: 'Weekly Charts', icon: '📈' },
+        { title: 'Premium Tracks', icon: '👑' },
+        { title: 'Jam Rooms', icon: '🗣️' },
+        { title: 'Merch Store', icon: '👕' },
+        { title: 'Concert Tickets', icon: '🎫' }
+      ];
+
+      return (
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 12, fontFamily: 'Outfit, sans-serif', padding: '4px 0' }}>
+          {/* Top 4 Large Categories */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+            {topCategories.map(cat => (
+              <div key={cat.title} style={{
+                background: cat.bg,
+                borderRadius: 12,
+                padding: isLaptopMode ? '14px 10px' : '10px 6px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 6,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+                border: '1px solid rgba(43,34,26,0.06)',
+                cursor: 'pointer'
+              }}>
+                <span style={{ fontSize: isLaptopMode ? 22 : 16 }}>{cat.icon}</span>
+                <span style={{ fontSize: isLaptopMode ? 10.5 : 8, fontWeight: 900, color: '#221a15', textAlign: 'center', whiteSpace: 'nowrap' }}>{cat.title}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* White Card Grid of 8 Small Categories */}
+          <div style={{
+            background: '#ffffff',
+            borderRadius: 16,
+            border: '1px solid rgba(43,34,26,0.08)',
+            boxShadow: '0 8px 24px rgba(43, 34, 26, 0.04)',
+            padding: isLaptopMode ? '16px 12px' : '12px 8px',
+            position: 'relative',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+          }}>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: isLaptopMode ? '16px 8px' : '10px 4px',
+              width: '100%'
+            }}>
+              {gridCategories.map(cat => (
+                <div key={cat.title} style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 4,
+                  cursor: 'pointer'
+                }}>
+                  <div style={{
+                    width: isLaptopMode ? 32 : 24,
+                    height: isLaptopMode ? 32 : 24,
+                    borderRadius: '50%',
+                    background: 'rgba(176,136,80,0.08)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: isLaptopMode ? 14 : 11
+                  }}>
+                    {cat.icon}
+                  </div>
+                  <span style={{
+                    fontSize: isLaptopMode ? 9 : 7.5,
+                    fontWeight: 700,
+                    color: '#4d3f35',
+                    textAlign: 'center',
+                    display: 'block',
+                    lineHeight: 1.15
+                  }}>{cat.title}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Bottom Toggle Arrow */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginTop: 10,
+              width: '100%',
+              borderTop: '1px solid rgba(43,34,26,0.04)',
+              paddingTop: 6,
+              cursor: 'pointer'
+            }}>
+              <span style={{ fontSize: 11, color: '#b08850', display: 'flex', alignItems: 'center', gap: 2, fontWeight: 900 }}>
+                ▼
+              </span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     if (sec.layout === 'music_summer_store') {
-      const gridTracks = mockTracks.slice(0, 6);
+      const gridTracks = tracksList.slice(0, 6);
       const storeTitles = [
         'Poolside Beats',
         'Night Drive',
@@ -2387,7 +2502,7 @@ export default function HomepageBuilderTab() {
     }
 
     if (sec.layout === 'music_hubs') {
-      const hubTracks = mockTracks.slice(0, 6);
+      const hubTracks = tracksList.slice(0, 6);
       const hubNames = ['Hip Hop', 'EDM Party', 'Lo-Fi Chill', 'Pop Hits', 'Rock Anthems', 'Acoustic'];
       const icons = ['🎧', '⚡', '📚', '🎤', '🎸', '🎻'];
 
@@ -2562,7 +2677,7 @@ export default function HomepageBuilderTab() {
     }
 
     if (sec.layout === 'brand_artist_collabs') {
-      const gridTracks = mockTracks.slice(0, 4);
+      const gridTracks = tracksList.slice(0, 4);
       const brandNames = ['Bose Sound', 'Sony Audio', 'Sennheiser', 'Pioneer DJ'];
       const brandDiscounts = ['Up to 30% Off Gear', 'Exclusive Tiers', '40% Off Studio FLAC', 'DJ Deck Bundles'];
       const brandBorders = ['rgba(176, 136, 80, 0.25)', 'rgba(16, 185, 129, 0.25)', 'rgba(16, 185, 129, 0.25)', 'rgba(52, 211, 153, 0.25)'];
@@ -2638,7 +2753,7 @@ export default function HomepageBuilderTab() {
     }
 
     if (sec.layout === 'mood_mania_grid') {
-      const gridTracks = mockTracks.slice(0, 3);
+      const gridTracks = tracksList.slice(0, 3);
       const categoryNames = ['Fresh Hits & Pop', 'Deep Bass & EDM', 'Acoustic & Lo-Fi'];
       const detailsText = ['Starting at 120 BPM', 'HQ Dolby Atmos', '100% Chill Vibes'];
       const prices = ['FREE STREAM', 'HQ AUDIO', 'FREE STREAM'];
@@ -2710,10 +2825,13 @@ export default function HomepageBuilderTab() {
     }
 
     if (sec.layout === 'deals_pricing_slider') {
-      const sliderTracks = mockTracks.slice(0, 6);
-      const prices = ['₹0', 'Free', '₹0', 'Premium', '₹0', 'Free'];
-      const originalPrices = ['~~₹199~~', '~~₹99~~', '~~₹149~~', '~~₹299~~', '~~₹199~~', '~~₹99~~'];
-      const discounts = ['100% OFF', 'FREE', '100% OFF', 'EXCLUSIVE', '100% OFF', 'FREE'];
+      const sliderTracks = [...tracksList.slice(0, 8)];
+      while (sliderTracks.length < 8) {
+        sliderTracks.push(mockTracks[sliderTracks.length % mockTracks.length]);
+      }
+      const prices = ['FREE', 'FREE', 'FREE', 'FREE', 'FREE', 'FREE', 'FREE', 'FREE'];
+      const originalPrices = ['~~₹199~~', '~~₹99~~', '~~₹149~~', '~~₹299~~', '~~₹199~~', '~~₹99~~', '~~₹149~~', '~~₹249~~'];
+      const discounts = ['100% OFF', 'FREE', '100% OFF', 'FREE', '100% OFF', 'FREE', '100% OFF', 'FREE'];
       const dealsTabs = ['All Deals', 'Free Hits', 'Premium Singles', 'Podcast Packs'];
 
       return (
@@ -2730,9 +2848,9 @@ export default function HomepageBuilderTab() {
             <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4 }} className="no-scrollbar">
               {dealsTabs.map((tab, i) => (
                 <span key={tab} style={{
-                  background: i === 0 ? C.primary : 'rgba(255,255,255,0.06)',
-                  color: i === 0 ? '#000' : '#fff',
-                  border: i === 0 ? `1px solid ${C.primary}` : '1px solid rgba(255,255,255,0.1)',
+                  background: i === 0 ? C.primary : 'rgba(34,26,21,0.05)',
+                  color: i === 0 ? '#000' : '#221a15',
+                  border: i === 0 ? `1px solid ${C.primary}` : '1px solid rgba(34,26,21,0.12)',
                   borderRadius: 12,
                   padding: '3px 8px',
                   fontSize: 8,
@@ -2966,20 +3084,99 @@ export default function HomepageBuilderTab() {
   // ── Render Header Navigation inside Laptop Mockup ──────────────────────────────
   const renderLaptopSidebar = () => {
     return (
-      <div style={{ width: 130, background: '#000', padding: '12px 10px', display: 'flex', flexDirection: 'column', gap: 14, borderRight: `1px solid ${C.border}`, flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: C.primary, fontWeight: 900, fontSize: 10, letterSpacing: '-0.02em', fontFamily: 'Outfit' }}>
-          <span>💚</span> BEATO
+      <div style={{ width: 140, background: 'linear-gradient(180deg, #f4eede 0%, #ebdcb9 100%)', padding: '16px 8px 12px 8px', display: 'flex', flexDirection: 'column', gap: 16, borderRight: `1px solid rgba(43,34,26,0.08)`, flexShrink: 0, overflowY: 'auto' }} className="no-scrollbar">
+        {/* Logo */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 4px' }}>
+          <div style={{
+            width: 22, height: 22, borderRadius: '50%',
+            background: 'linear-gradient(135deg, #b08850, #8c6c44)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 0 8px rgba(176, 136, 80, 0.3)'
+          }}>
+            <Music2 size={11} color="white" />
+          </div>
+          <span style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: 13, color: '#221a15', letterSpacing: '-0.02em' }}>Beato</span>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <div style={{ fontSize: 9, color: '#221a15', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>🏠 Home</div>
-          <div style={{ fontSize: 9, color: C.muted, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>🔍 Search</div>
-          <div style={{ fontSize: 9, color: C.muted, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>📚 Library</div>
+
+        {/* Navigation */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <div style={{ fontSize: 9.5, color: '#221a15', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, padding: '5px 8px', background: 'rgba(176, 136, 80, 0.12)', borderRadius: 6 }}>
+            <Home size={12} strokeWidth={2.5} />
+            <span style={{ marginLeft: 4 }}>Home</span>
+          </div>
+          <div style={{ fontSize: 9.5, color: '#4d3f35', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, padding: '5px 8px' }}>
+            <Search size={12} strokeWidth={2} />
+            <span style={{ marginLeft: 4 }}>Search</span>
+          </div>
+          <div style={{ fontSize: 9.5, color: '#4d3f35', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, padding: '5px 8px' }}>
+            <Library size={12} strokeWidth={2} />
+            <span style={{ marginLeft: 4 }}>Your Library</span>
+          </div>
         </div>
-        <div style={{ height: 1, background: C.border }} />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <div style={{ fontSize: 8, color: C.muted, textTransform: 'uppercase', fontWeight: 800 }}>Playlists</div>
-          <div style={{ fontSize: 9, color: C.muted, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>♥ Liked</div>
-          <div style={{ fontSize: 9, color: C.muted, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>✦ Weekly</div>
+
+        {/* Library Header */}
+        <div style={{ padding: '0 4px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <span style={{ fontSize: 8.5, color: '#706155', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.03em' }}>Your Library</span>
+            <div style={{ cursor: 'pointer', color: '#706155', display: 'flex', alignItems: 'center' }}>
+              <Plus size={11} strokeWidth={2.5} />
+            </div>
+          </div>
+
+          {/* Quick Access links */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px', borderRadius: 6, cursor: 'pointer' }}>
+              <div style={{ width: 22, height: 22, borderRadius: 4, background: 'linear-gradient(135deg, #4338ca, #60a5fa)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Heart size={10} color="white" fill="white" />
+              </div>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <p style={{ color: '#221a15', fontSize: 9.5, fontWeight: 700, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Liked Songs</p>
+                <p style={{ color: '#706155', fontSize: 7.5, margin: 0 }}>0 songs</p>
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px', borderRadius: 6, cursor: 'pointer' }}>
+              <div style={{ width: 22, height: 22, borderRadius: 4, background: 'linear-gradient(135deg, #065f46, #14b8a6)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Download size={10} color="white" />
+              </div>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <p style={{ color: '#221a15', fontSize: 9.5, fontWeight: 700, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Downloads</p>
+                <p style={{ color: '#706155', fontSize: 7.5, margin: 0 }}>0 songs</p>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ height: 1, background: 'rgba(43,34,26,0.08)', margin: '8px 0' }} />
+
+          {/* Albums list */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            {mockAlbums.slice(0, 4).map((album) => (
+              <div key={album.id} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px', borderRadius: 6, cursor: 'pointer' }}>
+                <div style={{ width: 22, height: 22, borderRadius: 4, background: `hsl(${(album.id.charCodeAt(0) * 37) % 360}, 50%, 35%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
+                  {album.coverImage ? (
+                    <img src={album.coverImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <Music2 size={10} color="rgba(255,255,255,0.6)" />
+                  )}
+                </div>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <p style={{ color: '#221a15', fontSize: 9.5, fontWeight: 700, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{album.title}</p>
+                  <p style={{ color: '#706155', fontSize: 7.5, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Album · {album.artistName}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Install App card */}
+        <div style={{
+          marginTop: 'auto', background: 'rgba(176, 136, 80, 0.08)', borderRadius: 8,
+          border: '1px solid rgba(176, 136, 80, 0.12)', padding: '6px 8px', display: 'flex', flexDirection: 'column', gap: 2
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#b08850', fontWeight: 800, fontSize: 8.5 }}>
+            <Wifi size={10} color="#b08850" />
+            <span>Install App</span>
+          </div>
+          <span style={{ fontSize: 7.5, color: '#706155' }}>Listen offline, anywhere.</span>
         </div>
       </div>
     );
@@ -3304,8 +3501,8 @@ export default function HomepageBuilderTab() {
                       <div>11:37 AM</div>
                       <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                         <span>📶</span>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', border: '1.2px solid #fff', borderRadius: 2, padding: 1, width: 18, height: 8 }}>
-                          <span style={{ display: 'block', height: '100%', background: '#fff', width: '80%' }} />
+                        <span style={{ display: 'inline-flex', alignItems: 'center', border: '1.2px solid #221a15', borderRadius: 2, padding: 1, width: 18, height: 8 }}>
+                          <span style={{ display: 'block', height: '100%', background: '#221a15', width: '80%' }} />
                         </span>
                       </div>
                     </div>
@@ -3314,7 +3511,7 @@ export default function HomepageBuilderTab() {
                     <div style={{
                       flex: 1,
                       overflowY: 'auto',
-                      background: 'linear-gradient(180deg, rgba(176, 136, 80,0.08) 0%, #0a0a0a 35%)',
+                      background: 'linear-gradient(180deg, rgba(176, 136, 80,0.08) 0%, #fbf9f5 35%)',
                       display: 'flex',
                       flexDirection: 'column',
                       gap: 16,
@@ -3363,7 +3560,7 @@ export default function HomepageBuilderTab() {
                               <div style={{ position: 'absolute', top: 4, left: 4, fontSize: 7, color: 'rgba(255,255,255,0.2)', fontWeight: 700, userSelect: 'none', pointerEvents: 'none' }}>Right-click to edit</div>
                               
                               {/* Header section block */}
-                              {!sec.customElements && sec.layout !== 'genre_tiles' && sec.layout !== 'ad_break_banner' && sec.layout !== 'hero' && (
+                              {!sec.customElements && sec.layout !== 'genre_tiles' && sec.layout !== 'ad_break_banner' && sec.layout !== 'hero' && sec.layout !== 'portal_category_grid' && (
                                 <div style={{ marginBottom: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                                   <div>
                                     {sec.subtitle && <span style={{ fontSize: 8, color: C.muted, display: 'block', marginBottom: 1 }}>{sec.subtitle}</span>}
@@ -3380,8 +3577,8 @@ export default function HomepageBuilderTab() {
                       )}
                     </div>
 
-                    <div style={{ height: '18px', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <div style={{ width: '100px', height: '4px', borderRadius: '2px', background: '#fff', opacity: 0.5 }} />
+                    <div style={{ height: '18px', background: '#fbf9f5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <div style={{ width: '100px', height: '4px', borderRadius: '2px', background: '#221a15', opacity: 0.2 }} />
                     </div>
                   </div>
                 ) : (
@@ -3401,7 +3598,7 @@ export default function HomepageBuilderTab() {
                       </div>
                       <span style={{ fontSize: 10, color: C.muted }}>◀</span>
                       <span style={{ fontSize: 10, color: C.muted }}>▶</span>
-                      <div style={{ flex: 1, background: '#151515', borderRadius: 6, padding: '4px 12px', fontSize: 10, color: C.muted, display: 'flex', justifyContent: 'space-between' }}>
+                      <div style={{ flex: 1, background: '#f4eede', borderRadius: 6, padding: '4px 12px', fontSize: 10, color: '#221a15', display: 'flex', justifyContent: 'space-between' }}>
                         <span>🔒 beato.app/home</span>
                         <span>⟳</span>
                       </div>
@@ -3412,11 +3609,11 @@ export default function HomepageBuilderTab() {
                       {renderLaptopSidebar()}
 
                       {/* Content panel */}
-                      <div style={{ flex: 1, overflowY: 'auto', background: '#0b0b0b', display: 'flex', flexDirection: 'column' }} className="no-scrollbar">
+                      <div style={{ flex: 1, overflowY: 'auto', background: '#fbf9f5', display: 'flex', flexDirection: 'column' }} className="no-scrollbar">
                         
                         {/* Top Gradient Header Area */}
                         <div style={{
-                          background: 'linear-gradient(180deg, rgba(176, 136, 80,0.08) 0%, rgba(10,10,10,0) 100%)',
+                          background: 'linear-gradient(180deg, rgba(176, 136, 80,0.08) 0%, rgba(251, 249, 245, 0) 100%)',
                           padding: '20px 20px 10px 20px',
                           display: 'flex',
                           flexDirection: 'column',
@@ -3424,7 +3621,7 @@ export default function HomepageBuilderTab() {
                         }}>
                           {/* Greeting top header */}
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <h2 style={{ fontSize: 18, fontWeight: 900, fontFamily: 'Outfit', color: '#221a15', margin: 0 }}>Good morning, Nandhini</h2>
+                            <h2 style={{ fontSize: 18, fontWeight: 900, fontFamily: 'Outfit', color: '#221a15', margin: 0 }}>{(new Date().getHours() < 12 ? 'Good morning' : new Date().getHours() < 17 ? 'Good afternoon' : 'Good evening')}, {user?.name || 'Manoj'}</h2>
                             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                               <button style={{ ...btnSt('secondary'), padding: '4px 8px', fontSize: 9 }}>Upgrade</button>
                               <div style={{ width: 24, height: 24, borderRadius: '50%', background: C.primary, color: '#000', fontSize: 9, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>N</div>
@@ -3462,7 +3659,7 @@ export default function HomepageBuilderTab() {
                                   <div style={{ position: 'absolute', top: 4, left: 6, fontSize: 8, color: 'rgba(255,255,255,0.18)', fontWeight: 700, userSelect: 'none', pointerEvents: 'none' }}>Right-click to edit ›</div>
                                   
                                   {/* Header section block */}
-                                  {!sec.customElements && sec.layout !== 'genre_tiles' && sec.layout !== 'ad_break_banner' && sec.layout !== 'hero' && (
+                                  {!sec.customElements && sec.layout !== 'genre_tiles' && sec.layout !== 'ad_break_banner' && sec.layout !== 'hero' && sec.layout !== 'portal_category_grid' && (
                                     <div style={{ marginBottom: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                                       <div>
                                         {sec.subtitle && <span style={{ fontSize: 9, color: C.muted, display: 'block', marginBottom: 2 }}>{sec.subtitle}</span>}

@@ -56,6 +56,7 @@ const SORT_OPTS = [
 // ─── Tabs ─────────────────────────────────────────────────────────────────────
 const TABS = [
   { id: 'Playlists',  label: 'Playlists',   icon: Music2     },
+  { id: 'Rooms',      label: 'Jam Rooms',   icon: Users      },
   { id: 'Liked',      label: 'Liked Songs', icon: Heart      },
   { id: 'Artists',    label: 'Artists',     icon: User       },
   { id: 'Albums',     label: 'Albums',      icon: Disc       },
@@ -252,6 +253,65 @@ function LibraryPlaylistCard({ playlist, pinned, onPin, onDelete, isCustom }: {
   );
 }
 
+function RoomCard({ room }: { room: any }) {
+  const router = useRouter();
+  const [hov, setHov] = useState(false);
+  return (
+    <motion.div
+      whileHover={{ y: -6 }}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      onClick={() => router.push(`/room/${room.id}`)}
+      style={{
+        borderRadius: 16,
+        padding: 16,
+        background: hov ? 'rgba(176, 136, 80, 0.08)' : 'rgba(255,255,255,0.03)',
+        border: `1px solid ${hov ? 'rgba(176, 136, 80, 0.3)' : 'rgba(255,255,255,0.06)'}`,
+        cursor: 'pointer',
+        transition: 'all 0.25s',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12,
+        position: 'relative'
+      }}
+    >
+      <div style={{
+        width: '100%',
+        aspectRatio: '1.6 / 1',
+        borderRadius: 10,
+        background: 'linear-gradient(135deg, #1f2937, #111827)',
+        border: '1px solid rgba(176,136,80,0.15)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        {/* Pulsing indicator when active */}
+        {room.isPlaying && (
+          <div style={{ position: 'absolute', top: 10, left: 10, display: 'flex', alignItems: 'center', gap: 6, padding: '4px 8px', borderRadius: 20, background: 'rgba(16,185,129,0.18)', border: '1px solid rgba(16,185,129,0.25)' }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981', animation: 'pulse 1.5s infinite' }} />
+            <span style={{ fontSize: 9, color: '#10b981', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Playing</span>
+          </div>
+        )}
+        <div style={{ position: 'absolute', top: 10, right: 10, display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px', borderRadius: 20, background: 'rgba(255,255,255,0.05)' }}>
+          <Users size={10} color="#b08850" />
+          <span style={{ fontSize: 9, color: '#fff', fontWeight: 700 }}>{room.participants?.length || 0}</span>
+        </div>
+        <Headphones size={36} color="#b08850" style={{ opacity: 0.8 }} />
+      </div>
+      <div>
+        <h4 style={{ color: '#fff', fontSize: 14, fontWeight: 700, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{room.name}</h4>
+        <p style={{ color: '#737373', fontSize: 11, margin: '4px 0 0 0' }}>Hosted by {room.hostName}</p>
+        <p style={{ color: '#525252', fontSize: 11, margin: '8px 0 0 0', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', minHeight: 30 }}>{room.description || 'No description provided.'}</p>
+      </div>
+      <button style={{ width: '100%', padding: '8px', borderRadius: 8, background: '#b08850', border: 'none', color: '#000', fontWeight: 800, fontSize: 11, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
+        Join Session ➔
+      </button>
+    </motion.div>
+  );
+}
+
 function ArtistRow({ artist, index }: { artist: any; index: number }) {
   const [hov, setHov] = useState(false);
   const { playTrack } = usePlayerStore();
@@ -383,6 +443,7 @@ interface MobileLibraryViewProps {
   likedTracks: any[];
   playTrack: (track: any, queue: any[]) => void;
   user: any;
+  rooms: any[];
 }
 
 function MobileLibraryView({
@@ -401,7 +462,8 @@ function MobileLibraryView({
   getUnifiedList,
   likedTracks,
   playTrack,
-  user
+  user,
+  rooms
 }: MobileLibraryViewProps) {
   const { setMobileDrawerOpen } = useAuthStore();
   const { currentTrack, isPlaying, togglePlay } = usePlayerStore();
@@ -862,6 +924,8 @@ function MobileLibraryView({
                         router.push(`/artist/${item.id}`);
                       } else if (item.type === 'album') {
                         router.push(`/album/${item.id}`);
+                      } else if (item.type === 'room') {
+                        router.push(`/room/${item.id}`);
                       }
                     }}
                   >
@@ -879,6 +943,8 @@ function MobileLibraryView({
                     }}>
                       {isLiked ? (
                         <Heart size={36} color="#fff" fill="#fff" />
+                      ) : item.type === 'room' ? (
+                        <Users size={36} color="rgba(255,255,255,0.7)" />
                       ) : item.image ? (
                         <img src={item.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       ) : (
@@ -944,6 +1010,8 @@ function MobileLibraryView({
                         router.push(`/artist/${item.id}`);
                       } else if (item.type === 'album') {
                         router.push(`/album/${item.id}`);
+                      } else if (item.type === 'room') {
+                        router.push(`/room/${item.id}`);
                       }
                     }}
                   >
@@ -961,6 +1029,8 @@ function MobileLibraryView({
                     }}>
                       {isLiked ? (
                         <Heart size={20} color="#fff" fill="#fff" />
+                      ) : item.type === 'room' ? (
+                        <Users size={20} color="rgba(255,255,255,0.7)" />
                       ) : item.image ? (
                         <img src={item.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       ) : (
@@ -1013,7 +1083,17 @@ function LibraryPageContent() {
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [showJoinRoomModal, setShowJoinRoomModal] = useState(false);
+  const [joinRoomCode, setJoinRoomCode] = useState('');
+  const [showCreateRoomModal, setShowCreateRoomModal] = useState(false);
+  const [newRoomName, setNewRoomName] = useState('');
+  const [newRoomDesc, setNewRoomDesc] = useState('');
+  const [newRoomCollab, setNewRoomCollab] = useState(true);
+  const [newRoomPassword, setNewRoomPassword] = useState('');
   const [showAddMenu, setShowAddMenu] = useState(false);
+  const [showActiveRoomWarning, setShowActiveRoomWarning] = useState(false);
+  const [existingRoomId, setExistingRoomId] = useState<string | null>(null);
+  const [existingRoomName, setExistingRoomName] = useState<string | null>(null);
   const [selectedGradient, setSelectedGradient] = useState(GRADIENTS[0]);
   const [newTitle, setNewTitle] = useState('');
   const [newDesc, setNewDesc] = useState('');
@@ -1024,6 +1104,24 @@ function LibraryPageContent() {
   const [bulkMode, setBulkMode] = useState(false);
   const [genreFilter, setGenreFilter] = useState<string | null>(null);
   const [importUrl, setImportUrl] = useState('');
+  const [rooms, setRooms] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const res = await fetch('/api/rooms');
+        const data = await res.json();
+        if (data.success && data.rooms) {
+          setRooms(data.rooms);
+        }
+      } catch (err) {
+        console.error('Failed to fetch rooms:', err);
+      }
+    };
+    fetchRooms();
+    const interval = setInterval(fetchRooms, 12000);
+    return () => clearInterval(interval);
+  }, []);
 
   const sortRef = useRef<HTMLDivElement>(null);
   const { user, toggleSavePlaylist } = useAuthStore();
@@ -1042,7 +1140,11 @@ function LibraryPageContent() {
 
   useEffect(() => {
     if (searchParams.get('create') === 'true') {
-      setShowCreateModal(true);
+      if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+        setShowAddMenu(true);
+      } else {
+        setShowCreateModal(true);
+      }
       if (typeof window !== 'undefined') {
         const newUrl = window.location.pathname;
         window.history.replaceState({}, '', newUrl);
@@ -1133,6 +1235,22 @@ function LibraryPageContent() {
           pinned: false,
           item: al,
           name: al.title,
+        });
+      });
+    }
+
+    // 5. Jam Rooms
+    if (activeTab === 'overview' || activeTab === 'Rooms') {
+      rooms.forEach(r => {
+        list.push({
+          id: r.id,
+          type: 'room',
+          title: r.name,
+          subtitle: `Jam Room • Host: ${r.hostName} • ${r.participants?.length || 0} active`,
+          image: '',
+          pinned: false,
+          item: r,
+          name: r.name,
         });
       });
     }
@@ -1242,6 +1360,76 @@ function LibraryPageContent() {
     router.push(`/playlist/${plId}`);
   };
 
+  const handleCreateRoom = () => {
+    const activeRoomId = typeof window !== 'undefined' ? localStorage.getItem('soundsphere-active-room-id') : null;
+    const activeRoomName = typeof window !== 'undefined' ? localStorage.getItem('soundsphere-active-room-name') : null;
+    
+    if (activeRoomId) {
+      setExistingRoomId(activeRoomId);
+      setExistingRoomName(activeRoomName || 'Active Room');
+      setShowActiveRoomWarning(true);
+    } else {
+      setNewRoomName(`${user?.name || 'My'}'s Listening Party`);
+      setNewRoomDesc("Come listen to awesome music with me!");
+      setNewRoomCollab(true);
+      setNewRoomPassword('');
+      setShowCreateRoomModal(true);
+    }
+  };
+
+  const handleExitAndCreate = async () => {
+    if (!existingRoomId) return;
+    try {
+      await fetch(`/api/rooms/${existingRoomId}/leave`, { method: 'POST' });
+    } catch (e) {
+      console.error('Failed to leave room:', e);
+    }
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('soundsphere-active-room-id');
+      localStorage.removeItem('soundsphere-active-room-name');
+    }
+    
+    setShowActiveRoomWarning(false);
+    
+    // Now open the creation modal
+    setNewRoomName(`${user?.name || 'My'}'s Listening Party`);
+    setNewRoomDesc("Come listen to awesome music with me!");
+    setNewRoomCollab(true);
+    setNewRoomPassword('');
+    setShowCreateRoomModal(true);
+  };
+
+  const submitCreateRoom = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!newRoomName.trim()) return;
+    try {
+      const res = await fetch('/api/rooms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          name: newRoomName.trim(), 
+          description: newRoomDesc.trim(), 
+          isCollaborative: newRoomCollab, 
+          password: newRoomPassword || undefined 
+        })
+      });
+      const data = await res.json();
+      if (data.success && data.room) {
+        toast.success(`Jam Room "${newRoomName}" created! 🎧`);
+        if (newRoomPassword) {
+          localStorage.setItem(`soundsphere-room-password-${data.room.id}`, newRoomPassword);
+        }
+        setShowCreateRoomModal(false);
+        router.push(`/room/${data.room.id}`);
+      } else {
+        toast.error(data.error || 'Failed to create room');
+      }
+    } catch (err) {
+      console.error('Failed to create room:', err);
+      toast.error('Network error creating room');
+    }
+  };
+
   const GENRES_AVAIL = ['Pop', 'Hip-Hop', 'Electronic', 'R&B', 'Indie', 'Rock', 'Ambient'];
 
   return (
@@ -1264,6 +1452,7 @@ function LibraryPageContent() {
           likedTracks={likedTracks}
           playTrack={playTrack}
           user={user}
+          rooms={rooms}
         />
       ) : (
         <div className="library-themed-container" style={{ minHeight: '100%', background: 'var(--color-ss-bg, #fbf9f5)', position: 'relative' }}>
@@ -1636,6 +1825,51 @@ function LibraryPageContent() {
             </motion.div>
           )}
 
+          {/* ── JAM ROOMS ── */}
+          {activeTab === 'Rooms' && (
+            <motion.div key="rooms" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                <div>
+                  <h3 style={{ fontSize: 18, fontWeight: 800, color: '#fff', margin: 0 }}>Active Listeners' Rooms</h3>
+                  <p style={{ fontSize: 12, color: '#87786c', margin: '4px 0 0' }}>Join a room to listen synchronously with others in real-time.</p>
+                </div>
+                <button
+                  onClick={handleCreateRoom}
+                  style={{
+                    background: G,
+                    color: '#000',
+                    border: 'none',
+                    borderRadius: 20,
+                    padding: '8px 20px',
+                    fontSize: 12,
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6
+                  }}
+                >
+                  <Plus size={14} /> Create Room
+                </button>
+              </div>
+              {rooms.filter(r => r.isActive).length === 0 ? (
+                <EmptyState
+                  icon={Users}
+                  title="No active Jam Rooms"
+                  sub="Create your own room and invite your friends to start jamming!"
+                  action={handleCreateRoom}
+                  actionLabel="Create Jam Room"
+                />
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 20 }}>
+                  {rooms.filter(r => r.isActive).map(r => (
+                    <RoomCard key={r.id} room={r} />
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          )}
+
           {/* ── PLAYLISTS ── */}
           {activeTab === 'Playlists' && (
             <motion.div key="playlists" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
@@ -1997,6 +2231,336 @@ function LibraryPageContent() {
         )}
       </AnimatePresence>
 
+      {/* ─── Active Room Warning Bottom Sheet ───────────────────────────────── */}
+      <AnimatePresence>
+        {showActiveRoomWarning && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowActiveRoomWarning(false)}
+              style={{
+                position: 'fixed',
+                inset: 0,
+                background: 'rgba(0,0,0,0.6)',
+                zIndex: 999,
+              }}
+            />
+            {/* Bottom Sheet */}
+            <motion.div 
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+              style={{
+                position: 'fixed',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                background: 'var(--color-ss-bg, #fbf9f5)',
+                borderTopLeftRadius: 24,
+                borderTopRightRadius: 24,
+                padding: '12px 20px 40px',
+                zIndex: 1000,
+                boxShadow: '0 -10px 40px var(--color-ss-border, rgba(43, 34, 26, 0.08))',
+                borderTop: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
+                maxWidth: '100%',
+                boxSizing: 'border-box',
+                maxHeight: '85vh',
+                overflowY: 'auto'
+              }}
+            >
+              {/* Drag handle */}
+              <div style={{
+                width: 36,
+                height: 4,
+                borderRadius: 2,
+                background: 'var(--color-ss-border, rgba(43, 34, 26, 0.15))',
+                margin: '0 auto 24px',
+              }} />
+
+              <div style={{ padding: '0 4px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 9, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Users size={15} color="#ef4444" /></div>
+                    <div>
+                      <h3 style={{ fontFamily: 'Outfit, sans-serif', color: '#221a15', fontSize: 16, fontWeight: 800 }}>Active Jam Room</h3>
+                      <p style={{ color: '#706155', fontSize: 11 }}>You must exit your current room first</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setShowActiveRoomWarning(false)} style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(176,136,80,0.08)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#706155' }}><X size={14} /></button>
+                </div>
+
+                <p style={{ color: '#221a15', fontSize: 14, lineHeight: 1.5, margin: '0 0 24px' }}>
+                  You are currently in an active Jam Room: <strong style={{ color: '#b08850' }}>{existingRoomName}</strong>. You cannot host a new room until you exit this active session.
+                </p>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  <button
+                    onClick={() => {
+                      setShowActiveRoomWarning(false);
+                      router.push(`/room/${existingRoomId}`);
+                    }}
+                    style={{
+                      padding: '12px', 
+                      borderRadius: 12, 
+                      background: '#b08850', 
+                      border: 'none', 
+                      color: '#fff', 
+                      fontSize: 14, 
+                      fontWeight: 800, 
+                      cursor: 'pointer', 
+                      fontFamily: 'Outfit, sans-serif',
+                      textAlign: 'center'
+                    }}
+                  >
+                    Go to Active Room
+                  </button>
+
+                  <button
+                    onClick={handleExitAndCreate}
+                    style={{
+                      padding: '12px', 
+                      borderRadius: 12, 
+                      background: 'rgba(239,68,68,0.08)', 
+                      border: '1px solid rgba(239,68,68,0.2)', 
+                      color: '#ef4444', 
+                      fontSize: 14, 
+                      fontWeight: 800, 
+                      cursor: 'pointer', 
+                      fontFamily: 'Outfit, sans-serif',
+                      textAlign: 'center'
+                    }}
+                  >
+                    Exit Active Room & Create New
+                  </button>
+
+                  <button
+                    onClick={() => setShowActiveRoomWarning(false)}
+                    style={{
+                      padding: '12px', 
+                      borderRadius: 12, 
+                      background: 'rgba(176,136,80,0.08)', 
+                      border: '1px solid rgba(176,136,80,0.15)', 
+                      color: '#706155', 
+                      fontSize: 14, 
+                      fontWeight: 700, 
+                      cursor: 'pointer', 
+                      fontFamily: 'Outfit, sans-serif',
+                      textAlign: 'center'
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* ─── Create Jam Room Modal ───────────────────────────────────────────── */}
+      <AnimatePresence>
+        {showCreateRoomModal && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowCreateRoomModal(false)}
+              style={{
+                position: 'fixed',
+                inset: 0,
+                background: 'rgba(0,0,0,0.6)',
+                zIndex: 999,
+              }}
+            />
+            {/* Bottom Sheet */}
+            <motion.form 
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+              onSubmit={submitCreateRoom}
+              style={{
+                position: 'fixed',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                background: 'var(--color-ss-bg, #fbf9f5)',
+                borderTopLeftRadius: 24,
+                borderTopRightRadius: 24,
+                padding: '12px 20px 40px',
+                zIndex: 1000,
+                boxShadow: '0 -10px 40px var(--color-ss-border, rgba(43, 34, 26, 0.08))',
+                borderTop: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
+                maxWidth: '100%',
+                boxSizing: 'border-box',
+                maxHeight: '85vh',
+                overflowY: 'auto'
+              }}
+            >
+              {/* Drag handle */}
+              <div style={{
+                width: 36,
+                height: 4,
+                borderRadius: 2,
+                background: 'var(--color-ss-border, rgba(43, 34, 26, 0.15))',
+                margin: '0 auto 24px',
+              }} />
+
+              <div style={{ padding: '0 4px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 9, background: 'rgba(176,136,80,0.12)', border: '1px solid rgba(176,136,80,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Users size={15} color="#b08850" /></div>
+                    <div>
+                      <h3 style={{ fontFamily: 'Outfit, sans-serif', color: '#221a15', fontSize: 16, fontWeight: 800 }}>Create Jam Room</h3>
+                      <p style={{ color: '#706155', fontSize: 11 }}>Listen together with friends in real-time</p>
+                    </div>
+                  </div>
+                  <button type="button" onClick={() => setShowCreateRoomModal(false)} style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(176,136,80,0.08)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#706155' }}><X size={14} /></button>
+                </div>
+
+                <div style={{ marginBottom: 12 }}>
+                  <label style={{ display: 'block', color: '#706155', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Room Name</label>
+                  <input suppressHydrationWarning value={newRoomName} onChange={e => setNewRoomName(e.target.value)} placeholder="My Awesome Party" required
+                    style={{ width: '100%', background: '#ffffff', border: '1px solid rgba(176, 136, 80, 0.25)', borderRadius: 10, padding: '11px 14px', color: '#221a15', fontSize: 14, outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s' }}
+                    onFocus={e => { e.currentTarget.style.borderColor = '#b08850'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(176,136,80,0.1)'; }}
+                    onBlur={e => { e.currentTarget.style.borderColor = 'rgba(176,136,80,0.25)'; e.currentTarget.style.boxShadow = 'none'; }} />
+                </div>
+
+                <div style={{ marginBottom: 12 }}>
+                  <label style={{ display: 'block', color: '#706155', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Description (Optional)</label>
+                  <input suppressHydrationWarning value={newRoomDesc} onChange={e => setNewRoomDesc(e.target.value)} placeholder="Come listen to awesome music!"
+                    style={{ width: '100%', background: '#ffffff', border: '1px solid rgba(176, 136, 80, 0.25)', borderRadius: 10, padding: '11px 14px', color: '#221a15', fontSize: 14, outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s' }}
+                    onFocus={e => { e.currentTarget.style.borderColor = '#b08850'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(176,136,80,0.1)'; }}
+                    onBlur={e => { e.currentTarget.style.borderColor = 'rgba(176,136,80,0.25)'; e.currentTarget.style.boxShadow = 'none'; }} />
+                </div>
+
+                <div style={{ marginBottom: 16 }}>
+                  <label style={{ display: 'block', color: '#706155', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Password (Optional - leave empty for public)</label>
+                  <input suppressHydrationWarning type="password" value={newRoomPassword} onChange={e => setNewRoomPassword(e.target.value)} placeholder="Enter password to make it private"
+                    style={{ width: '100%', background: '#ffffff', border: '1px solid rgba(176, 136, 80, 0.25)', borderRadius: 10, padding: '11px 14px', color: '#221a15', fontSize: 14, outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s' }}
+                    onFocus={e => { e.currentTarget.style.borderColor = '#b08850'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(176,136,80,0.1)'; }}
+                    onBlur={e => { e.currentTarget.style.borderColor = 'rgba(176,136,80,0.25)'; e.currentTarget.style.boxShadow = 'none'; }} />
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+                  <input type="checkbox" id="roomCollab" checked={newRoomCollab} onChange={e => setNewRoomCollab(e.target.checked)} style={{ cursor: 'pointer', accentColor: '#b08850' }} />
+                  <label htmlFor="roomCollab" style={{ color: '#221a15', fontSize: 13, cursor: 'pointer', fontWeight: 600 }}>Allow anyone in the room to control playback</label>
+                </div>
+
+                <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+                  <button type="button" onClick={() => setShowCreateRoomModal(false)} style={{ padding: '10px 18px', borderRadius: 10, background: 'rgba(176,136,80,0.08)', border: '1px solid rgba(176,136,80,0.15)', color: '#706155', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
+                  <button type="submit" disabled={!newRoomName.trim()}
+                    style={{ padding: '10px 22px', borderRadius: 10, background: newRoomName.trim() ? '#b08850' : 'rgba(176, 136, 80, 0.25)', border: 'none', color: '#fff', fontSize: 13, fontWeight: 800, cursor: newRoomName.trim() ? 'pointer' : 'not-allowed', fontFamily: 'Outfit, sans-serif', boxShadow: newRoomName.trim() ? '0 4px 12px rgba(176,136,80,0.25)' : 'none' }}>
+                    Create Room
+                  </button>
+                </div>
+              </div>
+            </motion.form>
+          </>
+        )}
+      </AnimatePresence>
+
+
+
+      {/* ─── Join Room Modal ───────────────────────────────────────────── */}
+      <AnimatePresence>
+        {showJoinRoomModal && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowJoinRoomModal(false)}
+              style={{
+                position: 'fixed',
+                inset: 0,
+                background: 'rgba(0,0,0,0.6)',
+                zIndex: 999,
+              }}
+            />
+            {/* Bottom Sheet */}
+            <motion.div 
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+              style={{
+                position: 'fixed',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                background: 'var(--color-ss-bg, #fbf9f5)',
+                borderTopLeftRadius: 24,
+                borderTopRightRadius: 24,
+                padding: '12px 20px 40px',
+                zIndex: 1000,
+                boxShadow: '0 -10px 40px var(--color-ss-border, rgba(43, 34, 26, 0.08))',
+                borderTop: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
+                maxWidth: '100%',
+                boxSizing: 'border-box',
+                maxHeight: '85vh',
+                overflowY: 'auto'
+              }}
+            >
+              {/* Drag handle */}
+              <div style={{
+                width: 36,
+                height: 4,
+                borderRadius: 2,
+                background: 'var(--color-ss-border, rgba(43, 34, 26, 0.15))',
+                margin: '0 auto 24px',
+              }} />
+
+              <div style={{ padding: '0 4px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 9, background: 'rgba(176,136,80,0.12)', border: '1px solid rgba(176,136,80,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Users size={15} color="#b08850" /></div>
+                    <div>
+                      <h3 style={{ fontFamily: 'Outfit, sans-serif', color: '#221a15', fontSize: 16, fontWeight: 800 }}>Join Jam Room</h3>
+                      <p style={{ color: '#706155', fontSize: 11 }}>Enter room code or invite code</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setShowJoinRoomModal(false)} style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(176,136,80,0.08)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#706155' }}><X size={14} /></button>
+                </div>
+
+                <input suppressHydrationWarning value={joinRoomCode} onChange={e => setJoinRoomCode(e.target.value)} placeholder="e.g. room 12345 or code with |"
+                  style={{ width: '100%', background: '#ffffff', border: '1px solid rgba(176, 136, 80, 0.25)', borderRadius: 10, padding: '11px 14px', color: '#221a15', fontSize: 14, outline: 'none', boxSizing: 'border-box', marginBottom: 16, transition: 'all 0.2s', textAlign: 'center', fontWeight: 'bold' }}
+                  onFocus={e => { e.currentTarget.style.borderColor = '#b08850'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(176,136,80,0.1)'; }}
+                  onBlur={e => { e.currentTarget.style.borderColor = 'rgba(176,136,80,0.25)'; e.currentTarget.style.boxShadow = 'none'; }} />
+
+                <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+                  <button onClick={() => setShowJoinRoomModal(false)} style={{ padding: '10px 18px', borderRadius: 10, background: 'rgba(176,136,80,0.08)', border: '1px solid rgba(176,136,80,0.15)', color: '#706155', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+                  <button 
+                    onClick={() => { 
+                      if(joinRoomCode.trim()) {
+                        let targetId = joinRoomCode.trim();
+                        if (targetId.includes('|')) {
+                          const [rId, rPw] = targetId.split('|');
+                          localStorage.setItem(`soundsphere-room-password-${rId}`, rPw);
+                          targetId = rId;
+                        }
+                        router.push(`/room/${targetId}`); 
+                      }
+                    }}
+                    disabled={!joinRoomCode.trim()}
+                    style={{ padding: '10px 22px', borderRadius: 10, background: joinRoomCode.trim() ? '#b08850' : 'rgba(176, 136, 80, 0.25)', border: 'none', color: '#fff', fontSize: 13, fontWeight: 800, cursor: joinRoomCode.trim() ? 'pointer' : 'not-allowed', fontFamily: 'Outfit, sans-serif', boxShadow: joinRoomCode.trim() ? '0 4px 12px rgba(176,136,80,0.25)' : 'none' }}>
+                    Join Room
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+
       {/* ─── Bottom Sheet / Add Menu Drawer (Mobile) ──────────────────────── */}
       <AnimatePresence>
         {showAddMenu && (
@@ -2055,6 +2619,24 @@ function LibraryPageContent() {
                     onClick: () => {
                       setShowAddMenu(false);
                       setShowCreateModal(true);
+                    }
+                  },
+                  {
+                    title: 'Create Jam Room',
+                    desc: 'Host a room and listen together with friends',
+                    icon: Users,
+                    onClick: () => {
+                      setShowAddMenu(false);
+                      handleCreateRoom();
+                    }
+                  },
+                  {
+                    title: 'Join Jam Room',
+                    desc: 'Join an existing room using a code',
+                    icon: Users,
+                    onClick: () => {
+                      setShowAddMenu(false);
+                      setShowJoinRoomModal(true);
                     }
                   },
                   {

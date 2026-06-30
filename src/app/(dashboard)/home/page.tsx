@@ -390,6 +390,7 @@ export default function HomePage() {
 
   // Custom interactive section states (Zepto Style)
   const [activeDealsTab, setActiveDealsTab] = useState<Record<string, string>>({});
+  const [portalExpanded, setPortalExpanded] = useState<Record<string, boolean>>({});
   const [activeHubFilter, setActiveHubFilter] = useState<Record<string, string>>({});
   const [spotlightSlideIndex, setSpotlightSlideIndex] = useState<Record<string, number>>({});
   const [cartTracks, setCartTracks] = useState<any[]>([]);
@@ -401,7 +402,7 @@ export default function HomePage() {
 
     const fetchPromos = async () => {
       try {
-        const res = await fetch('/api/promotions');
+        const res = await fetch('/api/promotions?t=' + Date.now());
         const payload = await res.json();
         if (payload.success) {
           setPromotions(payload.promotions || []);
@@ -434,7 +435,7 @@ export default function HomePage() {
       fetchTracks();
       const fetchPromos = async () => {
         try {
-          const res = await fetch('/api/promotions');
+          const res = await fetch('/api/promotions?t=' + Date.now());
           const payload = await res.json();
           if (payload.success) {
             setPromotions(payload.promotions || []);
@@ -2115,6 +2116,7 @@ export default function HomePage() {
             const layout = rawLayout.split('_')[0];
             const cStyle = config.cardStyle || 'classic';
             const cSize = config.cardSize || 'md';
+            const mainTrack = tracks[0] || mockTracks[0];
 
             if (rawLayout === 'playlist_showcase' || config.type === 'playlist_showcase') {
               const targetPlId = config.autoPlaylist ? autoPlId : (config.targetPlaylistId || config.targetId || 'playlist-2');
@@ -3057,7 +3059,9 @@ export default function HomePage() {
                     </div>
                   </div>
                 );
-              } else {
+              }
+            
+            else {
                 return (
                   <div key={sectionId} style={{ marginBottom: 40, fontFamily: 'Outfit, sans-serif' }}>
                     {/* Modern Clean Header for Laptop */}
@@ -3366,38 +3370,161 @@ export default function HomePage() {
                         marginTop: 24,
                         border: '1px solid rgba(176, 136, 80, 0.3)',
                         boxShadow: '0 10px 30px rgba(176, 136, 80, 0.08)'
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <span style={{ fontSize: 20 }}>🔥</span>
-                        <span style={{ color: '#221a15', fontSize: 14, fontWeight: 800, letterSpacing: '0.01em' }}>
-                          Buy 2 Months of Premium & get 1 Month Free! T&C Apply *
-                        </span>
-                      </div>
-                      <motion.button 
-                        whileHover={{ scale: 1.05, boxShadow: '0 6px 15px rgba(176, 136, 80, 0.35)' }}
-                        whileTap={{ scale: 0.95 }}
-                        style={{
-                          background: 'linear-gradient(135deg, #b08850 0%, #937041 100%)',
-                          color: '#fff',
-                          border: 'none',
-                          borderRadius: 30,
-                          padding: '10px 24px',
-                          fontSize: 12,
-                          fontWeight: 900,
-                          cursor: 'pointer',
-                          boxShadow: '0 4px 12px rgba(176, 136, 80, 0.2)',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.05em'
-                        }}
-                      >
-                        Claim Offer
-                      </motion.button>
-                    </motion.div>
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                          <span style={{ fontSize: 20 }}>🔥</span>
+                          <span style={{ color: '#221a15', fontSize: 14, fontWeight: 800, letterSpacing: '0.01em' }}>
+                            Buy 2 Months of Premium &amp; get 1 Month Free! T&amp;C Apply *
+                          </span>
+                        </div>
+                        <motion.button
+                          whileHover={{ scale: 1.05, boxShadow: '0 6px 15px rgba(176, 136, 80, 0.35)' }}
+                          whileTap={{ scale: 0.95 }}
+                          style={{
+                            background: 'linear-gradient(135deg, #b08850 0%, #937041 100%)',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: 30,
+                            padding: '10px 24px',
+                            fontSize: 12,
+                            fontWeight: 900,
+                            cursor: 'pointer',
+                            boxShadow: '0 4px 12px rgba(176, 136, 80, 0.2)',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em'
+                          }}
+                        >
+                          Claim Offer
+                        </motion.button>
+                      </motion.div>
                   </div>
                 );
               }
             }
+
+            if (rawLayout === 'portal_category_grid') {
+              const isExpanded = !!portalExpanded[sectionId];
+              const topCategories = [
+                { title: 'Super Hits', icon: '🔥', path: '/search' },
+                { title: 'New Releases', icon: '🆕', path: '/search' },
+                { title: 'Live Concerts', icon: '🎤', path: '/library' },
+                { title: 'Artist Radio', icon: '📻', path: '/library' }
+              ];
+              const gridCategories = [
+                { title: 'Trending Playlists', icon: '📋', path: '/library' },
+                { title: 'Mood Mixes', icon: '🌊', path: '/search' },
+                { title: 'Top Podcasts', icon: '🎙️', path: '/search' },
+                { title: 'Weekly Charts', icon: '📈', path: '/search' },
+                { title: 'Premium Tracks', icon: '👑', path: '/library' },
+                { title: 'Jam Rooms', icon: '🗣️', path: '/library' },
+                { title: 'Merch Store', icon: '👕', path: '/library' },
+                { title: 'Concert Tickets', icon: '🎫', path: '/library' }
+              ];
+              const visibleGridItems = isExpanded ? gridCategories : gridCategories.slice(0, 4);
+
+              return (
+                <div key={sectionId} style={{ width: '100%', fontFamily: 'Outfit, sans-serif', marginBottom: 24 }}>
+                  {/* Top 4 large pill cards — MMT cream style */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: isMobile ? 8 : 14, marginBottom: 10 }}>
+                    {topCategories.map(cat => (
+                      <div
+                        key={cat.title}
+                        onClick={() => router.push(cat.path)}
+                        style={{
+                          background: '#FAF5E8',
+                          borderRadius: 16,
+                          padding: isMobile ? '14px 6px' : '20px 12px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: 8,
+                          border: '1px solid rgba(176,136,80,0.18)',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                          boxShadow: '0 2px 8px rgba(176,136,80,0.06)'
+                        }}
+                        className="hover-scale-subtle"
+                      >
+                        <span style={{ fontSize: isMobile ? 26 : 34 }}>{cat.icon}</span>
+                        <span style={{ fontSize: isMobile ? 10 : 12.5, fontWeight: 800, color: '#3d2e20', textAlign: 'center', lineHeight: 1.2 }}>{cat.title}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Bottom white card with icon grid */}
+                  <div style={{
+                    background: '#ffffff',
+                    borderRadius: 20,
+                    border: '1px solid rgba(176,136,80,0.14)',
+                    boxShadow: '0 4px 20px rgba(43,34,26,0.05)',
+                    padding: isMobile ? '16px 12px 20px' : '22px 20px',
+                    position: 'relative',
+                  }}>
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: isMobile ? 'repeat(4, 1fr)' : 'repeat(8, 1fr)',
+                      gap: isMobile ? '18px 8px' : '22px 14px',
+                      width: '100%',
+                    }}>
+                      {(isMobile ? visibleGridItems : gridCategories).map(cat => (
+                        <div
+                          key={cat.title}
+                          onClick={() => router.push(cat.path)}
+                          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, cursor: 'pointer' }}
+                          className="hover-scale-subtle"
+                        >
+                          <div style={{
+                            width: isMobile ? 38 : 50,
+                            height: isMobile ? 38 : 50,
+                            borderRadius: '50%',
+                            background: 'rgba(176,136,80,0.07)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: isMobile ? 18 : 22,
+                            border: '1px solid rgba(176,136,80,0.12)',
+                            transition: 'background 0.2s'
+                          }}>
+                            {cat.icon}
+                          </div>
+                          <span style={{ fontSize: isMobile ? 9.5 : 11, fontWeight: 700, color: '#4d3f35', textAlign: 'center', lineHeight: 1.25 }}>{cat.title}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Expand/collapse — mobile only */}
+                    {isMobile && (
+                      <div
+                        onClick={() => setPortalExpanded(prev => ({ ...prev, [sectionId]: !prev[sectionId] }))}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: 4,
+                          marginTop: 14,
+                          paddingTop: 10,
+                          borderTop: '1px solid rgba(176,136,80,0.08)',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <span style={{ fontSize: 11, color: '#b08850', fontWeight: 800 }}>
+                          {isExpanded ? 'Show Less' : 'View All'}
+                        </span>
+                        <span style={{
+                          fontSize: 9,
+                          color: '#b08850',
+                          display: 'inline-flex',
+                          transition: 'transform 0.3s ease',
+                          transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'
+                        }}>▼</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            }
+
 
             if (rawLayout === 'music_summer_store') {
               const gridTracks = tracks.slice(0, 6);
@@ -5923,7 +6050,8 @@ export default function HomePage() {
             'brand_artist_collabs', 'mood_mania_grid', 'deals_pricing_slider',
             'hero_auto_slider', 'category_quick_tiles', 'flash_deals_countdown',
             'new_launches_spotlight', 'featured_brands_row', 'top_chart_billboard',
-            'artist_follow_cards', 'free_deals_grid', 'promo_red_block', 'fresh_picks_circles'
+            'artist_follow_cards', 'free_deals_grid', 'promo_red_block', 'fresh_picks_circles',
+            'portal_category_grid'
           ];
           const isSelfHeaded = SELF_HEADED_LAYOUTS.includes(config.layout || '') || config.type === 'playlist_showcase' || config.layout === 'playlist_showcase';
 
@@ -6183,7 +6311,14 @@ export default function HomePage() {
 
         {/* Dynamic sections rendered in sequenced order */}
         {layoutToRender.length > 0 ? (
-          layoutToRender.map(sectionId => renderHomeSection(sectionId))
+          layoutToRender.map(sectionId => {
+            try {
+              return renderHomeSection(sectionId);
+            } catch (err) {
+              console.error(`Section "${sectionId}" crashed:`, err);
+              return null;
+            }
+          })
         ) : (
           <div style={{ padding: '40px 20px', textAlign: 'center', background: 'rgba(255, 255, 255, 0.02)', borderRadius: 18, border: '1px dashed rgba(255, 255, 255, 0.15)', marginTop: 24 }}>
             <span style={{ fontSize: 48, display: 'block', marginBottom: 16 }}>🎵</span>

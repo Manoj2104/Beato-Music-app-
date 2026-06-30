@@ -17,7 +17,8 @@ import { useRealtimeStore } from '@/store/realtimeStore';
 import { useDownloadStore } from '@/store/downloadStore';
 import { usePlaylistStore } from '@/store/playlistStore';
 import { formatDuration } from '@/lib/mockData';
-import { socketManager, useSocket } from '@/lib/socket';
+import { socketManager } from '@/lib/socket';
+import { useSocket } from '@/lib/useSocket';
 import FullscreenPlayer from './FullscreenPlayer';
 import {
   updateMediaMetadata,

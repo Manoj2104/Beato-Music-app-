@@ -2,7 +2,8 @@
 
 import { Suspense, useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams, useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 import {
   Home, Search, Library, Plus, Music2, Heart, Download, Wifi,
   LayoutDashboard, Upload, TrendingUp, DollarSign, BarChart3, Users, Shield, AlertTriangle,
@@ -26,12 +27,14 @@ const navItems = [
 
 function SidebarContent() {
   const pathname = usePathname();
+  const router = useRouter();
   const { currentTrack } = usePlayerStore();
   const { user, toggleSavePlaylist } = useAuthStore();
   const { getApplicationByUserId, fetchUserApplication } = useArtistApplicationStore();
   
   const [artistPortalExpanded, setArtistPortalExpanded] = useState(false);
   const [adminPanelExpanded, setAdminPanelExpanded] = useState(false);
+  const [createMenuOpen, setCreateMenuOpen] = useState(false);
   const activeApp = user ? getApplicationByUserId(user.id) : undefined;
 
   useEffect(() => {
@@ -79,6 +82,32 @@ function SidebarContent() {
     };
     addPlaylist(newPlaylist);
     toggleSavePlaylist(newId);
+  };
+
+  const handleCreateRoom = async () => {
+    const name = prompt("Enter Room Name:", `${user?.name || 'My'}'s Listening Party`);
+    if (!name) return;
+    const description = prompt("Enter Room Description (optional):", "Come listen to awesome music with me!");
+    const isCollab = confirm("Allow anyone in the room to control playback?");
+    const password = prompt("Enter password to make it private (or leave empty for a public room):") || undefined;
+    
+    try {
+      const res = await fetch('/api/rooms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, description, isCollaborative: isCollab, password })
+      });
+      const data = await res.json();
+      if (data.success && data.room) {
+        toast.success(`Jam Room "${name}" created! 🎧`);
+        router.push(`/room/${data.room.id}`);
+      } else {
+        toast.error(data.error || 'Failed to create room');
+      }
+    } catch (err) {
+      console.error('Failed to create room:', err);
+      toast.error('Network error creating room');
+    }
   };
 
   const userCustomPlaylists = customPlaylists.filter(p => p.ownerId === user?.id || user?.playlists?.includes(p.id));
@@ -265,11 +294,73 @@ function SidebarContent() {
 
         {/* Library Section */}
         <div>
-          <div className="sidebar-library-header">
+          <div className="sidebar-library-header" style={{ position: 'relative' }}>
             <span className="sidebar-library-title">Your Library</span>
-            <button className="sidebar-library-btn" onClick={handleCreatePlaylist}>
+            <button className="sidebar-library-btn" onClick={() => setCreateMenuOpen(!createMenuOpen)}>
               <Plus size={16} />
             </button>
+            {createMenuOpen && (
+              <div style={{
+                position: 'absolute',
+                right: 4,
+                top: 32,
+                background: '#ffffff',
+                border: '1px solid rgba(176,136,80,0.18)',
+                borderRadius: 12,
+                padding: '6px',
+                zIndex: 100,
+                boxShadow: '0 8px 30px rgba(43,34,26,0.12)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2,
+                minWidth: 155
+              }}>
+                <button onClick={() => { setCreateMenuOpen(false); handleCreatePlaylist(); }} style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: '8px 12px',
+                  textAlign: 'left',
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: '#221a15',
+                  cursor: 'pointer',
+                  borderRadius: 8,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  width: '100%',
+                  transition: 'background 0.15s'
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(176,136,80,0.08)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                >
+                  <Music2 size={13} color="#b08850" />
+                  Create Playlist
+                </button>
+                <button onClick={() => { setCreateMenuOpen(false); handleCreateRoom(); }} style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: '8px 12px',
+                  textAlign: 'left',
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: '#221a15',
+                  cursor: 'pointer',
+                  borderRadius: 8,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  width: '100%',
+                  transition: 'background 0.15s'
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(176,136,80,0.08)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                >
+                  <Users size={13} color="#b08850" />
+                  Create Jam Room
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Quick Access */}

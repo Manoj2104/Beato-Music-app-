@@ -29,7 +29,7 @@ export interface SocketMessage {
   id: string;
 }
 
-type EventHandler = (payload: any) => void;
+export type EventHandler = (payload: any) => void;
 
 class SocketManager {
   private handlers: Map<SocketEvent, EventHandler[]> = new Map();
@@ -182,12 +182,3 @@ class SocketManager {
 }
 
 export const socketManager = typeof window !== 'undefined' ? new SocketManager() : null as unknown as SocketManager;
-
-// React hook
-import { useEffect } from 'react';
-export function useSocket(event: SocketEvent, handler: EventHandler): void {
-  useEffect(() => {
-    if (!socketManager) return;
-    return socketManager.on(event, handler);
-  }, [event, handler]);
-}

@@ -31,8 +31,10 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
 
   const isMobile = useIsMobile(); // ⚡ shared single resize listener
   const [isScrolled, setIsScrolled] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const mainEl = document.getElementById('main-content');
     if (!mainEl) return;
 
@@ -165,7 +167,7 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
   const barStyle: React.CSSProperties = {
     position: 'sticky', top: 0, zIndex: 50,
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    padding: isMobile 
+    padding: (mounted && isMobile) 
       ? 'calc(var(--sat, 0px) + 10px) 16px 10px 16px' 
       : isScrolled ? '12px 32px' : '18px 32px',
     background: transparent 

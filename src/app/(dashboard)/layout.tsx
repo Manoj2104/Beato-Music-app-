@@ -33,8 +33,32 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const isMobile = useIsMobile(); // ⚡ shared single resize listener
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [activeRoomId, setActiveRoomId] = useState<string | null>(null);
+  const [activeRoomName, setActiveRoomName] = useState<string | null>(null);
 
-  useEffect(() => setIsMounted(true), []);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const checkActiveRoom = () => {
+      if (typeof window !== 'undefined') {
+        const rId = localStorage.getItem('soundsphere-active-room-id');
+        const rName = localStorage.getItem('soundsphere-active-room-name');
+        setActiveRoomId(rId);
+        setActiveRoomName(rName);
+      }
+    };
+
+    checkActiveRoom();
+    window.addEventListener('storage', checkActiveRoom);
+    const interval = setInterval(checkActiveRoom, 2000);
+
+    return () => {
+      window.removeEventListener('storage', checkActiveRoom);
+      clearInterval(interval);
+    };
+  }, [pathname]);
 
   // Automatically show Now Playing panel when a track starts playing
   useEffect(() => {
@@ -202,6 +226,73 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       <PlayerBar />
       <MobileNav />
       <MobileDrawer />
+      {isMounted && activeRoomId && (pathname === '/home' || pathname === '/') && (
+        <div style={{
+          position: 'fixed',
+          bottom: isMobile ? (currentTrack ? 140 : 75) : 100,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '90%',
+          maxWidth: 400,
+          background: 'rgba(176, 136, 80, 0.95)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          borderRadius: 24,
+          padding: '8px 16px',
+          boxShadow: '0 8px 32px rgba(43, 34, 26, 0.2)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          zIndex: 9999,
+          cursor: 'pointer',
+          boxSizing: 'border-box',
+          gap: 12
+        }}
+        onClick={() => {
+          if (typeof window !== 'undefined') {
+            window.location.href = `/room/${activeRoomId}`;
+          }
+        }}
+        >
+          {/* Left section: Pulse dot and message */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: 1 }}>
+            <div style={{ position: 'relative', display: 'flex', flexShrink: 0 }}>
+              <span className="pulse-green-double" style={{
+                width: 10,
+                height: 10,
+                borderRadius: '50%',
+                background: '#10b981',
+                display: 'inline-block',
+                animation: 'pulse 1.5s infinite'
+              }} />
+            </div>
+            
+            <div style={{ minWidth: 0 }}>
+              <p style={{ color: '#000', fontSize: 12.5, fontWeight: 800, margin: 0, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                Your Listening Room is Active 🎧
+              </p>
+              <p style={{ color: 'rgba(0,0,0,0.65)', fontSize: 10.5, fontWeight: 600, margin: '2px 0 0', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                Click to return to: {activeRoomName || 'Room'}
+              </p>
+            </div>
+          </div>
+
+          <span style={{
+            background: '#000',
+            color: '#fff',
+            fontSize: 10,
+            fontWeight: 800,
+            padding: '5px 12px',
+            borderRadius: 12,
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            flexShrink: 0
+          }}>
+            Open Room
+          </span>
+        </div>
+      )}
     </div>
   );
 }
