@@ -1,11 +1,12 @@
 import JamRoomClient from './JamRoomClient';
 
-export async function generateStaticParams() {
-  return [
-    { roomId: 'temp' }
-  ];
+export const dynamic = 'force-dynamic';
+
+interface PageProps {
+  params: Promise<{ roomId: string }>;
 }
 
-export default function Page({ params }: { params: Promise<{ roomId: string }> }) {
-  return <JamRoomClient params={params} />;
+export default async function Page({ params }: PageProps) {
+  const { roomId } = await params;
+  return <JamRoomClient roomId={roomId} />;
 }
