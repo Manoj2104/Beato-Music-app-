@@ -57,7 +57,7 @@ interface FloatingEmojiInstance {
   x: number;
 }
 
-export default function JamRoomPage({ params }: { params: Promise<{ roomId: string }> }) {
+export default function JamRoomClient({ params }: { params: Promise<{ roomId: string }> }) {
   const { roomId: rawRoomId } = use(params);
   const roomId = decodeURIComponent(rawRoomId).toUpperCase();
   const router = useRouter();
