@@ -5,6 +5,7 @@ import Sidebar from '@/components/layout/Sidebar';
 import PlayerBar from '@/components/layout/PlayerBar';
 import MobileNav from '@/components/layout/MobileNav';
 import MobileDrawer from '@/components/layout/MobileDrawer';
+import CreateOptionsBottomSheet from '@/components/layout/CreateOptionsBottomSheet';
 import QueuePanel from '@/components/layout/QueuePanel';
 import LyricsPanel from '@/components/layout/LyricsPanel';
 import NowPlayingPanel from '@/components/layout/NowPlayingPanel';
@@ -20,10 +21,12 @@ import Link from 'next/link';
 import { WifiOff } from 'lucide-react';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
+import AdBanner from '@/components/layout/AdBanner';
+
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const { syncFromServer } = useRealtimeStore();
   const { addNotification } = useNotificationStore();
-  const { showQueue, showLyrics, currentTrack, isPlaying, toggleQueue, toggleLyrics } = usePlayerStore();
+  const { showQueue, showLyrics, currentTrack, isPlaying, toggleQueue, toggleLyrics, setAdsConfig, adsConfig } = usePlayerStore();
   const { user, token, initializeSession } = useAuthStore();
   const { fetchTracks } = useMusicStore();
   const isOnline = useNetworkStatus();
@@ -35,6 +38,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [isMounted, setIsMounted] = useState(false);
   const [activeRoomId, setActiveRoomId] = useState<string | null>(null);
   const [activeRoomName, setActiveRoomName] = useState<string | null>(null);
+  const [ads, setAds] = useState<any[]>([]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -69,9 +73,39 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   const showRightPanel = (showQueue || showLyrics || (showNowPlaying && !showQueue && !showLyrics)) && !!currentTrack;
 
+  const isFreeUser = !user || user.subscription === 'free';
+  const showBottomAd = adsConfig?.placements?.player_bottom !== false;
+
+  const resolveActiveAd = (placementId: string, allowedTypes: string[]) => {
+    const adMappings = adsConfig?.adMappings || {};
+    const mappedAdId = adMappings[placementId];
+    if (mappedAdId) {
+      const mappedAd = ads.find(a => a.id === mappedAdId);
+      if (mappedAd) return mappedAd;
+    }
+    return ads.find(ad => allowedTypes.includes(ad.type) && ad.placement === placementId);
+  };
+
+  const bottomAd = isFreeUser && showBottomAd ? resolveActiveAd('player_bottom', ['banner']) : null;
+  const adHeightOffset = bottomAd ? 76 : 0;
+  const adTheme = adsConfig?.settings?.adTheme || 'glass';
+
   useEffect(() => {
     initializeSession(true); // force session reload on layout mount to sync permissions
     fetchTracks();
+    
+    // Fetch active Ads configurations
+    fetch('/api/ads')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setAds(data.ads || []);
+          if (data.adsConfig) {
+            setAdsConfig(data.adsConfig);
+          }
+        }
+      })
+      .catch(err => console.error('Failed to load ads configuration:', err));
   }, []);
 
   useEffect(() => {
@@ -165,7 +199,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       <Sidebar />
       <main className="app-main" id="main-content" style={{ 
         position: 'relative', 
-        overflow: isRouteBlocked ? 'hidden' : 'auto' 
+        overflow: isRouteBlocked ? 'hidden' : 'auto',
+        paddingBottom: bottomAd ? (isMobile ? '160px' : '90px') : undefined
       }}>
         {isRouteBlocked && (
           <div style={{
@@ -223,13 +258,25 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           )}
         </div>
       )}
+      {isMounted && bottomAd && (
+        <div style={{
+          position: 'fixed',
+          bottom: isMobile ? (currentTrack ? 144 : 72) : 106,
+          left: isMobile ? 12 : 304,
+          right: isMobile ? 12 : (showRightPanel ? 374 : 24),
+          zIndex: 999
+        }}>
+          <AdBanner ad={bottomAd} theme={adTheme} style={{ margin: 0, padding: '8px 16px', borderRadius: 10 }} />
+        </div>
+      )}
       <PlayerBar />
       <MobileNav />
       <MobileDrawer />
+      <CreateOptionsBottomSheet />
       {isMounted && activeRoomId && (pathname === '/home' || pathname === '/') && (
         <div style={{
           position: 'fixed',
-          bottom: isMobile ? (currentTrack ? 140 : 75) : 100,
+          bottom: isMobile ? (currentTrack ? 140 + adHeightOffset : 75 + adHeightOffset) : 100 + adHeightOffset,
           left: '50%',
           transform: 'translateX(-50%)',
           width: '90%',

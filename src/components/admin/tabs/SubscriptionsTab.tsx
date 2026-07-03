@@ -7,6 +7,7 @@ import {
   PieChart, Pie, Cell, BarChart, Bar,
 } from 'recharts';
 import toast from 'react-hot-toast';
+import { socketManager } from '@/lib/socket';
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -239,6 +240,12 @@ export default function SubscriptionsTab() {
     try {
       const data = await callApi({ action: 'change_plan', userId: changePlanModal.id, plan: newPlan });
       toast.success(data.message);
+      
+      socketManager.emit('ROLE_PERMISSION_UPDATE', { 
+        type: 'subscriptionUpdate', 
+        data: { userId: changePlanModal.id, plan: newPlan, status: 'Active' } 
+      });
+
       setChangePlanModal(null);
       fetchData();
     } catch (e: any) { toast.error(e.message); }
@@ -248,6 +255,18 @@ export default function SubscriptionsTab() {
     try {
       const data = await callApi({ action, userId });
       toast.success(data.message);
+
+      let plan = undefined;
+      let status = undefined;
+      if (action === 'suspend_sub') status = 'Suspended';
+      if (action === 'activate_sub') status = 'Active';
+      if (action === 'cancel_sub') { status = 'Cancelled'; plan = 'free'; }
+
+      socketManager.emit('ROLE_PERMISSION_UPDATE', { 
+        type: 'subscriptionUpdate', 
+        data: { userId, ...(plan ? { plan } : {}), ...(status ? { status } : {}) } 
+      });
+
       fetchData();
     } catch (e: any) { toast.error(e.message); }
   };
@@ -257,6 +276,12 @@ export default function SubscriptionsTab() {
     try {
       const data = await callApi({ action: 'grant_trial', userId: trialModal.id, plan: trialPlan });
       toast.success(data.message);
+
+      socketManager.emit('ROLE_PERMISSION_UPDATE', { 
+        type: 'subscriptionUpdate', 
+        data: { userId: trialModal.id, plan: trialPlan, status: 'Active' } 
+      });
+
       setTrialModal(null);
       fetchData();
     } catch (e: any) { toast.error(e.message); }

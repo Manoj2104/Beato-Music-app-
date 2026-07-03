@@ -32,6 +32,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
   } = usePlayerStore();
 
   const { user, toggleLikeSong } = useAuthStore();
+  const isFree = user?.subscription === 'free';
   const isLiked = currentTrack ? user?.likedSongs.includes(currentTrack.id) : false;
 
   const { downloadTrack, removeDownloadedTrack, downloadedTrackIds, downloadingIds } = useDownloadStore();
@@ -559,6 +560,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                 min={0}
                 max={duration || (currentTrack ? currentTrack.duration : 180)}
                 value={localProgress}
+                disabled={currentTrack?.isAd === true}
                 onChange={e => setLocalProgress(Number(e.target.value))}
                 onMouseDown={() => setIsDragging(true)}
                 onMouseUp={e => {
@@ -759,8 +761,9 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
 
               <button
                 onClick={playPrevious}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff' }}
-                title="Previous"
+                disabled={isFree}
+                style={{ background: 'none', border: 'none', cursor: isFree ? 'not-allowed' : 'pointer', color: '#fff', opacity: isFree ? 0.35 : 1 }}
+                title={isFree ? "Previous (Premium Only)" : "Previous"}
               >
                 <SkipBack size={26} fill="currentColor" />
               </button>
@@ -794,9 +797,10 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
               </motion.button>
 
               <button
-                onClick={playNext}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff' }}
-                title="Next"
+                onClick={() => playNext(true)}
+                disabled={currentTrack?.isAd === true}
+                style={{ background: 'none', border: 'none', cursor: currentTrack?.isAd ? 'not-allowed' : 'pointer', color: '#fff', opacity: currentTrack?.isAd ? 0.35 : 1 }}
+                title={currentTrack?.isAd ? "Next (Ad Playing)" : "Next"}
               >
                 <SkipForward size={26} fill="currentColor" />
               </button>
@@ -1098,6 +1102,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
               min={0}
               max={duration || (currentTrack ? currentTrack.duration : 180)}
               value={localProgress}
+              disabled={currentTrack?.isAd === true}
               onChange={e => setLocalProgress(Number(e.target.value))}
               onMouseDown={() => setIsDragging(true)}
               onTouchStart={() => setIsDragging(true)}
@@ -1146,7 +1151,9 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
 
           <button
             onClick={playPrevious}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff', padding: 8 }}
+            disabled={isFree}
+            style={{ background: 'none', border: 'none', cursor: isFree ? 'not-allowed' : 'pointer', color: '#fff', padding: 8, opacity: isFree ? 0.35 : 1 }}
+            title={isFree ? "Previous (Premium Only)" : "Previous"}
           >
             <SkipBack size={26} fill="currentColor" />
           </button>
@@ -1174,8 +1181,10 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
           </button>
 
           <button
-            onClick={playNext}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff', padding: 8 }}
+            onClick={() => playNext(true)}
+            disabled={currentTrack?.isAd === true}
+            style={{ background: 'none', border: 'none', cursor: currentTrack?.isAd ? 'not-allowed' : 'pointer', color: '#fff', padding: 8, opacity: currentTrack?.isAd ? 0.35 : 1 }}
+            title={currentTrack?.isAd ? "Next (Ad Playing)" : "Next"}
           >
             <SkipForward size={26} fill="currentColor" />
           </button>

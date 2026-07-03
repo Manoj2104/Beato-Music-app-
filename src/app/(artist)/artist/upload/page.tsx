@@ -91,7 +91,7 @@ function DropZone({ accept, onFile, file, label, icon: Icon, color = G }: {
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         boxShadow: dragging ? `0 0 24px rgba(16,185,129,0.1)` : 'none',
       }}>
-      <input ref={inputRef} type="file" accept={accept} style={{ display: 'none' }}
+      <input suppressHydrationWarning ref={inputRef} type="file" accept={accept} style={{ display: 'none' }}
         onChange={e => e.target.files?.[0] && onFile(e.target.files[0])} />
       {file ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -259,6 +259,193 @@ export default function UploadPage() {
   // Duplication Detection state
   const [isCheckingDuplicate, setIsCheckingDuplicate] = useState(false);
   const [duplicateTrack, setDuplicateTrack] = useState<any>(null);
+
+  // YouTube MP3 Extractor States
+  const [uploadMode, setUploadMode] = useState<'file' | 'youtube'>('file');
+  const [artists, setArtists] = useState<any[]>([]);
+  const [ytUrl, setYtUrl] = useState('');
+  const [ytArtistId, setYtArtistId] = useState('');
+  const [ytLoading, setYtLoading] = useState(false);
+  const [ytParsedData, setYtParsedData] = useState<any>(null);
+  const [ytConvertProgress, setYtConvertProgress] = useState(0);
+  const [ytLogs, setYtLogs] = useState<string[]>([]);
+  const [ytPlaylistSelection, setYtPlaylistSelection] = useState<Record<string, boolean>>({});
+  const [ytSingleMetadata, setYtSingleMetadata] = useState<any>({
+    title: '',
+    songName: '',
+    singer: '',
+    genre: 'Pop',
+    duration: 180,
+    explicit: false,
+    coverImage: ''
+  });
+
+  // Fetch active artists list for Super Admin dropdown selection
+  useEffect(() => {
+    if (user?.role === 'SUPER_ADMIN' || user?.role === 'super_admin') {
+      fetch('/api/admin/artists')
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) setArtists(data.artists);
+        })
+        .catch(() => {});
+    }
+  }, [user]);
+
+  const handleYtParse = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!ytUrl) {
+      toast.error('Please paste a YouTube URL');
+      return;
+    }
+    if (!ytArtistId) {
+      toast.error('Please select a target artist');
+      return;
+    }
+
+    try {
+      setYtLoading(true);
+      setYtParsedData(null);
+      setYtLogs([]);
+      setYtConvertProgress(0);
+
+      const res = await fetch('/api/admin/youtube-extract', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'parse',
+          url: ytUrl,
+          artistId: ytArtistId
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to parse YouTube URL');
+
+      if (data.success) {
+        setYtParsedData(data);
+        if (data.type === 'video' && data.video) {
+          setYtSingleMetadata(data.video);
+        } else if (data.type === 'playlist' && data.tracks) {
+          const initialSelection: Record<string, boolean> = {};
+          data.tracks.forEach((t: any) => {
+            initialSelection[t.id] = true;
+          });
+          setYtPlaylistSelection(initialSelection);
+        }
+        toast.success(`Successfully parsed YouTube ${data.type}!`);
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Error parsing YouTube URL');
+    } finally {
+      setYtLoading(false);
+    }
+  };
+
+  const handleYtConvert = async () => {
+    if (!ytParsedData) return;
+
+    const selectedTracks = ytParsedData.type === 'video'
+      ? [ytSingleMetadata]
+      : ytParsedData.tracks.filter((t: any) => ytPlaylistSelection[t.id]);
+
+    if (selectedTracks.length === 0) {
+      toast.error('Please select at least one song to upload');
+      return;
+    }
+
+    const payload: any = {
+      artistId: ytArtistId,
+      genre: ytSingleMetadata?.genre || 'Pop',
+    };
+    if (ytParsedData.type === 'video') {
+      payload.metadata = ytSingleMetadata;
+    } else {
+      payload.tracks = selectedTracks;
+    }
+
+    try {
+      setYtLoading(true);
+      setYtConvertProgress(0);
+      setYtLogs([`🚀 Starting conversion of ${selectedTracks.length} track(s)...`]);
+
+      const res = await fetch('/api/admin/youtube-convert-stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok || !res.body) {
+        const err = await res.json().catch(() => ({ error: 'Stream failed' }));
+        throw new Error(err.error || 'Conversion stream failed');
+      }
+
+      // Read the SSE stream line by line
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? '';   // keep incomplete last line
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          try {
+            const event = JSON.parse(line.slice(6));
+
+            switch (event.type) {
+              case 'start':
+                setYtLogs([`🚀 ${event.message}`]);
+                setYtConvertProgress(1);
+                break;
+
+              case 'track_progress':
+                setYtConvertProgress(Math.min(event.percentage, 99));
+                setYtLogs(prev => {
+                  // Replace last line if it's for the same track step, else append
+                  const last = prev[prev.length - 1] || '';
+                  const isUpdate = last.startsWith(`[${(event.trackIndex ?? 0) + 1}/`);
+                  return isUpdate ? [...prev.slice(0, -1), event.message] : [...prev, event.message];
+                });
+                break;
+
+              case 'track_done':
+                setYtConvertProgress(event.percentage);
+                setYtLogs(prev => [...prev, event.message]);
+                break;
+
+              case 'track_error':
+                setYtLogs(prev => [...prev, event.message]);
+                break;
+
+              case 'complete':
+                setYtConvertProgress(100);
+                setYtLogs(prev => [...prev, `\n✅ ${event.message}`]);
+                if (event.errors?.length) {
+                  event.errors.forEach((e: string) =>
+                    setYtLogs(prev => [...prev, `⚠️ ${e}`])
+                  );
+                }
+                toast.success(event.message);
+                setYtUrl('');
+                setYtParsedData(null);
+                useMusicStore.getState().fetchTracks();
+                break;
+            }
+          } catch {}
+        }
+      }
+    } catch (err: any) {
+      setYtLogs(prev => [...prev, `❌ ${err.message || 'Conversion failed'}`]);
+      toast.error(err.message || 'Conversion failed');
+    } finally {
+      setYtLoading(false);
+    }
+  };
 
   // Copyright Scan state
   const [copyrightScore, setCopyrightScore] = useState<number | null>(null);
@@ -1010,8 +1197,39 @@ export default function UploadPage() {
 
       {/* Main Studio Area */}
       <div className="upload-studio-container">
+        
+        {/* Toggle between standard upload and YouTube MP3 Extractor (Super Admin only) */}
+        {(user?.role === 'SUPER_ADMIN' || user?.role === 'super_admin') && (
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
+            <div style={{ display: 'inline-flex', background: 'var(--color-ss-elevated, #ffffff)', border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))', borderRadius: 24, padding: 4 }}>
+              <button
+                onClick={() => setUploadMode('file')}
+                style={{
+                  padding: '8px 20px', borderRadius: 20, border: 'none',
+                  background: uploadMode === 'file' ? G : 'transparent',
+                  color: uploadMode === 'file' ? '#000' : 'var(--color-ss-text-muted, #87786c)',
+                  fontSize: 12.5, fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s'
+                }}
+              >
+                📁 Standard File Upload
+              </button>
+              <button
+                onClick={() => setUploadMode('youtube')}
+                style={{
+                  padding: '8px 20px', borderRadius: 20, border: 'none',
+                  background: uploadMode === 'youtube' ? G : 'transparent',
+                  color: uploadMode === 'youtube' ? '#000' : 'var(--color-ss-text-muted, #87786c)',
+                  fontSize: 12.5, fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s'
+                }}
+              >
+                📥 Extract from YouTube
+              </button>
+            </div>
+          </div>
+        )}
+
         <AnimatePresence mode="wait">
-          {step <= 3 && (
+          {step <= 3 && uploadMode === 'file' && (
             <motion.div key={`step-${step}`} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }}
               className="upload-studio-grid"
               style={{}}>
@@ -1031,7 +1249,7 @@ export default function UploadPage() {
 
                     <div>
                       <label style={labelS}>Song Title *</label>
-                      <input value={formData.title} onChange={e => update({ title: e.target.value })}
+                      <input suppressHydrationWarning value={formData.title} onChange={e => update({ title: e.target.value })}
                         placeholder="e.g. Midnight Waves" style={inputS(!!focused.title)} {...f('title')} />
                       
                       {/* Duplication Warning Banner */}
@@ -1052,11 +1270,11 @@ export default function UploadPage() {
                     <div className="two-col-grid">
                       <div>
                         <label style={labelS}>Artist Profile Identity *</label>
-                        <input value={formData.artistName} disabled style={{ ...inputS(false), opacity: 0.6, cursor: 'not-allowed' }} />
+                        <input suppressHydrationWarning value={formData.artistName} disabled style={{ ...inputS(false), opacity: 0.6, cursor: 'not-allowed' }} />
                       </div>
                       <div>
                         <label style={labelS}>Album / Single Context</label>
-                        <input value={formData.albumName} onChange={e => update({ albumName: e.target.value })}
+                        <input suppressHydrationWarning value={formData.albumName} onChange={e => update({ albumName: e.target.value })}
                           placeholder="Singles" style={inputS(!!focused.album)} {...f('album')} />
                       </div>
                     </div>
@@ -1066,7 +1284,7 @@ export default function UploadPage() {
                       <div ref={genreRef} style={{ position: 'relative' }}>
                         <label style={labelS}>Primary Genre *</label>
                         <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                          <input
+                          <input suppressHydrationWarning
                             value={genreInput || formData.genre}
                             onChange={e => { setGenreInput(e.target.value); setGenreOpen(true); }}
                             onFocus={() => { setGenreInput(''); setGenreOpen(true); }}
@@ -1106,7 +1324,7 @@ export default function UploadPage() {
                       <div ref={langRef} style={{ position: 'relative' }}>
                         <label style={labelS}>Vocal Language</label>
                         <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                          <input
+                          <input suppressHydrationWarning
                             value={langInput || formData.language}
                             onChange={e => { setLangInput(e.target.value); setLangOpen(true); }}
                             onFocus={() => { setLangInput(''); setLangOpen(true); }}
@@ -1214,7 +1432,7 @@ export default function UploadPage() {
                           </div>
 
                           {/* Audio Scrubbing Slider */}
-                          <input
+                          <input suppressHydrationWarning
                             type="range"
                             min="0"
                             max="100"
@@ -1363,7 +1581,7 @@ export default function UploadPage() {
                                         <span>🔍 Zoom ({zoom.toFixed(2)}x)</span>
                                         <button onClick={() => setZoom(1)} style={{ background: 'none', border: 'none', color: V, fontSize: 10, cursor: 'pointer' }}>Reset</button>
                                       </div>
-                                      <input type="range" min="1" max="3" step="0.05" value={zoom} onChange={e => setZoom(parseFloat(e.target.value))}
+                                      <input suppressHydrationWarning type="range" min="1" max="3" step="0.05" value={zoom} onChange={e => setZoom(parseFloat(e.target.value))}
                                         style={{ width: '100%', accentColor: V, cursor: 'pointer' }} />
                                     </div>
                                     <div>
@@ -1371,18 +1589,18 @@ export default function UploadPage() {
                                         <span>🔄 Rotate ({rotation}°)</span>
                                         <button onClick={() => setRotation(0)} style={{ background: 'none', border: 'none', color: V, fontSize: 10, cursor: 'pointer' }}>Reset</button>
                                       </div>
-                                      <input type="range" min="-180" max="180" step="1" value={rotation} onChange={e => setRotation(parseInt(e.target.value))}
+                                      <input suppressHydrationWarning type="range" min="-180" max="180" step="1" value={rotation} onChange={e => setRotation(parseInt(e.target.value))}
                                         style={{ width: '100%', accentColor: V, cursor: 'pointer' }} />
                                     </div>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                                       <div>
                                         <span style={{ fontSize: 11, color: 'var(--color-ss-text-muted, #87786c)' }}>↔ Move X</span>
-                                        <input type="range" min="-100" max="100" step="1" value={shiftX} onChange={e => setShiftX(parseInt(e.target.value))}
+                                        <input suppressHydrationWarning type="range" min="-100" max="100" step="1" value={shiftX} onChange={e => setShiftX(parseInt(e.target.value))}
                                           style={{ width: '100%', accentColor: V, cursor: 'pointer' }} />
                                       </div>
                                       <div>
                                         <span style={{ fontSize: 11, color: 'var(--color-ss-text-muted, #87786c)' }}>↕ Move Y</span>
-                                        <input type="range" min="-100" max="100" step="1" value={shiftY} onChange={e => setShiftY(parseInt(e.target.value))}
+                                        <input suppressHydrationWarning type="range" min="-100" max="100" step="1" value={shiftY} onChange={e => setShiftY(parseInt(e.target.value))}
                                           style={{ width: '100%', accentColor: V, cursor: 'pointer' }} />
                                       </div>
                                     </div>
@@ -1406,7 +1624,7 @@ export default function UploadPage() {
                         </div>
                       ) : (
                         <div>
-                          <input 
+                          <input suppressHydrationWarning 
                             type="url" 
                             placeholder="https://images.unsplash.com/photo-..." 
                             value={formData.coverUrl}
@@ -1441,7 +1659,7 @@ export default function UploadPage() {
                     <div className="two-col-grid">
                       <div>
                         <label style={labelS}>Commercial Release Date</label>
-                        <input type="date" value={formData.releaseDate} onChange={e => update({ releaseDate: e.target.value })}
+                        <input suppressHydrationWarning type="date" value={formData.releaseDate} onChange={e => update({ releaseDate: e.target.value })}
                           style={{ ...inputS(!!focused.date), colorScheme: 'light', cursor: 'pointer' }} {...f('date')} />
                       </div>
                       <div className="explicit-container" style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 20 }}>
@@ -1877,6 +2095,366 @@ export default function UploadPage() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* YouTube MP3 Extractor Panel (Super Admin only, when uploadMode is 'youtube') */}
+        {uploadMode === 'youtube' && (
+          <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
+            style={{
+              background: 'var(--color-ss-elevated, #ffffff)', border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
+              borderRadius: 24, padding: 30, display: 'flex', flexDirection: 'column', gap: 20
+            }}>
+            <div>
+              <h3 style={{ fontSize: 16, fontWeight: 900, color: 'var(--color-ss-text-primary, #221a15)', display: 'flex', alignItems: 'center', gap: 8, margin: 0 }}>
+                📥 YouTube Video & Playlist MP3 Extractor
+              </h3>
+              <p style={{ color: 'var(--color-ss-text-muted, #87786c)', fontSize: 12, marginTop: 4, margin: 0 }}>
+                Convert any YouTube link into a high-fidelity platform song on behalf of any platform artist profile.
+              </p>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 32, alignItems: 'start' }}>
+              {/* Left Column: Form Controls */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <form onSubmit={handleYtParse} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  {/* Select Target Artist */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <label style={labelS}>Target Artist *</label>
+                    <select
+                      value={ytArtistId}
+                      onChange={(e) => setYtArtistId(e.target.value)}
+                      required
+                      style={{
+                        width: '100%', background: 'var(--color-ss-surface, #f4eede)',
+                        border: '1.5px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
+                        borderRadius: 12, padding: '12px 14px', color: 'var(--color-ss-text-primary, #221a15)', fontSize: 13.5,
+                        outline: 'none', fontFamily: 'inherit'
+                      }}
+                    >
+                      <option value="">— Select Platform Artist —</option>
+                      {artists.map((a: any) => (
+                        <option key={a.id} value={a.id}>{a.name} ({a.email})</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* YouTube Link */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <label style={labelS}>YouTube Video or Playlist URL *</label>
+                    <input suppressHydrationWarning
+                      type="url"
+                      required
+                      value={ytUrl}
+                      onChange={(e) => setYtUrl(e.target.value)}
+                      placeholder="e.g. https://www.youtube.com/watch?v=... or https://youtube.com/playlist?list=..."
+                      style={{
+                        width: '100%', background: 'var(--color-ss-surface, #f4eede)',
+                        border: '1.5px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
+                        borderRadius: 12, padding: '12px 14px', color: 'var(--color-ss-text-primary, #221a15)', fontSize: 13.5,
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+
+                  <motion.button
+                    whileHover={{ opacity: 0.9 }}
+                    whileTap={{ scale: 0.98 }}
+                    disabled={ytLoading}
+                    style={{
+                      padding: '12px',
+                      background: G,
+                      border: 'none',
+                      borderRadius: 12,
+                      color: '#000',
+                      fontWeight: 700,
+                      fontSize: 13,
+                      cursor: ytLoading ? 'not-allowed' : 'pointer',
+                      marginTop: 6,
+                      opacity: ytLoading ? 0.6 : 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 6
+                    }}
+                  >
+                    {ytLoading ? 'Extracting details...' : '🔍 Parse YouTube Link'}
+                  </motion.button>
+                </form>
+              </div>
+
+              {/* Right Column: Parsing / Logs / Checklists Output */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {!ytParsedData && !ytLoading && (
+                  <div style={{
+                    padding: '60px 20px', textAlign: 'center', border: '1.5px dashed var(--color-ss-border, rgba(43, 34, 26, 0.15))',
+                    borderRadius: 16, color: 'var(--color-ss-text-muted, #87786c)', fontSize: 13, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10
+                  }}>
+                    <span style={{ fontSize: 32 }}>🎧</span>
+                    <span>Paste a YouTube link and click parse to extract video metadata.</span>
+                  </div>
+                )}
+
+                {ytLoading && ytConvertProgress > 0 && (
+                  <div style={{ background: '#121212', border: '1px solid #2a2a2a', borderRadius: 16, padding: 20, color: '#fff' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 12 }}>
+                      <span style={{ color: G, fontWeight: 700 }}>Conversion Pipeline</span>
+                      <span>{ytConvertProgress}%</span>
+                    </div>
+                    {/* Progress Bar */}
+                    <div style={{ width: '100%', height: 6, background: '#222', borderRadius: 3, overflow: 'hidden', marginBottom: 16 }}>
+                      <div style={{ width: `${ytConvertProgress}%`, height: '100%', background: G, transition: 'width 0.2s' }} />
+                    </div>
+                    {/* Progress Logs */}
+                    <div style={{
+                      fontFamily: 'monospace', fontSize: 11, color: '#888', height: 160, overflowY: 'auto',
+                      display: 'flex', flexDirection: 'column', gap: 4, background: '#0a0a0a', padding: 12, borderRadius: 8
+                    }}>
+                      {ytLogs.map((log, idx) => (
+                        <div key={idx} style={{ color: log.startsWith('[Success]') ? '#10b981' : log.startsWith('[Error]') ? '#ef4444' : '#aaa' }}>{log}</div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {ytParsedData && (
+                  <div style={{ background: 'var(--color-ss-surface, #f4eede)', border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))', borderRadius: 16, padding: 20 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                      <h4 style={{ fontSize: 13.5, fontWeight: 800, color: 'var(--color-ss-text-primary, #221a15)', margin: 0 }}>
+                        {ytParsedData.type === 'video' ? 'Parsed YouTube Video' : 'Parsed YouTube Playlist'}
+                      </h4>
+                      <span style={{
+                        fontSize: 9, fontWeight: 800, color: '#000', background: G,
+                        padding: '2px 8px', borderRadius: 100, textTransform: 'uppercase', letterSpacing: '0.04em'
+                      }}>
+                        {ytParsedData.type}
+                      </span>
+                    </div>
+
+                    {ytParsedData.type === 'video' && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                        {/* Parsed Cover Art Thumbnail + info chips */}
+                        {ytSingleMetadata.coverImage && (
+                          <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', background: 'rgba(43,34,26,0.04)', padding: 12, borderRadius: 12 }}>
+                            <img
+                              src={ytSingleMetadata.coverImage}
+                              alt="Cover Art Preview"
+                              style={{ width: 72, height: 72, borderRadius: 8, objectFit: 'cover', border: '1px solid rgba(43,34,26,0.08)', flexShrink: 0 }}
+                            />
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--color-ss-text-primary, #221a15)', marginBottom: 4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                ✔ {ytSingleMetadata.title}
+                              </div>
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                                {ytSingleMetadata.channel && (
+                                  <span style={{ fontSize: 10, background: 'rgba(176,136,80,0.15)', color: '#7a5c2e', padding: '2px 8px', borderRadius: 100, fontWeight: 700 }}>
+                                    📺 {ytSingleMetadata.channel}
+                                  </span>
+                                )}
+                                {ytSingleMetadata.duration && (
+                                  <span style={{ fontSize: 10, background: 'rgba(16,185,129,0.12)', color: '#047857', padding: '2px 8px', borderRadius: 100, fontWeight: 700 }}>
+                                    ⏱ {Math.floor(ytSingleMetadata.duration / 60)}:{String(ytSingleMetadata.duration % 60).padStart(2, '0')}
+                                  </span>
+                                )}
+                                {ytSingleMetadata.estimatedSizeMB && (
+                                  <span style={{ fontSize: 10, background: 'rgba(99,102,241,0.12)', color: '#4338ca', padding: '2px 8px', borderRadius: 100, fontWeight: 700 }}>
+                                    💾 ~{ytSingleMetadata.estimatedSizeMB} MB
+                                  </span>
+                                )}
+                                {ytSingleMetadata.audioCodec && (
+                                  <span style={{ fontSize: 10, background: 'rgba(239,68,68,0.1)', color: '#b91c1c', padding: '2px 8px', borderRadius: 100, fontWeight: 700 }}>
+                                    🎵 {ytSingleMetadata.audioCodec}
+                                  </span>
+                                )}
+                                {ytSingleMetadata.id && (
+                                  <span style={{ fontSize: 10, background: 'rgba(43,34,26,0.07)', color: '#5a4a3a', padding: '2px 8px', borderRadius: 100, fontWeight: 700, fontFamily: 'monospace' }}>
+                                    ID: {ytSingleMetadata.id}
+                                  </span>
+                                )}
+                              </div>
+                              {ytSingleMetadata.artist && ytSingleMetadata.artist !== ytSingleMetadata.channel && (
+                                <div style={{ fontSize: 10, color: 'var(--color-ss-text-muted, #87786c)', marginTop: 4 }}>
+                                  🎤 Artist: {ytSingleMetadata.artist}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Raw title display */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                          <label style={{ fontSize: 11, color: 'var(--color-ss-text-muted, #87786c)', fontWeight: 650 }}>Extracted Title / Raw Header</label>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-ss-text-primary, #221a15)', background: 'rgba(43,34,26,0.03)', padding: '8px 12px', borderRadius: 8 }}>
+                            {ytSingleMetadata.title}
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                          <label style={{ fontSize: 11, color: 'var(--color-ss-text-muted, #87786c)', fontWeight: 650 }}>Song Title (Upload Label) *</label>
+                          <input suppressHydrationWarning
+                            type="text"
+                            value={ytSingleMetadata.songName}
+                            onChange={(e) => setYtSingleMetadata({ ...ytSingleMetadata, songName: e.target.value })}
+                            style={{
+                              padding: '10px 12px',
+                              background: '#ffffff',
+                              border: '1.5px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
+                              borderRadius: 8,
+                              color: 'var(--color-ss-text-primary, #221a15)',
+                              fontSize: 13,
+                              outline: 'none',
+                            }}
+                          />
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            <label style={{ fontSize: 11, color: 'var(--color-ss-text-muted, #87786c)', fontWeight: 650 }}>Genre *</label>
+                            <select
+                              value={ytSingleMetadata.genre}
+                              onChange={(e) => setYtSingleMetadata({ ...ytSingleMetadata, genre: e.target.value })}
+                              style={{
+                                padding: '10px 12px',
+                                background: '#ffffff',
+                                border: '1.5px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
+                                borderRadius: 8,
+                                color: 'var(--color-ss-text-primary, #221a15)',
+                                fontSize: 13,
+                                outline: 'none',
+                                fontFamily: 'inherit'
+                              }}
+                            >
+                              {GENRES.map((g) => (
+                                <option key={g} value={g}>{g}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            <label style={{ fontSize: 11, color: 'var(--color-ss-text-muted, #87786c)', fontWeight: 650 }}>Duration (s)</label>
+                            <input suppressHydrationWarning
+                              type="number"
+                              value={ytSingleMetadata.duration}
+                              onChange={(e) => setYtSingleMetadata({ ...ytSingleMetadata, duration: parseInt(e.target.value) || 180 })}
+                              style={{
+                                padding: '10px 12px',
+                                background: '#ffffff',
+                                border: '1.5px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
+                                borderRadius: 8,
+                                color: 'var(--color-ss-text-primary, #221a15)',
+                                fontSize: 13,
+                                outline: 'none',
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                          <input suppressHydrationWarning
+                            type="checkbox"
+                            id="yt-song-explicit-upload"
+                            checked={ytSingleMetadata.explicit}
+                            onChange={(e) => setYtSingleMetadata({ ...ytSingleMetadata, explicit: e.target.checked })}
+                            style={{ width: 16, height: 16, cursor: 'pointer' }}
+                          />
+                          <label htmlFor="yt-song-explicit-upload" style={{ fontSize: 12.5, color: 'var(--color-ss-text-primary, #221a15)', cursor: 'pointer', userSelect: 'none' }}>
+                            Contains explicit content
+                          </label>
+                        </div>
+
+                        <motion.button
+                          whileHover={{ opacity: 0.95 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={handleYtConvert}
+                          disabled={ytLoading}
+                          style={{
+                            padding: '14px',
+                            background: ytLoading ? '#6b7280' : 'linear-gradient(135deg, #10b981, #059669)',
+                            border: 'none',
+                            borderRadius: 10,
+                            color: '#ffffff',
+                            fontWeight: 800,
+                            fontSize: 14,
+                            cursor: ytLoading ? 'not-allowed' : 'pointer',
+                            marginTop: 10,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: 8
+                          }}
+                        >
+                          {ytLoading ? '⏳ Downloading & Converting...' : '🎵 Convert & Upload MP3'}
+                        </motion.button>
+                      </div>
+                    )}
+
+                    {ytParsedData.type === 'playlist' && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                        <div style={{ fontSize: 12, color: 'var(--color-ss-text-muted, #87786c)', fontWeight: 600 }}>
+                          Select tracks to convert from playlist:
+                        </div>
+                        {/* Playlist tracks selection checklist */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 220, overflowY: 'auto', paddingRight: 4 }}>
+                          {ytParsedData.tracks?.map((t: any, index: number) => {
+                            const isChecked = ytPlaylistSelection[t.id] ?? false;
+                            return (
+                              <div key={`${t.id}-${index}`} style={{
+                                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                background: '#ffffff', border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
+                                borderRadius: 8, padding: '8px 12px'
+                              }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: 1 }}>
+                                  <input suppressHydrationWarning
+                                    type="checkbox"
+                                    checked={isChecked}
+                                    onChange={(e) => {
+                                      const val = e.target.checked;
+                                      setYtPlaylistSelection(prev => ({ ...prev, [t.id]: val }));
+                                    }}
+                                    style={{ width: 15, height: 15, cursor: 'pointer', flexShrink: 0 }}
+                                  />
+                                  <div style={{ minWidth: 0 }}>
+                                    <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-ss-text-primary, #221a15)', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                      {t.songName}
+                                    </span>
+                                    <span style={{ fontSize: 10, color: 'var(--color-ss-text-muted, #87786c)' }}>
+                                      Genre: {t.genre} | Duration: {Math.floor(t.duration / 60)}m {t.duration % 60}s
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        <motion.button
+                          whileHover={{ opacity: 0.95 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={handleYtConvert}
+                          disabled={ytLoading}
+                          style={{
+                            padding: '12px',
+                            background: '#10b981',
+                            border: 'none',
+                            borderRadius: 10,
+                            color: '#ffffff',
+                            fontWeight: 700,
+                            fontSize: 13,
+                            cursor: 'pointer',
+                            marginTop: 10,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: 6
+                          }}
+                        >
+                          📦 Bulk Convert & Upload ({Object.values(ytPlaylistSelection).filter(Boolean).length} tracks)
+                        </motion.button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
       </div>
     </div>
   );

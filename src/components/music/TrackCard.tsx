@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Play, Pause, Heart, MoreHorizontal, MoreVertical, Download, Check, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 import { useDownloadStore } from '@/store/downloadStore';
 import { Track } from '@/types';
 import { usePlayerStore } from '@/store/playerStore';
@@ -43,6 +44,10 @@ export default function TrackCard({ track, index, queue = [], showAlbum = true, 
 
   const handleDownload = (e: React.MouseEvent) => {
     e.preventDefault(); e.stopPropagation();
+    if (user?.subscription === 'free') {
+      toast.error("Offline downloading is a Premium-only feature! Upgrade to Premium. 💎");
+      return;
+    }
     if (downloaded) {
       removeDownloadedTrack(track.id);
     } else {

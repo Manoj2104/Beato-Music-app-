@@ -81,7 +81,10 @@ export async function GET(request: NextRequest) {
     automationRules,
     rolesConfig,
     dbConfig: safeDbConfig,
-    apiConfig: safeApiConfig
+    apiConfig: safeApiConfig,
+    planPrices: db.getPlanPrices(),
+    globalCurrency: db.getGlobalCurrency(),
+    adsConfig: db.getAdsConfig(),
   });
 }
 
@@ -282,6 +285,24 @@ export async function POST(request: NextRequest) {
     } catch (err: any) {
       return NextResponse.json({ success: false, error: err.message || 'SMTP connection failed' });
     }
+  }
+
+  if (type === 'paymentSettings') {
+    const { planPrices, globalCurrency } = data;
+    if (planPrices) {
+      Object.entries(planPrices).forEach(([plan, price]) => {
+        db.updatePlanPrice(plan, Number(price));
+      });
+    }
+    if (globalCurrency) {
+      db.updateGlobalCurrency(globalCurrency);
+    }
+    return NextResponse.json({ success: true, planPrices: db.getPlanPrices(), globalCurrency: db.getGlobalCurrency() });
+  }
+
+  if (type === 'adsSettings') {
+    const saved = db.saveAdsConfig(data);
+    return NextResponse.json({ success: true, adsConfig: saved });
   }
 
   return NextResponse.json({ error: 'Unknown settings type' }, { status: 400 });

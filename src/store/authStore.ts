@@ -62,6 +62,9 @@ interface AuthStore {
   toggleSavePlaylist: (playlistId: string) => void;
   isMobileDrawerOpen: boolean;
   setMobileDrawerOpen: (open: boolean) => void;
+  isCreateBottomSheetOpen: boolean;
+  setCreateBottomSheetOpen: (open: boolean) => void;
+  upgradeSubscription: (tier: 'free' | 'premium') => void;
 }
 
 let activeSessionPromise: Promise<void> | null = null;
@@ -76,6 +79,8 @@ export const useAuthStore = create<AuthStore>()(
       isLoading: false,
       isMobileDrawerOpen: false,
       setMobileDrawerOpen: (open) => set({ isMobileDrawerOpen: open }),
+      isCreateBottomSheetOpen: false,
+      setCreateBottomSheetOpen: (open) => set({ isCreateBottomSheetOpen: open }),
 
       login: async (email, password, allowMockFallback = false) => {
         set({ isLoading: true });
@@ -718,6 +723,13 @@ export const useAuthStore = create<AuthStore>()(
 
           set({ user: updatedUser });
         }
+      },
+
+      upgradeSubscription: (tier) => {
+        const currentUser = get().user;
+        if (!currentUser) return;
+        const updatedUser = { ...currentUser, subscription: tier };
+        set({ user: updatedUser });
       },
 
       toggleLikeSong: async (trackId) => {

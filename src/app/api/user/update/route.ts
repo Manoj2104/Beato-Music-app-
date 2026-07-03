@@ -32,6 +32,10 @@ export async function POST(request: NextRequest) {
     if (body.verified !== undefined) updates.verified = body.verified;
     if (body.role !== undefined) updates.role = body.role;
     if (body.verificationRequest !== undefined) updates.verificationRequest = body.verificationRequest;
+    if (body.subscription !== undefined) updates.subscription = body.subscription;
+    if (body.paymentMethod !== undefined) updates.paymentMethod = body.paymentMethod;
+    if (body.billingCycle !== undefined) updates.billingCycle = body.billingCycle;
+    if (body.country !== undefined) updates.country = body.country;
 
     const success = db.updateUser(userId, updates);
     if (!success) {

@@ -14,6 +14,7 @@ import { Track } from '@/types';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
+import AdBanner from '@/components/layout/AdBanner';
 
 interface NowPlayingPanelProps {
   onClose: () => void;
@@ -180,7 +181,7 @@ const getVibeComments = (genre: string) => {
 export default function NowPlayingPanel({ onClose }: NowPlayingPanelProps) {
   const {
     currentTrack, isPlaying, volume, isMuted, progress, duration,
-    shuffle, repeat, queue,
+    shuffle, repeat, queue, adsConfig,
     togglePlay, setProgress, toggleShuffle, cycleRepeat, playNext, playPrevious, playTrack
   } = usePlayerStore();
 
@@ -208,6 +209,17 @@ export default function NowPlayingPanel({ onClose }: NowPlayingPanelProps) {
 
   const [comments, setComments] = useState<Comment[]>([]);
   const [newCommentText, setNewCommentText] = useState('');
+  const [ads, setAds] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('/api/ads')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setAds(data.ads || []);
+        }
+      });
+  }, []);
 
   // Sync audio progress bar local state
   useEffect(() => {
@@ -278,6 +290,23 @@ export default function NowPlayingPanel({ onClose }: NowPlayingPanelProps) {
 
   // Next up song preview
   const nextTrack = queue.length > 0 ? queue[0] : null;
+
+  const isFree = user?.subscription === 'free';
+  const showSidebarAd = adsConfig?.placements?.sidebar !== false;
+
+  const resolveSidebarAd = () => {
+    if (!isFree || !showSidebarAd) return null;
+    const adMappings = adsConfig?.adMappings || {};
+    const mappedAdId = adMappings['sidebar'];
+    if (mappedAdId) {
+      const mappedAd = ads.find(a => a.id === mappedAdId);
+      if (mappedAd) return mappedAd;
+    }
+    return ads.find(ad => ad.type === 'banner' && ad.placement === 'sidebar');
+  };
+
+  const sidebarAd = resolveSidebarAd();
+  const adTheme = adsConfig?.settings?.adTheme || 'glass';
 
   const btnStyle = (active?: boolean): React.CSSProperties => ({
     background: 'none', border: 'none', cursor: 'pointer', padding: 6, borderRadius: '50%',
@@ -545,7 +574,7 @@ export default function NowPlayingPanel({ onClose }: NowPlayingPanelProps) {
             )}
           </motion.button>
 
-          <button onClick={playNext} style={btnStyle()} title="Next"
+          <button onClick={() => playNext(true)} style={btnStyle()} title="Next"
             onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
             onMouseLeave={e => (e.currentTarget.style.color = '#a3a3a3')}>
             <SkipForward size={20} fill="currentColor" />
@@ -557,6 +586,13 @@ export default function NowPlayingPanel({ onClose }: NowPlayingPanelProps) {
             {repeat === 'one' ? <Repeat1 size={16} /> : <Repeat size={16} />}
           </button>
         </div>
+
+        {/* Sidebar Display Ad */}
+        {sidebarAd && (
+          <div style={{ width: '100%', marginTop: 12 }}>
+            <AdBanner ad={sidebarAd} theme={adTheme} style={{ margin: 0, padding: '10px 14px', borderRadius: 8 }} />
+          </div>
+        )}
 
         {/* Next Track Preview */}
         {nextTrack && (

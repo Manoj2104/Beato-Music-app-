@@ -7,7 +7,7 @@ import {
   Settings, Plus, Trash2, Eye, EyeOff, Save, Check,
   AlertTriangle, Lock, Crown, UserCheck, Search,
   ShieldCheck, Wifi, Globe, Send, Activity, Server,
-  Shield, HelpCircle
+  Shield, HelpCircle, Megaphone
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -1180,6 +1180,265 @@ function PlatformConfig({ platformSettings, onSave }: any) {
   );
 }
 
+function PaymentConfig({ planPrices, globalCurrency, onSave }: any) {
+  const [prices, setPrices] = useState<any>({ free: 0, student: 4.99, premium: 9.99, family: 15.99, creator: 19.99 });
+  const [currency, setCurrency] = useState('USD');
+  const [testMode, setTestMode] = useState(true);
+  const [gateways, setGateways] = useState({
+    card: true,
+    upi: true,
+    paypal: true,
+    netbanking: true
+  });
+
+  useEffect(() => {
+    if (planPrices) {
+      setPrices(planPrices);
+    }
+    if (globalCurrency) {
+      setCurrency(globalCurrency);
+    }
+  }, [planPrices, globalCurrency]);
+
+  const handleSave = () => {
+    onSave({
+      planPrices: prices,
+      globalCurrency: currency
+    });
+  };
+
+  return (
+    <Card title="Payment Settings & Configuration" subtitle="Set global pricing plans, payment options, and payouts" icon="💳">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        
+        {/* Pricing Plans */}
+        <div>
+          <h4 style={{ fontSize: 13.5, fontWeight: 700, margin: '0 0 12px 0', borderBottom: `1px solid ${C.border}`, paddingBottom: 6 }}>Subscription Plans Pricing</h4>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <Row label="Free Tier" desc="Basic playback with ads. Billed at 0.">
+              <TInput value={prices.free} disabled={true} onChange={() => {}} />
+            </Row>
+            <Row label="Student Premium" desc="Discounted plan for verified students.">
+              <TInput value={prices.student} onChange={(v: string) => setPrices({ ...prices, student: Number(v) || 0 })} />
+            </Row>
+            <Row label="Premium Standard" desc="Ad-free listening and offline mode.">
+              <TInput value={prices.premium} onChange={(v: string) => setPrices({ ...prices, premium: Number(v) || 0 })} />
+            </Row>
+            <Row label="Family Premium" desc="Up to 6 accounts under one billing address.">
+              <TInput value={prices.family} onChange={(v: string) => setPrices({ ...prices, family: Number(v) || 0 })} />
+            </Row>
+            <Row label="Creator Tier" desc="For artists uploading and hosting music.">
+              <TInput value={prices.creator} onChange={(v: string) => setPrices({ ...prices, creator: Number(v) || 0 })} />
+            </Row>
+          </div>
+        </div>
+
+        {/* Global Currency */}
+        <div style={{ marginTop: 12 }}>
+          <h4 style={{ fontSize: 13.5, fontWeight: 700, margin: '0 0 12px 0', borderBottom: `1px solid ${C.border}`, paddingBottom: 6 }}>Global Currency</h4>
+          <Row label="Primary Currency" desc="Select the currency used for invoicing and layouts.">
+            <Sel value={currency} onChange={setCurrency}>
+              <option value="USD">USD ($) - United States Dollar</option>
+              <option value="INR">INR (₹) - Indian Rupee</option>
+            </Sel>
+          </Row>
+        </div>
+
+        {/* Payment Gateways Config */}
+        <div style={{ marginTop: 12 }}>
+          <h4 style={{ fontSize: 13.5, fontWeight: 700, margin: '0 0 12px 0', borderBottom: `1px solid ${C.border}`, paddingBottom: 6 }}>Payment Options & Sandbox</h4>
+          <Row label="Payment Gateway Testmode" desc="Enable mock/sandbox checkout simulations.">
+            <Toggle value={testMode} onChange={setTestMode} />
+          </Row>
+          <Row label="Accept Credit/Debit Cards" desc="Visa, Mastercard, Amex checkout.">
+            <Toggle value={gateways.card} onChange={v => setGateways({ ...gateways, card: v })} />
+          </Row>
+          <Row label="Accept UPI Payments" desc="Instantly request payments via UPI VPA IDs.">
+            <Toggle value={gateways.upi} onChange={v => setGateways({ ...gateways, upi: v })} />
+          </Row>
+          <Row label="Accept PayPal Checkout" desc="Secure PayPal merchant redirection.">
+            <Toggle value={gateways.paypal} onChange={v => setGateways({ ...gateways, paypal: v })} />
+          </Row>
+        </div>
+
+        {/* Revenue Share Split */}
+        <div style={{
+          marginTop: 16,
+          padding: '16px',
+          background: 'rgba(176, 136, 80, 0.05)',
+          borderRadius: 12,
+          border: '1px solid rgba(176, 136, 80, 0.12)'
+        }}>
+          <h5 style={{ margin: 0, fontSize: 13, fontWeight: 700, color: C.text }}>💡 Platform Royalty Split Policy</h5>
+          <p style={{ margin: '4px 0 0 0', fontSize: 11.5, color: C.muted, lineHeight: 1.4 }}>
+            Subscribed plan transactions are subject to standard royalty allocation: **70% to Artists/Creators**, **20% to Beato Platform Operating Fees**, and **10% to tax withholdings**.
+          </p>
+        </div>
+
+        <SaveBtn onClick={handleSave} />
+      </div>
+    </Card>
+  );
+}
+
+function AdsConfig({ adsConfig, onSave }: any) {
+  const [ads, setAds] = useState<any>({
+    googleAdsense: { enabled: false, publisherId: '', slotIdHome: '', slotIdSidebar: '', sandboxMode: true },
+    placements: { homeBanner: true, playerBar: true, sidebar: false, lyricsPanel: true },
+    visualAd: { title: '', description: '', imageUrl: '', destinationUrl: '' },
+    audioAd: { enabled: true, audioUrl: '', frequencyTracks: 3, durationSeconds: 15 }
+  });
+
+  useEffect(() => {
+    if (adsConfig) {
+      setAds(adsConfig);
+    }
+  }, [adsConfig]);
+
+  const handleSave = () => {
+    onSave(ads);
+  };
+
+  return (
+    <Card title="Ads Configuration & Monetization" subtitle="Setup Google AdSense, configure visual ad banners, and manage audio ads injection" icon="📣">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        
+        {/* Google AdSense Configuration */}
+        <div>
+          <h4 style={{ fontSize: 13.5, fontWeight: 700, margin: '0 0 12px 0', borderBottom: `1px solid ${C.border}`, paddingBottom: 6 }}>Google AdSense Connection</h4>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <Row label="Enable AdSense Integration" desc="Inject responsive Google AdSense scripts into visual slots.">
+              <Toggle value={ads.googleAdsense?.enabled ?? false} onChange={(v: boolean) => setAds({
+                ...ads,
+                googleAdsense: { ...(ads.googleAdsense || {}), enabled: v }
+              })} />
+            </Row>
+            <Row label="Publisher ID" desc="Google AdSense Client ID (e.g. pub-xxxxxx).">
+              <TInput value={ads.googleAdsense?.publisherId ?? ''} onChange={(v: string) => setAds({
+                ...ads,
+                googleAdsense: { ...(ads.googleAdsense || {}), publisherId: v }
+              })} placeholder="pub-xxxxxxxxxxxxxxxx" />
+            </Row>
+            <Row label="Home Page Banner Slot ID" desc="Unique slot ID for home header banner.">
+              <TInput value={ads.googleAdsense?.slotIdHome ?? ''} onChange={(v: string) => setAds({
+                ...ads,
+                googleAdsense: { ...(ads.googleAdsense || {}), slotIdHome: v }
+              })} placeholder="1234567890" />
+            </Row>
+            <Row label="Sidebar Slot ID" desc="Unique slot ID for desktop sidebar container.">
+              <TInput value={ads.googleAdsense?.slotIdSidebar ?? ''} onChange={(v: string) => setAds({
+                ...ads,
+                googleAdsense: { ...(ads.googleAdsense || {}), slotIdSidebar: v }
+              })} placeholder="0987654321" />
+            </Row>
+            <Row label="Sandbox Mode" desc="Enable test placeholder creatives instead of live billing ads.">
+              <Toggle value={ads.googleAdsense?.sandboxMode ?? true} onChange={(v: boolean) => setAds({
+                ...ads,
+                googleAdsense: { ...(ads.googleAdsense || {}), sandboxMode: v }
+              })} />
+            </Row>
+          </div>
+        </div>
+
+        {/* Ad Placements Toggles */}
+        <div>
+          <h4 style={{ fontSize: 13.5, fontWeight: 700, margin: '0 0 12px 0', borderBottom: `1px solid ${C.border}`, paddingBottom: 6 }}>Ad Placement Controls</h4>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <Row label="Home Header Visual Banner" desc="Display promotional banners on the home feed.">
+              <Toggle value={ads.placements?.homeBanner ?? true} onChange={(v: boolean) => setAds({
+                ...ads,
+                placements: { ...(ads.placements || {}), homeBanner: v }
+              })} />
+            </Row>
+            <Row label="Player Bar Audio Ads" desc="Inject audio ads during playback queues for Free users.">
+              <Toggle value={ads.placements?.playerBar ?? true} onChange={(v: boolean) => setAds({
+                ...ads,
+                placements: { ...(ads.placements || {}), playerBar: v }
+              })} />
+            </Row>
+            <Row label="Sidebar Visual Display Ad" desc="Show visual ads at the bottom of the sidebar.">
+              <Toggle value={ads.placements?.sidebar ?? false} onChange={(v: boolean) => setAds({
+                ...ads,
+                placements: { ...(ads.placements || {}), sidebar: v }
+              })} />
+            </Row>
+            <Row label="Lyrics Screen Ad Banner" desc="Expose ad banners inside the scrolling lyrics view.">
+              <Toggle value={ads.placements?.lyricsPanel ?? true} onChange={(v: boolean) => setAds({
+                ...ads,
+                placements: { ...(ads.placements || {}), lyricsPanel: v }
+              })} />
+            </Row>
+          </div>
+        </div>
+
+        {/* Visual Ad creative configuration */}
+        <div>
+          <h4 style={{ fontSize: 13.5, fontWeight: 700, margin: '0 0 12px 0', borderBottom: `1px solid ${C.border}`, paddingBottom: 6 }}>Visual Ad Creative Settings</h4>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <Row label="Ad Title" desc="Promotional headline text displayed inside visual banners.">
+              <TInput value={ads.visualAd?.title ?? ''} onChange={(v: string) => setAds({
+                ...ads,
+                visualAd: { ...(ads.visualAd || {}), title: v }
+              })} placeholder="e.g. Upgrade to Beato Premium 💎" />
+            </Row>
+            <Row label="Ad Description" desc="Body message detailing the promotion or link description.">
+              <TInput value={ads.visualAd?.description ?? ''} onChange={(v: string) => setAds({
+                ...ads,
+                visualAd: { ...(ads.visualAd || {}), description: v }
+              })} placeholder="e.g. Get 50% off standard billing using code WELCOMEBACK50." />
+            </Row>
+            <Row label="Creative Image URL" desc="Full image path for the banner graphic (e.g. Unsplash URL).">
+              <TInput value={ads.visualAd?.imageUrl ?? ''} onChange={(v: string) => setAds({
+                ...ads,
+                visualAd: { ...(ads.visualAd || {}), imageUrl: v }
+              })} placeholder="https://..." />
+            </Row>
+            <Row label="Destination URL / Action Route" desc="Where the user is redirected when clicking the ad banner.">
+              <TInput value={ads.visualAd?.destinationUrl ?? ''} onChange={(v: string) => setAds({
+                ...ads,
+                visualAd: { ...(ads.visualAd || {}), destinationUrl: v }
+              })} placeholder="/premium" />
+            </Row>
+          </div>
+        </div>
+
+        {/* Audio Ad Settings */}
+        <div>
+          <h4 style={{ fontSize: 13.5, fontWeight: 700, margin: '0 0 12px 0', borderBottom: `1px solid ${C.border}`, paddingBottom: 6 }}>Audio Ads & Frequency Settings</h4>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <Row label="Enable Audio Ads Integration" desc="Inject audio tracks in between user queue streams.">
+              <Toggle value={ads.audioAd?.enabled ?? true} onChange={(v: boolean) => setAds({
+                ...ads,
+                audioAd: { ...(ads.audioAd || {}), enabled: v }
+              })} />
+            </Row>
+            <Row label="Audio File URL (MP3)" desc="Direct URL path of the advertisement audio file.">
+              <TInput value={ads.audioAd?.audioUrl ?? ''} onChange={(v: string) => setAds({
+                ...ads,
+                audioAd: { ...(ads.audioAd || {}), audioUrl: v }
+              })} placeholder="https://..." />
+            </Row>
+            <Row label="Audio Ad Frequency (Tracks)" desc="Number of standard music tracks to play before injecting one ad.">
+              <TInput value={ads.audioAd?.frequencyTracks ?? 3} onChange={(v: string) => setAds({
+                ...ads,
+                audioAd: { ...(ads.audioAd || {}), frequencyTracks: Number(v) || 3 }
+              })} />
+            </Row>
+            <Row label="Audio Ad Cutoff (Seconds)" desc="Force-stop the ad and skip to next song after this duration.">
+              <TInput value={ads.audioAd?.durationSeconds ?? 15} onChange={(v: string) => setAds({
+                ...ads,
+                audioAd: { ...(ads.audioAd || {}), durationSeconds: Number(v) || 15 }
+              })} />
+            </Row>
+          </div>
+        </div>
+
+        <SaveBtn onClick={handleSave} />
+      </div>
+    </Card>
+  );
+}
+
 // 👑 MAIN SUPER ADMIN SETTINGS COMPONENT
 export default function SuperAdminTab() {
   const [activeSubTab, setActiveSubTab] = useState('admins');
@@ -1232,6 +1491,8 @@ export default function SuperAdminTab() {
     { id: 'admins', label: 'Admin Management', icon: <Users size={16} />, desc: 'Add and suspend panel admins' },
     { id: 'roles', label: 'Roles & Permissions', icon: <ShieldCheck size={16} />, desc: 'Modify roles and permission grid' },
     { id: 'userAccess', label: 'User Access Control', icon: <UserCheck size={16} />, desc: 'Override permissions for individual users' },
+    { id: 'paymentConfig', label: '💳 Payment Settings', icon: <Shield size={16} />, desc: 'Configure global currency, plan prices & gateways' },
+    { id: 'adsConfig', label: '📣 Ads Management', icon: <Megaphone size={16} />, desc: 'Configure AdSense, placement controls, creatives & audio ads' },
     { id: 'database', label: 'Database Setup', icon: <Database size={16} />, desc: 'Manage SQL & connection pool' },
     { id: 'apiKeys', label: 'API & Integrations', icon: <Key size={16} />, desc: 'Configure Stripe, Cloudinary, AWS S3, etc.' },
     { id: 'email', label: 'Email Setup (SMTP)', icon: <Mail size={16} />, desc: 'Configure SMTP servers' },
@@ -1296,6 +1557,8 @@ export default function SuperAdminTab() {
               {activeSubTab === 'admins' && <AdminMgmt />}
               {activeSubTab === 'roles' && <RoleBuilder rolesConfig={settings?.rolesConfig} onSave={(data: any) => saveSettings('rolesConfig', data)} />}
               {activeSubTab === 'userAccess' && <UserAccess settings={settings} onSave={(userId: string, perms: string[]) => saveSettings('userPermissions', { userId, perms })} />}
+              {activeSubTab === 'paymentConfig' && <PaymentConfig planPrices={settings?.planPrices} globalCurrency={settings?.globalCurrency} onSave={(data: any) => saveSettings('paymentSettings', data)} />}
+              {activeSubTab === 'adsConfig' && <AdsConfig adsConfig={settings?.adsConfig} onSave={(data: any) => saveSettings('adsSettings', data)} />}
               {activeSubTab === 'database' && <DbConfig dbConfig={settings?.dbConfig} onSave={(data: any) => saveSettings('dbConfig', data)} />}
               {activeSubTab === 'apiKeys' && <ApiKeys apiConfig={settings?.apiConfig} onSave={(data: any) => saveSettings('apiConfig', data)} />}
               {activeSubTab === 'email' && <EmailServices messagingConfig={settings?.messagingConfig} onSave={(data: any) => saveSettings('messagingConfig', data)} />}

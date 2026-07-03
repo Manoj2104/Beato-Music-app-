@@ -215,8 +215,10 @@ export default function SearchPage() {
   const allTracks = getAllTracks();
   const isMobile = useIsMobile(); // ⚡ shared single resize listener
   const [scrolled, setScrolled] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const el = document.querySelector('.app-main');
     if (!el) return;
     const handler = () => {
@@ -256,6 +258,10 @@ export default function SearchPage() {
   };
 
   const FILTERS = ['all', 'songs', 'artists', 'albums', 'playlists'] as const;
+
+  if (!mounted) {
+    return <div style={{ minHeight: '100%', background: 'var(--color-ss-bg, #fbf9f5)' }} />;
+  }
 
   return (
     <div style={{ minHeight: '100%', background: 'var(--color-ss-bg, #fbf9f5)', padding: isMobile ? '0 16px 32px' : '20px 24px' }}>
@@ -305,14 +311,13 @@ export default function SearchPage() {
           <div style={{ position: 'relative', maxWidth: 680, margin: '0 auto' }}>
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
               <Search size={18} color='#525252' style={{ position: 'absolute', left: 16, flexShrink: 0 }} />
-              <input
+              <input suppressHydrationWarning
                 value={query}
                 onChange={e => { setQuery(e.target.value); setShowSuggestions(true); }}
                 onFocus={() => setShowSuggestions(true)}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
                 placeholder="What do you want to listen to?"
                 autoFocus
-                suppressHydrationWarning
                 style={{
                   width: '100%',
                   background: '#fff',
@@ -370,14 +375,13 @@ export default function SearchPage() {
           <div style={{ position: 'relative', maxWidth: 680, margin: '0 auto 28px' }}>
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
               <Search size={18} color={query ? 'var(--color-ss-text-primary, #221a15)' : 'var(--color-ss-text-muted, #87786c)'} style={{ position: 'absolute', left: 16, flexShrink: 0 }} />
-              <input
+              <input suppressHydrationWarning
                 value={query}
                 onChange={e => { setQuery(e.target.value); setShowSuggestions(true); }}
                 onFocus={() => setShowSuggestions(true)}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
                 placeholder="What do you want to listen to?"
                 autoFocus
-                suppressHydrationWarning
                 style={{
                   width: '100%',
                   background: 'var(--color-ss-elevated, #ffffff)',

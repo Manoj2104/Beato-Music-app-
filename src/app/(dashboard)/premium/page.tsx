@@ -4,10 +4,12 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Crown, Zap, Users, BookOpen, Star, ChevronDown, ChevronUp } from 'lucide-react';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 import TopBar from '@/components/layout/TopBar';
 import { subscriptionPlans } from '@/lib/mockData';
 import { useAuthStore } from '@/store/authStore';
 import { cn } from '@/lib/utils';
+import CheckoutModal from '@/components/music/CheckoutModal';
 
 const faqs = [
   { q: 'What is included in Premium?', a: 'Premium includes ad-free listening, high quality audio up to 320kbps, offline downloads, unlimited skips, lyrics, crossfade, sleep timer, and AI-powered recommendations.' },
@@ -45,9 +47,27 @@ const planConfigs: Record<string, {
 export default function PremiumPage() {
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('monthly');
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const { user } = useAuthStore();
+  const { user, upgradeSubscription } = useAuthStore();
   const [plans, setPlans] = useState(subscriptionPlans);
   const [symbol, setSymbol] = useState('$');
+
+  const [isMobile, setIsMobile] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<any>({ id: 'premium', name: 'Premium Standard', price: 9.99, billingCycle: 'monthly' });
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const handleOpenCheckout = (planObj: any) => {
+    setSelectedPlan(planObj);
+    setCheckoutOpen(true);
+  };
 
   useEffect(() => {
     fetch('/api/plans')
@@ -137,96 +157,183 @@ export default function PremiumPage() {
           color: rgba(43, 34, 26, 0.35) !important;
           border: none !important;
         }
+        .premium-themed-container > div:first-of-type {
+          position: sticky !important;
+          top: 0 !important;
+          z-index: 100 !important;
+        }
       `}</style>
-      <TopBar />
+      <TopBar transparent={true} />
 
       {/* Main Content Layout with explicit vertical flow flexbox */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '64px', width: '100%', padding: '0 24px 32px' }}>
         
-        {/* Hero Section */}
-        <div style={{ position: 'relative', overflow: 'hidden', borderRadius: '24px', padding: '64px 24px', textAlign: 'center', background: 'radial-gradient(circle at top, rgba(176, 136, 80, 0.15) 0%, transparent 70%)' }}>
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', borderRadius: '100px', backgroundColor: 'rgba(176, 136, 80,0.12)', border: '1px solid rgba(176, 136, 80,0.25)', marginBottom: '24px' }}>
+        {/* Spotify-style Rotated Album Grid Hero */}
+        <div style={{
+          position: 'relative',
+          height: isMobile ? '380px' : '480px',
+          background: 'linear-gradient(180deg, #1a1512 0%, #2a221d 60%, var(--color-ss-bg, #fbf9f5) 100%)',
+          borderRadius: '24px',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: '0 24px',
+          textAlign: 'center',
+          boxShadow: '0 10px 40px rgba(0,0,0,0.15)'
+        }}>
+          {/* Rotated Album Cover Art Grid Background */}
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            opacity: 0.25,
+            transform: 'rotate(-10deg) scale(1.15)',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(6, 1fr)',
+            gap: 16,
+            padding: '20px',
+            pointerEvents: 'none',
+            zIndex: 1,
+            overflow: 'hidden',
+            maskImage: 'linear-gradient(to bottom, white 10%, transparent 90%)',
+            WebkitMaskImage: 'linear-gradient(to bottom, white 10%, transparent 90%)',
+          }}>
+            {[
+              'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=200&auto=format&fit=crop',
+              'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=200&auto=format&fit=crop',
+              'https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?w=200&auto=format&fit=crop',
+              'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=200&auto=format&fit=crop',
+              'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&auto=format&fit=crop',
+              'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=200&auto=format&fit=crop',
+              'https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=200&auto=format&fit=crop',
+              'https://images.unsplash.com/photo-1487180142328-0c4e37023af5?w=200&auto=format&fit=crop',
+              'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=200&auto=format&fit=crop',
+              'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=200&auto=format&fit=crop',
+              'https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?w=200&auto=format&fit=crop',
+              'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=200&auto=format&fit=crop',
+            ].map((url, index) => (
+              <div key={index} style={{
+                aspectRatio: '1/1',
+                borderRadius: 12,
+                backgroundSize: 'cover',
+                backgroundImage: `url(${url})`,
+                boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+              }} />
+            ))}
+          </div>
+
+          {/* Banner Contents */}
+          <div style={{ zIndex: 2, position: 'relative', maxWidth: '640px' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', borderRadius: '100px', backgroundColor: 'rgba(176, 136, 80, 0.15)', border: '1px solid rgba(176, 136, 80, 0.3)', marginBottom: '20px' }}>
               <Crown size={15} style={{ color: '#b08850' }} />
-              <span style={{ color: '#b08850', fontWeight: 700, fontSize: '12.5px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Beato Premium</span>
+              <span style={{ color: '#b08850', fontWeight: 800, fontSize: '11.5px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Beato Premium</span>
             </div>
-            <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '48px', fontWeight: 950, color: '#fff', letterSpacing: '-0.02em', marginBottom: '16px', textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
-              Music without limits
+
+            <h1 style={{
+              fontFamily: 'Outfit, sans-serif',
+              fontSize: isMobile ? '30px' : '44px',
+              fontWeight: 950,
+              color: '#fff',
+              letterSpacing: '-0.02em',
+              marginBottom: '16px',
+              lineHeight: 1.15
+            }}>
+              Get more out of your music with Premium Standard.
             </h1>
-            <p style={{ color: '#a3a3a3', fontSize: '18px', maxWidth: '560px', margin: '0 auto', lineHeight: '1.5' }}>
-              Listen to any song, skip as many times as you want, download for offline, and much more.
-            </p>
-          </motion.div>
-
-          {/* Billing Switch Toggle */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', marginTop: '36px' }}>
-            <button
-              onClick={() => setBilling('monthly')}
-              style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: 700,
-                color: billing === 'monthly' ? '#fff' : '#737373',
-                transition: 'color 0.25s'
-              }}
-            >
-              Monthly
-            </button>
             
-            <div 
-              onClick={() => setBilling(prev => prev === 'monthly' ? 'yearly' : 'monthly')}
-              style={{
-                width: '56px',
-                height: '28px',
-                borderRadius: '100px',
-                background: billing === 'yearly' ? 'rgba(176, 136, 80, 0.2)' : 'rgba(255, 255, 255, 0.08)',
-                border: `1.5px solid ${billing === 'yearly' ? '#b08850' : 'rgba(255,255,255,0.1)'}`,
-                position: 'relative',
-                cursor: 'pointer',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                display: 'flex',
-                alignItems: 'center',
-                padding: '2px'
-              }}
-            >
-              <div 
-                style={{
-                  width: '20px',
-                  height: '20px',
-                  borderRadius: '50%',
-                  background: billing === 'yearly' ? '#b08850' : '#ffffff',
-                  transform: billing === 'yearly' ? 'translateX(28px)' : 'translateX(0)',
-                  transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s',
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.4)'
-                }}
-              />
-            </div>
+            <p style={{
+              color: 'rgba(255,255,255,0.7)',
+              fontSize: isMobile ? '14px' : '17px',
+              lineHeight: 1.5,
+              marginBottom: '32px',
+              maxWidth: '520px',
+              margin: '0 auto 32px auto'
+            }}>
+              Ad-free music, offline downloads, synced lyrics, and unlimited skips. Change plans anytime.
+            </p>
 
             <button
-              onClick={() => setBilling('yearly')}
+              onClick={() => handleOpenCheckout(plans.find(p => p.id === 'premium') || plans[1])}
               style={{
-                background: 'none',
+                background: '#ffffff',
+                color: '#1a1512',
                 border: 'none',
+                borderRadius: 100,
+                padding: isMobile ? '12px 28px' : '15px 40px',
+                fontWeight: 900,
+                fontSize: isMobile ? '13px' : '15px',
                 cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: 700,
-                color: billing === 'yearly' ? '#fff' : '#737373',
-                transition: 'color 0.25s',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
+                boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
+                transition: 'all 0.2s',
+                fontFamily: 'Outfit, sans-serif'
               }}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.03)'; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
             >
-              Yearly
-              <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '100px', backgroundColor: '#b08850', color: '#000', fontWeight: 850, textTransform: 'uppercase', letterSpacing: '0.05em' }}>-20%</span>
+              Get Premium Standard
             </button>
           </div>
+        </div>
+
+        {/* Why Join Premium Section */}
+        <div style={{
+          maxWidth: '560px',
+          margin: '0 auto',
+          width: '100%',
+          background: '#ffffff',
+          borderRadius: 24,
+          border: '1px solid rgba(43,34,26,0.08)',
+          padding: '32px 24px',
+          boxShadow: '0 4px 20px rgba(43,34,26,0.02)'
+        }}>
+          <h2 style={{
+            fontFamily: 'Outfit, sans-serif',
+            fontSize: '22px',
+            fontWeight: 900,
+            textAlign: 'center',
+            marginBottom: '24px',
+            color: '#221a15'
+          }}>
+            Why join Premium Standard?
+          </h2>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {[
+              { text: 'Ad-free music listening', desc: 'No interruptions during your playback flow.' },
+              { text: 'Play songs in any order', desc: 'Enable on-demand selection on all devices.' },
+              { text: 'Very high audio quality', desc: 'Stream crystal-clear sound up to 320kbps.' },
+              { text: 'Listen offline anywhere', desc: 'Download tracks directly and play offline.' },
+              { text: 'Full Synced Lyrics', desc: 'Unlock the complete scrolling text for all tracks.' }
+            ].map((f, index) => (
+              <div key={index} style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                <div style={{
+                  width: 20,
+                  height: 20,
+                  borderRadius: '50%',
+                  background: 'rgba(176, 136, 80, 0.12)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#b08850',
+                  flexShrink: 0,
+                  marginTop: 2
+                }}>
+                  <Check size={12} strokeWidth={3} />
+                </div>
+                <div>
+                  <h4 style={{ margin: 0, fontSize: '13.5px', fontWeight: 800, color: '#221a15' }}>{f.text}</h4>
+                  <p style={{ margin: '2px 0 0 0', fontSize: '11.5px', color: '#87786c' }}>{f.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Available Plans Heading */}
+        <div style={{ textAlign: 'center', margin: '16px 0 -32px' }}>
+          <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '26px', fontWeight: 900 }}>Available plans</h2>
+          <p style={{ color: '#87786c', fontSize: '14px', marginTop: '6px' }}>Choose a subscription plan that fits your listening style.</p>
         </div>
 
         {/* Pricing Cards Grid Section */}
@@ -332,6 +439,19 @@ export default function PremiumPage() {
 
                   <button
                     disabled={isCurrentPlan}
+                    onClick={() => {
+                      if (plan.price === 0) {
+                        upgradeSubscription('free');
+                        toast.success('Plan switched to Free.');
+                      } else {
+                        handleOpenCheckout({
+                          id: plan.id,
+                          name: plan.name,
+                          price: plan.price,
+                          billingCycle: billing
+                        });
+                      }
+                    }}
                     style={{
                       width: '100%',
                       padding: '12px 16px',
@@ -501,6 +621,7 @@ export default function PremiumPage() {
         </div>
 
       </div>
+      <CheckoutModal isOpen={checkoutOpen} onClose={() => setCheckoutOpen(false)} plan={selectedPlan} />
     </div>
   );
 }

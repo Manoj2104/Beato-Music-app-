@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePlayerStore } from '@/store/playerStore';
 import { useAuthStore } from '@/store/authStore';
@@ -57,8 +57,9 @@ interface FloatingEmojiInstance {
   x: number;
 }
 
-export default function JamRoomClient({ roomId: propRoomId }: { roomId: string }) {
-  const roomId = decodeURIComponent(propRoomId).toUpperCase();
+export default function JamRoomPage({ params }: { params: Promise<{ roomId: string }> }) {
+  const { roomId: rawRoomId } = use(params);
+  const roomId = decodeURIComponent(rawRoomId).toUpperCase();
   const router = useRouter();
 
   // State definitions

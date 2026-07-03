@@ -52,6 +52,7 @@ export interface Track {
   trackNumber: number;
   waveform?: number[];
   status?: 'pending' | 'approved' | 'rejected';
+  isAd?: boolean;
 }
 
 export interface Playlist {

@@ -2469,6 +2469,45 @@ export const db = {
     return config;
   },
 
+  getAdsConfig: (): any => {
+    const data = readDb();
+    if ((data as any).adsConfig) return (data as any).adsConfig;
+    return {
+      googleAdsense: {
+        enabled: false,
+        publisherId: 'pub-8827361827361827',
+        slotIdHome: '1234567890',
+        slotIdSidebar: '0987654321',
+        sandboxMode: true
+      },
+      placements: {
+        homeBanner: true,
+        playerBar: true,
+        sidebar: false,
+        lyricsPanel: true
+      },
+      visualAd: {
+        title: 'Upgrade to Beato Premium 💎',
+        description: 'Get 50% off standard billing using code WELCOMEBACK50. Ad-free, Synced Lyrics & Unlimited Skips!',
+        imageUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500&auto=format&fit=crop',
+        destinationUrl: '/premium'
+      },
+      audioAd: {
+        enabled: true,
+        audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
+        frequencyTracks: 3,
+        durationSeconds: 15
+      }
+    };
+  },
+
+  saveAdsConfig: (config: any): any => {
+    const data = readDb();
+    (data as any).adsConfig = config;
+    writeDb(data);
+    return config;
+  },
+
   // --- Automation Rules ---
   getAutomationRules: (): AutomationRuleEntity[] => {
     const data = readDb();

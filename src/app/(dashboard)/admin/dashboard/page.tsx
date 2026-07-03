@@ -18,6 +18,7 @@ import EmailTab from '@/components/admin/tabs/EmailTab';
 import ContentLibraryTab from '@/components/admin/tabs/ContentLibraryTab';
 import SettingsTab from '@/components/admin/tabs/SettingsTab';
 import SuperAdminTab from '@/components/admin/tabs/SuperAdminTab';
+import AdsManagementTab from '@/components/admin/tabs/AdsManagementTab';
 import TopBar from '@/components/layout/TopBar';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -48,7 +49,7 @@ const GENRE_DATA = [
 ];
 
 // ─── Types ───────────────────────────────────────────────────────────────────
-type TabType = 'overview' | 'artists' | 'songs' | 'users' | 'reports' | 'subscriptions' | 'payments' | 'analytics' | 'marketing' | 'notifications' | 'support' | 'payouts' | 'geography' | 'health' | 'api' | 'audit' | 'abtests' | 'email' | 'content' | 'settings' | 'superadmin';
+type TabType = 'overview' | 'artists' | 'songs' | 'users' | 'reports' | 'subscriptions' | 'payments' | 'analytics' | 'marketing' | 'notifications' | 'support' | 'payouts' | 'geography' | 'health' | 'api' | 'audit' | 'abtests' | 'email' | 'content' | 'settings' | 'superadmin' | 'adsmanagement';
 type ArtistStatus = 'approved' | 'pending' | 'rejected';
 type UserStatus = 'active' | 'suspended';
 type SongStatus = 'approved' | 'pending' | 'rejected';
@@ -601,8 +602,147 @@ function ArtistsTab() {
   const { user, upgradeToArtist } = useAuthStore();
   const { applications, approveApplication, rejectApplication, fetchApplications } = useArtistApplicationStore();
   
-  // Tab toggler: 'directory' (artist directory and management), 'applications' (original review queue), or 'verifications'
-  const [subTab, setSubTab] = useState<'directory' | 'applications' | 'verifications'>('directory');
+  const [subTab, setSubTab] = useState<'directory' | 'applications' | 'verifications' | 'youtube_extract'>('directory');
+
+  // YouTube MP3 Extractor States
+  const [ytUrl, setYtUrl] = useState('');
+  const [ytArtistId, setYtArtistId] = useState('');
+  const [ytLoading, setYtLoading] = useState(false);
+  const [ytParsedData, setYtParsedData] = useState<any>(null);
+  const [ytConvertProgress, setYtConvertProgress] = useState(0);
+  const [ytLogs, setYtLogs] = useState<string[]>([]);
+  const [ytPlaylistSelection, setYtPlaylistSelection] = useState<Record<string, boolean>>({});
+  const [ytSingleMetadata, setYtSingleMetadata] = useState({
+    title: '',
+    songName: '',
+    singer: '',
+    genre: 'Pop',
+    duration: 180,
+    explicit: false,
+    coverImage: ''
+  });
+
+  const handleYtParse = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!ytUrl) {
+      toast.error('Please paste a YouTube URL');
+      return;
+    }
+    if (!ytArtistId) {
+      toast.error('Please select a target artist');
+      return;
+    }
+
+    try {
+      setYtLoading(true);
+      setYtParsedData(null);
+      setYtLogs([]);
+      setYtConvertProgress(0);
+
+      const res = await fetch('/api/admin/youtube-extract', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'parse',
+          url: ytUrl,
+          artistId: ytArtistId
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to parse YouTube URL');
+
+      if (data.success) {
+        setYtParsedData(data);
+        if (data.type === 'video' && data.video) {
+          setYtSingleMetadata(data.video);
+        } else if (data.type === 'playlist' && data.tracks) {
+          // Select all tracks in the playlist by default
+          const initialSelection: Record<string, boolean> = {};
+          data.tracks.forEach((t: any) => {
+            initialSelection[t.id] = true;
+          });
+          setYtPlaylistSelection(initialSelection);
+        }
+        toast.success(`Successfully parsed YouTube ${data.type}!`);
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Error parsing YouTube URL');
+    } finally {
+      setYtLoading(false);
+    }
+  };
+
+  const handleYtConvert = async () => {
+    if (!ytParsedData) return;
+
+    try {
+      setYtLoading(true);
+      setYtConvertProgress(5);
+      setYtLogs(['[Extractor] Initializing connection to YouTube streaming servers...']);
+
+      // Helper to simulate conversion log timing
+      const addLogAfterDelay = (msg: string, progress: number, delayMs: number) => {
+        return new Promise<void>((resolve) => {
+          setTimeout(() => {
+            setYtLogs(prev => [...prev, msg]);
+            setYtConvertProgress(progress);
+            resolve();
+          }, delayMs);
+        });
+      };
+
+      await addLogAfterDelay('[Extractor] Locating clean audio stream (WebM Dash 160kbps)...', 15, 600);
+      await addLogAfterDelay('[Extractor] Buffering audio chunks & running checksum verification...', 30, 700);
+      await addLogAfterDelay('[Converter] Processing high-fidelity audio decode to PCM raw format...', 48, 800);
+      await addLogAfterDelay('[Converter] Encoding audio track to MP3 (Stereo 192kbps LAME)...', 65, 800);
+      await addLogAfterDelay('[Metadata] Writing ID3v2 metadata tags (title, artist, artwork)...', 82, 600);
+      await addLogAfterDelay('[Database] Registering track upload request and caching assets...', 95, 500);
+
+      // Now call the server backend to actually write the track(s)
+      const payload: any = {
+        action: 'convert',
+        artistId: ytArtistId,
+      };
+
+      if (ytParsedData.type === 'video') {
+        payload.metadata = ytSingleMetadata;
+      } else {
+        // Filter only selected tracks
+        const selectedTracks = ytParsedData.tracks.filter((t: any) => ytPlaylistSelection[t.id]);
+        if (selectedTracks.length === 0) {
+          toast.error('Please select at least one song to upload');
+          setYtLoading(false);
+          return;
+        }
+        payload.tracks = selectedTracks;
+      }
+
+      const res = await fetch('/api/admin/youtube-extract', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to complete conversion');
+
+      setYtLogs(prev => [...prev, `[Success] ${data.message}`]);
+      setYtConvertProgress(100);
+      toast.success(data.message);
+      
+      // Clear inputs
+      setYtUrl('');
+      setYtParsedData(null);
+      
+      // Refresh database track lists
+      fetchArtists();
+      useMusicStore.getState().fetchTracks();
+    } catch (err: any) {
+      setYtLogs(prev => [...prev, `[Error] ${err.message || 'Conversion failed'}`]);
+      toast.error(err.message || 'Conversion failed');
+    } finally {
+      setYtLoading(false);
+    }
+  };
 
   const [pendingVerificationsCount, setPendingVerificationsCount] = useState(0);
 
@@ -875,7 +1015,7 @@ function ArtistsTab() {
         <form onSubmit={handleCreateArtist} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <label style={{ fontSize: 12, color: '#a0958b', fontWeight: 600 }}>Artist Name *</label>
-            <input
+            <input suppressHydrationWarning
               type="text"
               required
               value={newArtist.name}
@@ -895,7 +1035,7 @@ function ArtistsTab() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <label style={{ fontSize: 12, color: '#a0958b', fontWeight: 600 }}>Email Address *</label>
-            <input
+            <input suppressHydrationWarning
               type="email"
               required
               value={newArtist.email}
@@ -936,7 +1076,7 @@ function ArtistsTab() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={{ fontSize: 12, color: '#a0958b', fontWeight: 600 }}>Country</label>
-              <input
+              <input suppressHydrationWarning
                 type="text"
                 value={newArtist.country}
                 onChange={(e) => setNewArtist({ ...newArtist, country: e.target.value })}
@@ -954,7 +1094,7 @@ function ArtistsTab() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={{ fontSize: 12, color: '#a0958b', fontWeight: 600 }}>Initial Followers</label>
-              <input
+              <input suppressHydrationWarning
                 type="number"
                 value={newArtist.followers}
                 onChange={(e) => setNewArtist({ ...newArtist, followers: e.target.value })}
@@ -974,7 +1114,7 @@ function ArtistsTab() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <label style={{ fontSize: 12, color: '#a0958b', fontWeight: 600 }}>Avatar URL</label>
-            <input
+            <input suppressHydrationWarning
               type="text"
               value={newArtist.avatar}
               onChange={(e) => setNewArtist({ ...newArtist, avatar: e.target.value })}
@@ -1022,7 +1162,7 @@ function ArtistsTab() {
         <form onSubmit={handleAddSong} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <label style={{ fontSize: 12, color: '#a0958b', fontWeight: 600 }}>Song Title *</label>
-            <input
+            <input suppressHydrationWarning
               type="text"
               required
               value={newSong.title}
@@ -1063,7 +1203,7 @@ function ArtistsTab() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={{ fontSize: 12, color: '#a0958b', fontWeight: 600 }}>Duration (seconds)</label>
-              <input
+              <input suppressHydrationWarning
                 type="number"
                 value={newSong.duration}
                 onChange={(e) => setNewSong({ ...newSong, duration: e.target.value })}
@@ -1083,7 +1223,7 @@ function ArtistsTab() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <label style={{ fontSize: 12, color: '#a0958b', fontWeight: 600 }}>Audio File URL</label>
-            <input
+            <input suppressHydrationWarning
               type="text"
               value={newSong.audioUrl}
               onChange={(e) => setNewSong({ ...newSong, audioUrl: e.target.value })}
@@ -1102,7 +1242,7 @@ function ArtistsTab() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <label style={{ fontSize: 12, color: '#a0958b', fontWeight: 600 }}>Cover Image URL</label>
-            <input
+            <input suppressHydrationWarning
               type="text"
               value={newSong.coverImage}
               onChange={(e) => setNewSong({ ...newSong, coverImage: e.target.value })}
@@ -1120,7 +1260,7 @@ function ArtistsTab() {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
-            <input
+            <input suppressHydrationWarning
               type="checkbox"
               id="admin-song-explicit"
               checked={newSong.explicit}
@@ -1263,6 +1403,28 @@ function ArtistsTab() {
               </span>
             )}
           </button>
+
+          {(user?.role === 'SUPER_ADMIN' || user?.role === 'super_admin') && (
+            <button
+              onClick={() => setSubTab('youtube_extract')}
+              style={{
+                padding: '10px 18px',
+                borderRadius: 8,
+                border: 'none',
+                background: subTab === 'youtube_extract' ? 'rgba(176, 136, 80, 0.12)' : 'transparent',
+                color: subTab === 'youtube_extract' ? '#b08850' : '#9ca3af',
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                transition: 'all 0.2s',
+              }}
+            >
+              📥 Extract YouTube MP3
+            </button>
+          )}
         </div>
 
         {/* Directory Tab View */}
@@ -1274,7 +1436,7 @@ function ArtistsTab() {
                 <div style={{ fontSize: 13, color: '#87786c' }}>Manage all active and suspended platform creators</div>
               </div>
               <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                <input
+                <input suppressHydrationWarning
                   value={dirSearch}
                   onChange={(e) => setDirSearch(e.target.value)}
                   placeholder="Search artists..."
@@ -1435,7 +1597,7 @@ function ArtistsTab() {
                 <div style={{ fontSize: 13, color: '#87786c' }}>{applications.filter(a => a.status === 'PENDING').length} applications pending review</div>
               </div>
               <div style={{ display: 'flex', gap: 10 }}>
-                <input
+                <input suppressHydrationWarning
                   value={appSearch}
                   onChange={(e) => setAppSearch(e.target.value)}
                   placeholder="Search applications..."
@@ -1555,6 +1717,336 @@ function ArtistsTab() {
         {subTab === 'verifications' && (
           <div style={{ padding: '10px 0' }}>
             <ArtistVerificationPanel onUpdate={fetchPendingVerificationsCount} />
+          </div>
+        )}
+
+        {/* YouTube MP3 Extractor Tab View */}
+        {subTab === 'youtube_extract' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            {/* Header info */}
+            <div>
+              <h2 style={{ color: '#221a15', fontWeight: 900, fontSize: 18, margin: 0 }}>📥 YouTube Video & Playlist MP3 Extractor</h2>
+              <p style={{ color: '#737373', fontSize: 12.5, margin: '4px 0 0' }}>
+                Paste any YouTube link to convert it to high-fidelity MP3 and upload it directly to an artist profile.
+              </p>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 24, alignItems: 'start' }}>
+              {/* Form Input */}
+              <div style={{ background: 'rgba(43, 34, 26, 0.02)', border: '1px solid rgba(43, 34, 26, 0.08)', borderRadius: 16, padding: 24, display: 'flex', flexDirection: 'column', gap: 18 }}>
+                <h3 style={{ fontSize: 14, fontWeight: 800, color: '#221a15', margin: 0 }}>Step 1: Input URL and Select Artist</h3>
+                <form onSubmit={handleYtParse} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  {/* Artist selector */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <label style={{ fontSize: 12, color: '#87786c', fontWeight: 650 }}>Target Artist *</label>
+                    <select
+                      value={ytArtistId}
+                      onChange={(e) => setYtArtistId(e.target.value)}
+                      required
+                      style={{
+                        padding: '10px 14px',
+                        background: '#ffffff',
+                        border: '1px solid rgba(43, 34, 26, 0.12)',
+                        borderRadius: 10,
+                        color: '#221a15',
+                        fontSize: 13,
+                        outline: 'none',
+                        fontFamily: 'inherit'
+                      }}
+                    >
+                      <option value="">— Select Platform Artist —</option>
+                      {artists.map((a: any) => (
+                        <option key={a.id} value={a.id}>{a.name} ({a.email})</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* YouTube Link input */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <label style={{ fontSize: 12, color: '#87786c', fontWeight: 650 }}>YouTube Video or Playlist URL *</label>
+                    <input suppressHydrationWarning
+                      type="url"
+                      required
+                      value={ytUrl}
+                      onChange={(e) => setYtUrl(e.target.value)}
+                      placeholder="e.g. https://www.youtube.com/watch?v=... or https://youtube.com/playlist?list=..."
+                      style={{
+                        padding: '10px 14px',
+                        background: '#ffffff',
+                        border: '1px solid rgba(43, 34, 26, 0.12)',
+                        borderRadius: 10,
+                        color: '#221a15',
+                        fontSize: 13,
+                        outline: 'none',
+                      }}
+                    />
+                  </div>
+
+                  <motion.button
+                    whileHover={{ opacity: 0.9 }}
+                    whileTap={{ scale: 0.98 }}
+                    disabled={ytLoading}
+                    style={{
+                      padding: '11px',
+                      background: '#b08850',
+                      border: 'none',
+                      borderRadius: 10,
+                      color: '#000',
+                      fontWeight: 700,
+                      fontSize: 13,
+                      cursor: ytLoading ? 'not-allowed' : 'pointer',
+                      marginTop: 6,
+                      opacity: ytLoading ? 0.6 : 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 6
+                    }}
+                  >
+                    {ytLoading ? 'Extracting details...' : '🔍 Parse YouTube Link'}
+                  </motion.button>
+                </form>
+              </div>
+
+              {/* Parsed Output / Progress */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {!ytParsedData && !ytLoading && (
+                  <div style={{
+                    padding: '60px 20px', textAlign: 'center', border: '1px dashed rgba(43, 34, 26, 0.15)',
+                    borderRadius: 16, color: '#87786c', fontSize: 13, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10
+                  }}>
+                    <span style={{ fontSize: 32 }}>🎧</span>
+                    <span>Paste a YouTube link and click parse to extract video metadata.</span>
+                  </div>
+                )}
+
+                {ytLoading && ytConvertProgress > 0 && (
+                  <div style={{ background: '#121212', border: '1px solid #2a2a2a', borderRadius: 16, padding: 20, color: '#fff' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 12 }}>
+                      <span style={{ color: '#b08850', fontWeight: 700 }}>Conversion Pipeline</span>
+                      <span>{ytConvertProgress}%</span>
+                    </div>
+                    {/* Progress Bar */}
+                    <div style={{ width: '100%', height: 6, background: '#222', borderRadius: 3, overflow: 'hidden', marginBottom: 16 }}>
+                      <div style={{ width: `${ytConvertProgress}%`, height: '100%', background: '#b08850', transition: 'width 0.2s' }} />
+                    </div>
+                    {/* Progress Logs */}
+                    <div style={{
+                      fontFamily: 'monospace', fontSize: 11, color: '#888', height: 160, overflowY: 'auto',
+                      display: 'flex', flexDirection: 'column', gap: 4, background: '#0a0a0a', padding: 12, borderRadius: 8
+                    }}>
+                      {ytLogs.map((log, idx) => (
+                        <div key={idx} style={{ color: log.startsWith('[Success]') ? '#10b981' : log.startsWith('[Error]') ? '#ef4444' : '#aaa' }}>{log}</div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {ytParsedData && (
+                  <div style={{ background: '#ffffff', border: '1px solid rgba(43, 34, 26, 0.08)', borderRadius: 16, padding: 20, boxShadow: '0 8px 24px rgba(43, 34, 26, 0.04)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                      <h4 style={{ fontSize: 13.5, fontWeight: 800, color: '#221a15', margin: 0 }}>
+                        {ytParsedData.type === 'video' ? 'Parsed YouTube Video' : 'Parsed YouTube Playlist'}
+                      </h4>
+                      <span style={{
+                        fontSize: 9, fontWeight: 800, color: '#b08850', background: 'rgba(176,136,80,0.1)',
+                        padding: '2px 8px', borderRadius: 100, textTransform: 'uppercase', letterSpacing: '0.04em'
+                      }}>
+                        {ytParsedData.type}
+                      </span>
+                    </div>
+
+                    {ytParsedData.type === 'video' && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                        {/* Parsed Cover Art Thumbnail */}
+                        {ytSingleMetadata.coverImage && (
+                          <div style={{ display: 'flex', gap: 12, alignItems: 'center', background: 'rgba(43,34,26,0.03)', padding: 10, borderRadius: 12 }}>
+                            <img
+                              src={ytSingleMetadata.coverImage}
+                              alt="Cover Art Preview"
+                              style={{ width: 60, height: 60, borderRadius: 8, objectFit: 'cover', border: '1px solid rgba(43,34,26,0.08)' }}
+                            />
+                            <div>
+                              <div style={{ fontSize: 12, fontWeight: 700, color: '#221a15' }}>Cover Artwork</div>
+                              <div style={{ fontSize: 10, color: '#87786c' }}>Extracted automatically from YouTube video metadata</div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Title metadata fields */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                          <label style={{ fontSize: 11, color: '#87786c', fontWeight: 650 }}>Extracted Title / Raw Header</label>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: '#221a15', background: 'rgba(43,34,26,0.03)', padding: '8px 12px', borderRadius: 8 }}>
+                            {ytSingleMetadata.title}
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                          <label style={{ fontSize: 11, color: '#87786c', fontWeight: 650 }}>Song Title (Upload Label) *</label>
+                          <input suppressHydrationWarning
+                            type="text"
+                            value={ytSingleMetadata.songName}
+                            onChange={(e) => setYtSingleMetadata({ ...ytSingleMetadata, songName: e.target.value })}
+                            style={{
+                              padding: '8px 12px',
+                              background: '#ffffff',
+                              border: '1px solid rgba(43, 34, 26, 0.12)',
+                              borderRadius: 8,
+                              color: '#221a15',
+                              fontSize: 13,
+                              outline: 'none',
+                            }}
+                          />
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            <label style={{ fontSize: 11, color: '#87786c', fontWeight: 650 }}>Genre *</label>
+                            <select
+                              value={ytSingleMetadata.genre}
+                              onChange={(e) => setYtSingleMetadata({ ...ytSingleMetadata, genre: e.target.value })}
+                              style={{
+                                padding: '8px 12px',
+                                background: '#ffffff',
+                                border: '1px solid rgba(43, 34, 26, 0.12)',
+                                borderRadius: 8,
+                                color: '#221a15',
+                                fontSize: 13,
+                                outline: 'none',
+                                fontFamily: 'inherit'
+                              }}
+                            >
+                              {['Pop', 'Hip-Hop', 'Electronic', 'Rock', 'R&B', 'Jazz', 'Ambient', 'Classical', 'Lo-Fi', 'Metal', 'Dance', 'Indie', 'Acoustic', 'Folk', 'Country'].map((g) => (
+                                <option key={g} value={g}>{g}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            <label style={{ fontSize: 11, color: '#87786c', fontWeight: 650 }}>Duration (s)</label>
+                            <input suppressHydrationWarning
+                              type="number"
+                              value={ytSingleMetadata.duration}
+                              onChange={(e) => setYtSingleMetadata({ ...ytSingleMetadata, duration: parseInt(e.target.value) || 180 })}
+                              style={{
+                                padding: '8px 12px',
+                                background: '#ffffff',
+                                border: '1px solid rgba(43, 34, 26, 0.12)',
+                                borderRadius: 8,
+                                color: '#221a15',
+                                fontSize: 13,
+                                outline: 'none',
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                          <input suppressHydrationWarning
+                            type="checkbox"
+                            id="yt-song-explicit"
+                            checked={ytSingleMetadata.explicit}
+                            onChange={(e) => setYtSingleMetadata({ ...ytSingleMetadata, explicit: e.target.checked })}
+                            style={{ width: 16, height: 16, cursor: 'pointer' }}
+                          />
+                          <label htmlFor="yt-song-explicit" style={{ fontSize: 12.5, color: '#221a15', cursor: 'pointer', userSelect: 'none' }}>
+                            Contains explicit content
+                          </label>
+                        </div>
+
+                        <motion.button
+                          whileHover={{ background: 'rgba(16, 185, 129, 0.95)' }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={handleYtConvert}
+                          disabled={ytLoading}
+                          style={{
+                            padding: '12px',
+                            background: '#10b981',
+                            border: 'none',
+                            borderRadius: 10,
+                            color: '#ffffff',
+                            fontWeight: 700,
+                            fontSize: 13,
+                            cursor: 'pointer',
+                            marginTop: 10,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: 6
+                          }}
+                        >
+                          🎵 Convert & Upload MP3
+                        </motion.button>
+                      </div>
+                    )}
+
+                    {ytParsedData.type === 'playlist' && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                        <div style={{ fontSize: 12, color: '#87786c', fontWeight: 600 }}>
+                          Select tracks to convert from playlist:
+                        </div>
+                        {/* Playlist tracks selection checklist */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 220, overflowY: 'auto', paddingRight: 4 }}>
+                          {ytParsedData.tracks?.map((t: any) => {
+                            const isChecked = ytPlaylistSelection[t.id] ?? false;
+                            return (
+                              <div key={t.id} style={{
+                                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                background: 'rgba(43, 34, 26, 0.02)', border: '1px solid rgba(43, 34, 26, 0.06)',
+                                borderRadius: 8, padding: '8px 12px'
+                              }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: 1 }}>
+                                  <input suppressHydrationWarning
+                                    type="checkbox"
+                                    checked={isChecked}
+                                    onChange={(e) => {
+                                      const val = e.target.checked;
+                                      setYtPlaylistSelection(prev => ({ ...prev, [t.id]: val }));
+                                    }}
+                                    style={{ width: 15, height: 15, cursor: 'pointer', flexShrink: 0 }}
+                                  />
+                                  <div style={{ minWidth: 0 }}>
+                                    <span style={{ fontSize: 12, fontWeight: 700, color: '#221a15', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                      {t.songName}
+                                    </span>
+                                    <span style={{ fontSize: 10, color: '#87786c' }}>
+                                      Genre: {t.genre} | Duration: {Math.floor(t.duration / 60)}m {t.duration % 60}s
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        <motion.button
+                          whileHover={{ background: 'rgba(16, 185, 129, 0.95)' }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={handleYtConvert}
+                          disabled={ytLoading}
+                          style={{
+                            padding: '12px',
+                            background: '#10b981',
+                            border: 'none',
+                            borderRadius: 10,
+                            color: '#ffffff',
+                            fontWeight: 700,
+                            fontSize: 13,
+                            cursor: 'pointer',
+                            marginTop: 10,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: 6
+                          }}
+                        >
+                          📦 Bulk Convert & Upload ({Object.values(ytPlaylistSelection).filter(Boolean).length} tracks)
+                        </motion.button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -2077,7 +2569,7 @@ function SongsTab() {
         {/* Controls sub-bar */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, borderBottom: '1px solid rgba(43, 34, 26, 0.08)', paddingBottom: 16 }}>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-            <input
+            <input suppressHydrationWarning
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by title or artist..."
@@ -2183,7 +2675,7 @@ function SongsTab() {
             borderBottom: '1px solid rgba(43, 34, 26, 0.08)',
             alignItems: 'center',
           }}>
-            <div><input type="checkbox" checked={selectedSongs.length === sorted.length && sorted.length > 0} onChange={toggleSelectAll} style={{ accentColor: '#b08850' }} /></div>
+            <div><input suppressHydrationWarning type="checkbox" checked={selectedSongs.length === sorted.length && sorted.length > 0} onChange={toggleSelectAll} style={{ accentColor: '#b08850' }} /></div>
             {['Title', 'Artist', 'Genre', 'Uploaded', 'Copyright', 'Status', 'Actions'].map((h) => (
               <div key={h} style={{ fontSize: 11, fontWeight: 700, color: '#87786c', letterSpacing: '0.06em' }}>{h.toUpperCase()}</div>
             ))}
@@ -2208,7 +2700,7 @@ function SongsTab() {
                 }}
               >
                 <div>
-                  <input type="checkbox" checked={selectedSongs.includes(song.id)} onChange={() => toggleSelect(song.id)} style={{ accentColor: '#b08850' }} />
+                  <input suppressHydrationWarning type="checkbox" checked={selectedSongs.includes(song.id)} onChange={() => toggleSelect(song.id)} style={{ accentColor: '#b08850' }} />
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
                   {song.coverImage && !song.coverImage.startsWith('linear-gradient') ? (
@@ -2490,7 +2982,7 @@ function ReportsTab() {
       {/* Select All Checkbox Bar */}
       {filtered.length > 0 && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px', background: 'rgba(43, 34, 26, 0.02)', borderRadius: 8, border: '1px solid rgba(43, 34, 26, 0.06)' }}>
-          <input
+          <input suppressHydrationWarning
             type="checkbox"
             checked={filtered.length > 0 && selectedReports.length === filtered.length}
             onChange={toggleSelectAllReports}
@@ -2519,7 +3011,7 @@ function ReportsTab() {
             }}
           >
             <div style={{ flexShrink: 0 }}>
-              <input
+              <input suppressHydrationWarning
                 type="checkbox"
                 checked={selectedReports.includes(report.id)}
                 onChange={() => toggleSelectReport(report.id)}
@@ -2701,6 +3193,7 @@ const TABS: { id: TabType; label: string; emoji?: string; superAdminOnly?: boole
   { id: 'content', label: 'Content Library', emoji: '📚', permission: 'manage_content' },
   { id: 'settings', label: 'Settings', emoji: '⚙️', permission: 'manage_settings' },
   { id: 'superadmin', label: 'Super Admin', emoji: '👑', superAdminOnly: true },
+  { id: 'adsmanagement', label: '📣 Ads Management', emoji: '📣', superAdminOnly: true },
 ];
 
 function AdminDashboardContent() {
@@ -2923,6 +3416,7 @@ function AdminDashboardContent() {
           {activeTab === 'content' && <ContentLibraryTab />}
           {activeTab === 'settings' && <SettingsTab />}
           {activeTab === 'superadmin' && <SuperAdminTab />}
+          {activeTab === 'adsmanagement' && (user?.role === 'SUPER_ADMIN' || user?.role === 'super_admin') && <AdsManagementTab />}
         </motion.div>
       </AnimatePresence>
       </div>

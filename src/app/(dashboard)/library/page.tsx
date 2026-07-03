@@ -465,7 +465,7 @@ function MobileLibraryView({
   user,
   rooms
 }: MobileLibraryViewProps) {
-  const { setMobileDrawerOpen } = useAuthStore();
+  const { setMobileDrawerOpen, setCreateBottomSheetOpen } = useAuthStore();
   const { currentTrack, isPlaying, togglePlay } = usePlayerStore();
   const router = useRouter();
   const G = '#b08850';
@@ -512,7 +512,7 @@ function MobileLibraryView({
             <Search size={22} color="#fff" style={{ cursor: 'pointer' }} onClick={() => {
               toast('Search library…', { icon: '🔍' });
             }} />
-            <Plus size={24} color="#fff" style={{ cursor: 'pointer' }} onClick={() => setShowAddMenu(true)} />
+            <Plus size={24} color="#fff" style={{ cursor: 'pointer' }} onClick={() => setCreateBottomSheetOpen(true)} />
           </div>
         </div>
       )}
@@ -898,7 +898,7 @@ function MobileLibraryView({
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
               {/* Create Playlist option */}
               {activeTab === 'Playlists' && (
-                <div onClick={() => setShowAddMenu(true)} style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div onClick={() => setCreateBottomSheetOpen(true)} style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 8 }}>
                   <div style={{ aspectRatio: '1', width: '100%', borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Plus size={28} color="#737373" />
                   </div>
@@ -984,7 +984,7 @@ function MobileLibraryView({
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {/* Create Playlist option */}
               {activeTab === 'Playlists' && (
-                <div onClick={() => setShowAddMenu(true)} style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', padding: '4px 0' }}>
+                <div onClick={() => setCreateBottomSheetOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', padding: '4px 0' }}>
                   <div style={{ width: 52, height: 52, borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Plus size={20} color="#737373" />
                   </div>
@@ -1124,7 +1124,7 @@ function LibraryPageContent() {
   }, []);
 
   const sortRef = useRef<HTMLDivElement>(null);
-  const { user, toggleSavePlaylist } = useAuthStore();
+  const { user, toggleSavePlaylist, setCreateBottomSheetOpen } = useAuthStore();
   const { customPlaylists, addPlaylist, removePlaylist } = usePlaylistStore();
   const { getAllTracks, activeArtistIds, fetchTracks, recentlyPlayed } = useMusicStore();
   const { currentTrack, isPlaying, playTrack, togglePlay } = usePlayerStore();
@@ -1141,7 +1141,7 @@ function LibraryPageContent() {
   useEffect(() => {
     if (searchParams.get('create') === 'true') {
       if (typeof window !== 'undefined' && window.innerWidth <= 768) {
-        setShowAddMenu(true);
+        setCreateBottomSheetOpen(true);
       } else {
         setShowCreateModal(true);
       }

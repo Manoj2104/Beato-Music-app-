@@ -17,6 +17,7 @@ import { search, SearchResult } from '@/lib/search';
 import toast from 'react-hot-toast';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import AdBanner from '@/components/layout/AdBanner';
 
 const GREEN = 'var(--color-ss-primary, #b08850)';
 
@@ -233,62 +234,272 @@ function AlbumCardInline({ track, onPlay, isPlaying, isActive, cardStyle = 'clas
 }
 
 // Custom Immersive Ad Component
-function AdCard({ config, isMobile }: { config: any; isMobile: boolean }) {
+function AdCard({ config, isMobile, ads = [], theme = 'glass', resolvedAd }: { config: any; isMobile: boolean; ads?: any[]; theme?: string; resolvedAd?: any }) {
   const [isMuted, setIsMuted] = useState(true);
-  
-  const bgImg = config.customImage || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=400&auto=format&fit=crop&q=80';
+  const { adsConfig } = usePlayerStore();
+
+  // Find any active banner ad created via Ads Manager
+  const activeAd = resolvedAd || ads.find(ad => ad.type === 'banner' && (ad.placement === 'homepage_middle' || !ad.placement));
+
+  useEffect(() => {
+    if (activeAd) {
+      // Record impression in background
+      fetch('/api/ads/event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adId: activeAd.id, eventType: 'impression' })
+      }).catch(() => {});
+    }
+  }, [activeAd?.id]);
+
+  const handleAdClick = () => {
+    if (activeAd) {
+      fetch('/api/ads/event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adId: activeAd.id, eventType: 'click' })
+      }).catch(() => {});
+    }
+  };
+
+  const activeConfig = adsConfig || {
+    googleAdsense: { enabled: false, publisherId: 'pub-8827361827361827', slotIdHome: '1234567890', sandboxMode: true },
+    placements: { homeBanner: true },
+    visualAd: {
+      title: activeAd ? (activeAd.headline || activeAd.name) : (config.title || 'Upgrade to Beato Premium 💎'),
+      description: activeAd ? activeAd.bodyText : 'Get 50% off standard billing using code WELCOMEBACK50.',
+      imageUrl: activeAd 
+        ? (activeAd.imageUrl || 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500&auto=format&fit=crop') 
+        : (config.customImage || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=400&auto=format&fit=crop&q=80'),
+      destinationUrl: activeAd ? (activeAd.destinationUrl || '#') : '/premium',
+      ctaText: activeAd ? (activeAd.ctaText || 'Learn More') : 'Learn More'
+    }
+  };
+
+  const bannerVisible = activeConfig.placements?.homeBanner ?? true;
+  if (!bannerVisible) return null;
+
+  const adsenseEnabled = activeConfig.googleAdsense?.enabled ?? false;
+
+  if (adsenseEnabled) {
+    // Render Google AdSense creative slot with connection details
+    return (
+      <div style={{
+        width: '100%',
+        borderRadius: '8px',
+        overflow: 'hidden',
+        background: 'var(--color-ss-elevated, #ffffff)',
+        border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
+        marginBottom: '20px',
+        padding: '24px 16px',
+        textAlign: 'center',
+        fontFamily: 'Outfit, sans-serif'
+      }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 100, background: 'rgba(176, 136, 80, 0.1)', border: '1px solid rgba(176, 136, 80, 0.2)', fontSize: 10, fontWeight: 700, color: '#b08850', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 12 }}>
+          Google AdSense Sponsored
+        </div>
+        <div style={{ fontSize: 14, fontWeight: 800, color: '#221a15', marginBottom: 6 }}>
+          Google AdSense slot connected
+        </div>
+        <div style={{ fontSize: 11, color: '#87786c', fontFamily: 'monospace', wordBreak: 'break-all' }}>
+          Client: {activeConfig.googleAdsense?.publisherId} | Slot: {activeConfig.googleAdsense?.slotIdHome}
+        </div>
+        {activeConfig.googleAdsense?.sandboxMode && (
+          <div style={{ marginTop: 12, padding: 8, borderRadius: 6, background: 'rgba(245, 158, 11, 0.1)', color: '#d97706', fontSize: 10, fontWeight: 700 }}>
+            ⚠️ Google Ads Sandbox Placeholder active. Live invoicing simulation running.
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  const title = activeAd ? (activeAd.headline || activeAd.name) : (activeConfig.visualAd?.title || config.title || 'Upgrade to Beato Premium 💎');
+  const description = activeAd ? (activeAd.bodyText || 'Sponsored advertisement.') : (activeConfig.visualAd?.description || 'Get 50% off standard billing using code WELCOMEBACK50.');
+  const bgImg = activeAd ? (activeAd.imageUrl || 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500&auto=format&fit=crop') : (activeConfig.visualAd?.imageUrl || config.customImage || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=400&auto=format&fit=crop&q=80');
+  const destinationUrl = activeAd ? (activeAd.destinationUrl || '#') : (activeConfig.visualAd?.destinationUrl || '/premium');
+  const ctaText = activeAd ? (activeAd.ctaText || 'Learn More') : (activeConfig.visualAd?.ctaText || 'Learn More');
+
   const videoUrl = config.customVideo;
   const isVideo = config.mediaType === 'video' && videoUrl;
-  
+
+  // Resolve styling presets based on theme
+  let cardStyle: React.CSSProperties = {
+    width: '100%',
+    overflow: 'hidden',
+    marginBottom: '20px',
+    display: 'flex',
+    flexDirection: 'column',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  };
+
+  let bottomStyle: React.CSSProperties = { padding: '16px 20px', display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'center', gap: '16px' };
+  let titleStyle: React.CSSProperties = { margin: 0, fontSize: '15px', fontWeight: '800', fontFamily: 'Outfit, sans-serif', letterSpacing: '-0.015em' };
+  let descStyle: React.CSSProperties = { margin: '4px 0 0 0', fontSize: '12px', lineHeight: 1.4 };
+  let buttonStyle: React.CSSProperties = { border: 'none', padding: '10px 24px', fontSize: '12.5px', fontWeight: '900', cursor: 'pointer', whiteSpace: 'nowrap', width: isMobile ? '100%' : 'auto', fontFamily: 'Outfit, sans-serif', transition: 'all 0.15s ease' };
+
+  if (theme === 'glass') {
+    cardStyle = {
+      ...cardStyle,
+      background: 'rgba(255, 255, 255, 0.45)',
+      backdropFilter: 'blur(14px)',
+      border: '1px solid rgba(255, 255, 255, 0.45)',
+      borderRadius: 16,
+      boxShadow: '0 8px 32px rgba(43, 34, 26, 0.05)',
+    };
+    bottomStyle.background = 'transparent';
+    titleStyle.color = '#221a15';
+    descStyle.color = '#706155';
+    buttonStyle = {
+      ...buttonStyle,
+      background: '#b08850',
+      color: '#ffffff',
+      borderRadius: '100px',
+      boxShadow: '0 4px 12px rgba(176, 136, 80, 0.2)',
+    };
+  } else if (theme === 'cream') {
+    cardStyle = {
+      ...cardStyle,
+      background: 'linear-gradient(135deg, #ffffff 0%, #fcfbf7 100%)',
+      border: '1px solid rgba(176, 136, 80, 0.16)',
+      borderRadius: 16,
+      boxShadow: '0 4px 20px rgba(43, 34, 26, 0.03)',
+    };
+    bottomStyle.background = 'transparent';
+    titleStyle.color = '#221a15';
+    descStyle.color = '#87786c';
+    buttonStyle = {
+      ...buttonStyle,
+      background: '#b08850',
+      color: '#ffffff',
+      borderRadius: '100px',
+      boxShadow: '0 4px 12px rgba(176, 136, 80, 0.2)',
+    };
+  } else if (theme === 'contrast') {
+    cardStyle = {
+      ...cardStyle,
+      background: '#ffffff',
+      border: '1.5px solid #221a15',
+      borderRadius: 6,
+      boxShadow: 'none',
+    };
+    bottomStyle.background = '#ffffff';
+    bottomStyle.borderTop = '1.5px solid #221a15';
+    titleStyle.color = '#221a15';
+    descStyle.color = '#221a15';
+    buttonStyle = {
+      ...buttonStyle,
+      background: '#221a15',
+      color: '#ffffff',
+      borderRadius: 2,
+    };
+  } else if (theme === 'cyberpunk') {
+    cardStyle = {
+      ...cardStyle,
+      background: '#121212',
+      border: '1px solid #b08850',
+      borderRadius: 4,
+      boxShadow: '0 0 15px rgba(176, 136, 80, 0.25)',
+    };
+    bottomStyle.background = '#121212';
+    bottomStyle.borderTop = '1px solid #b0885033';
+    titleStyle.color = '#fff';
+    descStyle.color = '#b08850';
+    buttonStyle = {
+      ...buttonStyle,
+      background: '#b08850',
+      color: '#000',
+      borderRadius: 4,
+    };
+  }
+
   return (
-    <div style={{
-      width: '100%',
-      borderRadius: '8px',
-      overflow: 'hidden',
-      background: '#242424',
-      marginBottom: '20px',
-      display: 'flex',
-      flexDirection: 'column'
-    }}>
+    <motion.div 
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -4, boxShadow: theme === 'contrast' ? 'none' : '0 12px 32px rgba(176, 136, 80, 0.16)' }}
+      transition={{ duration: 0.25 }}
+      style={cardStyle} 
+      onClick={handleAdClick}
+    >
       <div style={{
         position: 'relative',
         width: '100%',
-        height: isMobile ? '220px' : '300px',
-        backgroundColor: '#121212'
+        height: isMobile ? '200px' : '260px',
+        backgroundColor: '#ffffff', // Clean white background to blend image seamlessly
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden'
       }}>
-        {isVideo ? (
-          <video src={videoUrl} autoPlay loop muted={isMuted} playsInline style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-        ) : (
-          <img src={bgImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+        {/* Blurred background halo for rich aesthetics */}
+        {bgImg && !isVideo && (
+          <img src={bgImg} alt="" style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            filter: 'blur(24px) opacity(0.35) saturate(1.4)',
+            transform: 'scale(1.15)', // prevent white edges
+            zIndex: 1
+          }} />
         )}
 
-        <div style={{ position: 'absolute', top: '12px', left: '12px', fontSize: '11px', fontWeight: 'bold', color: '#fff', zIndex: 5, textShadow: '0 1px 4px rgba(0,0,0,0.6)' }}>
-          Advertisement
-        </div>
+        {isVideo ? (
+          <video src={videoUrl} autoPlay loop muted={isMuted} playsInline style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', zIndex: 2 }} />
+        ) : (
+          <img src={bgImg} alt="" style={{ 
+            width: '100%', 
+            height: '100%', 
+            objectFit: bgImg.includes('uploads') ? 'contain' : 'cover', 
+            display: 'block', 
+            zIndex: 2,
+            position: 'relative',
+            padding: bgImg.includes('uploads') ? '20px' : '0'
+          }} />
+        )}
 
-        <div style={{ position: 'absolute', top: '12px', right: '12px', display: 'flex', gap: '8px', zIndex: 5 }}>
-          {isVideo && (
-            <button onClick={(e) => { e.stopPropagation(); setIsMuted(!isMuted); }} style={{ background: 'rgba(0, 0, 0, 0.6)', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: 'none', color: '#fff', outline: 'none' }} title={isMuted ? "Unmute" : "Mute"}>
-              {isMuted ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="1" y1="1" x2="23" y2="23"></line><path d="M9 9v6a3 3 0 0 0 3 3h1.586l4.707 4.707A1 1 0 0 0 20 22V4a1 1 0 0 0-1.707-.707L13.586 8H12a3 3 0 0 0-3 3z"></path></svg> : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>}
-            </button>
-          )}
-          <button style={{ background: 'rgba(0, 0, 0, 0.6)', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: 'none', color: '#fff', outline: 'none' }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
-          </button>
+        <div style={{ 
+          position: 'absolute', 
+          top: '12px', 
+          left: '12px', 
+          fontSize: '9px', 
+          fontWeight: 'bold', 
+          color: '#fff', 
+          zIndex: 5, 
+          padding: '4px 10px', 
+          borderRadius: '50px', 
+          background: 'rgba(34, 26, 21, 0.75)', 
+          backdropFilter: 'blur(8px)',
+          border: '1px solid rgba(255, 255, 255, 0.15)',
+          textTransform: 'uppercase', 
+          letterSpacing: '0.06em',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px'
+        }}>
+          <span style={{ display: 'inline-block', width: '5px', height: '5px', borderRadius: '50%', backgroundColor: '#b08850' }}></span>
+          Sponsored
         </div>
       </div>
 
-      <div style={{ padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#242424', gap: '12px' }}>
-        <p style={{ margin: 0, color: '#fff', fontSize: '13px', fontWeight: '700', fontFamily: 'Circular, Inter, sans-serif', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {config.title || 'Mashooqa - Cocktail 2'}
-        </p>
-        <a href={config.targetUrl || '#'} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
-          <button style={{ background: '#fff', color: '#000', border: 'none', borderRadius: '20px', padding: '8px 16px', fontSize: '12px', fontWeight: '800', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'transform 0.15s' }}>
-            {config.buttonText || 'Listen now'}
+      <div style={bottomStyle}>
+        <div style={{ flex: 1 }}>
+          <p style={titleStyle}>
+            {title}
+          </p>
+          <p style={descStyle}>
+            {description}
+          </p>
+        </div>
+        <Link href={destinationUrl || '/premium'} style={{ textDecoration: 'none', flexShrink: 0, width: isMobile ? '100%' : 'auto' }} onClick={e => e.stopPropagation()}>
+          <button style={buttonStyle}>
+            {ctaText}
           </button>
-        </a>
+        </Link>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -394,11 +605,33 @@ export default function HomePage() {
   const [activeHubFilter, setActiveHubFilter] = useState<Record<string, string>>({});
   const [spotlightSlideIndex, setSpotlightSlideIndex] = useState<Record<string, number>>({});
   const [cartTracks, setCartTracks] = useState<any[]>([]);
+  const [ads, setAds] = useState<any[]>([]);
+  const [adPlacements, setAdPlacements] = useState<Record<string, boolean>>({});
+  const [adMappings, setAdMappings] = useState<Record<string, string>>({});
+  const [adTheme, setAdTheme] = useState<string>('glass');
+  const [sectionAds, setSectionAds] = useState<Record<string, string>>({});
 
   useEffect(() => {
     _homeHydrated = true;
     setMounted(true);
     fetchTracks();
+
+    const fetchAds = async () => {
+      try {
+        const res = await fetch('/api/ads?t=' + Date.now());
+        const payload = await res.json();
+        if (payload.success) {
+          setAds(payload.ads || []);
+          setAdPlacements(payload.placements || {});
+          setAdMappings(payload.adMappings || {});
+          setAdTheme(payload.settings?.adTheme || 'glass');
+          setSectionAds(payload.sectionAds || {});
+        }
+      } catch (e) {
+        console.error('Failed fetching ads', e);
+      }
+    };
+    fetchAds();
 
     const fetchPromos = async () => {
       try {
@@ -433,6 +666,23 @@ export default function HomePage() {
     
     if (isOnline) {
       fetchTracks();
+      const fetchAds = async () => {
+        try {
+          const res = await fetch('/api/ads?t=' + Date.now());
+          const payload = await res.json();
+          if (payload.success) {
+            setAds(payload.ads || []);
+            setAdPlacements(payload.placements || {});
+            setAdMappings(payload.adMappings || {});
+            setAdTheme(payload.settings?.adTheme || 'glass');
+            setSectionAds(payload.sectionAds || {});
+          }
+        } catch (e) {
+          console.error('Failed fetching ads', e);
+        }
+      };
+      fetchAds();
+
       const fetchPromos = async () => {
         try {
           const res = await fetch('/api/promotions?t=' + Date.now());
@@ -443,7 +693,6 @@ export default function HomePage() {
             setCustomSections(payload.customSections || {});
             setActiveTheme(payload.activeTheme || null);
             setEvents(payload.events || []);
-
             try {
               localStorage.setItem('beato_promotions', JSON.stringify(payload.promotions || []));
               localStorage.setItem('beato_home_layout_order', JSON.stringify(payload.homeLayoutOrder || []));
@@ -554,7 +803,7 @@ export default function HomePage() {
       // Adjusted widths to enable "peek" design (cards cut off at the edge)
       const itemWidth = isBanner ? 260 : (cSize === 'xs' ? 115 : cSize === 'sm' ? 135 : 160);
       return (
-        <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 10, scrollbarWidth: 'none', msOverflowStyle: 'none' }} className="no-scrollbar">
+        <div style={{ display: 'flex', gap: 10, overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', margin: '0 -16px', padding: '0 16px 10px' }} className="no-scrollbar">
           {tracksToRender.map(track => (
             <div key={track.id} style={{ width: itemWidth, flexShrink: 0, marginRight: 0 }}>
               <AlbumCardInline track={track} onPlay={() => playTrack(track, tracksToRender)} isPlaying={isPlaying} isActive={currentTrack?.id === track.id} cardStyle={cStyle} cardSize={cSize} customImage={configObj?.customImage} cardShape={configObj?.cardShape} cardWidth={configObj?.cardWidth} cardHeight={configObj?.cardHeight} isMobile={isMobile} />
@@ -693,7 +942,7 @@ export default function HomePage() {
         ? (cSize === 'xs' ? 140 : cSize === 'sm' ? 170 : 200)
         : (cSize === 'xs' ? 200 : cSize === 'sm' ? 240 : 280);
       contentNode = (
-        <div style={{ display: 'flex', gap: isMobile ? 10 : 16, overflowX: 'auto', paddingBottom: 10, scrollbarWidth: 'none', msOverflowStyle: 'none' }} className="no-scrollbar">
+        <div style={{ display: 'flex', gap: isMobile ? 10 : 16, overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', margin: isMobile ? '0 -16px' : undefined, padding: isMobile ? '0 16px 10px' : '0 0 10px' }} className="no-scrollbar">
           {sortedEvents.map(event => (
             <div key={event.id} style={{ width: itemWidth, flexShrink: 0, marginRight: isMobile ? 0 : undefined }}>
               {renderCard(event)}
@@ -906,6 +1155,17 @@ export default function HomePage() {
     );
   };
 
+  const resolveActiveAd = (placementId: string, allowedTypes: string[]) => {
+    // 1. Check if there is an explicit mapping
+    const mappedAdId = adMappings[placementId];
+    if (mappedAdId) {
+      const mappedAd = ads.find(a => a.id === mappedAdId);
+      if (mappedAd) return mappedAd;
+    }
+    // 2. Fallback to latest active ad for this placement
+    return ads.find(ad => allowedTypes.includes(ad.type) && ad.placement === placementId);
+  };
+
   const renderHomeSection = (sectionId: string) => {
     const config = customSections[sectionId];
     if (config) {
@@ -987,275 +1247,284 @@ export default function HomePage() {
       const itemsToRender = combinedItems.slice(0, 6);
 
       return (
-        <div key={sectionId} style={{ marginBottom: 28 }}>
-          {!isMobile && (
-            <style>{`
-              .quick-access-card:hover .quick-play-btn {
-                opacity: 1 !important;
-                transform: translateX(0) scale(1) !important;
-              }
-            `}</style>
-          )}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-            <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 26, fontWeight: 900, color: '#221a15' }}>
-              {displayTitle}{user ? `, ${user.name}` : ''}
-            </h1>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              {hasPersonalization && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 100, background: 'rgba(176, 136, 80, 0.12)', border: '1px solid rgba(176, 136, 80, 0.2)' }}>
-                  <Sparkles size={12} color={GREEN} />
-                  <span style={{ color: GREEN, fontSize: 11, fontWeight: 700 }}>Personalized</span>
-                </div>
-              )}
-            </div>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', gap: isMobile ? 8 : 16 }}>
-            {itemsToRender.map((item) => {
-              let tracks: typeof mockTracks = [];
-              let playlistObj: any = null;
-              
-              if (item.id === 'liked') {
-                tracks = likedTracks;
-              } else {
-                playlistObj = customPlaylists.find(p => p.id === item.id) || 
-                              mockPlaylists.find(p => p.id === item.id);
-                if (playlistObj) {
-                  tracks = playlistObj.tracks.map((tid: string) => 
-                    allTracks.find(t => t.id === tid) || mockTracks.find(t => t.id === tid)
-                  ).filter((t: any): t is typeof mockTracks[0] => !!t);
+        <div key={sectionId}>
+          <div style={{ marginBottom: 28 }}>
+            {!isMobile && (
+              <style>{`
+                .quick-access-card:hover .quick-play-btn {
+                  opacity: 1 !important;
+                  transform: translateX(0) scale(1) !important;
                 }
-              }
+              `}</style>
+            )}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+              <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 26, fontWeight: 900, color: '#221a15' }}>
+                {displayTitle}{user ? `, ${user.name}` : ''}
+              </h1>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                {hasPersonalization && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 100, background: 'rgba(176, 136, 80, 0.12)', border: '1px solid rgba(176, 136, 80, 0.2)' }}>
+                    <Sparkles size={12} color={GREEN} />
+                    <span style={{ color: GREEN, fontSize: 11, fontWeight: 700 }}>Personalized</span>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', gap: isMobile ? 8 : 16 }}>
+              {itemsToRender.map((item) => {
+                let tracks: typeof mockTracks = [];
+                let playlistObj: any = null;
+                
+                if (item.id === 'liked') {
+                  tracks = likedTracks;
+                } else {
+                  playlistObj = customPlaylists.find(p => p.id === item.id) || 
+                                mockPlaylists.find(p => p.id === item.id);
+                  if (playlistObj) {
+                    tracks = playlistObj.tracks.map((tid: string) => 
+                      allTracks.find(t => t.id === tid) || mockTracks.find(t => t.id === tid)
+                    ).filter((t: any): t is typeof mockTracks[0] => !!t);
+                  }
+                }
 
-              const isCurrent = tracks.length > 0 && tracks.some(t => t.id === currentTrack?.id);
-              const isSaved = playlistObj ? (user?.playlists || []).includes(playlistObj.id) : false;
-              const hasImg = !!item.coverImage;
+                const isCurrent = tracks.length > 0 && tracks.some(t => t.id === currentTrack?.id);
+                const isSaved = playlistObj ? (user?.playlists || []).includes(playlistObj.id) : false;
+                const hasImg = !!item.coverImage;
 
-              if (isMobile) {
-                return (
-                  <Link key={item.id} href={item.href} style={{ textDecoration: 'none', display: 'block', width: '100%', minWidth: 0 }}>
-                    <motion.div whileHover={{ scale: 1.02 }}
-                      style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        borderRadius: 28, 
-                        overflow: 'hidden', 
-                        background: '#ffffff', 
-                        border: '1px solid rgba(176, 136, 80, 0.18)', 
-                        cursor: 'pointer', 
-                        position: 'relative', 
-                        transition: 'background 0.15s, border-color 0.15s', 
-                        height: 56, 
-                        minWidth: 0,
-                        padding: '0 12px 0 6px',
-                        boxShadow: '0 4px 12px rgba(43, 34, 26, 0.04)'
-                      }}
-                      onMouseEnter={e => {
-                        e.currentTarget.style.background = 'var(--color-ss-surface, #f4eede)';
-                        e.currentTarget.style.borderColor = 'rgba(176, 136, 80, 0.3)';
-                      }}
-                      onMouseLeave={e => {
-                        e.currentTarget.style.background = '#ffffff';
-                        e.currentTarget.style.borderColor = 'rgba(176, 136, 80, 0.18)';
-                      }}>
-                      <div style={{ 
-                         width: 44, 
-                         height: 44, 
-                         borderRadius: '50%',
-                         overflow: 'hidden',
-                         backgroundImage: hasImg ? `url(${item.coverImage})` : item.gradient,
-                         backgroundColor: hasImg ? 'transparent' : undefined,
-                         backgroundSize: 'cover',
-                         backgroundPosition: 'center',
-                         display: 'flex', 
-                         alignItems: 'center', 
-                         justifyContent: 'center', 
-                         fontSize: 18, 
-                         flexShrink: 0,
-                         boxShadow: '0 2px 8px rgba(43, 34, 26, 0.08)'
-                       }}>
-                        {!hasImg && item.icon}
-                      </div>
-                      <span style={{ color: '#221a15', fontSize: 13.5, fontWeight: 750, padding: '0 12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, minWidth: 0, fontFamily: 'Outfit, sans-serif' }}>{item.label}</span>
-                      {isCurrent && (
-                        <div style={{ marginRight: 12, display: 'flex', alignItems: 'flex-end', gap: 2 }}>
-                          {[1, 2, 3].map(i => (
-                            <div key={i} style={{ width: 2, background: GREEN, borderRadius: 1, height: `${4 + i * 3}px`, animation: `waveform ${0.6 + i * 0.15}s ease-in-out infinite` }} />
-                          ))}
+                if (isMobile) {
+                  return (
+                    <Link key={item.id} href={item.href} style={{ textDecoration: 'none', display: 'block', width: '100%', minWidth: 0 }}>
+                      <motion.div whileHover={{ scale: 1.02 }}
+                        style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          borderRadius: 28, 
+                          overflow: 'hidden', 
+                          background: '#ffffff', 
+                          border: '1px solid rgba(176, 136, 80, 0.18)', 
+                          cursor: 'pointer', 
+                          position: 'relative', 
+                          transition: 'background 0.15s, border-color 0.15s', 
+                          height: 56, 
+                          minWidth: 0,
+                          padding: '0 12px 0 6px',
+                          boxShadow: '0 4px 12px rgba(43, 34, 26, 0.04)'
+                        }}
+                        onMouseEnter={e => {
+                          e.currentTarget.style.background = 'var(--color-ss-surface, #f4eede)';
+                          e.currentTarget.style.borderColor = 'rgba(176, 136, 80, 0.3)';
+                        }}
+                        onMouseLeave={e => {
+                          e.currentTarget.style.background = '#ffffff';
+                          e.currentTarget.style.borderColor = 'rgba(176, 136, 80, 0.18)';
+                        }}>
+                        <div style={{ 
+                           width: 44, 
+                           height: 44, 
+                           borderRadius: '50%',
+                           overflow: 'hidden',
+                           backgroundImage: hasImg ? `url(${item.coverImage})` : item.gradient,
+                           backgroundColor: hasImg ? 'transparent' : undefined,
+                           backgroundSize: 'cover',
+                           backgroundPosition: 'center',
+                           display: 'flex', 
+                           alignItems: 'center', 
+                           justifyContent: 'center', 
+                           fontSize: 18, 
+                           flexShrink: 0,
+                           boxShadow: '0 2px 8px rgba(43, 34, 26, 0.08)'
+                         }}>
+                          {!hasImg && item.icon}
                         </div>
-                      )}
-                    </motion.div>
-                  </Link>
-                );
-              } else {
-                // Premium Desktop Layout (Laptop View)
-                return (
-                  <Link key={item.id} href={item.href} style={{ textDecoration: 'none', display: 'block', width: '100%', minWidth: 0 }}>
-                    <motion.div
-                      className="quick-access-card"
-                      whileHover={{ y: -4, boxShadow: '0 8px 24px rgba(176, 136, 80, 0.08)' }}
-                      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                      style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        borderRadius: 12, 
-                        overflow: 'hidden', 
-                        background: '#ffffff', 
-                        border: '1px solid rgba(176, 136, 80, 0.12)', 
-                        cursor: 'pointer', 
-                        position: 'relative', 
-                        transition: 'background 0.25s, border-color 0.25s', 
-                        height: 64, 
-                        minWidth: 0,
-                        padding: 0,
-                        boxShadow: '0 4px 12px rgba(43, 34, 26, 0.03)'
-                      }}
-                      onMouseEnter={e => {
-                        e.currentTarget.style.background = 'var(--color-ss-surface, #f4eede)';
-                        e.currentTarget.style.borderColor = 'rgba(176, 136, 80, 0.3)';
-                      }}
-                      onMouseLeave={e => {
-                        e.currentTarget.style.background = '#ffffff';
-                        e.currentTarget.style.borderColor = 'rgba(176, 136, 80, 0.12)';
-                      }}>
-                      {/* Left cover image flush to card edges */}
-                      <div style={{ 
-                         width: 64, 
-                         height: 64, 
-                         borderRadius: '12px 0 0 12px',
-                         overflow: 'hidden',
-                         backgroundImage: hasImg ? `url(${item.coverImage})` : item.gradient,
-                         backgroundColor: hasImg ? 'transparent' : undefined,
-                         backgroundSize: 'cover',
-                         backgroundPosition: 'center',
-                         display: 'flex', 
-                         alignItems: 'center', 
-                         justifyContent: 'center', 
-                         fontSize: 20, 
-                         flexShrink: 0,
-                         boxShadow: '2px 0 8px rgba(43, 34, 26, 0.05)'
-                       }}>
-                        {!hasImg && item.icon}
-                      </div>
-
-                      {/* Title label */}
-                      <span style={{ color: '#221a15', fontSize: 14.5, fontWeight: 800, padding: '0 16px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, minWidth: 0, fontFamily: 'Outfit, sans-serif' }}>
-                        {item.label}
-                      </span>
-
-                      {/* Waveform playing indicator */}
-                      {isCurrent && (
-                        <div style={{ marginRight: 12, display: 'flex', alignItems: 'flex-end', gap: 2, flexShrink: 0 }}>
-                          {[1, 2, 3].map(i => (
-                            <div key={i} style={{ width: 2.5, background: GREEN, borderRadius: 1, height: `${4 + i * 3.5}px`, animation: `waveform ${0.6 + i * 0.15}s ease-in-out infinite` }} />
-                          ))}
+                        <span style={{ color: '#221a15', fontSize: 13.5, fontWeight: 750, padding: '0 12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, minWidth: 0, fontFamily: 'Outfit, sans-serif' }}>{item.label}</span>
+                        {isCurrent && (
+                          <div style={{ marginRight: 12, display: 'flex', alignItems: 'flex-end', gap: 2 }}>
+                            {[1, 2, 3].map(i => (
+                              <div key={i} style={{ width: 2, background: GREEN, borderRadius: 1, height: `${4 + i * 3}px`, animation: `waveform ${0.6 + i * 0.15}s ease-in-out infinite` }} />
+                            ))}
+                          </div>
+                        )}
+                      </motion.div>
+                    </Link>
+                  );
+                } else {
+                  // Premium Desktop Layout (Laptop View)
+                  return (
+                    <Link key={item.id} href={item.href} style={{ textDecoration: 'none', display: 'block', width: '100%', minWidth: 0 }}>
+                      <motion.div
+                        className="quick-access-card"
+                        whileHover={{ y: -4, boxShadow: '0 8px 24px rgba(176, 136, 80, 0.08)' }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                        style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          borderRadius: 12, 
+                          overflow: 'hidden', 
+                          background: '#ffffff', 
+                          border: '1px solid rgba(176, 136, 80, 0.12)', 
+                          cursor: 'pointer', 
+                          position: 'relative', 
+                          transition: 'background 0.25s, border-color 0.25s', 
+                          height: 64, 
+                          minWidth: 0,
+                          padding: 0,
+                          boxShadow: '0 4px 12px rgba(43, 34, 26, 0.03)'
+                        }}
+                        onMouseEnter={e => {
+                          e.currentTarget.style.background = 'var(--color-ss-surface, #f4eede)';
+                          e.currentTarget.style.borderColor = 'rgba(176, 136, 80, 0.3)';
+                        }}
+                        onMouseLeave={e => {
+                          e.currentTarget.style.background = '#ffffff';
+                          e.currentTarget.style.borderColor = 'rgba(176, 136, 80, 0.12)';
+                        }}>
+                        {/* Left cover image flush to card edges */}
+                        <div style={{ 
+                           width: 64, 
+                           height: 64, 
+                           borderRadius: '12px 0 0 12px',
+                           overflow: 'hidden',
+                           backgroundImage: hasImg ? `url(${item.coverImage})` : item.gradient,
+                           backgroundColor: hasImg ? 'transparent' : undefined,
+                           backgroundSize: 'cover',
+                           backgroundPosition: 'center',
+                           display: 'flex', 
+                           alignItems: 'center', 
+                           justifyContent: 'center', 
+                           fontSize: 20, 
+                           flexShrink: 0,
+                           boxShadow: '2px 0 8px rgba(43, 34, 26, 0.05)'
+                         }}>
+                          {!hasImg && item.icon}
                         </div>
-                      )}
 
-                      {/* Save/Add Playlist Actions */}
-                      {playlistObj && playlistObj.id !== 'playlist-1' && (
-                        <button
-                          onClick={e => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            toggleSavePlaylist(playlistObj.id);
-                          }}
-                          style={{
-                            marginRight: 8,
-                            background: 'none',
-                            border: 'none',
-                            color: isSaved ? GREEN : 'rgba(43,34,26,0.3)',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            padding: 6,
-                            borderRadius: '50%',
-                            transition: 'all 0.15s',
-                            flexShrink: 0,
-                          }}
-                          onMouseEnter={e => {
-                            e.currentTarget.style.color = '#221a15';
-                            e.currentTarget.style.background = 'rgba(43,34,26,0.06)';
-                          }}
-                          onMouseLeave={e => {
-                            e.currentTarget.style.color = isSaved ? GREEN : 'rgba(43,34,26,0.3)';
-                            e.currentTarget.style.background = 'none';
-                          }}
-                        >
-                          {isSaved ? <Check size={14} strokeWidth={3} /> : <Plus size={14} strokeWidth={2.5} />}
-                        </button>
-                      )}
+                        {/* Title label */}
+                        <span style={{ color: '#221a15', fontSize: 14.5, fontWeight: 800, padding: '0 16px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, minWidth: 0, fontFamily: 'Outfit, sans-serif' }}>
+                          {item.label}
+                        </span>
 
-                      {/* Instant Play Button on Hover */}
-                      {tracks.length > 0 && (
-                        <motion.button
-                          className="quick-play-btn"
-                          onClick={e => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            playTrack(tracks[0], tracks);
-                          }}
-                          whileHover={{ scale: 1.1, backgroundColor: '#937041' }}
-                          whileTap={{ scale: 0.95 }}
-                          style={{
-                            width: 36,
-                            height: 36,
-                            borderRadius: '50%',
-                            background: '#b08850',
-                            border: 'none',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
-                            boxShadow: '0 4px 12px rgba(176, 136, 80, 0.3)',
-                            opacity: 0,
-                            transform: 'translateX(10px) scale(0.9)',
-                            transition: 'all 0.2s ease-in-out',
-                            marginRight: 12,
-                            flexShrink: 0,
-                          }}
-                        >
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff" xmlns="http://www.w3.org/2000/svg" style={{ marginLeft: 2 }}>
-                            <path d="M8 5V19L19 12L8 5Z" />
-                          </svg>
-                        </motion.button>
-                      )}
-                    </motion.div>
-                  </Link>
-                );
-              }
-            })}
+                        {/* Waveform playing indicator */}
+                        {isCurrent && (
+                          <div style={{ marginRight: 12, display: 'flex', alignItems: 'flex-end', gap: 2, flexShrink: 0 }}>
+                            {[1, 2, 3].map(i => (
+                              <div key={i} style={{ width: 2.5, background: GREEN, borderRadius: 1, height: `${4 + i * 3.5}px`, animation: `waveform ${0.6 + i * 0.15}s ease-in-out infinite` }} />
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Save/Add Playlist Actions */}
+                        {playlistObj && playlistObj.id !== 'playlist-1' && (
+                          <button
+                            onClick={e => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              toggleSavePlaylist(playlistObj.id);
+                            }}
+                            style={{
+                              marginRight: 8,
+                              background: 'none',
+                              border: 'none',
+                              color: isSaved ? GREEN : 'rgba(43,34,26,0.3)',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              padding: 6,
+                              borderRadius: '50%',
+                              transition: 'all 0.15s',
+                              flexShrink: 0,
+                            }}
+                            onMouseEnter={e => {
+                              e.currentTarget.style.color = '#221a15';
+                              e.currentTarget.style.background = 'rgba(43,34,26,0.06)';
+                            }}
+                            onMouseLeave={e => {
+                              e.currentTarget.style.color = isSaved ? GREEN : 'rgba(43,34,26,0.3)';
+                              e.currentTarget.style.background = 'none';
+                            }}
+                          >
+                            {isSaved ? <Check size={14} strokeWidth={3} /> : <Plus size={14} strokeWidth={2.5} />}
+                          </button>
+                        )}
+
+                        {/* Instant Play Button on Hover */}
+                        {tracks.length > 0 && (
+                          <motion.button
+                            className="quick-play-btn"
+                            onClick={e => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              playTrack(tracks[0], tracks);
+                            }}
+                            whileHover={{ scale: 1.1, backgroundColor: '#937041' }}
+                            whileTap={{ scale: 0.95 }}
+                            style={{
+                              width: 36,
+                              height: 36,
+                              borderRadius: '50%',
+                              background: '#b08850',
+                              border: 'none',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              cursor: 'pointer',
+                              boxShadow: '0 4px 12px rgba(176, 136, 80, 0.3)',
+                              opacity: 0,
+                              transform: 'translateX(10px) scale(0.9)',
+                              transition: 'all 0.2s ease-in-out',
+                              marginRight: 12,
+                              flexShrink: 0,
+                            }}
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff" xmlns="http://www.w3.org/2000/svg" style={{ marginLeft: 2 }}>
+                              <path d="M8 5V19L19 12L8 5Z" />
+                            </svg>
+                          </motion.button>
+                        )}
+                      </motion.div>
+                    </Link>
+                  );
+                }
+              })}
+            </div>
+            {combinedItems.length > 6 && (
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: 16 }}>
+                <Link href="/library" style={{ textDecoration: 'none' }}>
+                  <button 
+                    style={{
+                      background: 'rgba(43,34,26,0.05)',
+                      border: '1px solid rgba(43,34,26,0.1)',
+                      color: '#221a15',
+                      borderRadius: 20,
+                      padding: '8px 24px',
+                      fontSize: 13,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.background = 'rgba(43,34,26,0.08)';
+                      e.currentTarget.style.transform = 'scale(1.02)';
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.background = 'rgba(43,34,26,0.05)';
+                      e.currentTarget.style.transform = 'none';
+                    }}
+                  >
+                    View More
+                  </button>
+                </Link>
+              </div>
+            )}
           </div>
-          {combinedItems.length > 6 && (
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 16 }}>
-              <Link href="/library" style={{ textDecoration: 'none' }}>
-                <button 
-                  style={{
-                    background: 'rgba(43,34,26,0.05)',
-                    border: '1px solid rgba(43,34,26,0.1)',
-                    color: '#221a15',
-                    borderRadius: 20,
-                    padding: '8px 24px',
-                    fontSize: 13,
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.background = 'rgba(43,34,26,0.08)';
-                    e.currentTarget.style.transform = 'scale(1.02)';
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.background = 'rgba(43,34,26,0.05)';
-                    e.currentTarget.style.transform = 'none';
-                  }}
-                >
-                  View More
-                </button>
-              </Link>
+
+          {/* ── Ad Placement: homepage_hero (rendered right below welcome greeting) ── */}
+          {(!user || user.subscription === 'free') && adPlacements.homepage_hero && resolveActiveAd('homepage_hero', ['banner', 'video']) && (
+            <div style={{ marginTop: 8, marginBottom: 28 }}>
+              <AdBanner ad={resolveActiveAd('homepage_hero', ['banner', 'video'])} theme={adTheme} />
             </div>
           )}
         </div>
@@ -2198,7 +2467,7 @@ export default function HomePage() {
             if (rawLayout === 'story') {
               const list = tracks.slice(0, isMobile ? 5 : 7);
               return (
-                <div style={{ display: 'flex', gap: isMobile ? 10 : 16, overflowX: 'auto', paddingBottom: 10, scrollbarWidth: 'none', msOverflowStyle: 'none' }} className="no-scrollbar">
+                <div style={{ display: 'flex', gap: isMobile ? 10 : 16, overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', margin: isMobile ? '0 -16px' : undefined, padding: isMobile ? '0 16px 10px' : '0 0 10px' }} className="no-scrollbar">
                   {list.map((track) => {
                     const isCurrent = currentTrack?.id === track.id;
                     const coverImg = config.customImage || track.coverImage || `https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c6b?w=200&h=200&fit=crop`;
@@ -2249,7 +2518,7 @@ export default function HomePage() {
             if (rawLayout === 'story_tiktok') {
               const list = tracks.slice(0, isMobile ? 3 : 5);
               return (
-                <div style={{ display: 'flex', gap: isMobile ? 10 : 16, overflowX: 'auto', paddingBottom: 10, scrollbarWidth: 'none', msOverflowStyle: 'none' }} className="no-scrollbar">
+                <div style={{ display: 'flex', gap: isMobile ? 10 : 16, overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', margin: isMobile ? '0 -16px' : undefined, padding: isMobile ? '0 16px 10px' : '0 0 10px' }} className="no-scrollbar">
                   {list.map((track) => {
                     const isCurrent = currentTrack?.id === track.id;
                     const coverImg = config.customImage || track.coverImage || `https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c6b?w=200&h=300&fit=crop`;
@@ -2822,7 +3091,24 @@ export default function HomePage() {
             }
 
             if (rawLayout === 'ad_break_banner') {
-              return <AdCard config={config} isMobile={isMobile} />;
+              if (user?.subscription !== 'free') return null;
+              
+              const heroAd = resolveActiveAd('homepage_hero', ['banner', 'video']);
+              const middleAd = resolveActiveAd('homepage_middle', ['banner', 'native']);
+              
+              // Resolve which ad will display in the AdCard
+              const resolvedAd = middleAd || ads.find(ad => ad.type === 'banner' && (ad.placement === 'homepage_middle' || !ad.placement));
+              
+              // If the resolved ad is identical to the homepage_hero ad, hide the duplicate middle ad to avoid visual clutter
+              if (resolvedAd && heroAd && resolvedAd.id === heroAd.id) {
+                const alternativeAd = ads.find(ad => ad.id !== heroAd.id && ad.type === 'banner' && (ad.placement === 'homepage_middle' || !ad.placement));
+                if (alternativeAd) {
+                  return <AdCard config={config} isMobile={isMobile} ads={ads} theme={adTheme} resolvedAd={alternativeAd} />;
+                }
+                return null;
+              }
+              
+              return <AdCard config={config} isMobile={isMobile} ads={ads} theme={adTheme} resolvedAd={middleAd} />;
             }
 
             if (rawLayout === 'grid_deals') {
@@ -4821,7 +5107,7 @@ export default function HomePage() {
                 : (cSize === 'xs' ? 120 : cSize === 'sm' ? 150 : cSize === 'lg' ? 240 : 180);
               const itemWidth = config.cardWidth ? config.cardWidth : defaultW;
               return (
-                <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 10, scrollbarWidth: 'none', msOverflowStyle: 'none' }} className="no-scrollbar">
+                <div style={{ display: 'flex', gap: 10, overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', margin: isMobile ? '0 -16px' : undefined, padding: isMobile ? '0 16px 10px' : '0 0 10px' }} className="no-scrollbar">
                   {tracks.map(track => (
                     <div key={track.id} style={{ width: itemWidth, flexShrink: 0, marginRight: 0 }}>
                       <AlbumCardInline track={track} onPlay={() => playTrack(track, tracks)} isPlaying={isPlaying} isActive={currentTrack?.id === track.id} cardStyle={cStyle} cardSize={cSize} customImage={config.customImage} cardShape={config.cardShape} cardWidth={config.cardWidth} cardHeight={config.cardHeight} isMobile={isMobile} />
@@ -5638,7 +5924,7 @@ export default function HomePage() {
                     <h3 style={{ color: '#fff', fontSize: isMobile ? 17 : 20, fontWeight: 900, fontFamily: 'Outfit,sans-serif', margin: 0 }}>{config.title || 'Browse Categories'}</h3>
                     <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 13, cursor: 'pointer' }}>See all</span>
                   </div>
-                  <div style={{ display: 'flex', gap: isMobile ? 10 : 14, overflowX: 'auto', paddingBottom: 8, scrollbarWidth: 'none' }} className="no-scrollbar">
+                  <div style={{ display: 'flex', gap: isMobile ? 10 : 14, overflowX: 'auto', scrollbarWidth: 'none', margin: isMobile ? '0 -16px' : undefined, padding: isMobile ? '0 16px 8px' : '0 0 8px' }} className="no-scrollbar">
                     {cats.map((c, i) => {
                       const tileTrack = tracks[i % Math.max(tracks.length, 1)] || mockTracks[i % mockTracks.length];
                       return (
@@ -5777,7 +6063,7 @@ export default function HomePage() {
                     <h3 style={{ margin: 0, color: '#fff', fontSize: isMobile ? 17 : 21, fontWeight: 900, fontFamily: 'Outfit,sans-serif' }}>{config.title || 'Featured Brands'}</h3>
                     <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 13, cursor: 'pointer' }}>See all</span>
                   </div>
-                  <div style={{ display: 'flex', gap: isMobile ? 10 : 14, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: 14 }} className="no-scrollbar">
+                  <div style={{ display: 'flex', gap: isMobile ? 10 : 14, overflowX: 'auto', scrollbarWidth: 'none', margin: isMobile ? '0 -16px' : undefined, padding: isMobile ? '0 16px 14px' : '0 0 14px' }} className="no-scrollbar">
                     {brandList.map((b, i) => {
                       const t = tracks[i % Math.max(tracks.length, 1)] || mockTracks[i % mockTracks.length];
                       return (
@@ -5873,7 +6159,7 @@ export default function HomePage() {
                     </div>
                     <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 13, cursor: 'pointer' }}>See all</span>
                   </div>
-                  <div style={{ display: 'flex', gap: isMobile ? 10 : 16, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: 8 }} className="no-scrollbar">
+                  <div style={{ display: 'flex', gap: isMobile ? 10 : 16, overflowX: 'auto', scrollbarWidth: 'none', margin: isMobile ? '0 -16px' : undefined, padding: isMobile ? '0 16px 8px' : '0 0 8px' }} className="no-scrollbar">
                     {artistTracks.map((track, i) => {
                       const coverImg = track.coverImage || '';
                       const accent = artistAccents[i % artistAccents.length];
@@ -6015,7 +6301,7 @@ export default function HomePage() {
                     <h3 style={{ margin: 0, color: '#fff', fontSize: isMobile ? 17 : 21, fontWeight: 950, fontFamily: 'Outfit,sans-serif', letterSpacing: '-0.01em' }}>{config.title || 'Fresh Picks For You'}</h3>
                     <span style={{ color: GREEN, fontSize: isMobile ? 11 : 13, fontWeight: 800, cursor: 'pointer' }}>See all</span>
                   </div>
-                  <div style={{ display: 'flex', gap: isMobile ? 10 : 22, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: 8 }} className="no-scrollbar">
+                  <div style={{ display: 'flex', gap: isMobile ? 10 : 22, overflowX: 'auto', scrollbarWidth: 'none', margin: isMobile ? '0 -16px' : undefined, padding: isMobile ? '0 16px 8px' : '0 0 8px' }} className="no-scrollbar">
                     {freshItems.map((item, i) => {
                       const t = tracks[i % Math.max(tracks.length, 1)] || mockTracks[i % mockTracks.length];
                       const coverImg = t.coverImage || '';
@@ -6313,7 +6599,22 @@ export default function HomePage() {
         {layoutToRender.length > 0 ? (
           layoutToRender.map(sectionId => {
             try {
-              return renderHomeSection(sectionId);
+              const sectionJSX = renderHomeSection(sectionId);
+              const adId = sectionAds[sectionId];
+              const adForSection = adId ? ads.find((a: any) => a.id === adId) : null;
+
+              if (adForSection) {
+                return (
+                  <div key={sectionId}>
+                    {sectionJSX}
+                    <div style={{ marginTop: 12, marginBottom: 28 }}>
+                      <AdBanner ad={adForSection} theme={adTheme} />
+                    </div>
+                  </div>
+                );
+              }
+
+              return sectionJSX;
             } catch (err) {
               console.error(`Section "${sectionId}" crashed:`, err);
               return null;

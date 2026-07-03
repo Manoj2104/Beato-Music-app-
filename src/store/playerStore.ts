@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Track } from '@/types';
 import { socketManager } from '@/lib/socket';
+import { useAuthStore } from './authStore';
+import toast from 'react-hot-toast';
 
 interface PlayerStore {
   currentTrack: Track | null;
@@ -24,13 +26,16 @@ interface PlayerStore {
   activeDevice: string;
   activeDeviceId: string;
   availableDevices: { id: string; label: string }[];
+  songsPlayedCount: number;
+  skipTimestamps: number[];
+  adsConfig: any;
   
   // Actions
   setCurrentTrack: (track: Track) => void;
   setQueue: (tracks: Track[]) => void;
   addToQueue: (track: Track) => void;
   removeFromQueue: (trackId: string) => void;
-  playNext: () => void;
+  playNext: (isManual?: boolean) => void;
   playPrevious: () => void;
   togglePlay: () => void;
   setIsPlaying: (val: boolean) => void;
@@ -49,6 +54,7 @@ interface PlayerStore {
   setActiveDevice: (device: string) => void;
   setActiveDeviceId: (id: string) => void;
   setAvailableDevices: (devices: { id: string; label: string }[]) => void;
+  setAdsConfig: (config: any) => void;
 }
 
 let cachedGeo: { city: string; country: string } | null = null;
@@ -101,6 +107,9 @@ export const usePlayerStore = create<PlayerStore>()(
       activeDevice: 'Web Player',
       activeDeviceId: 'default',
       availableDevices: [],
+      songsPlayedCount: 0,
+      skipTimestamps: [],
+      adsConfig: null,
 
       setCurrentTrack: (track) => set({ currentTrack: track, progress: 0 }),
       
@@ -111,9 +120,25 @@ export const usePlayerStore = create<PlayerStore>()(
       removeFromQueue: (trackId) =>
          set((state) => ({ queue: state.queue.filter((t) => t.id !== trackId) })),
       
-      playNext: () => {
+      playNext: (isManual = false) => {
         const { queue, currentTrack, history, shuffle, repeat, originalQueue } = get();
-        
+        const user = useAuthStore.getState().user;
+        const isFree = user?.subscription === 'free';
+        const wasAd = currentTrack?.isAd === true;
+
+        if (isManual && isFree && !wasAd) {
+          const now = Date.now();
+          const oneHourAgo = now - 3600000;
+          const { skipTimestamps } = get();
+          const validSkips = skipTimestamps.filter(t => t > oneHourAgo);
+          
+          if (validSkips.length >= 6) {
+            toast.error("You've reached your hourly skip limit! Upgrade to Premium for unlimited skips. 💎");
+            return;
+          }
+          set({ skipTimestamps: [...validSkips, now] });
+        }
+
         if (queue.length === 0) {
           // If repeat is 'all' and we have an original queue, loop back to the beginning
           if (repeat === 'all' && originalQueue.length > 0) {
@@ -126,6 +151,46 @@ export const usePlayerStore = create<PlayerStore>()(
             } else {
               [nextTrack, ...newQueue] = originalQueue;
             }
+
+            const adsConfig = get().adsConfig;
+            const audioAdEnabled = adsConfig?.audioAd?.enabled ?? true;
+            const frequency = adsConfig?.audioAd?.frequencyTracks ?? 3;
+            const adAudioUrl = adsConfig?.audioAd?.audioUrl || 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3';
+            const adCutoff = adsConfig?.audioAd?.durationSeconds ?? 15;
+
+            if (isFree && !wasAd && audioAdEnabled) {
+              const newPlayCount = get().songsPlayedCount + 1;
+              set({ songsPlayedCount: newPlayCount });
+              if (newPlayCount % frequency === 0) {
+                const adTrack = {
+                  id: 'ad-' + Date.now(),
+                  title: 'Sponsored Advertisement',
+                  artistId: 'ad-artist',
+                  artist_name: 'Beato Sponsor',
+                  artistName: 'Beato Sponsor',
+                  album_id: 'ad-album',
+                  album_name: 'Ad Break',
+                  cover_image: 'https://images.unsplash.com/photo-1543536448-d209d2d13a1c?w=400&h=400&fit=crop',
+                  coverImage: 'https://images.unsplash.com/photo-1543536448-d209d2d13a1c?w=400&h=400&fit=crop',
+                  duration: adCutoff,
+                  audio_url: adAudioUrl,
+                  audioUrl: adAudioUrl,
+                  genre: 'Ad',
+                  year: 2026,
+                  plays: 0,
+                  liked: false,
+                  explicit: false,
+                  status: 'approved',
+                  featured: false,
+                  isAd: true
+                } as any;
+                const newHistory = currentTrack ? [currentTrack, ...history.slice(0, 49)] : history;
+                set({ currentTrack: adTrack, queue: [nextTrack, ...newQueue], history: newHistory, progress: 0, isPlaying: true });
+                toast.success("Playing Sponsored Ad 📢");
+                return;
+              }
+            }
+
             const newHistory = currentTrack ? [currentTrack, ...history.slice(0, 49)] : history;
             set({ currentTrack: nextTrack, queue: newQueue, history: newHistory, progress: 0, isPlaying: true });
             return;
@@ -145,11 +210,58 @@ export const usePlayerStore = create<PlayerStore>()(
         } else {
           [nextTrack, ...newQueue] = queue;
         }
+
+        const adsConfig = get().adsConfig;
+        const audioAdEnabled = adsConfig?.audioAd?.enabled ?? true;
+        const frequency = adsConfig?.audioAd?.frequencyTracks ?? 3;
+        const adAudioUrl = adsConfig?.audioAd?.audioUrl || 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3';
+        const adCutoff = adsConfig?.audioAd?.durationSeconds ?? 15;
+
+        if (isFree && !wasAd && audioAdEnabled) {
+          const newPlayCount = get().songsPlayedCount + 1;
+          set({ songsPlayedCount: newPlayCount });
+          if (newPlayCount % frequency === 0) {
+            const adTrack = {
+              id: 'ad-' + Date.now(),
+              title: 'Sponsored Advertisement',
+              artistId: 'ad-artist',
+              artist_name: 'Beato Sponsor',
+              artistName: 'Beato Sponsor',
+              album_id: 'ad-album',
+              album_name: 'Ad Break',
+              cover_image: 'https://images.unsplash.com/photo-1543536448-d209d2d13a1c?w=400&h=400&fit=crop',
+              coverImage: 'https://images.unsplash.com/photo-1543536448-d209d2d13a1c?w=400&h=400&fit=crop',
+              duration: adCutoff,
+              audio_url: adAudioUrl,
+              audioUrl: adAudioUrl,
+              genre: 'Ad',
+              year: 2026,
+              plays: 0,
+              liked: false,
+              explicit: false,
+              status: 'approved',
+              featured: false,
+              isAd: true
+            } as any;
+            const newHistory = currentTrack ? [currentTrack, ...history.slice(0, 49)] : history;
+            set({ currentTrack: adTrack, queue: [nextTrack, ...newQueue], history: newHistory, progress: 0, isPlaying: true });
+            toast.success("Playing Sponsored Ad 📢");
+            return;
+          }
+        }
+
         const newHistory = currentTrack ? [currentTrack, ...history.slice(0, 49)] : history;
         set({ currentTrack: nextTrack, queue: newQueue, history: newHistory, progress: 0, isPlaying: true });
       },
       
       playPrevious: () => {
+        const user = useAuthStore.getState().user;
+        const isFree = user?.subscription === 'free';
+        if (isFree) {
+          toast.error("Skipping backward is a Premium feature. Upgrade to Premium! 💎");
+          return;
+        }
+
         const { history, currentTrack, queue } = get();
         if (history.length === 0) {
           set({ progress: 0 });
@@ -186,50 +298,78 @@ export const usePlayerStore = create<PlayerStore>()(
       toggleLyrics: () => set((state) => ({ showLyrics: !state.showLyrics })),
       
       setSleepTimer: (mins) => set({ sleepTimer: mins }),
+      setAdsConfig: (config) => set({ adsConfig: config }),
       
       playTrack: (track, queue = []) => {
+        const user = useAuthStore.getState().user;
+        const isFree = user?.subscription === 'free';
+
+        // Check premium lock (lock track-2 / Midnight Cascade)
+        if (isFree && (track.id === 'track-2' || (track as any).premiumOnly)) {
+          toast.error("Midnight Cascade is a Premium-only track! Upgrade to listen. 💎");
+          return;
+        }
+
         const { currentTrack, history, city, country, shuffle } = get();
+        const isMobile = typeof window !== 'undefined' && /Mobi|Android|iPhone/i.test(navigator.userAgent);
+        
+        let targetTrack = track;
+        let finalQueue = queue;
+        let isForcedShuffle = false;
+
+        // Force Shuffle Play on mobile for Free users
+        if (isFree && isMobile && queue.length > 1) {
+          isForcedShuffle = true;
+          const shuffledQueue = [...queue].sort(() => Math.random() - 0.5);
+          targetTrack = shuffledQueue[0];
+          finalQueue = shuffledQueue;
+        }
+
         const newHistory = currentTrack ? [currentTrack, ...history.slice(0, 49)] : history;
         
         // Find index of the clicked track in the playlist/queue context
-        const trackIdx = queue.findIndex((t) => t.id === track.id);
+        const trackIdx = finalQueue.findIndex((t) => t.id === targetTrack.id);
         
         let newQueue: Track[];
-        if (shuffle) {
+        if (shuffle || isForcedShuffle) {
           // If shuffle is active, shuffle the remaining tracks in the list
-          newQueue = queue.filter((t) => t.id !== track.id).sort(() => Math.random() - 0.5);
+          newQueue = finalQueue.filter((t) => t.id !== targetTrack.id).sort(() => Math.random() - 0.5);
         } else if (trackIdx !== -1) {
           // If shuffle is off, the next queue should be the subsequent tracks in the list
-          newQueue = queue.slice(trackIdx + 1);
+          newQueue = finalQueue.slice(trackIdx + 1);
         } else {
-          newQueue = queue.filter((t) => t.id !== track.id);
+          newQueue = finalQueue.filter((t) => t.id !== targetTrack.id);
         }
 
         set({
-          currentTrack: track,
+          currentTrack: targetTrack,
           queue: newQueue,
-          originalQueue: queue,
+          originalQueue: finalQueue,
           history: newHistory,
           isPlaying: true,
           progress: 0,
+          ...(isForcedShuffle ? { shuffle: true } : {})
         });
+
+        if (isForcedShuffle) {
+          toast.success("Shuffle Play active for Free members! 🔀");
+        }
         
         // Record play to API for real-time stats (fire-and-forget)
-        if (typeof window !== 'undefined' && track.artistId) {
-          const isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
+        if (typeof window !== 'undefined' && targetTrack.artistId) {
           fetch('/api/track/play', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
-              trackId: track.id, 
-              artistId: track.artistId, 
-              duration: track.duration,
+              trackId: targetTrack.id, 
+              artistId: targetTrack.artistId, 
+              duration: targetTrack.duration,
               device: isMobile ? 'Mobile App' : 'Web Player',
               city,
               country
             }),
           }).then(() => {
-            socketManager?.emit('PLAY_COUNT_UPDATE', { trackId: track.id, artistId: track.artistId });
+            socketManager?.emit('PLAY_COUNT_UPDATE', { trackId: targetTrack.id, artistId: targetTrack.artistId });
           }).catch(() => {}); // silent fail
         }
       },

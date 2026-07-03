@@ -3,12 +3,15 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { Home, Search, Library, Download, Plus, LayoutDashboard, Upload, Music, TrendingUp } from 'lucide-react';
+import { Home, Search, Library, Download, Plus, LayoutDashboard, Upload, Music, TrendingUp, Crown } from 'lucide-react';
+import { useAuthStore } from '@/store/authStore';
 
 function MobileNavContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const currentTab = searchParams.get('tab');
+  const { user, setCreateBottomSheetOpen } = useAuthStore();
+  const isFree = user?.subscription === 'free';
   
   const isArtistPanel = pathname.startsWith('/artist');
 
@@ -16,7 +19,9 @@ function MobileNavContent() {
     { href: '/home', icon: Home, label: 'Home' },
     { href: '/search', icon: Search, label: 'Search' },
     { href: '/library', icon: Library, label: 'Your Library' },
-    { href: '/downloads', icon: Download, label: 'Downloads' },
+    isFree 
+      ? { href: '/premium', icon: Crown, label: 'Premium' }
+      : { href: '/downloads', icon: Download, label: 'Downloads' },
     { href: '/library?create=true', icon: Plus, label: 'Create' },
   ];
 
@@ -53,27 +58,53 @@ function MobileNavContent() {
       {navItems.map((item) => {
         const Icon = item.icon;
         const active = isActive(item.href);
+        const isCreate = item.label === 'Create';
+
+        const content = (
+          <>
+            <Icon size={20} strokeWidth={active ? 2.5 : 2} color={active ? 'var(--color-ss-primary, #b08850)' : 'var(--color-ss-text-muted, #87786c)'} />
+            <span>{item.label}</span>
+          </>
+        );
+
+        const commonStyle: React.CSSProperties = {
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textDecoration: 'none',
+          color: active ? 'var(--color-ss-primary, #b08850)' : 'var(--color-ss-text-muted, #87786c)',
+          fontSize: '10px',
+          fontWeight: active ? '700' : '500',
+          gap: '4px',
+          flex: 1,
+          height: '100%',
+          transition: 'color 0.2s ease',
+          background: 'transparent',
+          border: 'none',
+          cursor: 'pointer',
+          padding: 0,
+        };
+
+        if (isCreate) {
+          return (
+            <button
+              key={item.label}
+              onClick={() => setCreateBottomSheetOpen(true)}
+              style={commonStyle}
+            >
+              {content}
+            </button>
+          );
+        }
+
         return (
           <Link
             key={item.href}
             href={item.href}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              textDecoration: 'none',
-              color: active ? 'var(--color-ss-primary, #b08850)' : 'var(--color-ss-text-muted, #87786c)',
-              fontSize: '10px',
-              fontWeight: active ? '700' : '500',
-              gap: '4px',
-              flex: 1,
-              height: '100%',
-              transition: 'color 0.2s ease',
-            }}
+            style={commonStyle}
           >
-            <Icon size={20} strokeWidth={active ? 2.5 : 2} color={active ? 'var(--color-ss-primary, #b08850)' : 'var(--color-ss-text-muted, #87786c)'} />
-            <span>{item.label}</span>
+            {content}
           </Link>
         );
       })}

@@ -238,10 +238,51 @@ export const useMusicStore = create<MusicStore>()(
     }),
     {
       name: 'beato-music',
+      // Custom storage that gracefully handles QuotaExceededError
+      storage: {
+        getItem: (name: string) => {
+          try {
+            const val = localStorage.getItem(name);
+            return val ? JSON.parse(val) : null;
+          } catch { return null; }
+        },
+        setItem: (name: string, value: unknown) => {
+          try {
+            localStorage.setItem(name, JSON.stringify(value));
+          } catch (e: any) {
+            if (e?.name === 'QuotaExceededError' || e?.code === 22) {
+              // Storage full — clear old uploads data and retry with minimal state
+              console.warn('[musicStore] localStorage quota exceeded — clearing uploadedTracks cache');
+              try {
+                localStorage.removeItem(name);
+                // Retry with only essential fields
+                const minimal = typeof value === 'object' && value !== null
+                  ? { state: { uploadedTracks: [], recentlyPlayed: [], listeningHistory: [], genreScores: {}, activeArtistIds: [] } }
+                  : value;
+                localStorage.setItem(name, JSON.stringify(minimal));
+              } catch { /* Give up silently if still full */ }
+            }
+          }
+        },
+        removeItem: (name: string) => {
+          try { localStorage.removeItem(name); } catch { }
+        },
+      },
       partialize: (state) => ({
-        uploadedTracks: state.uploadedTracks,
-        recentlyPlayed: state.recentlyPlayed,
-        listeningHistory: state.listeningHistory,
+        // Strip binary data URLs and heavy waveform arrays before persisting
+        uploadedTracks: state.uploadedTracks.map((t) => ({
+          ...t,
+          // Never persist base64 data URLs — they blow up localStorage
+          audioUrl: t.audioUrl?.startsWith('data:') ? '' : t.audioUrl,
+          // Strip waveform (60 numbers × 4 bytes = 240 bytes per track, adds up fast)
+          waveform: undefined,
+        })),
+        recentlyPlayed: state.recentlyPlayed.slice(0, 20).map((t) => ({
+          ...t,
+          audioUrl: t.audioUrl?.startsWith('data:') ? '' : t.audioUrl,
+          waveform: undefined,
+        })),
+        listeningHistory: state.listeningHistory.slice(0, 100),
         genreScores: state.genreScores,
         activeArtistIds: state.activeArtistIds,
       }),
@@ -255,4 +296,29 @@ if (typeof window !== 'undefined') {
       useMusicStore.persist.rehydrate();
     }
   });
+
+  // One-time startup cleanup: strip any data: URLs from previously persisted state
+  // to recover from the QuotaExceededError caused by old base64 storage
+  try {
+    const raw = localStorage.getItem('beato-music');
+    if (raw && raw.includes('data:audio')) {
+      const parsed = JSON.parse(raw);
+      if (parsed?.state?.uploadedTracks) {
+        parsed.state.uploadedTracks = parsed.state.uploadedTracks.map((t: any) => ({
+          ...t,
+          audioUrl: t.audioUrl?.startsWith('data:') ? '' : t.audioUrl,
+          waveform: undefined,
+        }));
+      }
+      if (parsed?.state?.recentlyPlayed) {
+        parsed.state.recentlyPlayed = parsed.state.recentlyPlayed.map((t: any) => ({
+          ...t,
+          audioUrl: t.audioUrl?.startsWith('data:') ? '' : t.audioUrl,
+          waveform: undefined,
+        }));
+      }
+      localStorage.setItem('beato-music', JSON.stringify(parsed));
+      console.info('[musicStore] Cleaned up stale data URLs from localStorage.');
+    }
+  } catch { /* ignore cleanup errors */ }
 }

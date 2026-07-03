@@ -84,6 +84,9 @@ export default function PlayerBar() {
     setActiveDevice, setActiveDeviceId, setAvailableDevices
   } = usePlayerStore();
 
+  const { user, toggleLikeSong } = useAuthStore();
+  const isFree = user?.subscription === 'free';
+
   const { downloadTrack, removeDownloadedTrack, downloadedTrackIds, downloadingIds } = useDownloadStore();
   const { customPlaylists, addTrackToPlaylist, removeTrackFromPlaylist, addPlaylist } = usePlaylistStore();
   const downloaded = currentTrack ? downloadedTrackIds.includes(currentTrack.id) : false;
@@ -94,6 +97,11 @@ export default function PlayerBar() {
   const handleDownloadClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!currentTrack) return;
+    if (currentTrack.isAd) return;
+    if (isFree) {
+      toast.error("Offline downloading is a Premium-only feature! Upgrade to Premium. 💎");
+      return;
+    }
     if (downloaded) {
       if (confirm(`Remove "${currentTrack.title}" from downloads?`)) {
         await removeDownloadedTrack(currentTrack.id);
@@ -277,8 +285,6 @@ export default function PlayerBar() {
   }, [activeDeviceId]);
 
   const liveListeners = useRealtimeStore(state => state.liveListeners);
-
-  const { user, toggleLikeSong } = useAuthStore();
   const isLiked = currentTrack ? user?.likedSongs.includes(currentTrack.id) : false;
 
   // Track listening history
@@ -405,7 +411,7 @@ export default function PlayerBar() {
       if (!active) return;
 
       // Resolve absolute path if relative
-      if (resolvedUrl.startsWith('/') && typeof window !== 'undefined') {
+      if (resolvedUrl && resolvedUrl.startsWith('/') && typeof window !== 'undefined') {
         resolvedUrl = `${window.location.origin}${resolvedUrl}`;
       }
 
@@ -413,6 +419,20 @@ export default function PlayerBar() {
       let srcChanged = false;
       if (!audio.src || loadedTrackIdRef.current !== currentTrack.id) {
         srcChanged = true;
+        // Guard: if audioUrl is empty, try to recover using youtubeVideoId
+        if (!resolvedUrl) {
+          const ytId = (currentTrack as any).youtubeVideoId;
+          if (ytId && /^[a-zA-Z0-9_-]{11}$/.test(ytId)) {
+            // Auto-recover: stream directly from YouTube via yt-dlp resolver
+            console.info(`[PlayerBar] Empty audioUrl — falling back to yt-dlp resolver for ${ytId}`);
+            resolvedUrl = `${window.location.origin}/api/songs/resolve?youtubeId=${ytId}`;
+          } else {
+            console.warn('[PlayerBar] Track has no audioUrl and no YouTube ID:', currentTrack.id);
+            toast.error('This track has no audio file. Please re-upload it.', { id: 'no-audio-toast' });
+            setIsPlaying(false);
+            return;
+          }
+        }
       }
 
       if (srcChanged) {
@@ -547,10 +567,18 @@ export default function PlayerBar() {
   const handleTimeUpdate = useCallback(() => {
     const audio = audioRef.current;
     if (!audio || isDragging) return;
+    
+    const adCutoff = currentTrack?.duration || 15;
+    if (currentTrack?.isAd && audio.currentTime >= adCutoff) {
+      playNext(true); // Automatically advance after ad break cutoff
+      return;
+    }
+
     setProgress(audio.currentTime);
-    setDuration(audio.duration || currentTrack?.duration || 0);
+    const trackDuration = currentTrack?.isAd ? adCutoff : (audio.duration || currentTrack?.duration || 0);
+    setDuration(trackDuration);
     setLocalProgress(audio.currentTime);
-  }, [isDragging, currentTrack?.duration, setProgress, setDuration]);
+  }, [isDragging, currentTrack, playNext, setProgress, setDuration]);
 
   const handleEnded = useCallback(() => {
     if (repeat === 'one') {
@@ -564,9 +592,11 @@ export default function PlayerBar() {
   const handleLoadedMetadata = useCallback(() => {
     const audio = audioRef.current;
     if (audio) {
-      setDuration(audio.duration || currentTrack?.duration || 0);
+      const adCutoff = currentTrack?.duration || 15;
+      const trackDuration = currentTrack?.isAd ? adCutoff : (audio.duration || currentTrack?.duration || 0);
+      setDuration(trackDuration);
     }
-  }, [currentTrack?.duration, setDuration]);
+  }, [currentTrack, setDuration]);
 
   const handlePlay = useCallback(() => {
     if (!isPlaying) setIsPlaying(true);
@@ -578,8 +608,20 @@ export default function PlayerBar() {
 
   const handleAudioError = useCallback((e: Event) => {
     const audio = e.target as HTMLAudioElement;
-    console.error('Audio element error:', audio.error);
-    toast.error('Unable to load or play audio track.', { id: 'audio-error-toast' });
+    const err = audio.error;
+    // Map MediaError codes to human-readable messages
+    const codeMap: Record<number, string> = {
+      1: 'Playback aborted by the user.',
+      2: 'Network error while loading audio.',
+      3: 'Audio decoding failed — file may be corrupt.',
+      4: 'Audio format not supported by this browser.',
+    };
+    const detail = err ? (codeMap[err.code] || `Error code ${err.code}`) : 'Unknown audio error';
+    console.error(`[PlayerBar] Audio error: ${detail}`, err);
+    // Only show toast for real errors (code 2, 3, 4), not for aborted loads (code 1)
+    if (!err || err.code !== 1) {
+      toast.error(`Playback error: ${detail}`, { id: 'audio-error-toast' });
+    }
     setIsPlaying(false);
   }, [setIsPlaying]);
 
@@ -651,21 +693,33 @@ export default function PlayerBar() {
           </div>
 
           <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
-            <Link href={`/album/${currentTrack.albumId}`} style={{ textDecoration: 'none' }}>
-              <p style={{ color: '#221a15', fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'pointer', margin: 0 }}
-                onMouseEnter={e => (e.currentTarget.style.textDecoration = 'underline')}
-                onMouseLeave={e => (e.currentTarget.style.textDecoration = 'none')}>
+            {currentTrack.isAd ? (
+              <p style={{ color: '#221a15', fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>
                 {currentTrack.title}
               </p>
-            </Link>
+            ) : (
+              <Link href={`/album/${currentTrack.albumId}`} style={{ textDecoration: 'none' }}>
+                <p style={{ color: '#221a15', fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'pointer', margin: 0 }}
+                  onMouseEnter={e => (e.currentTarget.style.textDecoration = 'underline')}
+                  onMouseLeave={e => (e.currentTarget.style.textDecoration = 'none')}>
+                  {currentTrack.title}
+                </p>
+              </Link>
+            )}
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
-              <Link href={`/artist/${currentTrack.artistId}`} style={{ textDecoration: 'none', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                <span style={{ color: '#87786c', fontSize: 12, cursor: 'pointer' }}
-                  onMouseEnter={e => (e.currentTarget.style.color = '#221a15')}
-                  onMouseLeave={e => (e.currentTarget.style.color = '#87786c')}>
+              {currentTrack.isAd ? (
+                <span style={{ color: '#87786c', fontSize: 12 }}>
                   {currentTrack.artistName}
                 </span>
-              </Link>
+              ) : (
+                <Link href={`/artist/${currentTrack.artistId}`} style={{ textDecoration: 'none', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <span style={{ color: '#87786c', fontSize: 12, cursor: 'pointer' }}
+                    onMouseEnter={e => (e.currentTarget.style.color = '#221a15')}
+                    onMouseLeave={e => (e.currentTarget.style.color = '#87786c')}>
+                    {currentTrack.artistName}
+                  </span>
+                </Link>
+              )}
             </div>
             {/* Live Listener Count Badge */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
@@ -704,26 +758,35 @@ export default function PlayerBar() {
               <Shuffle size={16} />
             </button>
 
-            <button onClick={() => usePlayerStore.getState().playPrevious()} style={btnStyle()}
-              onMouseEnter={e => (e.currentTarget.style.color = '#221a15')}
-              onMouseLeave={e => (e.currentTarget.style.color = '#87786c')}>
+            <button 
+              onClick={() => usePlayerStore.getState().playPrevious()} 
+              style={{ ...btnStyle(), opacity: isFree ? 0.35 : 1, cursor: isFree ? 'not-allowed' : 'pointer' }}
+              title={isFree ? "Previous (Premium Only)" : "Previous"}
+              onMouseEnter={e => { if (!isFree) e.currentTarget.style.color = '#221a15'; }}
+              onMouseLeave={e => { if (!isFree) e.currentTarget.style.color = '#87786c'; }}>
               <SkipBack size={20} fill="currentColor" />
             </button>
 
             <motion.button whileTap={{ scale: 0.9 }} onClick={togglePlay}
+              disabled={currentTrack?.isAd === true}
               style={{
                 width: 38, height: 38, borderRadius: '50%', background: '#221a15',
-                border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                border: 'none', cursor: currentTrack?.isAd ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
                 boxShadow: '0 4px 12px rgba(43, 34, 26, 0.15)', transition: 'transform 0.15s',
+                opacity: currentTrack?.isAd ? 0.5 : 1
               }}
-              onMouseEnter={e => ((e.currentTarget as HTMLElement).style.transform = 'scale(1.06)')}
-              onMouseLeave={e => ((e.currentTarget as HTMLElement).style.transform = 'scale(1)')}>
+              onMouseEnter={e => { if (currentTrack?.isAd !== true) (e.currentTarget as HTMLElement).style.transform = 'scale(1.06)'; }}
+              onMouseLeave={e => { if (currentTrack?.isAd !== true) (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}>
               {isPlaying ? <Pause size={18} fill="white" color="white" /> : <Play size={18} fill="white" color="white" />}
             </motion.button>
 
-            <button onClick={() => usePlayerStore.getState().playNext()} style={btnStyle()}
-              onMouseEnter={e => (e.currentTarget.style.color = '#221a15')}
-              onMouseLeave={e => (e.currentTarget.style.color = '#87786c')}>
+            <button 
+              onClick={() => usePlayerStore.getState().playNext(true)} 
+              disabled={currentTrack?.isAd === true}
+              style={{ ...btnStyle(), opacity: currentTrack?.isAd ? 0.35 : 1, cursor: currentTrack?.isAd ? 'not-allowed' : 'pointer' }}
+              title={currentTrack?.isAd ? "Next (Ad Playing)" : "Next"}
+              onMouseEnter={e => { if (currentTrack?.isAd !== true) e.currentTarget.style.color = '#221a15'; }}
+              onMouseLeave={e => { if (currentTrack?.isAd !== true) e.currentTarget.style.color = '#87786c'; }}>
               <SkipForward size={20} fill="currentColor" />
             </button>
 
@@ -741,6 +804,7 @@ export default function PlayerBar() {
             </span>
             <div style={{ flex: 1, position: 'relative', height: 20, display: 'flex', alignItems: 'center' }}>
               <input type="range" min={0} max={duration || currentTrack.duration} value={localProgress}
+                disabled={currentTrack?.isAd === true}
                 onChange={e => setLocalProgress(Number(e.target.value))}
                 onMouseDown={() => setIsDragging(true)}
                 onTouchStart={() => setIsDragging(true)}
@@ -756,7 +820,7 @@ export default function PlayerBar() {
                 }}
                 onTouchCancel={() => setIsDragging(false)}
                 className="progress-bar"
-                style={{ '--progress': `${progressPercent}%`, width: '100%' } as React.CSSProperties} />
+                style={{ '--progress': `${progressPercent}%`, width: '100%', cursor: currentTrack?.isAd ? 'not-allowed' : 'pointer' } as React.CSSProperties} />
             </div>
             <span style={{ color: '#87786c', fontSize: 11, fontVariantNumeric: 'tabular-nums', width: 32, flexShrink: 0 }}>
               {formatDuration(duration || currentTrack.duration)}
@@ -1207,10 +1271,21 @@ export default function PlayerBar() {
           {/* Previous Button */}
           <button
             onClick={e => { e.stopPropagation(); usePlayerStore.getState().playPrevious(); }}
-            style={{ background: 'transparent', border: 'none', padding: 4, cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#221a15', transition: 'color 0.15s' }}
-            title="Previous"
-            onMouseEnter={e => (e.currentTarget.style.color = 'var(--color-ss-secondary, #8c6c44)')}
-            onMouseLeave={e => (e.currentTarget.style.color = '#221a15')}
+            disabled={isFree}
+            style={{ 
+              background: 'transparent', 
+              border: 'none', 
+              padding: 4, 
+              cursor: isFree ? 'not-allowed' : 'pointer', 
+              display: 'flex', 
+              alignItems: 'center', 
+              color: '#221a15', 
+              transition: 'color 0.15s',
+              opacity: isFree ? 0.35 : 1
+            }}
+            title={isFree ? "Previous (Premium Only)" : "Previous"}
+            onMouseEnter={e => { if (!isFree) e.currentTarget.style.color = 'var(--color-ss-secondary, #8c6c44)'; }}
+            onMouseLeave={e => { if (!isFree) e.currentTarget.style.color = '#221a15'; }}
           >
             <SkipBack size={18} strokeWidth={1.8} fill="none" />
           </button>
@@ -1218,10 +1293,21 @@ export default function PlayerBar() {
           {/* Play/Pause Button */}
           <button
             onClick={e => { e.stopPropagation(); togglePlay(); }}
-            style={{ background: 'transparent', border: 'none', padding: 4, cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#221a15', transition: 'color 0.15s' }}
+            disabled={currentTrack?.isAd === true}
+            style={{ 
+              background: 'transparent', 
+              border: 'none', 
+              padding: 4, 
+              cursor: currentTrack?.isAd ? 'not-allowed' : 'pointer', 
+              display: 'flex', 
+              alignItems: 'center', 
+              color: '#221a15', 
+              transition: 'color 0.15s',
+              opacity: currentTrack?.isAd ? 0.5 : 1
+            }}
             title={isPlaying ? "Pause" : "Play"}
-            onMouseEnter={e => (e.currentTarget.style.color = 'var(--color-ss-secondary, #8c6c44)')}
-            onMouseLeave={e => (e.currentTarget.style.color = '#221a15')}
+            onMouseEnter={e => { if (currentTrack?.isAd !== true) e.currentTarget.style.color = 'var(--color-ss-secondary, #8c6c44)'; }}
+            onMouseLeave={e => { if (currentTrack?.isAd !== true) e.currentTarget.style.color = '#221a15'; }}
           >
             {isPlaying ? (
               <Pause size={20} strokeWidth={1.8} fill="none" />
@@ -1232,11 +1318,22 @@ export default function PlayerBar() {
 
           {/* Next Button */}
           <button
-            onClick={e => { e.stopPropagation(); playNext(); }}
-            style={{ background: 'transparent', border: 'none', padding: 4, cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#221a15', transition: 'color 0.15s' }}
-            title="Next"
-            onMouseEnter={e => (e.currentTarget.style.color = 'var(--color-ss-secondary, #8c6c44)')}
-            onMouseLeave={e => (e.currentTarget.style.color = '#221a15')}
+            onClick={e => { e.stopPropagation(); playNext(true); }}
+            disabled={currentTrack?.isAd === true}
+            style={{ 
+              background: 'transparent', 
+              border: 'none', 
+              padding: 4, 
+              cursor: currentTrack?.isAd ? 'not-allowed' : 'pointer', 
+              display: 'flex', 
+              alignItems: 'center', 
+              color: '#221a15', 
+              transition: 'color 0.15s',
+              opacity: currentTrack?.isAd ? 0.35 : 1
+            }}
+            title={currentTrack?.isAd ? "Next (Ad Playing)" : "Next"}
+            onMouseEnter={e => { if (currentTrack?.isAd !== true) e.currentTarget.style.color = 'var(--color-ss-secondary, #8c6c44)'; }}
+            onMouseLeave={e => { if (currentTrack?.isAd !== true) e.currentTarget.style.color = '#221a15'; }}
           >
             <SkipForward size={18} strokeWidth={1.8} fill="none" />
           </button>
