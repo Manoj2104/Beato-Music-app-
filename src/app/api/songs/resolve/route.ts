@@ -58,9 +58,9 @@ async function getStreamUrlViaYtdlCore(videoId: string): Promise<string> {
     },
   });
 
-  // Prefer m4a (AAC) → works in all browsers; fallback to webm/opus
+  // Prefer AAC/m4a (works in all browsers); fallback to any audioonly format
   const format =
-    ytdl.chooseFormat(info.formats, { quality: 'highestaudio', filter: (f) => f.container === 'm4a' }) ||
+    ytdl.chooseFormat(info.formats, { quality: 'highestaudio', filter: (f) => !!(f.mimeType?.includes('audio/mp4')) }) ||
     ytdl.chooseFormat(info.formats, { quality: 'highestaudio', filter: 'audioonly' });
 
   if (!format?.url) throw new Error('No audio format found via ytdl-core');
