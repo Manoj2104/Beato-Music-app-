@@ -474,6 +474,63 @@ export async function POST(request: NextRequest) {
           continue;
         }
 
+        const useCloudStream = !fs.existsSync(YTDLP_PATH) || !fs.existsSync(FFPROBE_PATH);
+
+        if (useCloudStream) {
+          try {
+            allLogs.push(`\n=== Processing Video ID (Cloud Mode): ${videoId} ===`);
+
+            const audioUrl = `/api/songs/resolve?youtubeId=${videoId}`;
+            const duration = parseInt(item.duration) || 210; // fallback duration if 0/undefined
+            const sha256 = crypto.createHash('sha256').update(videoId).digest('hex');
+
+            const trackId = `track-yt-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
+            const coverImg = item.coverImage || `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+
+            const newTrack = {
+              id: trackId,
+              title: item.songName || item.title || 'YouTube MP3 Song',
+              artistId,
+              artistName: artist.name,
+              albumId: 'single',
+              albumName: 'Single',
+              coverImage: coverImg,
+              duration,
+              audioUrl,
+              genre: item.genre || genre || 'Pop',
+              year: new Date().getFullYear(),
+              plays: 0,
+              liked: false,
+              explicit: item.explicit === true,
+              trackNumber: 1,
+              waveform: Array.from({ length: 60 }, () => Math.floor(Math.random() * 80 + 20)),
+              uploadedBy: user.token || 'super-admin',
+              uploadedAt: new Date().toISOString().split('T')[0],
+              status: 'approved' as const,
+              youtubeVideoId: videoId,
+              sha256Checksum: sha256,
+              originalYoutubeUrl: `https://www.youtube.com/watch?v=${videoId}`,
+            };
+
+            db.addTrack(newTrack);
+            createdTracks.push(newTrack);
+
+            logSecurityEvent(
+              user.token || 'unknown-token',
+              `Super Admin (${user.role})`,
+              'UPLOAD',
+              `Registered cloud stream for "${newTrack.title}" from YouTube video ${videoId} for artist "${artist.name}" (${artistId})`
+            );
+
+            allLogs.push(`[SUCCESS] Track "${newTrack.title}" registered in Cloud Mode.`);
+          } catch (err: any) {
+            const msg = err?.message || 'Unknown error';
+            allLogs.push(`[ERROR] Failed for video ${videoId}: ${msg}`);
+            errors.push(`Failed for video "${videoId}": ${msg}`);
+          }
+          continue; // Skip trying binary download
+        }
+
         // Create a unique temp directory per download to avoid collisions
         const tmpDir = path.join(os.tmpdir(), `beato-yt-${Date.now()}-${videoId}`);
         fs.mkdirSync(tmpDir, { recursive: true });

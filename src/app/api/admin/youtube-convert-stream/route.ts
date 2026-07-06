@@ -108,6 +108,81 @@ export async function POST(request: NextRequest) {
           message: `[${trackNum}/${total}] 📥 Downloading: ${title}`
         });
 
+        const useCloudStream = !fs.existsSync(YTDLP_PATH) || !fs.existsSync(FFPROBE_PATH);
+
+        if (useCloudStream) {
+          try {
+            send({
+              type: 'track_progress',
+              trackIndex: i, total, videoId, title,
+              step: 'registering',
+              stepNum: 5, totalSteps: 5,
+              percentage: Math.round(((i / total) + (1 / total) * 0.95) * 100),
+              message: `[${trackNum}/${total}] ☁️ Registering Stream (Cloud Mode): ${title}`
+            });
+
+            const audioUrl = `/api/songs/resolve?youtubeId=${videoId}`;
+            const duration = parseInt(item.duration) || 210; // fallback duration if 0/undefined
+            const sha256 = crypto.createHash('sha256').update(videoId).digest('hex');
+
+            const trackId = `track-yt-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
+            const newTrack = {
+              id: trackId,
+              title: item.songName || item.title || 'YouTube MP3 Song',
+              artistId,
+              artistName: artist.name,
+              albumId: 'single',
+              albumName: 'Single',
+              coverImage: item.coverImage || `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+              duration,
+              audioUrl,
+              genre: item.genre || genre || 'Pop',
+              year: new Date().getFullYear(),
+              plays: 0,
+              liked: false,
+              explicit: item.explicit === true,
+              trackNumber: 1,
+              waveform: Array.from({ length: 60 }, () => Math.floor(Math.random() * 80 + 20)),
+              uploadedBy: user.token || 'super-admin',
+              uploadedAt: new Date().toISOString().split('T')[0],
+              status: 'approved' as const,
+              youtubeVideoId: videoId,
+              sha256Checksum: sha256,
+              originalYoutubeUrl: `https://www.youtube.com/watch?v=${videoId}`,
+            };
+
+            db.addTrack(newTrack);
+            createdTracks.push(newTrack);
+
+            logSecurityEvent(
+              user.token || 'unknown',
+              `Super Admin (${user.role})`,
+              'UPLOAD',
+              `Registered cloud stream for "${newTrack.title}" from YouTube ${videoId} for artist "${artist.name}"`
+            );
+
+            // Track done
+            send({
+              type: 'track_done',
+              trackIndex: i, total, videoId, title: newTrack.title,
+              percentage: Math.round(((i + 1) / total) * 100),
+              message: `[${trackNum}/${total}] ✅ Done (Stream resolved): ${newTrack.title}`,
+              sha256, duration, audioUrl
+            });
+          } catch (err: any) {
+            const msg = err?.message || 'Unknown error';
+            errors.push(`Track ${trackNum} (${videoId}): ${msg}`);
+            send({
+              type: 'track_error',
+              trackIndex: i, total, videoId, title,
+              percentage: Math.round(((i + 1) / total) * 100),
+              error: msg,
+              message: `[${trackNum}/${total}] ❌ Failed: ${title} — ${msg}`
+            });
+          }
+          continue; // Skip trying binary download
+        }
+
         const tmpDir = path.join(os.tmpdir(), `beato-yt-${Date.now()}-${videoId}`);
         fs.mkdirSync(tmpDir, { recursive: true });
 
