@@ -410,6 +410,16 @@ export default function PlayerBar() {
 
       if (!active) return;
 
+      // If the audioUrl is a local /uploads/ path, it won't exist on Vercel.
+      // Fall back to YouTube stream resolver using the track's youtubeVideoId.
+      if (resolvedUrl && resolvedUrl.includes('/uploads/')) {
+        const ytId = (currentTrack as any).youtubeVideoId;
+        if (ytId && /^[a-zA-Z0-9_-]{11}$/.test(ytId)) {
+          console.info(`[PlayerBar] Local /uploads/ path detected on remote — falling back to yt-dlp resolver for ${ytId}`);
+          resolvedUrl = `${window.location.origin}/api/songs/resolve?youtubeId=${ytId}`;
+        }
+      }
+
       // Resolve absolute path if relative
       if (resolvedUrl && resolvedUrl.startsWith('/') && typeof window !== 'undefined') {
         resolvedUrl = `${window.location.origin}${resolvedUrl}`;

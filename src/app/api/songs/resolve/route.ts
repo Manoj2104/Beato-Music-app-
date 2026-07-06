@@ -5,7 +5,13 @@ import path from 'path';
 import fs from 'fs';
 
 const execFileAsync = promisify(execFile);
-const YTDLP_PATH = path.join(process.cwd(), 'yt-dlp.exe');
+
+// Use platform-appropriate yt-dlp binary
+// On Windows: yt-dlp.exe, on Linux (Vercel): yt-dlp (no .exe)
+const isWindows = process.platform === 'win32';
+const YTDLP_FILENAME = isWindows ? 'yt-dlp.exe' : 'yt-dlp';
+const YTDLP_PATH = path.join(process.cwd(), YTDLP_FILENAME);
+const YTDLP_AVAILABLE = fs.existsSync(YTDLP_PATH);
 
 // In-memory cache: videoId → { url, expires }
 const streamUrlCache = new Map<string, { url: string; expires: number }>();
@@ -13,6 +19,10 @@ const streamUrlCache = new Map<string, { url: string; expires: number }>();
 async function getStreamUrl(videoId: string): Promise<string> {
   const cached = streamUrlCache.get(videoId);
   if (cached && cached.expires > Date.now()) return cached.url;
+
+  if (!YTDLP_AVAILABLE) {
+    throw new Error('yt-dlp not available in this environment');
+  }
 
   const { stdout } = await execFileAsync(YTDLP_PATH, [
     '--no-playlist',
