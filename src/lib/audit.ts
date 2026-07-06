@@ -2,7 +2,7 @@ export interface AuditLog {
   id: string;
   userId: string;
   userName: string;
-  action: 'LOGIN' | 'ROLE_CHANGE' | 'UPLOAD' | 'ADMIN_ACTION' | 'APPROVAL' | 'REJECTION' | 'SUSPENSION';
+  action: 'LOGIN' | 'ROLE_CHANGE' | 'UPLOAD' | 'ADMIN_ACTION' | 'APPROVAL' | 'REJECTION' | 'SUSPENSION' | 'DELETION';
   details: string;
   timestamp: string;
   ipAddress?: string;

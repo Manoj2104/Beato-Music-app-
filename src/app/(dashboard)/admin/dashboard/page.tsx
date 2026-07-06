@@ -155,13 +155,14 @@ function ActionButton({
 }: {
   label: string;
   onClick: () => void;
-  variant: 'approve' | 'reject' | 'suspend' | 'activate' | 'investigate' | 'dismiss';
+  variant: 'approve' | 'reject' | 'suspend' | 'activate' | 'investigate' | 'dismiss' | 'delete';
 }) {
   const colorMap = {
     approve: { bg: 'rgba(176, 136, 80,0.12)', color: '#b08850', hover: 'rgba(176, 136, 80,0.22)' },
     activate: { bg: 'rgba(176, 136, 80,0.12)', color: '#b08850', hover: 'rgba(176, 136, 80,0.22)' },
     reject: { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', hover: 'rgba(239,68,68,0.18)' },
     suspend: { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', hover: 'rgba(239,68,68,0.18)' },
+    delete: { bg: 'rgba(127,17,224,0.1)', color: '#7f11e0', hover: 'rgba(127,17,224,0.18)' },
     investigate: { bg: 'rgba(16, 185, 129,0.1)', color: '#10b981', hover: 'rgba(16, 185, 129,0.18)' },
     dismiss: { bg: 'rgba(43,34,26,0.05)', color: '#87786c', hover: 'rgba(43,34,26,0.1)' },
   };
@@ -2222,7 +2223,7 @@ function ArtistVerificationPanel({ onUpdate }: { onUpdate: () => void }) {
 
 function SongsTab() {
   const { user, toggleLikeSong } = useAuthStore();
-  const { uploadedTracks, approveTrack, rejectTrack } = useMusicStore();
+  const { uploadedTracks, approveTrack, rejectTrack, removeUploadedTrack } = useMusicStore();
   const { currentTrack, isPlaying, togglePlay } = usePlayerStore();
   
   const clientSongs = uploadedTracks.map(t => ({
@@ -2255,7 +2256,8 @@ function SongsTab() {
   const itemsPerPage = 20;
 
   const [selectedSongs, setSelectedSongs] = useState<string[]>([]);
-  const [confirm, setConfirm] = useState<{ open: boolean; songId: string; action: 'approve' | 'reject'; title: string }>({ open: false, songId: '', action: 'approve', title: '' });
+  const [confirm, setConfirm] = useState<{ open: boolean; songId: string; action: 'approve' | 'reject' | 'delete'; title: string }>({ open: false, songId: '', action: 'approve', title: '' });
+  const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; songIds: string[]; titles: string[] }>({ open: false, songIds: [], titles: [] });
 
   const totalSongsCount = songs.length;
   const approvedSongsCount = songs.filter(s => s.status === 'approved').length;
@@ -2336,6 +2338,53 @@ function SongsTab() {
     );
 
     setConfirm((p) => ({ ...p, open: false }));
+  };
+
+  const handleDeleteSong = async (songId: string, title: string) => {
+    // Remove from local state immediately (optimistic)
+    removeUploadedTrack(songId);
+    try {
+      await fetch('/api/admin/delete-song', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ songId, title }),
+      });
+    } catch (e) {
+      console.error('Failed to delete song on backend:', e);
+    }
+    logSecurityEvent(
+      user?.id || 'admin-user-1',
+      user?.name || 'Platform Moderator',
+      'DELETION',
+      `Song "${title}" (${songId}) permanently deleted by admin`
+    );
+    toast.success(`"${title}" deleted permanently.`);
+    setDeleteConfirm((p) => ({ ...p, open: false }));
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedSongs.length === 0) return;
+    const toDelete = selectedSongs.slice();
+    for (const id of toDelete) {
+      removeUploadedTrack(id);
+      try {
+        const song = songs.find(s => s.id === id);
+        await fetch('/api/admin/delete-song', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ songId: id, title: song?.title || 'Unknown' }),
+        });
+      } catch (e) {}
+    }
+    logSecurityEvent(
+      user?.id || 'admin-user-1',
+      user?.name || 'Platform Moderator',
+      'DELETION',
+      `Bulk deleted ${toDelete.length} songs from the queue.`
+    );
+    toast.success(`Deleted ${toDelete.length} songs permanently.`);
+    setSelectedSongs([]);
+    setDeleteConfirm((p) => ({ ...p, open: false }));
   };
 
   const handleApproveAllPending = async () => {
@@ -2450,6 +2499,28 @@ function SongsTab() {
         onConfirm={confirmAction}
         onCancel={() => setConfirm((p) => ({ ...p, open: false }))}
       />
+
+      {/* Delete single song confirmation */}
+      <ConfirmModal
+        open={deleteConfirm.open && deleteConfirm.songIds.length === 1}
+        title="🗑 Delete Track Permanently"
+        message={`Are you sure you want to permanently delete "${deleteConfirm.titles[0] || ''}"? This action cannot be undone and the track will be removed from the platform entirely.`}
+        confirmLabel="🗑 Delete Permanently"
+        confirmColor="#7f11e0"
+        onConfirm={() => handleDeleteSong(deleteConfirm.songIds[0], deleteConfirm.titles[0])}
+        onCancel={() => setDeleteConfirm((p) => ({ ...p, open: false }))}
+      />
+
+      {/* Bulk delete confirmation */}
+      <ConfirmModal
+        open={deleteConfirm.open && deleteConfirm.songIds.length > 1}
+        title="🗑 Bulk Delete Tracks"
+        message={`Are you sure you want to permanently delete ${deleteConfirm.songIds.length} selected tracks? This action cannot be undone.`}
+        confirmLabel={`🗑 Delete ${deleteConfirm.songIds.length} Tracks`}
+        confirmColor="#7f11e0"
+        onConfirm={handleBulkDelete}
+        onCancel={() => setDeleteConfirm((p) => ({ ...p, open: false }))}
+      />
       
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
         {/* Stats Bar */}
@@ -2472,6 +2543,15 @@ function SongsTab() {
             <div style={{ display: 'flex', gap: 8 }}>
               <button onClick={handleBulkApprove} style={{ background: '#b08850', border: 'none', borderRadius: 8, color: '#000', padding: '6px 14px', fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>Approve Selected</button>
               <button onClick={handleBulkReject} style={{ background: '#ef4444', border: 'none', borderRadius: 8, color: '#221a15', padding: '6px 14px', fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>Reject Selected</button>
+              <button
+                onClick={() => {
+                  const titles = selectedSongs.map(id => songs.find(s => s.id === id)?.title || 'Unknown');
+                  setDeleteConfirm({ open: true, songIds: selectedSongs, titles });
+                }}
+                style={{ background: 'rgba(127,17,224,0.15)', border: 'none', borderRadius: 8, color: '#7f11e0', padding: '6px 14px', fontSize: 12, fontWeight: 800, cursor: 'pointer' }}
+              >
+                🗑 Delete Selected
+              </button>
             </div>
           </motion.div>
         )}
@@ -2756,7 +2836,7 @@ function SongsTab() {
                   )}
                 </div>
                 <div><StatusBadge status={song.status} /></div>
-                <div style={{ display: 'flex', gap: 6 }}>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                   {song.status === 'pending' && (
                     <>
                       <ActionButton label="Approve" variant="approve" onClick={() => setConfirm({ open: true, songId: song.id, action: 'approve', title: song.title })} />
@@ -2765,6 +2845,7 @@ function SongsTab() {
                   )}
                   {song.status === 'approved' && <ActionButton label="Revoke" variant="reject" onClick={() => setConfirm({ open: true, songId: song.id, action: 'reject', title: song.title })} />}
                   {song.status === 'rejected' && <ActionButton label="Re-approve" variant="approve" onClick={() => setConfirm({ open: true, songId: song.id, action: 'approve', title: song.title })} />}
+                  <ActionButton label="🗑" variant="delete" onClick={() => setDeleteConfirm({ open: true, songIds: [song.id], titles: [song.title] })} />
                 </div>
               </motion.div>
             ))
