@@ -44,6 +44,9 @@ const nextConfig: NextConfig = {
     // ⚡ Tree-shake heavy icon/animation libraries → smaller JS bundles = faster loads
     optimizePackageImports: ['lucide-react', 'framer-motion', 'recharts'],
   },
+  outputFileTracingIncludes: {
+    '/api/**/*': ['./yt-dlp', './yt-dlp.exe'],
+  },
 };
 
 export default nextConfig;
