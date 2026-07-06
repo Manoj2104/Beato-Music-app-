@@ -40,6 +40,24 @@ async function getStreamUrl(videoId: string): Promise<string> {
   return url;
 }
 
+// Fallback for Vercel (no yt-dlp): use @distube/ytdl-core (pure JS)
+async function getStreamUrlViaYtdlCore(videoId: string): Promise<string> {
+  const cached = streamUrlCache.get(`ytdl-${videoId}`);
+  if (cached && cached.expires > Date.now()) return cached.url;
+
+  const ytdl = (await import('@distube/ytdl-core')).default;
+  const info = await ytdl.getInfo(`https://www.youtube.com/watch?v=${videoId}`);
+  const format = ytdl.chooseFormat(info.formats, {
+    quality: 'highestaudio',
+    filter: 'audioonly',
+  });
+
+  if (!format?.url) throw new Error('No audio format found via ytdl-core');
+
+  streamUrlCache.set(`ytdl-${videoId}`, { url: format.url, expires: Date.now() + 5 * 60 * 1000 });
+  return format.url;
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const youtubeId = searchParams.get('youtubeId');
@@ -92,9 +110,16 @@ export async function GET(request: NextRequest) {
     }
   } catch {}
 
-  // ── 2. Stream from YouTube via yt-dlp URL (proxied through server to avoid CORS) ──
+  // ── 2. Stream from YouTube via yt-dlp (or ytdl-core fallback on Vercel) ──
   try {
-    const streamUrl = await getStreamUrl(youtubeId);
+    // Try yt-dlp first (local dev), fallback to @distube/ytdl-core (Vercel)
+    let streamUrl: string;
+    try {
+      streamUrl = await getStreamUrl(youtubeId);
+    } catch {
+      console.info(`[resolve] yt-dlp unavailable, trying ytdl-core for ${youtubeId}`);
+      streamUrl = await getStreamUrlViaYtdlCore(youtubeId);
+    }
 
     // Proxy the request: fetch from YouTube with proper headers, stream back to browser
     const range = request.headers.get('range');
