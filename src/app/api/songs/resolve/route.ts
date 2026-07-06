@@ -4,78 +4,101 @@ import { promisify } from 'util';
 import path from 'path';
 import fs from 'fs';
 
-// Extend Vercel function timeout to 60s (default 10s is too short for ytdl-core)
+// Extend Vercel function timeout to 60s
 export const maxDuration = 60;
 
 const execFileAsync = promisify(execFile);
 
-// Use platform-appropriate yt-dlp binary
+// Platform-appropriate yt-dlp binary (local dev only)
 const isWindows = process.platform === 'win32';
-const YTDLP_FILENAME = isWindows ? 'yt-dlp.exe' : 'yt-dlp';
-const YTDLP_PATH = path.join(process.cwd(), YTDLP_FILENAME);
+const YTDLP_PATH = path.join(process.cwd(), isWindows ? 'yt-dlp.exe' : 'yt-dlp');
 const YTDLP_AVAILABLE = fs.existsSync(YTDLP_PATH);
 
-// In-memory cache: key → { url, expires }
-const streamUrlCache = new Map<string, { url: string; expires: number }>();
+// In-memory cache
+const streamUrlCache = new Map<string, { url: string; contentType: string; expires: number }>();
 
-// ── Get stream URL via yt-dlp (local dev) ──────────────────────────────────
-async function getStreamUrlViaYtdlp(videoId: string): Promise<string> {
+// ── 1. Local yt-dlp (fastest, for local dev) ─────────────────────────────────
+async function resolveViaYtdlp(videoId: string) {
+  if (!YTDLP_AVAILABLE) throw new Error('yt-dlp not found');
   const cacheKey = `ytdlp-${videoId}`;
   const cached = streamUrlCache.get(cacheKey);
-  if (cached && cached.expires > Date.now()) return cached.url;
-
-  if (!YTDLP_AVAILABLE) throw new Error('yt-dlp binary not found');
+  if (cached && cached.expires > Date.now()) return cached;
 
   const { stdout } = await execFileAsync(YTDLP_PATH, [
     '--no-playlist', '--no-warnings',
     '-f', 'bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best',
-    '--get-url',
+    '--get-url', '--print', '%(ext)s',
     `https://www.youtube.com/watch?v=${videoId}`,
   ], { timeout: 30_000, maxBuffer: 2 * 1024 * 1024 });
 
-  const url = stdout.trim().split('\n')[0];
-  if (!url || !url.startsWith('http')) throw new Error(`Invalid URL from yt-dlp: "${url}"`);
+  const lines = stdout.trim().split('\n');
+  const url = lines[0];
+  const ext = lines[1] || 'm4a';
+  const contentType = ext === 'webm' ? 'audio/webm' : 'audio/mp4';
+  if (!url?.startsWith('http')) throw new Error(`Bad yt-dlp URL: "${url}"`);
 
-  streamUrlCache.set(cacheKey, { url, expires: Date.now() + 5 * 60 * 1000 });
-  return url;
+  const result = { url, contentType, expires: Date.now() + 5 * 60 * 1000 };
+  streamUrlCache.set(cacheKey, result);
+  return result;
 }
 
-// ── Get stream URL via @distube/ytdl-core (Vercel fallback, pure JS) ───────
-async function getStreamUrlViaYtdlCore(videoId: string): Promise<string> {
-  const cacheKey = `ytdl-${videoId}`;
+// ── 2. Piped API (works on Vercel — public YouTube proxy, no binary needed) ──
+// Piped proxies YouTube content through their own servers, so stream URLs
+// work from ANY IP (browser can fetch directly — no Vercel proxy needed).
+const PIPED_INSTANCES = [
+  'https://pipedapi.kavin.rocks',
+  'https://piped-api.garudalinux.org',
+  'https://api.piped.projectsegfau.lt',
+  'https://piped.video/api',
+];
+
+async function resolveViaPiped(videoId: string) {
+  const cacheKey = `piped-${videoId}`;
   const cached = streamUrlCache.get(cacheKey);
-  if (cached && cached.expires > Date.now()) return cached.url;
+  if (cached && cached.expires > Date.now()) return cached;
 
-  const ytdl = (await import('@distube/ytdl-core')).default;
+  for (const instance of PIPED_INSTANCES) {
+    try {
+      const res = await fetch(`${instance}/streams/${videoId}`, {
+        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; SoundSphere/1.0)' },
+        signal: AbortSignal.timeout(10_000),
+      });
+      if (!res.ok) continue;
 
-  // Use Android VR client to bypass YouTube bot detection on server IPs
-  const info = await ytdl.getInfo(`https://www.youtube.com/watch?v=${videoId}`, {
-    requestOptions: {
-      headers: {
-        // Mimic Android YouTube app to bypass bot detection
-        'User-Agent': 'com.google.android.youtube/17.36.4 (Linux; U; Android 12) gzip',
-      },
-    },
-  });
+      const data = await res.json();
+      const audioStreams: any[] = data.audioStreams || [];
+      if (!audioStreams.length) continue;
 
-  // Prefer AAC/m4a (works in all browsers); fallback to any audioonly format
-  const format =
-    ytdl.chooseFormat(info.formats, { quality: 'highestaudio', filter: (f) => !!(f.mimeType?.includes('audio/mp4')) }) ||
-    ytdl.chooseFormat(info.formats, { quality: 'highestaudio', filter: 'audioonly' });
+      // Pick highest-quality audio stream; prefer m4a/AAC for browser support
+      const sorted = audioStreams.sort((a, b) => (b.bitrate || 0) - (a.bitrate || 0));
+      const m4a = sorted.find(s => s.mimeType?.includes('audio/mp4') || s.format === 'M4A');
+      const best = m4a || sorted[0];
+      if (!best?.url) continue;
 
-  if (!format?.url) throw new Error('No audio format found via ytdl-core');
-
-  streamUrlCache.set(cacheKey, { url: format.url, expires: Date.now() + 5 * 60 * 1000 });
-  return format.url;
+      const result = {
+        url: best.url,
+        contentType: best.mimeType || 'audio/mp4',
+        expires: Date.now() + 5 * 60 * 1000,
+      };
+      streamUrlCache.set(cacheKey, result);
+      return result;
+    } catch {
+      // Try next Piped instance
+    }
+  }
+  throw new Error('All Piped instances failed');
 }
 
-// ── Proxy stream URL through our server (avoids CORS for range requests) ───
-async function proxyStream(streamUrl: string, request: NextRequest): Promise<NextResponse> {
+// ── Proxy helper (for yt-dlp URLs which are IP-bound to our server) ──────────
+async function proxyStream(
+  streamUrl: string,
+  contentType: string,
+  request: NextRequest,
+): Promise<NextResponse> {
   const range = request.headers.get('range');
   const headers: HeadersInit = {
     'User-Agent': 'Mozilla/5.0 (compatible)',
     'Referer': 'https://www.youtube.com/',
-    'Origin': 'https://www.youtube.com',
     'Accept': '*/*',
   };
   if (range) headers['Range'] = range;
@@ -86,7 +109,7 @@ async function proxyStream(streamUrl: string, request: NextRequest): Promise<Nex
   }
 
   const resHeaders: Record<string, string> = {
-    'Content-Type': upstream.headers.get('Content-Type') || 'audio/mp4',
+    'Content-Type': upstream.headers.get('Content-Type') || contentType,
     'Accept-Ranges': 'bytes',
     'Cache-Control': 'no-store',
     'Access-Control-Allow-Origin': '*',
@@ -99,6 +122,7 @@ async function proxyStream(streamUrl: string, request: NextRequest): Promise<Nex
   return new NextResponse(upstream.body, { status: upstream.status, headers: resHeaders });
 }
 
+// ── Main handler ──────────────────────────────────────────────────────────────
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const youtubeId = searchParams.get('youtubeId');
@@ -107,66 +131,76 @@ export async function GET(request: NextRequest) {
     return new NextResponse('Invalid youtubeId', { status: 400 });
   }
 
-  // ── 1. Serve local file if it exists (local dev fast path) ─────────────
+  // ── Step 1: Serve from local disk if available (local dev fast path) ────────
   const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
   try {
     const files = fs.readdirSync(uploadsDir);
-    const localFile = files.find(f => f.startsWith(youtubeId) && (f.endsWith('.mp3') || f.endsWith('.m4a') || f.endsWith('.webm')));
+    const localFile = files.find(
+      f => f.startsWith(youtubeId) && /\.(mp3|m4a|webm)$/.test(f),
+    );
     if (localFile) {
       const filePath = path.join(uploadsDir, localFile);
       const stat = fs.statSync(filePath);
       const ext = path.extname(localFile).slice(1);
-      const contentType = ext === 'mp3' ? 'audio/mpeg' : ext === 'm4a' ? 'audio/mp4' : 'audio/webm';
+      const ct = ext === 'mp3' ? 'audio/mpeg' : ext === 'm4a' ? 'audio/mp4' : 'audio/webm';
       const range = request.headers.get('range');
 
       if (range) {
-        const parts = range.replace(/bytes=/, '').split('-');
-        const start = parseInt(parts[0], 10);
-        const end = parts[1] ? parseInt(parts[1], 10) : stat.size - 1;
-        const chunkSize = end - start + 1;
-        const fileStream = fs.createReadStream(filePath, { start, end });
-        return new NextResponse(fileStream as any, {
+        const [startStr, endStr] = range.replace(/bytes=/, '').split('-');
+        const start = parseInt(startStr, 10);
+        const end = endStr ? parseInt(endStr, 10) : stat.size - 1;
+        const chunk = end - start + 1;
+        return new NextResponse(fs.createReadStream(filePath, { start, end }) as any, {
           status: 206,
           headers: {
             'Content-Range': `bytes ${start}-${end}/${stat.size}`,
             'Accept-Ranges': 'bytes',
-            'Content-Length': String(chunkSize),
-            'Content-Type': contentType,
+            'Content-Length': String(chunk),
+            'Content-Type': ct,
           },
         });
       }
 
-      const fileStream = fs.createReadStream(filePath);
-      return new NextResponse(fileStream as any, {
+      return new NextResponse(fs.createReadStream(filePath) as any, {
         headers: {
-          'Content-Type': contentType,
+          'Content-Type': ct,
           'Content-Length': String(stat.size),
           'Accept-Ranges': 'bytes',
           'Cache-Control': 'public, max-age=86400',
         },
       });
     }
-  } catch { /* no local file — fall through to YouTube */ }
+  } catch { /* no local file */ }
 
-  // ── 2. Resolve YouTube stream URL (yt-dlp → ytdl-core fallback) ─────────
-  try {
-    let streamUrl: string;
-
-    if (YTDLP_AVAILABLE) {
-      streamUrl = await getStreamUrlViaYtdlp(youtubeId);
-    } else {
-      console.info(`[resolve] Using ytdl-core for ${youtubeId}`);
-      streamUrl = await getStreamUrlViaYtdlCore(youtubeId);
+  // ── Step 2a: Local dev → use yt-dlp (proxy result since URL is IP-bound) ───
+  if (YTDLP_AVAILABLE) {
+    try {
+      const { url, contentType } = await resolveViaYtdlp(youtubeId);
+      return await proxyStream(url, contentType, request);
+    } catch (err: any) {
+      console.warn(`[resolve] yt-dlp failed: ${err?.message}`);
     }
+  }
 
-    // Proxy through our server so browser can do range-requests / seeking
-    return await proxyStream(streamUrl, request);
-
+  // ── Step 2b: Cloud (Vercel) → use Piped API (redirect browser directly) ────
+  // Piped's stream URLs are already proxied through Piped's CDN, so the browser
+  // can fetch directly — no Vercel streaming needed.
+  try {
+    const { url, contentType } = await resolveViaPiped(youtubeId);
+    console.info(`[resolve] Piped URL obtained for ${youtubeId} → redirecting browser`);
+    // Redirect browser directly to Piped's proxied stream (avoids Vercel timeout)
+    return NextResponse.redirect(url, {
+      status: 302,
+      headers: {
+        'Cache-Control': 'no-store',
+        'X-Content-Type': contentType,
+      },
+    });
   } catch (err: any) {
-    console.error(`[resolve] Failed for ${youtubeId}:`, err?.message);
+    console.error(`[resolve] All methods failed for ${youtubeId}:`, err?.message);
     return new NextResponse(
       JSON.stringify({ error: 'Could not resolve audio stream.', detail: err?.message }),
-      { status: 502, headers: { 'Content-Type': 'application/json' } }
+      { status: 502, headers: { 'Content-Type': 'application/json' } },
     );
   }
 }
