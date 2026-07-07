@@ -3,6 +3,7 @@ import { execFile } from 'child_process';
 import { promisify } from 'util';
 import path from 'path';
 import fs from 'fs';
+import ytdl from '@distube/ytdl-core';
 
 // Extend Vercel function timeout to 60s
 export const maxDuration = 60;
@@ -16,6 +17,34 @@ const YTDLP_AVAILABLE = fs.existsSync(YTDLP_PATH);
 
 // In-memory cache
 const streamUrlCache = new Map<string, { url: string; contentType: string; expires: number }>();
+
+// ── 0. ytdl-core (fastest pure JS cloud resolver for Vercel) ───────────────────
+async function resolveViaYtdlCore(videoId: string) {
+  const cacheKey = `ytdlcore-${videoId}`;
+  const cached = streamUrlCache.get(cacheKey);
+  if (cached && cached.expires > Date.now()) return cached;
+
+  const info = await ytdl.getInfo(videoId);
+  const format = ytdl.chooseFormat(info.formats, { filter: 'audioonly', quality: 'highestaudio' });
+  if (!format || !format.url) throw new Error('No audio format found from ytdl-core');
+
+  const ext = (format.container || 'm4a') as string;
+  const acodec = (format.audioCodec || '').toLowerCase();
+  let contentType = 'audio/mp4';
+  if (ext === 'webm' || acodec === 'opus') {
+    contentType = 'audio/webm; codecs="opus"';
+  } else if (ext === 'mp3') {
+    contentType = 'audio/mpeg';
+  }
+
+  const result = {
+    url: format.url,
+    contentType,
+    expires: Date.now() + 5 * 60 * 1000,
+  };
+  streamUrlCache.set(cacheKey, result);
+  return result;
+}
 
 // ── 1. Local yt-dlp (fastest, for local dev) ─────────────────────────────────
 async function resolveViaYtdlp(videoId: string) {
@@ -189,7 +218,16 @@ export async function GET(request: NextRequest) {
     }
   } catch { /* no local file */ }
 
-  // ── Step 2a: Local dev → use yt-dlp (proxy result since URL is IP-bound) ───
+  // ── Step 2a: Cloud (Vercel) → use ytdl-core (pure JS, same-origin stream proxy) 
+  try {
+    const { url, contentType } = await resolveViaYtdlCore(youtubeId);
+    console.info(`[resolve] ytdl-core resolved URL for ${youtubeId} → proxying stream`);
+    return await proxyStream(url, contentType, request);
+  } catch (err: any) {
+    console.warn(`[resolve] ytdl-core failed: ${err?.message}`);
+  }
+
+  // ── Step 2b: Local dev → use yt-dlp (proxy result since URL is IP-bound) ───
   if (YTDLP_AVAILABLE) {
     try {
       const { url, contentType } = await resolveViaYtdlp(youtubeId);
@@ -199,9 +237,7 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // ── Step 2b: Cloud (Vercel) → use Piped API (redirect browser directly) ────
-  // Piped's stream URLs are already proxied through Piped's CDN, so the browser
-  // can fetch directly — no Vercel streaming needed.
+  // ── Step 2c: Fallback to Piped API ──────────────────────────────────────────
   try {
     const { url, contentType } = await resolveViaPiped(youtubeId);
     console.info(`[resolve] Piped URL obtained for ${youtubeId} → proxying stream`);
