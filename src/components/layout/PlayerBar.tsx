@@ -294,25 +294,41 @@ export default function PlayerBar() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    if (!isYtReady) {
-      if (!(window as any).YT) {
-        const tag = document.createElement('script');
-        tag.src = 'https://www.youtube.com/iframe_api';
-        const firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
-      }
-
-      const prevOnReady = (window as any).onYouTubeIframeAPIReady;
-      (window as any).onYouTubeIframeAPIReady = () => {
-        if (prevOnReady) prevOnReady();
-        setIsYtReady(true);
-      };
-
+    const checkYt = () => {
       if ((window as any).YT && (window as any).YT.Player) {
         setIsYtReady(true);
+        return true;
       }
+      return false;
+    };
+
+    if (checkYt()) return;
+
+    // If not loaded, inject script
+    if (!(window as any).YT_Script_Injected) {
+      (window as any).YT_Script_Injected = true;
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
     }
-  }, [isYtReady]);
+
+    // Set callback
+    const prevOnReady = (window as any).onYouTubeIframeAPIReady;
+    (window as any).onYouTubeIframeAPIReady = () => {
+      if (prevOnReady) prevOnReady();
+      setIsYtReady(true);
+    };
+
+    // Fallback polling interval to check if YT is loaded
+    const interval = setInterval(() => {
+      if (checkYt()) {
+        clearInterval(interval);
+      }
+    }, 200);
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Instantiate YouTube IFrame Player
   useEffect(() => {
@@ -791,6 +807,13 @@ export default function PlayerBar() {
   }, [isPlaying, setIsPlaying]);
 
   const handleAudioError = useCallback((e: Event) => {
+    // If this is a YouTube track, ignore HTML5 audio element errors completely
+    const isYtTrack = !!(currentTrack as any)?.youtubeVideoId;
+    if (isYtTrack) {
+      console.info('[PlayerBar] Ignoring audio element error since this is a YouTube track.');
+      return;
+    }
+
     const audio = e.target as HTMLAudioElement;
     const err = audio.error;
     // Map MediaError codes to human-readable messages
@@ -823,7 +846,7 @@ export default function PlayerBar() {
       toast.error(`Playback error: ${detail}`, { id: 'audio-error-toast' });
     }
     setIsPlaying(false);
-  }, [setIsPlaying]);
+  }, [setIsPlaying, currentTrack]);
 
   useEffect(() => {
     const audio = audioRef.current;
