@@ -204,15 +204,8 @@ export async function GET(request: NextRequest) {
   // can fetch directly — no Vercel streaming needed.
   try {
     const { url, contentType } = await resolveViaPiped(youtubeId);
-    console.info(`[resolve] Piped URL obtained for ${youtubeId} → redirecting browser`);
-    // Redirect browser directly to Piped's proxied stream (avoids Vercel timeout)
-    return NextResponse.redirect(url, {
-      status: 302,
-      headers: {
-        'Cache-Control': 'no-store',
-        'X-Content-Type': contentType,
-      },
-    });
+    console.info(`[resolve] Piped URL obtained for ${youtubeId} → proxying stream`);
+    return await proxyStream(url, contentType, request);
   } catch (err: any) {
     console.error(`[resolve] All methods failed for ${youtubeId}:`, err?.message);
     return new NextResponse(
