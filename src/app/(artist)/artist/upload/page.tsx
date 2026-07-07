@@ -261,7 +261,7 @@ export default function UploadPage() {
   const [duplicateTrack, setDuplicateTrack] = useState<any>(null);
 
   // YouTube MP3 Extractor States
-  const [uploadMode, setUploadMode] = useState<'file' | 'youtube'>('file');
+  const [uploadMode, setUploadMode] = useState<'file' | 'youtube' | 'spotify'>('file');
   const [artists, setArtists] = useState<any[]>([]);
   const [ytUrl, setYtUrl] = useState('');
   const [ytArtistId, setYtArtistId] = useState('');
@@ -278,6 +278,30 @@ export default function UploadPage() {
     duration: 180,
     explicit: false,
     coverImage: ''
+  });
+
+  // ─── Spotify Extractor States ───────────────────────────────────────────
+  const [spUrl, setSpUrl] = useState('');
+  const [spArtistId, setSpArtistId] = useState('');
+  const [spLoading, setSpLoading] = useState(false);
+  const [spParsedData, setSpParsedData] = useState<any>(null);
+  const [spConvertProgress, setSpConvertProgress] = useState(0);
+  const [spLogs, setSpLogs] = useState<string[]>([]);
+  const [spPlaylistSelection, setSpPlaylistSelection] = useState<Record<string, boolean>>({});
+  const [spSingleMetadata, setSpSingleMetadata] = useState<any>({
+    title: '',
+    songName: '',
+    artist: '',
+    album: '',
+    genre: 'Pop',
+    duration: 180,
+    explicit: false,
+    coverImage: '',
+    youtubeVideoId: null,
+    spotifyId: '',
+    spotifyUrl: '',
+    releaseDate: '',
+    popularity: 0,
   });
 
   // Fetch active artists list for Super Admin dropdown selection
@@ -444,6 +468,143 @@ export default function UploadPage() {
       toast.error(err.message || 'Conversion failed');
     } finally {
       setYtLoading(false);
+    }
+  };
+
+  // ─── Spotify Handlers ────────────────────────────────────────────────────
+  const handleSpParse = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!spUrl) { toast.error('Please paste a Spotify URL'); return; }
+    if (!spArtistId) { toast.error('Please select a target artist'); return; }
+
+    try {
+      setSpLoading(true);
+      setSpParsedData(null);
+      setSpLogs(['🔍 Fetching Spotify metadata...']);
+      setSpConvertProgress(0);
+
+      const res = await fetch('/api/admin/spotify-extract', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: spUrl, artistId: spArtistId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to parse Spotify URL');
+
+      if (data.success) {
+        setSpParsedData(data);
+        if (data.type === 'track' && data.track) {
+          setSpSingleMetadata({ ...data.track, genre: 'Pop' });
+        } else if ((data.type === 'playlist' || data.type === 'album') && data.tracks) {
+          const initialSel: Record<string, boolean> = {};
+          data.tracks.forEach((t: any) => { initialSel[t.spotifyId] = true; });
+          setSpPlaylistSelection(initialSel);
+        }
+        toast.success(`Successfully parsed Spotify ${data.type}!`);
+        setSpLogs([]);
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Error parsing Spotify URL');
+      setSpLogs([`❌ ${err.message || 'Error parsing Spotify URL'}`]);
+    } finally {
+      setSpLoading(false);
+    }
+  };
+
+  const handleSpConvert = async () => {
+    if (!spParsedData) return;
+
+    const selectedTracks = (spParsedData.type === 'track')
+      ? [spSingleMetadata]
+      : spParsedData.tracks.filter((t: any) => spPlaylistSelection[t.spotifyId]);
+
+    if (selectedTracks.length === 0) {
+      toast.error('Please select at least one track to upload');
+      return;
+    }
+
+    const payload: any = {
+      artistId: spArtistId,
+      genre: spSingleMetadata?.genre || 'Pop',
+    };
+    if (spParsedData.type === 'track') {
+      payload.track = spSingleMetadata;
+    } else {
+      payload.tracks = selectedTracks;
+    }
+
+    try {
+      setSpLoading(true);
+      setSpConvertProgress(0);
+      setSpLogs([`🚀 Starting Spotify extraction of ${selectedTracks.length} track(s)...`]);
+
+      const res = await fetch('/api/admin/spotify-convert-stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok || !res.body) {
+        const err = await res.json().catch(() => ({ error: 'Stream failed' }));
+        throw new Error(err.error || 'Conversion stream failed');
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? '';
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          try {
+            const event = JSON.parse(line.slice(6));
+            switch (event.type) {
+              case 'start':
+                setSpLogs([`🚀 ${event.message}`]);
+                setSpConvertProgress(1);
+                break;
+              case 'track_progress':
+                setSpConvertProgress(Math.min(event.percentage, 99));
+                setSpLogs(prev => {
+                  const last = prev[prev.length - 1] || '';
+                  const isUpdate = last.startsWith(`[${(event.trackIndex ?? 0) + 1}/`);
+                  return isUpdate ? [...prev.slice(0, -1), event.message] : [...prev, event.message];
+                });
+                break;
+              case 'track_done':
+                setSpConvertProgress(event.percentage);
+                setSpLogs(prev => [...prev, event.message]);
+                break;
+              case 'track_error':
+                setSpLogs(prev => [...prev, event.message]);
+                break;
+              case 'complete':
+                setSpConvertProgress(100);
+                setSpLogs(prev => [...prev, `\n✅ ${event.message}`]);
+                if (event.errors?.length) {
+                  event.errors.forEach((e: string) => setSpLogs(prev => [...prev, `⚠️ ${e}`]));
+                }
+                toast.success(event.message);
+                setSpUrl('');
+                setSpParsedData(null);
+                useMusicStore.getState().fetchTracks();
+                break;
+            }
+          } catch {}
+        }
+      }
+    } catch (err: any) {
+      setSpLogs(prev => [...prev, `❌ ${err.message || 'Conversion failed'}`]);
+      toast.error(err.message || 'Conversion failed');
+    } finally {
+      setSpLoading(false);
     }
   };
 
@@ -1198,10 +1359,10 @@ export default function UploadPage() {
       {/* Main Studio Area */}
       <div className="upload-studio-container">
         
-        {/* Toggle between standard upload and YouTube MP3 Extractor (Super Admin only) */}
+        {/* Toggle between standard upload, YouTube MP3 Extractor, and Spotify Extractor (Super Admin only) */}
         {(user?.role === 'SUPER_ADMIN' || user?.role === 'super_admin') && (
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
-            <div style={{ display: 'inline-flex', background: 'var(--color-ss-elevated, #ffffff)', border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))', borderRadius: 24, padding: 4 }}>
+            <div style={{ display: 'inline-flex', background: 'var(--color-ss-elevated, #ffffff)', border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))', borderRadius: 24, padding: 4, gap: 2 }}>
               <button
                 onClick={() => setUploadMode('file')}
                 style={{
@@ -1223,6 +1384,19 @@ export default function UploadPage() {
                 }}
               >
                 📥 Extract from YouTube
+              </button>
+              <button
+                onClick={() => setUploadMode('spotify')}
+                style={{
+                  padding: '8px 20px', borderRadius: 20, border: 'none',
+                  background: uploadMode === 'spotify' ? '#1DB954' : 'transparent',
+                  color: uploadMode === 'spotify' ? '#000' : 'var(--color-ss-text-muted, #87786c)',
+                  fontSize: 12.5, fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s',
+                  display: 'flex', alignItems: 'center', gap: 5
+                }}
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill={uploadMode === 'spotify' ? '#000' : '#1DB954'}><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+                Extract from Spotify
               </button>
             </div>
           </div>
@@ -2455,6 +2629,341 @@ export default function UploadPage() {
             </div>
           </motion.div>
         )}
+
+        {/* ── Spotify Song Extractor Panel ───────────────────────────────────── */}
+        {uploadMode === 'spotify' && (
+          <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
+            style={{
+              background: 'var(--color-ss-elevated, #ffffff)',
+              border: '1.5px solid rgba(29, 185, 84, 0.25)',
+              borderRadius: 24, padding: 30, display: 'flex', flexDirection: 'column', gap: 20
+            }}>
+
+            {/* Header */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#1DB954', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#000"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+              </div>
+              <div>
+                <h3 style={{ fontSize: 16, fontWeight: 900, color: 'var(--color-ss-text-primary, #221a15)', margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  Spotify Song &amp; Playlist Extractor
+                </h3>
+                <p style={{ color: 'var(--color-ss-text-muted, #87786c)', fontSize: 12, marginTop: 2, margin: 0 }}>
+                  Paste any Spotify track, album, or playlist link — we'll fetch the metadata and extract the audio automatically.
+                </p>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 32, alignItems: 'start' }}>
+
+              {/* Left Column: Form */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <form onSubmit={handleSpParse} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+
+                  {/* Target Artist Selector */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <label style={labelS}>Target Artist *</label>
+                    <select
+                      value={spArtistId}
+                      onChange={(e) => setSpArtistId(e.target.value)}
+                      required
+                      style={{
+                        width: '100%', background: 'var(--color-ss-surface, #f4eede)',
+                        border: '1.5px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
+                        borderRadius: 12, padding: '12px 14px', color: 'var(--color-ss-text-primary, #221a15)', fontSize: 13.5,
+                        outline: 'none', fontFamily: 'inherit'
+                      }}
+                    >
+                      <option value="">— Select Platform Artist —</option>
+                      {artists.map((a: any) => (
+                        <option key={a.id} value={a.id}>{a.name} ({a.email})</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Spotify URL Input */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <label style={labelS}>Spotify Track, Album or Playlist URL *</label>
+                    <input suppressHydrationWarning
+                      type="url"
+                      required
+                      value={spUrl}
+                      onChange={(e) => setSpUrl(e.target.value)}
+                      placeholder="e.g. https://open.spotify.com/track/... or /playlist/... or /album/..."
+                      style={{
+                        width: '100%', background: 'var(--color-ss-surface, #f4eede)',
+                        border: '1.5px solid rgba(29, 185, 84, 0.3)',
+                        borderRadius: 12, padding: '12px 14px', color: 'var(--color-ss-text-primary, #221a15)', fontSize: 13.5,
+                        outline: 'none'
+                      }}
+                    />
+                    <div style={{ fontSize: 10.5, color: 'var(--color-ss-text-muted, #87786c)', marginTop: 2 }}>
+                      💡 Right-click any song on Spotify → Share → Copy Song Link
+                    </div>
+                  </div>
+
+                  <motion.button
+                    whileHover={{ opacity: 0.9 }} whileTap={{ scale: 0.98 }}
+                    disabled={spLoading}
+                    style={{
+                      padding: '12px', background: '#1DB954', border: 'none',
+                      borderRadius: 12, color: '#000', fontWeight: 700, fontSize: 13,
+                      cursor: spLoading ? 'not-allowed' : 'pointer', marginTop: 6,
+                      opacity: spLoading ? 0.6 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
+                    }}
+                  >
+                    {spLoading && !spParsedData ? '⏳ Fetching from Spotify...' : '🔍 Parse Spotify Link'}
+                  </motion.button>
+                </form>
+
+                {/* Logs while searching */}
+                {spLogs.length > 0 && !spParsedData && (
+                  <div style={{ background: '#0a0a0a', borderRadius: 10, padding: 12, fontFamily: 'monospace', fontSize: 11, color: '#888', maxHeight: 100, overflowY: 'auto' }}>
+                    {spLogs.map((log, i) => (
+                      <div key={i} style={{ color: log.startsWith('❌') ? '#ef4444' : '#aaa' }}>{log}</div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Right Column: Parsed Output / Progress */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+                {/* Empty state */}
+                {!spParsedData && !spLoading && spLogs.length === 0 && (
+                  <div style={{
+                    padding: '60px 20px', textAlign: 'center',
+                    border: '1.5px dashed rgba(29, 185, 84, 0.3)',
+                    borderRadius: 16, color: 'var(--color-ss-text-muted, #87786c)', fontSize: 13,
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10
+                  }}>
+                    <span style={{ fontSize: 36 }}>🎵</span>
+                    <span>Paste a Spotify link and click Parse to fetch song metadata.</span>
+                    <span style={{ fontSize: 11, opacity: 0.6 }}>Supports: Track • Album • Playlist</span>
+                  </div>
+                )}
+
+                {/* SSE Conversion Progress */}
+                {spLoading && spConvertProgress > 0 && (
+                  <div style={{ background: '#0d1a0e', border: '1px solid rgba(29,185,84,0.2)', borderRadius: 16, padding: 20, color: '#fff' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 12 }}>
+                      <span style={{ color: '#1DB954', fontWeight: 700 }}>Spotify Extraction Pipeline</span>
+                      <span>{spConvertProgress}%</span>
+                    </div>
+                    <div style={{ width: '100%', height: 6, background: '#1a2e1b', borderRadius: 3, overflow: 'hidden', marginBottom: 16 }}>
+                      <div style={{ width: `${spConvertProgress}%`, height: '100%', background: '#1DB954', transition: 'width 0.2s' }} />
+                    </div>
+                    <div style={{
+                      fontFamily: 'monospace', fontSize: 11, color: '#888', height: 160, overflowY: 'auto',
+                      display: 'flex', flexDirection: 'column', gap: 4, background: '#060f07', padding: 12, borderRadius: 8
+                    }}>
+                      {spLogs.map((log, idx) => (
+                        <div key={idx} style={{ color: log.includes('✅') ? '#1DB954' : log.includes('❌') ? '#ef4444' : log.includes('⚠️') ? '#f59e0b' : '#aaa' }}>{log}</div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Parsed Result: Single Track */}
+                {spParsedData?.type === 'track' && (
+                  <div style={{ background: 'var(--color-ss-surface, #f4eede)', border: '1px solid rgba(29, 185, 84, 0.2)', borderRadius: 16, padding: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <h4 style={{ fontSize: 13.5, fontWeight: 800, color: 'var(--color-ss-text-primary, #221a15)', margin: 0 }}>Parsed Spotify Track</h4>
+                      <span style={{ fontSize: 9, fontWeight: 800, color: '#000', background: '#1DB954', padding: '2px 8px', borderRadius: 100, textTransform: 'uppercase', letterSpacing: '0.04em' }}>TRACK</span>
+                    </div>
+
+                    {/* Cover + chips */}
+                    {spSingleMetadata.coverImage && (
+                      <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', background: 'rgba(29,185,84,0.05)', padding: 12, borderRadius: 12, border: '1px solid rgba(29,185,84,0.12)' }}>
+                        <img
+                          src={spSingleMetadata.coverImage}
+                          alt="Spotify Cover Art"
+                          style={{ width: 72, height: 72, borderRadius: 8, objectFit: 'cover', border: '2px solid rgba(29,185,84,0.3)', flexShrink: 0 }}
+                        />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--color-ss-text-primary, #221a15)', marginBottom: 6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            ✅ {spSingleMetadata.title}
+                          </div>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                            {spSingleMetadata.artist && (
+                              <span style={{ fontSize: 10, background: 'rgba(29,185,84,0.15)', color: '#166534', padding: '2px 8px', borderRadius: 100, fontWeight: 700 }}>🎤 {spSingleMetadata.artist}</span>
+                            )}
+                            {spSingleMetadata.album && (
+                              <span style={{ fontSize: 10, background: 'rgba(29,185,84,0.1)', color: '#15803d', padding: '2px 8px', borderRadius: 100, fontWeight: 700 }}>💿 {spSingleMetadata.album}</span>
+                            )}
+                            {spSingleMetadata.duration > 0 && (
+                              <span style={{ fontSize: 10, background: 'rgba(16,185,129,0.12)', color: '#047857', padding: '2px 8px', borderRadius: 100, fontWeight: 700 }}>⏱ {Math.floor(spSingleMetadata.duration / 60)}:{String(spSingleMetadata.duration % 60).padStart(2, '0')}</span>
+                            )}
+                            {spSingleMetadata.releaseDate && (
+                              <span style={{ fontSize: 10, background: 'rgba(99,102,241,0.1)', color: '#4338ca', padding: '2px 8px', borderRadius: 100, fontWeight: 700 }}>📅 {spSingleMetadata.releaseDate}</span>
+                            )}
+                            {spSingleMetadata.youtubeVideoId ? (
+                              <span style={{ fontSize: 10, background: 'rgba(239,68,68,0.1)', color: '#b91c1c', padding: '2px 8px', borderRadius: 100, fontWeight: 700 }}>▶ YT: {spSingleMetadata.youtubeVideoId}</span>
+                            ) : (
+                              <span style={{ fontSize: 10, background: 'rgba(245,158,11,0.15)', color: '#92400e', padding: '2px 8px', borderRadius: 100, fontWeight: 700 }}>⚠ No YT match</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Editable fields */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      <label style={{ fontSize: 11, color: 'var(--color-ss-text-muted, #87786c)', fontWeight: 650 }}>Song Title *</label>
+                      <input suppressHydrationWarning
+                        type="text"
+                        value={spSingleMetadata.songName || spSingleMetadata.title}
+                        onChange={(e) => setSpSingleMetadata({ ...spSingleMetadata, songName: e.target.value, title: e.target.value })}
+                        style={{ padding: '10px 12px', background: '#ffffff', border: '1.5px solid rgba(29,185,84,0.2)', borderRadius: 8, color: 'var(--color-ss-text-primary, #221a15)', fontSize: 13, outline: 'none' }}
+                      />
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        <label style={{ fontSize: 11, color: 'var(--color-ss-text-muted, #87786c)', fontWeight: 650 }}>Genre *</label>
+                        <select
+                          value={spSingleMetadata.genre || 'Pop'}
+                          onChange={(e) => setSpSingleMetadata({ ...spSingleMetadata, genre: e.target.value })}
+                          style={{ padding: '10px 12px', background: '#ffffff', border: '1.5px solid rgba(29,185,84,0.2)', borderRadius: 8, color: 'var(--color-ss-text-primary, #221a15)', fontSize: 13, outline: 'none', fontFamily: 'inherit' }}
+                        >
+                          {GENRES.map((g) => (<option key={g} value={g}>{g}</option>))}
+                        </select>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        <label style={{ fontSize: 11, color: 'var(--color-ss-text-muted, #87786c)', fontWeight: 650 }}>YouTube Video ID (override)</label>
+                        <input suppressHydrationWarning
+                          type="text"
+                          value={spSingleMetadata.youtubeVideoId || ''}
+                          onChange={(e) => setSpSingleMetadata({ ...spSingleMetadata, youtubeVideoId: e.target.value })}
+                          placeholder="Auto-detected"
+                          style={{ padding: '10px 12px', background: '#ffffff', border: '1.5px solid rgba(29,185,84,0.2)', borderRadius: 8, color: 'var(--color-ss-text-primary, #221a15)', fontSize: 13, outline: 'none', fontFamily: 'monospace' }}
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <input suppressHydrationWarning
+                        type="checkbox" id="sp-explicit-check"
+                        checked={spSingleMetadata.explicit}
+                        onChange={(e) => setSpSingleMetadata({ ...spSingleMetadata, explicit: e.target.checked })}
+                        style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#1DB954' }}
+                      />
+                      <label htmlFor="sp-explicit-check" style={{ fontSize: 12.5, color: 'var(--color-ss-text-primary, #221a15)', cursor: 'pointer', userSelect: 'none' }}>
+                        Contains explicit content
+                      </label>
+                    </div>
+
+                    <motion.button
+                      whileHover={{ opacity: 0.95 }} whileTap={{ scale: 0.98 }}
+                      onClick={handleSpConvert}
+                      disabled={spLoading}
+                      style={{
+                        padding: '14px',
+                        background: spLoading ? '#6b7280' : 'linear-gradient(135deg, #1DB954, #17a349)',
+                        border: 'none', borderRadius: 10, color: '#fff',
+                        fontWeight: 800, fontSize: 14,
+                        cursor: spLoading ? 'not-allowed' : 'pointer',
+                        marginTop: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8
+                      }}
+                    >
+                      {spLoading ? '⏳ Extracting & Uploading...' : '🎵 Extract & Upload Track'}
+                    </motion.button>
+                  </div>
+                )}
+
+                {/* Parsed Result: Playlist / Album */}
+                {(spParsedData?.type === 'playlist' || spParsedData?.type === 'album') && (
+                  <div style={{ background: 'var(--color-ss-surface, #f4eede)', border: '1px solid rgba(29, 185, 84, 0.2)', borderRadius: 16, padding: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                        {spParsedData.coverImage && (
+                          <img src={spParsedData.coverImage} alt="Cover" style={{ width: 44, height: 44, borderRadius: 8, objectFit: 'cover', border: '2px solid rgba(29,185,84,0.3)', flexShrink: 0 }} />
+                        )}
+                        <div>
+                          <h4 style={{ fontSize: 13.5, fontWeight: 800, color: 'var(--color-ss-text-primary, #221a15)', margin: 0 }}>{spParsedData.playlistTitle}</h4>
+                          <div style={{ fontSize: 11, color: 'var(--color-ss-text-muted, #87786c)', marginTop: 2 }}>{spParsedData.tracks?.length} tracks found</div>
+                        </div>
+                      </div>
+                      <span style={{ fontSize: 9, fontWeight: 800, color: '#000', background: '#1DB954', padding: '2px 8px', borderRadius: 100, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{spParsedData.type}</span>
+                    </div>
+
+                    {/* Select All / Deselect All */}
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button
+                        onClick={() => {
+                          const all: Record<string, boolean> = {};
+                          spParsedData.tracks.forEach((t: any) => { all[t.spotifyId] = true; });
+                          setSpPlaylistSelection(all);
+                        }}
+                        style={{ fontSize: 11, padding: '4px 12px', borderRadius: 100, border: '1px solid rgba(29,185,84,0.3)', background: 'transparent', color: '#1DB954', cursor: 'pointer', fontWeight: 700 }}
+                      >Select All</button>
+                      <button
+                        onClick={() => setSpPlaylistSelection({})}
+                        style={{ fontSize: 11, padding: '4px 12px', borderRadius: 100, border: '1px solid var(--color-ss-border, rgba(43,34,26,0.08))', background: 'transparent', color: 'var(--color-ss-text-muted, #87786c)', cursor: 'pointer', fontWeight: 700 }}
+                      >Deselect All</button>
+                    </div>
+
+                    {/* Tracks checklist */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 260, overflowY: 'auto', paddingRight: 4 }}>
+                      {spParsedData.tracks?.map((t: any, index: number) => {
+                        const isChecked = spPlaylistSelection[t.spotifyId] ?? false;
+                        const hasYt = !!t.youtubeVideoId;
+                        return (
+                          <div key={`${t.spotifyId}-${index}`} style={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                            background: '#ffffff', border: `1px solid ${isChecked ? 'rgba(29,185,84,0.2)' : 'var(--color-ss-border, rgba(43, 34, 26, 0.08))'}`,
+                            borderRadius: 8, padding: '8px 12px', transition: 'border-color 0.15s'
+                          }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: 1 }}>
+                              <input suppressHydrationWarning
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={(e) => setSpPlaylistSelection(prev => ({ ...prev, [t.spotifyId]: e.target.checked }))}
+                                style={{ width: 15, height: 15, cursor: 'pointer', flexShrink: 0, accentColor: '#1DB954' }}
+                              />
+                              {t.coverImage && (
+                                <img src={t.coverImage} alt="" style={{ width: 32, height: 32, borderRadius: 4, objectFit: 'cover', flexShrink: 0 }} />
+                              )}
+                              <div style={{ minWidth: 0 }}>
+                                <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-ss-text-primary, #221a15)', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                  {t.title}
+                                </span>
+                                <span style={{ fontSize: 10, color: 'var(--color-ss-text-muted, #87786c)' }}>
+                                  {t.artist} · {t.duration > 0 ? `${Math.floor(t.duration / 60)}:${String(t.duration % 60).padStart(2, '0')}` : '?'}
+                                </span>
+                              </div>
+                            </div>
+                            <span style={{ fontSize: 9, fontWeight: 700, color: hasYt ? '#166534' : '#92400e', background: hasYt ? 'rgba(29,185,84,0.12)' : 'rgba(245,158,11,0.15)', padding: '2px 7px', borderRadius: 100, flexShrink: 0, marginLeft: 8 }}>
+                              {hasYt ? '▶ YT' : '⚠ No YT'}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <motion.button
+                      whileHover={{ opacity: 0.95 }} whileTap={{ scale: 0.98 }}
+                      onClick={handleSpConvert}
+                      disabled={spLoading}
+                      style={{
+                        padding: '12px',
+                        background: spLoading ? '#6b7280' : 'linear-gradient(135deg, #1DB954, #17a349)',
+                        border: 'none', borderRadius: 10, color: '#fff',
+                        fontWeight: 700, fontSize: 13,
+                        cursor: spLoading ? 'not-allowed' : 'pointer',
+                        marginTop: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
+                      }}
+                    >
+                      {spLoading ? '⏳ Extracting...' : `📦 Extract & Upload (${Object.values(spPlaylistSelection).filter(Boolean).length} tracks)`}
+                    </motion.button>
+                  </div>
+                )}
+
+              </div>
+            </div>
+          </motion.div>
+        )}
+
       </div>
     </div>
   );

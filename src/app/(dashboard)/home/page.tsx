@@ -18,6 +18,7 @@ import toast from 'react-hot-toast';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import AdBanner from '@/components/layout/AdBanner';
+import { getDailyMix, getDiscoverWeekly, getReleaseRadar, getTopCharts } from '@/lib/recommendations';
 
 const GREEN = 'var(--color-ss-primary, #b08850)';
 
@@ -59,7 +60,7 @@ function AlbumCardInline({ track, onPlay, isPlaying, isActive, cardStyle = 'clas
   const isCircle = cardShape === 'circle';
   const isSquare = cardShape === 'square';
 
-  const rawImage = customImage || track.coverImage;
+  const rawImage = track.coverImage || customImage;
   const displayImage = !imgError && rawImage && rawImage !== 'undefined' && rawImage !== 'null' ? rawImage : null;
 
   // Custom wrapper styles based on cardStyle
@@ -737,9 +738,14 @@ export default function HomePage() {
 
   // Real-time data
   const allTracks = getAllTracks();
-  const forYouTracks = getForYouTracks();
   const likedSongIds = user?.likedSongs ?? [];
   const likedTracks = allTracks.filter(t => likedSongIds.includes(t.id));
+  
+  // Real-time recommendations using helper algorithms
+  const recentTrackIds = recentlyPlayed.map(t => t.id);
+  const forYouTracks = getDiscoverWeekly(likedSongIds, recentTrackIds, allTracks, 20);
+  const recommendedTracks = getDailyMix(likedSongIds, genreScores, allTracks, 20);
+  
   const newTracks = [...approvedUploadedTracks, ...allTracks.filter(t => !approvedUploadedTracks.some(ut => ut.id === t.id))].slice(0, 8);
   const trendingTracks = [...allTracks].sort((a, b) => b.plays - a.plays).slice(0, 8);
   const recentTracks = recentlyPlayed.length > 0 ? recentlyPlayed.slice(0, 6) : allTracks.slice(0, 6);
@@ -771,7 +777,7 @@ export default function HomePage() {
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', gap: 8 }}>
         {tracksToRender.slice(0, maxItems).map(track => {
           const isCurrent = currentTrack?.id === track.id;
-          const imgUrl = configObj?.customImage || track.coverImage || trackGradient(track.id);
+          const imgUrl = track.coverImage || configObj?.customImage || trackGradient(track.id);
           const isUrl = imgUrl.startsWith('http') || imgUrl.startsWith('data:') || imgUrl.startsWith('/');
           return (
             <motion.div key={track.id} whileHover={{ scale: 1.02 }} onClick={() => playTrack(track, tracksToRender)}
@@ -2141,7 +2147,10 @@ export default function HomePage() {
           } else if (source === 'new_releases' || config.type === 'new_releases') {
             tracks = newTracks;
             if (!subtitleText) subtitleText = 'Fresh drops this week';
-          } else if (source === 'recommended' || source === 'made_for_you' || config.type === 'rec_songs' || config.type === 'ai_recommendations') {
+          } else if (source === 'recommended' || config.type === 'rec_songs' || config.type === 'ai_recommendations') {
+            tracks = recommendedTracks;
+            if (!subtitleText) subtitleText = 'AI-curated based on your taste';
+          } else if (source === 'made_for_you') {
             tracks = forYouTracks;
             if (!subtitleText) subtitleText = 'AI-curated based on your taste';
           } else if (source === 'recently_played' || config.type === 'recently_played' || config.type === 'continue_listening') {
@@ -2203,7 +2212,13 @@ export default function HomePage() {
               .map((id: string) => allTracks.find((t: any) => t.id === id) || mockTracks.find((t: any) => t.id === id))
               .filter((t: any): t is typeof mockTracks[0] => !!t);
           } else {
-            tracks = allTracks.slice(0, 5);
+            // Distribute fallback tracks across different custom sections so they don't look identical
+            const sectionIndex = homeLayoutOrder.indexOf(sectionId);
+            const sliceStart = (sectionIndex >= 0 ? sectionIndex * 3 : 0) % Math.max(1, allTracks.length - 5);
+            tracks = allTracks.slice(sliceStart, sliceStart + 5);
+            if (tracks.length < 5) {
+              tracks = [...tracks, ...allTracks].slice(0, 5);
+            }
           }
 
           const NEW_INTERACTIVE_LAYOUTS = [
@@ -2470,7 +2485,7 @@ export default function HomePage() {
                 <div style={{ display: 'flex', gap: isMobile ? 10 : 16, overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', margin: isMobile ? '0 -16px' : undefined, padding: isMobile ? '0 16px 10px' : '0 0 10px' }} className="no-scrollbar">
                   {list.map((track) => {
                     const isCurrent = currentTrack?.id === track.id;
-                    const coverImg = config.customImage || track.coverImage || `https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c6b?w=200&h=200&fit=crop`;
+                    const coverImg = track.coverImage || config.customImage || `https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c6b?w=200&h=200&fit=crop`;
                     const size = isMobile ? 64 : 80;
                     return (
                       <motion.div
@@ -2521,7 +2536,7 @@ export default function HomePage() {
                 <div style={{ display: 'flex', gap: isMobile ? 10 : 16, overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', margin: isMobile ? '0 -16px' : undefined, padding: isMobile ? '0 16px 10px' : '0 0 10px' }} className="no-scrollbar">
                   {list.map((track) => {
                     const isCurrent = currentTrack?.id === track.id;
-                    const coverImg = config.customImage || track.coverImage || `https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c6b?w=200&h=300&fit=crop`;
+                    const coverImg = track.coverImage || config.customImage || `https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c6b?w=200&h=300&fit=crop`;
                     const width = isMobile ? 140 : 180;
                     const height = isMobile ? 220 : 280;
                     return (
@@ -2593,7 +2608,7 @@ export default function HomePage() {
                   {list.map((track, i) => {
                     const isCenter = i === 1;
                     const isCurrent = currentTrack?.id === track.id;
-                    const coverImg = config.customImage || track.coverImage || `https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c6b?w=300&h=300&fit=crop`;
+                    const coverImg = track.coverImage || config.customImage || `https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c6b?w=300&h=300&fit=crop`;
                     const centerSize = isMobile ? 110 : 160;
                     const sideSize = isMobile ? 85 : 120;
                     return (
@@ -2630,7 +2645,7 @@ export default function HomePage() {
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: isMobile ? 12 : 20, marginBottom: 16 }}>
                   {list.map((track) => {
                     const isCurrent = currentTrack?.id === track.id;
-                    const coverImg = config.customImage || track.coverImage || `https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c6b?w=200&h=200&fit=crop`;
+                    const coverImg = track.coverImage || config.customImage || `https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c6b?w=200&h=200&fit=crop`;
                     return (
                       <motion.div
                         key={track.id}
@@ -2663,7 +2678,7 @@ export default function HomePage() {
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: isMobile ? 12 : 20, marginBottom: 16 }}>
                   {list.map((track, i) => {
                     const isCurrent = currentTrack?.id === track.id;
-                    const coverImg = config.customImage || track.coverImage || `https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c6b?w=200&h=200&fit=crop`;
+                    const coverImg = track.coverImage || config.customImage || `https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c6b?w=200&h=200&fit=crop`;
                     const colors = ['#ff007f', '#00f0ff'];
                     const outlineColor = colors[i % colors.length];
                     return (
@@ -2698,7 +2713,7 @@ export default function HomePage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
                   {list.map((track, i) => {
                     const isCurrent = currentTrack?.id === track.id;
-                    const coverImg = config.customImage || track.coverImage || `https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c6b?w=200&h=200&fit=crop`;
+                    const coverImg = track.coverImage || config.customImage || `https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c6b?w=200&h=200&fit=crop`;
                     const rankColors = ['#ffd700', '#c0c0c0', '#cd7f32'];
                     const rankColor = rankColors[i] || '#a3a3a3';
                     return (
@@ -2735,7 +2750,7 @@ export default function HomePage() {
             if (rawLayout === 'hero_countdown') {
               const track = tracks[0] || mockTracks[0];
               const isCurrent = currentTrack?.id === track.id;
-              const coverImg = config.customImage || track.coverImage;
+              const coverImg = track.coverImage || config.customImage;
               return (
                 <div style={{
                   background: 'linear-gradient(135deg, #1f1235 0%, #0c0617 100%)',
@@ -2794,7 +2809,7 @@ export default function HomePage() {
                     onClick={() => playTrack(t1, tracks)}
                     style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 12, padding: 12, display: 'flex', flexDirection: 'column', cursor: 'pointer' }}
                   >
-                    <img src={config.customImage || t1.coverImage} alt="" style={{ width: '100%', height: isMobile ? 90 : 150, objectFit: 'cover', borderRadius: 8 }} />
+                    <img src={t1.coverImage || config.customImage} alt="" style={{ width: '100%', height: isMobile ? 90 : 150, objectFit: 'cover', borderRadius: 8 }} />
                     <span style={{ fontSize: isMobile ? 14 : 18, fontWeight: 900, fontFamily: 'serif', color: '#fff', marginTop: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>{t1.title}</span>
                     <span style={{ fontSize: isMobile ? 11 : 12, color: 'var(--theme-text-muted, #737373)', marginTop: 6, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: 1.4 }}>Specially featured editorial layout showing track highlight. Discover more about the artist and album details now.</span>
                   </motion.div>
@@ -2867,7 +2882,7 @@ export default function HomePage() {
                     }}
                   >
                     <div style={{ fontSize: isMobile ? 10 : 11, color: '#fff', opacity: 0.6, fontWeight: 800 }}>FEATURED</div>
-                    <img src={config.customImage || t1.coverImage} alt="" style={{ width: '100%', height: isMobile ? 70 : 100, objectFit: 'cover', borderRadius: 8, margin: '10px 0' }} />
+                    <img src={t1.coverImage || config.customImage} alt="" style={{ width: '100%', height: isMobile ? 70 : 100, objectFit: 'cover', borderRadius: 8, margin: '10px 0' }} />
                     <div style={{ fontSize: isMobile ? 13 : 15, fontWeight: 900, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t1.title}</div>
                   </motion.div>
 
@@ -3022,7 +3037,7 @@ export default function HomePage() {
                   }}>
                     {tracks.map((track, i) => {
                       const cardColor = colors[i % colors.length];
-                      const coverImg = config.customImage || track.coverImage || `https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c6b?w=200&h=200&fit=crop`;
+                      const coverImg = track.coverImage || config.customImage || `https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c6b?w=200&h=200&fit=crop`;
                       return (
                         <motion.div
                           key={track.id}
@@ -3289,8 +3304,12 @@ export default function HomePage() {
 
                             {/* Overlapping cover images in center */}
                             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '4px 0', height: 34 }}>
-                              <img src={track.coverImage} alt="" style={{ width: 30, height: 30, borderRadius: 6, objectFit: 'cover', transform: 'rotate(-6deg) translateX(4px)', border: '1.5px solid var(--color-ss-elevated, #ffffff)', boxShadow: '0 4px 10px rgba(43,34,26,0.15)', zIndex: 1 }} />
-                              <img src={prevTrack.coverImage} alt="" style={{ width: 30, height: 30, borderRadius: 6, objectFit: 'cover', transform: 'rotate(6deg) translateX(-4px)', border: '1.5px solid var(--color-ss-elevated, #ffffff)', boxShadow: '0 4px 10px rgba(43,34,26,0.15)', zIndex: 2 }} />
+                              {track.coverImage
+                                ? <img src={track.coverImage} alt="" style={{ width: 30, height: 30, borderRadius: 6, objectFit: 'cover', transform: 'rotate(-6deg) translateX(4px)', border: '1.5px solid var(--color-ss-elevated, #ffffff)', boxShadow: '0 4px 10px rgba(43,34,26,0.15)', zIndex: 1 }} />
+                                : <div style={{ width: 30, height: 30, borderRadius: 6, background: 'linear-gradient(135deg,#b08850,#7a5c30)', transform: 'rotate(-6deg) translateX(4px)', border: '1.5px solid var(--color-ss-elevated, #ffffff)', zIndex: 1 }} />}
+                              {prevTrack.coverImage
+                                ? <img src={prevTrack.coverImage} alt="" style={{ width: 30, height: 30, borderRadius: 6, objectFit: 'cover', transform: 'rotate(6deg) translateX(-4px)', border: '1.5px solid var(--color-ss-elevated, #ffffff)', boxShadow: '0 4px 10px rgba(43,34,26,0.15)', zIndex: 2 }} />
+                                : <div style={{ width: 30, height: 30, borderRadius: 6, background: 'linear-gradient(135deg,#7a5c30,#b08850)', transform: 'rotate(6deg) translateX(-4px)', border: '1.5px solid var(--color-ss-elevated, #ffffff)', zIndex: 2 }} />}
                             </div>
 
                             <div style={{
@@ -5027,7 +5046,7 @@ export default function HomePage() {
                     msOverflowStyle: 'none'
                   }} className="no-scrollbar">
                     {tracks.map((track) => {
-                      const coverImg = config.customImage || track.coverImage || `https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c6b?w=300&h=300&fit=crop`;
+                      const coverImg = track.coverImage || config.customImage || `https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c6b?w=300&h=300&fit=crop`;
                       return (
                         <motion.div
                           key={track.id}
@@ -5124,7 +5143,7 @@ export default function HomePage() {
                 <div style={{ display: 'grid', gridTemplateColumns: cols, gap: 8 }}>
                   {tracks.slice(0, limit).map(track => {
                     const isCurrent = currentTrack?.id === track.id;
-                    const imgUrl = config.customImage || track.coverImage || trackGradient(track.id);
+                    const imgUrl = track.coverImage || config.customImage || trackGradient(track.id);
                     const isUrl = imgUrl.startsWith('http') || imgUrl.startsWith('data:') || imgUrl.startsWith('/');
                     return (
                       <motion.div key={track.id} whileHover={{ scale: 1.02 }} onClick={() => playTrack(track, tracks)}
@@ -5287,7 +5306,7 @@ export default function HomePage() {
               const title = isCustom ? cur.title : cur.title;
               const subtitle = isCustom ? cur.subtitle : (config.subtitle || 'NOW TRENDING');
               const desc = isCustom ? '' : cur.artistName;
-              const coverImg = isCustom ? cur.imageUrl : (config.customImage || cur.coverImage || '');
+              const coverImg = isCustom ? cur.imageUrl : (cur.coverImage || config.customImage || '');
               const buttonText = isCustom ? (cur.buttonText || 'Play Now') : 'Play Now';
               const targetUrl = isCustom ? (cur.targetUrl || '#') : '#';
 

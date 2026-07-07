@@ -24,23 +24,40 @@ async function resolveViaYtdlp(videoId: string) {
   const cached = streamUrlCache.get(cacheKey);
   if (cached && cached.expires > Date.now()) return cached;
 
+  // Use --dump-json to get the full manifest and pick the best audio stream URL ourselves.
+  // This avoids the --get-url + --print mix which produced ambiguous/split output.
   const { stdout } = await execFileAsync(YTDLP_PATH, [
-    '--no-playlist', '--no-warnings',
-    '-f', 'bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best',
-    '--get-url', '--print', '%(ext)s',
+    '--no-playlist', '--no-warnings', '--no-cache-dir',
+    '--dump-json',
+    '-f', 'bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio',
     `https://www.youtube.com/watch?v=${videoId}`,
-  ], { timeout: 30_000, maxBuffer: 2 * 1024 * 1024 });
+  ], { timeout: 30_000, maxBuffer: 5 * 1024 * 1024 });
 
-  const lines = stdout.trim().split('\n');
-  const url = lines[0];
-  const ext = lines[1] || 'm4a';
-  const contentType = ext === 'webm' ? 'audio/webm' : 'audio/mp4';
-  if (!url?.startsWith('http')) throw new Error(`Bad yt-dlp URL: "${url}"`);
+  const info = JSON.parse(stdout.trim());
+
+  // The selected format URL is in info.url (yt-dlp places the chosen format's URL here)
+  const url = info.url;
+  if (!url || !url.startsWith('http')) throw new Error(`yt-dlp returned no stream URL for ${videoId}`);
+
+  // Determine content type from the selected format's ext/acodec
+  const ext = info.ext || 'm4a';
+  const acodec = (info.acodec || '').toLowerCase();
+  let contentType: string;
+  if (ext === 'm4a' || ext === 'mp4' || acodec.startsWith('mp4a')) {
+    contentType = 'audio/mp4';
+  } else if (ext === 'webm' || acodec === 'opus') {
+    contentType = 'audio/webm; codecs="opus"';
+  } else if (ext === 'mp3') {
+    contentType = 'audio/mpeg';
+  } else {
+    contentType = 'audio/mp4'; // safe fallback
+  }
 
   const result = { url, contentType, expires: Date.now() + 5 * 60 * 1000 };
   streamUrlCache.set(cacheKey, result);
   return result;
 }
+
 
 // ── 2. Piped API (works on Vercel — public YouTube proxy, no binary needed) ──
 // Piped proxies YouTube content through their own servers, so stream URLs

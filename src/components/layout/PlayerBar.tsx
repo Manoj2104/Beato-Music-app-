@@ -410,15 +410,21 @@ export default function PlayerBar() {
 
       if (!active) return;
 
-      // If the audioUrl is a local /uploads/ path, it won't exist on Vercel.
-      // Fall back to YouTube stream resolver using the track's youtubeVideoId.
+      // If the audioUrl is a local /uploads/ path, it may not exist on Vercel production.
+      // Only fall back to the YouTube stream resolver when we're NOT on localhost.
       if (resolvedUrl && resolvedUrl.includes('/uploads/')) {
-        const ytId = (currentTrack as any).youtubeVideoId;
-        if (ytId && /^[a-zA-Z0-9_-]{11}$/.test(ytId)) {
-          console.info(`[PlayerBar] Local /uploads/ path detected on remote — falling back to yt-dlp resolver for ${ytId}`);
-          resolvedUrl = `${window.location.origin}/api/songs/resolve?youtubeId=${ytId}`;
+        const isLocal = typeof window !== 'undefined' &&
+          (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+        if (!isLocal) {
+          const ytId = (currentTrack as any).youtubeVideoId;
+          if (ytId && /^[a-zA-Z0-9_-]{11}$/.test(ytId)) {
+            console.info(`[PlayerBar] Production: /uploads/ path → yt-dlp resolver for ${ytId}`);
+            resolvedUrl = `${window.location.origin}/api/songs/resolve?youtubeId=${ytId}`;
+          }
         }
+        // On localhost: Next.js serves /uploads/ as static files — no redirect needed
       }
+
 
       // Resolve absolute path if relative
       if (resolvedUrl && resolvedUrl.startsWith('/') && typeof window !== 'undefined') {
@@ -628,7 +634,23 @@ export default function PlayerBar() {
     };
     const detail = err ? (codeMap[err.code] || `Error code ${err.code}`) : 'Unknown audio error';
     console.error(`[PlayerBar] Audio error: ${detail}`, err);
+
+    // Code 4 on a YouTube-resolved stream → the cached URL may be stale or wrong format.
+    // Auto-retry by busting the cache (add a timestamp param) so the server re-resolves.
+    if (err?.code === 4 && audio.src?.includes('/api/songs/resolve')) {
+      const ytId = (currentTrack as any)?.youtubeVideoId;
+      if (ytId && /^[a-zA-Z0-9_-]{11}$/.test(ytId)) {
+        console.info(`[PlayerBar] Retrying resolve for ${ytId} with cache-bust...`);
+        const freshUrl = `${window.location.origin}/api/songs/resolve?youtubeId=${ytId}&t=${Date.now()}`;
+        audio.src = freshUrl;
+        audio.load();
+        audio.play().catch(() => setIsPlaying(false));
+        return; // Don't show the error toast — we're retrying
+      }
+    }
+
     // Only show toast for real errors (code 2, 3, 4), not for aborted loads (code 1)
+
     if (!err || err.code !== 1) {
       toast.error(`Playback error: ${detail}`, { id: 'audio-error-toast' });
     }

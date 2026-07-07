@@ -3,6 +3,8 @@ import { db } from '@/lib/db';
 import { exec, execSync } from 'child_process';
 import path from 'path';
 import fs from 'fs';
+import { supabase } from '@/lib/dbSupabase';
+
 
 // Helper to search YouTube for a song and return video ID
 async function searchYoutube(query: string): Promise<string | null> {
@@ -86,14 +88,41 @@ export async function GET(request: NextRequest) {
     // Run the download in the background asynchronously
     const downloadCmd = `"${ytDlpPath}" -f "bestaudio[ext=m4a]/bestaudio" -o "${filepath}" "https://www.youtube.com/watch?v=${videoId}"`;
     
-    exec(downloadCmd, (err) => {
+    exec(downloadCmd, async (err) => {
       if (err) {
         console.error(`Background download failed for ${track.title}:`, err);
       } else {
         console.log(`Successfully cached track "${track.title}" locally!`);
-        // Update database to point to the local file
-        const localAudioUrl = `/uploads/audio/${filename}`;
-        db.updateTrackAudioUrl(trackId, localAudioUrl);
+        
+        let finalAudioUrl = `/uploads/audio/${filename}`;
+        
+        if (process.env.DATABASE_MODE === 'supabase') {
+          try {
+            console.log(`[stream] DATABASE_MODE is supabase. Uploading cached file to Supabase Storage...`);
+            const fileBuffer = fs.readFileSync(filepath);
+            const { error: uploadError } = await supabase.storage
+              .from('audio')
+              .upload(filename, fileBuffer, {
+                contentType: 'audio/x-m4a',
+                cacheControl: '3600',
+                upsert: true
+              });
+            
+            if (uploadError) throw uploadError;
+            
+            const { data: publicUrlData } = supabase.storage
+              .from('audio')
+              .getPublicUrl(filename);
+            
+            finalAudioUrl = publicUrlData.publicUrl;
+            console.log(`[stream] Successfully uploaded cached track to Supabase Storage: ${finalAudioUrl}`);
+          } catch (uploadErr) {
+            console.error('[stream] Failed to upload cached file to Supabase Storage, falling back to local path:', uploadErr);
+          }
+        }
+        
+        // Update database to point to the correct URL
+        db.updateTrackAudioUrl(trackId, finalAudioUrl);
       }
     });
 
