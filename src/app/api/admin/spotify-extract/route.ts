@@ -151,21 +151,51 @@ async function scrapeSpotifyPlaylistOrAlbum(type: 'playlist' | 'album', id: stri
   };
 }
 
-// ─── YouTube Search via yt-dlp ────────────────────────────────────────────────
+// ─── YouTube Search (Pure JS, no binary required, works on Vercel) ────────────
 
 async function findYouTubeVideoId(searchQuery: string): Promise<string | null> {
-  if (!fs.existsSync(YTDLP_PATH)) return null;
-  try {
-    const { stdout } = await execFileAsync(YTDLP_PATH, [
-      '--dump-json', '--no-playlist', '--no-warnings', '--no-cache-dir',
-      `ytsearch1:${searchQuery}`,
-    ], { timeout: 30_000, maxBuffer: 5 * 1024 * 1024 });
+  // Try local yt-dlp first if available
+  if (fs.existsSync(YTDLP_PATH)) {
+    try {
+      const { stdout } = await execFileAsync(YTDLP_PATH, [
+        '--dump-json', '--no-playlist', '--no-warnings', '--no-cache-dir',
+        `ytsearch1:${searchQuery}`,
+      ], { timeout: 30_000, maxBuffer: 5 * 1024 * 1024 });
 
-    const firstLine = stdout.trim().split('\n')[0];
-    if (!firstLine) return null;
-    const info = JSON.parse(firstLine);
-    return info.id || null;
-  } catch {
+      const firstLine = stdout.trim().split('\n')[0];
+      if (firstLine) {
+        const info = JSON.parse(firstLine);
+        if (info.id) return info.id;
+      }
+    } catch {
+      // fallback to scraping
+    }
+  }
+
+  // Pure JS fallback scraping (works in serverless / cloud environment)
+  const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(searchQuery)}`;
+  try {
+    const res = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+        'Accept-Language': 'en-US,en;q=0.9'
+      },
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!res.ok) return null;
+    const html = await res.text();
+    const regex = /"videoId":"([^"]+)"/g;
+    let match;
+    const videoIds: string[] = [];
+    while ((match = regex.exec(html)) !== null) {
+      if (!videoIds.includes(match[1])) {
+        videoIds.push(match[1]);
+      }
+      if (videoIds.length >= 5) break;
+    }
+    return videoIds[0] || null;
+  } catch (err) {
+    console.error('[youtube-search] Error:', err);
     return null;
   }
 }
