@@ -93,6 +93,14 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   useEffect(() => {
     initializeSession(true); // force session reload on layout mount to sync permissions
     fetchTracks();
+
+    // ⚡ Sync tracks state (including deletions/additions) across all active users in real time
+    const tracksInterval = setInterval(() => {
+      if (typeof window !== 'undefined') {
+        (window as any).__beatoLastTracksFetch = 0; // bypass the client throttle
+      }
+      fetchTracks().catch(console.error);
+    }, 15000);
     
     // Fetch active Ads configurations
     fetch('/api/ads')
@@ -106,6 +114,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         }
       })
       .catch(err => console.error('Failed to load ads configuration:', err));
+
+    return () => {
+      clearInterval(tracksInterval);
+    };
   }, []);
 
   useEffect(() => {
