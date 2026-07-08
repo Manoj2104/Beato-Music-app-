@@ -76,7 +76,7 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-outfit), system-ui, sans-serif;
 
 .app-layout {
   display: grid;
-  grid-template-columns: var(--layout-cols, 280px 1fr);
+  grid-template-columns: var(--layout-cols, var(--sidebar-width, 280px) 1fr);
   grid-template-rows: 1fr 90px;
   height: 100vh;
   height: 100dvh;
@@ -1346,5 +1346,366 @@ div[style*="background: #121212"] span[style*="font-weight: 800"] {
     padding: 16px !important;
   }
 }
+
+/* ── Sleek Collapsible Single Sidebar (Stripe/Vercel Style) ── */
+.sidebar-single-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(244, 238, 222, 0.82);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-right: 1px solid rgba(176, 136, 80, 0.15);
+  box-shadow: 6px 0 30px rgba(43, 34, 26, 0.04);
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: visible; /* Need overflow visible for floating flyout menus! */
+}
+
+/* Header branding area */
+.sidebar-single-header {
+  padding: 20px 16px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  height: 76px;
+  border-bottom: 1px solid rgba(176, 136, 80, 0.08);
+}
+
+.sidebar-single-logo-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: #221a15;
+}
+
+.sidebar-single-logo-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #b08850, #8c6c44);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(176, 136, 80, 0.2);
+}
+
+.sidebar-single-brand-name {
+  font-size: 15px;
+  font-weight: 800;
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: 0.02em;
+  color: #221a15;
+  white-space: nowrap;
+}
+
+.sidebar-single-admin-badge {
+  font-size: 8px;
+  font-weight: 800;
+  color: #b08850;
+  background: rgba(176, 136, 80, 0.1);
+  padding: 1px 4px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-left: 4px;
+}
+
+/* Floating Sidebar Toggle Button */
+.sidebar-single-toggle {
+  position: absolute;
+  right: -10px;
+  top: 28px;
+  width: 20px;
+  height: 20px;
+  background: #ffffff;
+  border: 1px solid rgba(176, 136, 80, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1001;
+  color: #b08850;
+  box-shadow: 0 2px 8px rgba(43, 34, 26, 0.08);
+  transition: all 0.2s;
+  padding: 0;
+}
+.sidebar-single-toggle:hover {
+  background: #fbf9f5;
+  color: #8c6c44;
+  transform: scale(1.05);
+}
+
+/* Scrollable Nav Area */
+.sidebar-single-scrollable {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.sidebar-single-scrollable::-webkit-scrollbar {
+  width: 4px;
+}
+.sidebar-single-scrollable::-webkit-scrollbar-thumb {
+  background: rgba(176, 136, 80, 0.15);
+  border-radius: 2px;
+}
+
+/* Section Grouping Headers */
+.sidebar-single-group-title {
+  font-size: 8.5px;
+  font-weight: 800;
+  color: #8c6c44;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0 8px;
+  margin-bottom: 6px;
+  opacity: 0.85;
+}
+
+/* Accordion Headings for Modules */
+.sidebar-single-module-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s;
+}
+.sidebar-single-module-header:hover {
+  background: rgba(176, 136, 80, 0.05);
+}
+
+.sidebar-single-module-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sidebar-single-module-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #4d3f35;
+}
+.sidebar-single-module-header.active .sidebar-single-module-title {
+  color: #b08850;
+  font-weight: 800;
+}
+
+.sidebar-single-module-arrow {
+  color: #87786c;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-single-module-wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+.sidebar-single-module-wrapper.expanded {
+  grid-template-rows: 1fr;
+}
+.sidebar-single-module-inner {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-left: 1px dashed rgba(176, 136, 80, 0.15);
+  margin-left: 16px;
+  padding-left: 6px;
+  margin-top: 2px;
+  margin-bottom: 4px;
+}
+
+/* Sidebar Link items */
+.sidebar-single-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #4d3f35;
+  transition: all 0.2s;
+}
+.sidebar-single-link:hover {
+  background: rgba(176, 136, 80, 0.04);
+  color: #221a15;
+  transform: translateX(2px);
+}
+.sidebar-single-link.active {
+  background: rgba(176, 136, 80, 0.08);
+  color: #b08850;
+  font-weight: 700;
+  border-left: 2px solid #b08850;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  padding-left: 10px;
+}
+
+/* Collapsed Mode Sidebar Icon Buttons */
+.sidebar-single-icon-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4d3f35;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  transition: all 0.25s;
+  position: relative;
+  margin: 4px auto;
+}
+.sidebar-single-icon-btn:hover {
+  background: rgba(176, 136, 80, 0.08);
+  color: #b08850;
+}
+.sidebar-single-icon-btn.active {
+  background: rgba(176, 136, 80, 0.12);
+  color: #b08850;
+  box-shadow: inset 0 1px 2px rgba(176, 136, 80, 0.05);
+}
+
+/* Floating Flyout Submenus */
+.sidebar-flyout-card {
+  position: absolute;
+  left: 80px;
+  top: 0;
+  width: 200px;
+  background: #fbf9f5;
+  border: 1px solid rgba(176, 136, 80, 0.2);
+  border-radius: 12px;
+  box-shadow: 0 12px 36px rgba(43, 34, 26, 0.15);
+  padding: 12px;
+  z-index: 1002;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  opacity: 0;
+  transform: translateX(-10px);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.sidebar-flyout-card.visible {
+  opacity: 1;
+  transform: translateX(0px);
+  pointer-events: auto;
+}
+
+.sidebar-flyout-title {
+  font-size: 10px;
+  font-weight: 800;
+  color: #b08850;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 1px solid rgba(176, 136, 80, 0.1);
+  padding-bottom: 4px;
+  margin-bottom: 2px;
+}
+
+/* User Profile Card (Bottom Section) */
+.sidebar-profile-card {
+  padding: 14px;
+  margin: 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(176, 136, 80, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  transition: all 0.2s;
+}
+.sidebar-profile-card:hover {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(176, 136, 80, 0.15);
+}
+
+.sidebar-profile-avatar-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.sidebar-profile-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #ebdcb9;
+  color: #221a15;
+  font-weight: 700;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(176, 136, 80, 0.2);
+  flex-shrink: 0;
+}
+
+.sidebar-profile-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sidebar-profile-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #221a15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-profile-role {
+  font-size: 10px;
+  color: #8c6c44;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-profile-action-btn {
+  background: transparent;
+  border: none;
+  color: #87786c;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.sidebar-profile-action-btn:hover {
+  background: rgba(239, 68, 68, 0.08);
+  color: #ef4444;
+}
+
+@media (max-width: 768px) {
+  .sidebar-single-panel {
+    display: none !important;
+  }
+}
+
+
 
 

@@ -193,7 +193,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className={`app-layout ${!currentTrack ? 'no-player' : ''}`} style={{
-      ['--layout-cols' as any]: showRightPanel ? '280px 1fr 350px' : '280px 1fr',
+      ['--layout-cols' as any]: showRightPanel ? 'var(--sidebar-width, 280px) 1fr 350px' : 'var(--sidebar-width, 280px) 1fr',
     }}>
       {isMounted && isMobile && (
         <div style={{

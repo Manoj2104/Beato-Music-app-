@@ -9,7 +9,7 @@ import {
   LayoutDashboard, Upload, TrendingUp, DollarSign, BarChart3, Users, Shield, AlertTriangle,
   CreditCard, Globe, Activity, Key, BookOpen, Mail, FlaskConical, Settings, BellRing, Headphones, Map,
   User, Volume2, FileEdit, LayoutGrid, Wand2, CheckSquare, Mic2, FileText, Code, Trophy, MessageSquare, ShoppingBag, Share2,
-  Calendar, ChevronDown, ChevronRight, Crown, Library as LibraryIcon, Megaphone, Music, Mic, Star,
+  Calendar, ChevronDown, ChevronRight, ChevronLeft, Crown, Library as LibraryIcon, Megaphone, Music, Mic, Star,
   Database, BarChart2, Layers, Bell, Link2, MapPin, Target, ScrollText, ImageIcon, X,
 } from 'lucide-react';
 import { usePlayerStore } from '@/store/playerStore';
@@ -125,6 +125,7 @@ function SidebarContent() {
   const { currentTrack } = usePlayerStore();
   const { user, toggleSavePlaylist } = useAuthStore();
   const { getApplicationByUserId, fetchUserApplication } = useArtistApplicationStore();
+  const role = (user?.role as string) || 'USER';
   
   const [artistPortalExpanded, setArtistPortalExpanded] = useState(false);
   const [adminPanelExpanded, setAdminPanelExpanded] = useState(false);
@@ -174,8 +175,36 @@ function SidebarContent() {
     return has;
   };
 
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [activeHoverModule, setActiveHoverModule] = useState<string | null>(null);
+  const [hoveredLink, setHoveredLink] = useState<string | null>(null);
+  const [hoveredModuleHeader, setHoveredModuleHeader] = useState<string | null>(null);
+  const [hoveredIconBtn, setHoveredIconBtn] = useState<string | null>(null);
+  const [hoveredToggle, setHoveredToggle] = useState(false);
+  const [hoveredProfileCard, setHoveredProfileCard] = useState(false);
+  const [hoveredExit, setHoveredExit] = useState(false);
+
+  useEffect(() => {
+    const isDoubleSidebarActive = role === 'SUPER_ADMIN' || role === 'super_admin' || role === 'ADMIN' || role === 'admin' || role === 'moderator' || role === 'analyst' || role === 'MODERATOR' || role === 'ANALYST';
+    if (isDoubleSidebarActive) {
+      const width = isCollapsed ? '75px' : '280px';
+      document.documentElement.style.setProperty('--sidebar-width', width);
+    } else {
+      document.documentElement.style.removeProperty('--sidebar-width');
+    }
+  }, [isCollapsed, role]);
+
   const [adminSearchQuery, setAdminSearchQuery] = useState('');
-  const [expandedAdminSections, setExpandedAdminSections] = useState<Record<string, boolean>>({});
+  const [expandedAdminSections, setExpandedAdminSections] = useState<Record<string, boolean>>({
+    platform: true,
+    people: true,
+    content: true,
+    finance: true,
+    growth: true,
+    developer: true,
+    artist_portal: true,
+    ads_management: true
+  });
   const [hoveredSection, setHoveredSection] = useState<string | null>(null);
   const [searchFocused, setSearchFocused] = useState(false);
   const [hoveredBtn, setHoveredBtn] = useState<'expand' | 'collapse' | null>(null);
@@ -532,7 +561,517 @@ function SidebarContent() {
     ...mockPlaylists.filter(p => user?.playlists?.includes(p.id))
   ];
 
-  const role = user?.role || 'USER';
+
+
+  const isDoubleSidebarActive = role === 'SUPER_ADMIN' || role === 'super_admin' || role === 'ADMIN' || role === 'admin' || role === 'moderator' || role === 'analyst' || role === 'MODERATOR' || role === 'ANALYST';
+
+  if (isDoubleSidebarActive) {
+    const visibleSections = getFilteredAdminSections(role === 'SUPER_ADMIN' || role === 'super_admin');
+    
+    // Check if any link inside a section matches the search query or if section matches
+    const filteredSections = visibleSections.map(section => {
+      const matchesSearch = section.label.toLowerCase().includes(adminSearchQuery.toLowerCase());
+      const filteredItems = section.items.filter(item => 
+        item.label.toLowerCase().includes(adminSearchQuery.toLowerCase())
+      );
+      
+      if (matchesSearch || filteredItems.length > 0) {
+        return {
+          ...section,
+          items: matchesSearch ? section.items : filteredItems
+        };
+      }
+      return null;
+    }).filter(Boolean) as typeof visibleSections;
+
+    // Helper to get initials
+    const userInitials = user?.name ? user.name.slice(0, 2).toUpperCase() : 'AD';
+
+    // Hover module icons map
+    const sectionIconMap: Record<string, any> = {
+      platform: LayoutGrid,
+      people: Users,
+      content: Music2,
+      finance: DollarSign,
+      growth: Target,
+      developer: Code,
+      artist_portal: Mic2,
+      ads_management: Megaphone
+    };
+
+    return (
+      <aside 
+        className="sidebar-single-panel"
+        style={{
+          width: isCollapsed ? '75px' : '280px',
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100vh',
+          position: 'sticky',
+          top: 0,
+          zIndex: 100,
+          background: 'rgba(244, 238, 222, 0.92)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+          borderRight: '1px solid rgba(176, 136, 80, 0.15)',
+          boxShadow: '6px 0 30px rgba(43, 34, 26, 0.04)',
+          transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          overflow: 'visible',
+        }}
+      >
+        {/* Header branding */}
+        <div style={{
+          padding: '20px 16px',
+          display: 'flex',
+          alignItems: 'center',
+          position: 'relative',
+          height: '76px',
+          borderBottom: '1px solid rgba(176, 136, 80, 0.08)',
+          justifyContent: isCollapsed ? 'center' : 'flex-start'
+        }}>
+          <Link href="/home" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: '#221a15' }}>
+            <div style={{
+              width: '34px',
+              height: '34px',
+              borderRadius: '8px',
+              background: 'linear-gradient(135deg, #b08850, #8c6c44)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 4px 12px rgba(176, 136, 80, 0.2)',
+            }}>
+              <Music2 size={16} color="white" />
+            </div>
+            {!isCollapsed && (
+              <>
+                <span style={{
+                  fontSize: '15px',
+                  fontWeight: 800,
+                  fontFamily: 'Outfit, sans-serif',
+                  letterSpacing: '0.02em',
+                  color: '#221a15',
+                  whiteSpace: 'nowrap'
+                }}>Beato</span>
+                <span style={{
+                  fontSize: '8px',
+                  fontWeight: 800,
+                  color: '#b08850',
+                  background: 'rgba(176, 136, 80, 0.1)',
+                  padding: '1px 4px',
+                  borderRadius: '4px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  marginLeft: '4px'
+                }}>Admin</span>
+              </>
+            )}
+          </Link>
+
+          {/* Toggle Button */}
+          <button 
+            onClick={() => setIsCollapsed(prev => !prev)}
+            onMouseEnter={() => setHoveredToggle(true)}
+            onMouseLeave={() => setHoveredToggle(false)}
+            title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+            style={{
+              position: 'absolute',
+              right: '-10px',
+              top: '28px',
+              width: '20px',
+              height: '20px',
+              background: '#ffffff',
+              border: hoveredToggle ? '1px solid rgba(176, 136, 80, 0.4)' : '1px solid rgba(176, 136, 80, 0.2)',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              zIndex: 1001,
+              color: '#b08850',
+              boxShadow: '0 2px 8px rgba(43, 34, 26, 0.08)',
+              transition: 'all 0.2s',
+              padding: 0,
+              transform: hoveredToggle ? 'scale(1.05)' : 'scale(1)'
+            }}
+          >
+            {isCollapsed ? (
+              <ChevronRight size={11} />
+            ) : (
+              <ChevronLeft size={11} />
+            )}
+          </button>
+        </div>
+
+        {/* Search Bar (only in expanded mode) */}
+        {!isCollapsed && (
+          <div style={{ padding: '12px 16px 0 16px' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                background: searchFocused ? 'rgba(255, 255, 255, 0.85)' : 'rgba(255, 255, 255, 0.45)',
+                border: '1px solid ' + (searchFocused ? '#b08850' : 'rgba(176, 136, 80, 0.15)'),
+                borderRadius: '8px',
+                padding: '8px 12px',
+                boxShadow: searchFocused ? '0 0 0 2px rgba(176, 136, 80, 0.1)' : 'none',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <Search size={14} color="#87786c" style={{ flexShrink: 0 }} />
+              <input
+                type="text"
+                value={adminSearchQuery}
+                onChange={(e) => setAdminSearchQuery(e.target.value)}
+                onFocus={() => setSearchFocused(true)}
+                onBlur={() => setSearchFocused(false)}
+                placeholder="Search admin tools..."
+                style={{
+                  border: 'none',
+                  background: 'transparent',
+                  outline: 'none',
+                  fontSize: '12px',
+                  fontFamily: 'inherit',
+                  color: '#221a15',
+                  width: '100%',
+                }}
+              />
+              {adminSearchQuery && (
+                <button
+                  onClick={() => setAdminSearchQuery('')}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0 }}
+                >
+                  <X size={14} color="#87786c" />
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Navigation list */}
+        <div style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: '16px 12px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px'
+        }}>
+          {isCollapsed ? (
+            /* Collapsed Mode (Icons + Hover Flyout submenus) */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+              {filteredSections.map(section => {
+                const IconComp = sectionIconMap[section.id] || Crown;
+                const isSectionActive = section.items.some(item => isActive(item.href));
+                const isHovered = activeHoverModule === section.id;
+                const isBtnHovered = hoveredIconBtn === section.id;
+
+                return (
+                  <div 
+                    key={section.id} 
+                    style={{ position: 'relative' }}
+                    onMouseEnter={() => {
+                      setActiveHoverModule(section.id);
+                      setHoveredIconBtn(section.id);
+                    }}
+                    onMouseLeave={() => {
+                      setActiveHoverModule(null);
+                      setHoveredIconBtn(null);
+                    }}
+                  >
+                    <button
+                      title={section.label}
+                      style={{
+                        width: '42px',
+                        height: '42px',
+                        borderRadius: '8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: (isSectionActive || isBtnHovered) ? '#b08850' : '#4d3f35',
+                        cursor: 'pointer',
+                        background: isSectionActive ? 'rgba(176, 136, 80, 0.12)' : isBtnHovered ? 'rgba(176, 136, 80, 0.08)' : 'transparent',
+                        border: 'none',
+                        transition: 'all 0.25s',
+                        position: 'relative',
+                        margin: '4px auto',
+                        boxShadow: isSectionActive ? 'inset 0 1px 2px rgba(176, 136, 80, 0.05)' : 'none'
+                      }}
+                    >
+                      <IconComp size={18} />
+                    </button>
+
+                    {/* Floating Hover Flyout Card */}
+                    <div 
+                      style={{
+                        position: 'absolute',
+                        left: '80px',
+                        top: 0,
+                        width: '200px',
+                        background: '#fbf9f5',
+                        border: '1px solid rgba(176, 136, 80, 0.2)',
+                        borderRadius: '12px',
+                        boxShadow: '0 12px 36px rgba(43, 34, 26, 0.15)',
+                        padding: '12px',
+                        zIndex: 1002,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px',
+                        opacity: isHovered ? 1 : 0,
+                        transform: isHovered ? 'translateX(0px)' : 'translateX(-10px)',
+                        pointerEvents: isHovered ? 'auto' : 'none',
+                        transition: 'opacity 0.2s ease, transform 0.2s ease',
+                      }}
+                    >
+                      <span style={{
+                        fontSize: '10px',
+                        fontWeight: 800,
+                        color: '#b08850',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.08em',
+                        borderBottom: '1px solid rgba(176, 136, 80, 0.1)',
+                        paddingBottom: '4px',
+                        marginBottom: '4px',
+                      }}>{section.label}</span>
+                      {section.items.map(item => {
+                        const isLinkActive = isActive(item.href);
+                        const isLHovered = hoveredLink === item.href;
+                        return (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            onMouseEnter={() => setHoveredLink(item.href)}
+                            onMouseLeave={() => setHoveredLink(null)}
+                            style={{
+                              padding: '6px 8px',
+                              fontSize: '11.5px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px',
+                              borderRadius: '6px',
+                              color: isLinkActive ? '#b08850' : '#4d3f35',
+                              background: isLinkActive ? 'rgba(176, 136, 80, 0.08)' : isLHovered ? 'rgba(176, 136, 80, 0.04)' : 'transparent',
+                              textDecoration: 'none',
+                              fontWeight: isLinkActive ? 700 : 500,
+                              transition: 'all 0.2s',
+                              transform: isLHovered ? 'translateX(2px)' : 'translateX(0px)'
+                            }}
+                          >
+                            <item.icon size={12} />
+                            <span>{item.label}</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            /* Expanded Mode (Accordions) */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <span style={{
+                fontSize: '8.5px',
+                fontWeight: 800,
+                color: '#8c6c44',
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+                padding: '0 8px',
+                marginBottom: '6px',
+                opacity: 0.85
+              }}>Admin Console</span>
+              {filteredSections.map(section => {
+                const isExpanded = adminSearchQuery.trim() ? true : !!expandedAdminSections[section.id];
+                const isSectionActive = section.items.some(item => isActive(item.href));
+                const IconComp = sectionIconMap[section.id] || Crown;
+                const isHeaderHovered = hoveredModuleHeader === section.id;
+
+                return (
+                  <div key={section.id} style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+                    <div
+                      onClick={() => {
+                        setExpandedAdminSections(prev => ({
+                          ...prev,
+                          [section.id]: !prev[section.id]
+                        }));
+                      }}
+                      onMouseEnter={() => setHoveredModuleHeader(section.id)}
+                      onMouseLeave={() => setHoveredModuleHeader(null)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '8px 10px',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        transition: 'all 0.2s',
+                        background: isHeaderHovered ? 'rgba(176, 136, 80, 0.05)' : 'transparent',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <IconComp size={15} style={{ color: isSectionActive ? '#b08850' : '#87786c' }} />
+                        <span style={{
+                          fontSize: '11px',
+                          fontWeight: isSectionActive ? 800 : 700,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.05em',
+                          color: isSectionActive ? '#b08850' : '#4d3f35'
+                        }}>{section.label}</span>
+                      </div>
+                      <ChevronDown
+                        size={12}
+                        style={{
+                          color: '#87786c',
+                          transition: 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                          transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                        }}
+                      />
+                    </div>
+
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateRows: isExpanded ? '1fr' : '0fr',
+                      transition: 'grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      overflow: 'hidden',
+                    }}>
+                      <div style={{
+                        minHeight: 0,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '2px',
+                        borderLeft: '1px dashed rgba(176, 136, 80, 0.15)',
+                        marginLeft: '16px',
+                        paddingLeft: '6px',
+                        marginTop: '2px',
+                        marginBottom: '4px',
+                      }}>
+                        {section.items.map(item => {
+                          const isLinkActive = isActive(item.href);
+                          const LinkIcon = item.icon;
+                          const isLHovered = hoveredLink === item.href;
+
+                          return (
+                            <Link
+                              key={item.href}
+                              href={item.href}
+                              onMouseEnter={() => setHoveredLink(item.href)}
+                              onMouseLeave={() => setHoveredLink(null)}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px',
+                                padding: '8px 12px',
+                                borderRadius: '6px',
+                                textDecoration: 'none',
+                                fontSize: '12.5px',
+                                fontWeight: isLinkActive ? 700 : 500,
+                                color: isLinkActive ? '#b08850' : '#4d3f35',
+                                background: isLinkActive ? 'rgba(176, 136, 80, 0.08)' : isLHovered ? 'rgba(176, 136, 80, 0.04)' : 'transparent',
+                                borderLeft: isLinkActive ? '2px solid #b08850' : 'none',
+                                borderTopLeftRadius: isLinkActive ? 0 : '6px',
+                                borderBottomLeftRadius: isLinkActive ? 0 : '6px',
+                                paddingLeft: isLinkActive ? '10px' : '12px',
+                                transition: 'all 0.2s',
+                                transform: isLHovered ? 'translateX(2px)' : 'translateX(0px)'
+                              }}
+                            >
+                              <LinkIcon size={13} />
+                              <span>{item.label}</span>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* User Profile / Footer Section */}
+        <div 
+          onMouseEnter={() => setHoveredProfileCard(true)}
+          onMouseLeave={() => setHoveredProfileCard(false)}
+          style={{
+            padding: '14px',
+            margin: '12px',
+            borderRadius: '10px',
+            background: hoveredProfileCard ? 'rgba(255, 255, 255, 0.7)' : 'rgba(255, 255, 255, 0.45)',
+            border: hoveredProfileCard ? '1px solid rgba(176, 136, 80, 0.15)' : '1px solid rgba(176, 136, 80, 0.1)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '8px',
+            transition: 'all 0.2s',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
+            <div style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              background: '#ebdcb9',
+              color: '#221a15',
+              fontWeight: 700,
+              fontSize: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '1px solid rgba(176, 136, 80, 0.2)',
+              flexShrink: 0
+            }} title={user?.name || user?.email}>
+              {userInitials}
+            </div>
+            {!isCollapsed && (
+              <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                <span style={{
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  color: '#221a15',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                }}>{user?.name || 'Administrator'}</span>
+                <span style={{
+                  fontSize: '10px',
+                  color: '#8c6c44',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                }}>{role.replace('_', ' ')}</span>
+              </div>
+            )}
+          </div>
+          {!isCollapsed && (
+            <Link 
+              href="/home" 
+              onMouseEnter={() => setHoveredExit(true)}
+              onMouseLeave={() => setHoveredExit(false)}
+              title="Exit Console"
+              style={{
+                background: hoveredExit ? 'rgba(239, 68, 68, 0.08)' : 'transparent',
+                border: 'none',
+                color: hoveredExit ? '#ef4444' : '#87786c',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '22px',
+                height: '22px',
+                borderRadius: '4px',
+                transition: 'all 0.2s',
+                flexShrink: 0
+              }}
+            >
+              <Home size={14} />
+            </Link>
+          )}
+        </div>
+      </aside>
+    );
+  }
 
   return (
     <aside className="sidebar-container">
