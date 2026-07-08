@@ -2825,7 +2825,7 @@ export default function HomePage() {
                         onClick={() => playTrack(track, tracks)}
                         style={{ display: 'flex', gap: 12, alignItems: 'center', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: 10, padding: 10, cursor: 'pointer' }}
                       >
-                        <img src={track.coverImage || null} alt="" style={{ width: isMobile ? 36 : 50, height: isMobile ? 36 : 50, borderRadius: 6, objectFit: 'cover' }} />
+                        <img src={track.coverImage || undefined} alt="" style={{ width: isMobile ? 36 : 50, height: isMobile ? 36 : 50, borderRadius: 6, objectFit: 'cover' }} />
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.title}</div>
                           <div style={{ fontSize: isMobile ? 10 : 12, color: 'var(--theme-text-muted, #737373)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 2 }}>{track.artistName}</div>
@@ -2904,7 +2904,7 @@ export default function HomePage() {
                       cursor: 'pointer'
                     }}
                   >
-                    <img src={t2.coverImage || null} alt="" style={{ width: isMobile ? 32 : 44, height: isMobile ? 32 : 44, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
+                    <img src={t2.coverImage || undefined} alt="" style={{ width: isMobile ? 32 : 44, height: isMobile ? 32 : 44, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 850, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t2.title}</div>
                     </div>
@@ -3253,7 +3253,7 @@ export default function HomePage() {
                         
                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', margin: '10px 0' }}>
                           <div style={{ position: 'relative', width: 64, height: 64, borderRadius: 12, overflow: 'hidden', boxShadow: '0 8px 20px rgba(43, 34, 26, 0.15)' }}>
-                            <img src={mainTrack.coverImage || null} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <img src={mainTrack.coverImage || undefined} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                           </div>
                           <div style={{ color: 'var(--color-ss-text-primary, #221a15)', fontSize: 12, fontWeight: 900, fontFamily: 'Outfit, sans-serif', marginTop: 10, textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {mainTrack.title}
@@ -3431,7 +3431,7 @@ export default function HomePage() {
                       >
                         {/* Background Cover Image */}
                         <img
-                          src={mainTrack.coverImage || null}
+                          src={mainTrack.coverImage || undefined}
                           alt=""
                           style={{
                             position: 'absolute',
@@ -3605,7 +3605,7 @@ export default function HomePage() {
                                 position: 'relative'
                               }}>
                                 <motion.img 
-                                  src={track.coverImage || null} 
+                                  src={track.coverImage || undefined} 
                                   alt="" 
                                   whileHover={{ rotate: -12, scale: 1.1 }}
                                   style={{ 
@@ -3621,7 +3621,7 @@ export default function HomePage() {
                                   }} 
                                 />
                                 <motion.img 
-                                  src={prevTrack.coverImage || null} 
+                                  src={prevTrack.coverImage || undefined} 
                                   alt="" 
                                   whileHover={{ rotate: 12, scale: 1.1 }}
                                   style={{ 
@@ -4144,7 +4144,7 @@ export default function HomePage() {
                         onClick={() => playTrack(track, displayHubTracks)}
                         >
                           <div style={{ width: '100%', aspectRatio: '1', borderRadius: 8, overflow: 'hidden', marginBottom: 8, position: 'relative' }}>
-                            <img src={track.coverImage || null} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <img src={track.coverImage || undefined} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             {isCurrent && isPlaying && (
                               <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 <span style={{ fontSize: 20 }}>Ã°Å¸â€Å </span>
