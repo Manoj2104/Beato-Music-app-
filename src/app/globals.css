@@ -615,6 +615,137 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-outfit), system-ui, sans-serif;
   border-color: rgba(176, 136, 80, 0.2);
 }
 
+/* ── Redesigned Collapsible Admin Sections ────────────────── */
+.sidebar-admin-search-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(176, 136, 80, 0.15);
+  border-radius: 8px;
+  padding: 6px 10px;
+  margin: 6px 8px 10px 8px;
+  transition: all 0.2s ease;
+}
+.sidebar-admin-search-container:focus-within {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: #b08850;
+  box-shadow: 0 0 0 2px rgba(176, 136, 80, 0.1);
+}
+.sidebar-admin-search {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 11.5px;
+  font-family: inherit;
+  color: #221a15;
+  width: 100%;
+}
+.sidebar-admin-search::placeholder {
+  color: #87786c;
+  opacity: 0.7;
+}
+
+.sidebar-admin-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 0 8px 6px 8px;
+}
+.sidebar-admin-control-btn {
+  background: transparent;
+  border: none;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #87786c;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.2s ease;
+}
+.sidebar-admin-control-btn:hover {
+  background: rgba(176, 136, 80, 0.08);
+  color: #b08850;
+}
+
+.sidebar-admin-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  margin: 2px 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+.sidebar-admin-section-header:hover {
+  background: rgba(176, 136, 80, 0.05);
+}
+.sidebar-admin-section-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sidebar-admin-section-title {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #87786c;
+  transition: color 0.2s ease;
+}
+.sidebar-admin-section-header:hover .sidebar-admin-section-title {
+  color: #b08850;
+}
+.sidebar-admin-section-header.active-section .sidebar-admin-section-title {
+  color: #b08850;
+  font-weight: 900;
+}
+.sidebar-section-badge {
+  font-size: 8px;
+  font-weight: 700;
+  background: rgba(43, 34, 26, 0.06);
+  color: #87786c;
+  padding: 1px 4px;
+  border-radius: 10px;
+  min-width: 14px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+.sidebar-admin-section-header:hover .sidebar-section-badge {
+  background: rgba(176, 136, 80, 0.12);
+  color: #b08850;
+}
+.sidebar-admin-section-arrow {
+  color: #87786c;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease;
+}
+.sidebar-admin-section-header:hover .sidebar-admin-section-arrow {
+  color: #b08850;
+}
+.sidebar-admin-section-wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+.sidebar-admin-section-wrapper.expanded {
+  grid-template-rows: 1fr;
+}
+.sidebar-admin-section-inner {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  border-left: 1px dashed rgba(176, 136, 80, 0.15);
+  margin-left: 14px;
+  padding-left: 4px;
+  margin-bottom: 4px;
+}
+
 /* Sub links */
 .sidebar-sub-link {
   display: flex;

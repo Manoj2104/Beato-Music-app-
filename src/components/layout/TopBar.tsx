@@ -32,6 +32,30 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
   const isMobile = useIsMobile(); // ⚡ shared single resize listener
   const [isScrolled, setIsScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const { fetchTracks } = useMusicStore();
+
+  const handleManualSync = async () => {
+    if (isSyncing) return;
+    setIsSyncing(true);
+    const loadingToast = toast.loading('Syncing database with Supabase...', {
+      style: { background: '#ffffff', color: '#221a15', border: `1px solid ${G}30`, borderRadius: 12 }
+    });
+    try {
+      if (typeof window !== 'undefined') {
+        (window as any).__beatoLastTracksFetch = 0;
+      }
+      await fetchTracks();
+      toast.success('Database synchronized successfully!', {
+        id: loadingToast,
+        style: { background: '#ffffff', color: '#221a15', border: `1px solid ${G}30`, borderRadius: 12 }
+      });
+    } catch (err) {
+      toast.error('Failed to sync database.', { id: loadingToast });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -491,6 +515,44 @@ export default function TopBar({ transparent = false, bgColor, showSearch = fals
             </AnimatePresence>
           </div>
         )}
+
+        {/* Sync Database */}
+        <button 
+          onClick={handleManualSync}
+          disabled={isSyncing}
+          style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 6, 
+            padding: '8px 16px', 
+            borderRadius: 100, 
+            background: isSyncing ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.6)', 
+            border: '1px solid rgba(176, 136, 80, 0.15)', 
+            color: '#221a15', 
+            fontSize: 12, 
+            fontWeight: 700, 
+            cursor: isSyncing ? 'not-allowed' : 'pointer', 
+            transition: 'all 0.2s', 
+            boxShadow: '0 2px 8px rgba(0,0,0,0.02)' 
+          }}
+          onMouseEnter={e => { 
+            if (!isSyncing) {
+              e.currentTarget.style.background = 'rgba(176, 136, 80, 0.06)'; 
+              e.currentTarget.style.borderColor = 'rgba(176, 136, 80, 0.4)'; 
+              e.currentTarget.style.transform = 'scale(1.02)'; 
+            }
+          }}
+          onMouseLeave={e => { 
+            if (!isSyncing) {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.6)'; 
+              e.currentTarget.style.borderColor = 'rgba(176, 136, 80, 0.15)'; 
+              e.currentTarget.style.transform = 'scale(1)'; 
+            }
+          }}
+        >
+          <Activity size={13} className={isSyncing ? "animate-spin" : ""} color="#b08850" />
+          {isSyncing ? 'Syncing...' : 'Sync Database'}
+        </button>
 
         {/* Explore Premium */}
         <Link href="/premium" className="hidden md:block" style={{ textDecoration: 'none' }}>

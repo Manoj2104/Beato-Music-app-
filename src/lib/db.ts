@@ -1629,8 +1629,8 @@ export async function syncWithSupabase() {
   }
 }
 
-// Start periodic sync if in supabase mode and on server-side
-if (typeof window === 'undefined') {
+// Start periodic sync if in supabase mode, server-side, and NOT during build phase
+if (typeof window === 'undefined' && process.env.NEXT_PHASE !== 'phase-production-build') {
   // Sync immediately at boot
   setTimeout(() => {
     syncWithSupabase().catch(console.error);

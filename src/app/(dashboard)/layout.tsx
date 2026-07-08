@@ -100,7 +100,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         (window as any).__beatoLastTracksFetch = 0; // bypass the client throttle
       }
       fetchTracks().catch(console.error);
-    }, 15000);
+    }, 1000);
     
     // Fetch active Ads configurations
     fetch('/api/ads')

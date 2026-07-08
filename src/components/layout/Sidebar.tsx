@@ -10,7 +10,7 @@ import {
   CreditCard, Globe, Activity, Key, BookOpen, Mail, FlaskConical, Settings, BellRing, Headphones, Map,
   User, Volume2, FileEdit, LayoutGrid, Wand2, CheckSquare, Mic2, FileText, Code, Trophy, MessageSquare, ShoppingBag, Share2,
   Calendar, ChevronDown, ChevronRight, Crown, Library as LibraryIcon, Megaphone, Music, Mic, Star,
-  Database, BarChart2, Layers, Bell, Link2, MapPin, Target, ScrollText, ImageIcon,
+  Database, BarChart2, Layers, Bell, Link2, MapPin, Target, ScrollText, ImageIcon, X,
 } from 'lucide-react';
 import { usePlayerStore } from '@/store/playerStore';
 import { useAuthStore } from '@/store/authStore';
@@ -26,6 +26,99 @@ const navItems = [
   { href: '/library', icon: Library, label: 'Your Library' },
 ];
 
+interface AdminItem {
+  href: string;
+  icon: any;
+  label: string;
+  superAdminOnly?: boolean;
+  permission?: string;
+}
+
+interface AdminSection {
+  id: string;
+  label: string;
+  items: AdminItem[];
+}
+
+const adminSections: AdminSection[] = [
+  {
+    id: 'platform',
+    label: 'Platform',
+    items: [
+      { href: '/admin/dashboard', icon: BarChart3, label: 'Overview' },
+      { href: '/admin/dashboard?tab=analytics', icon: TrendingUp, label: 'Analytics', permission: 'view_analytics' },
+      { href: '/admin/dashboard?tab=health', icon: Activity, label: 'System Health', permission: 'manage_settings' },
+      { href: '/admin/dashboard?tab=settings', icon: Settings, label: 'Settings', permission: 'manage_settings' },
+    ]
+  },
+  {
+    id: 'people',
+    label: 'People',
+    items: [
+      { href: '/admin/dashboard?tab=users', icon: Users, label: 'Users', permission: 'manage_users' },
+      { href: '/admin/dashboard?tab=artists', icon: Mic2, label: 'Artists', permission: 'manage_artists' },
+      { href: '/admin/dashboard?tab=superadmin', icon: Crown, label: 'Roles & Admins', superAdminOnly: true },
+    ]
+  },
+  {
+    id: 'content',
+    label: 'Content',
+    items: [
+      { href: '/admin/dashboard?tab=songs', icon: Music2, label: 'Songs', permission: 'manage_songs' },
+      { href: '/admin/dashboard?tab=content', icon: Library, label: 'Content Library', permission: 'manage_content' },
+      { href: '/admin/dashboard?tab=reports', icon: AlertTriangle, label: 'Reports', permission: 'manage_reports' },
+    ]
+  },
+  {
+    id: 'finance',
+    label: 'Finance',
+    items: [
+      { href: '/admin/dashboard?tab=subscriptions', icon: CreditCard, label: 'Subscriptions', permission: 'manage_subscriptions' },
+      { href: '/admin/dashboard?tab=payments', icon: DollarSign, label: 'Payments', permission: 'manage_payments' },
+      { href: '/admin/dashboard?tab=payouts', icon: TrendingUp, label: 'Payouts', permission: 'manage_payouts' },
+      { href: '/admin/dashboard?tab=geography', icon: Globe, label: 'Geography', permission: 'manage_geography' },
+    ]
+  },
+  {
+    id: 'growth',
+    label: 'Growth',
+    items: [
+      { href: '/admin/dashboard?tab=marketing', icon: Megaphone, label: 'Marketing', permission: 'manage_marketing' },
+      { href: '/admin/dashboard?tab=notifications', icon: BellRing, label: 'Notifications', permission: 'manage_notifications' },
+      { href: '/admin/dashboard?tab=support', icon: Headphones, label: 'Support', permission: 'manage_support' },
+      { href: '/admin/dashboard?tab=abtests', icon: FlaskConical, label: 'A/B Testing', permission: 'manage_ab_tests' },
+    ]
+  },
+  {
+    id: 'developer',
+    label: 'Developer',
+    items: [
+      { href: '/admin/dashboard?tab=api', icon: Key, label: 'API Keys', permission: 'manage_api_keys' },
+      { href: '/admin/dashboard?tab=audit', icon: BookOpen, label: 'Audit Logs', permission: 'view_audit_logs' },
+      { href: '/admin/dashboard?tab=email', icon: Mail, label: 'Email Config', permission: 'manage_email' },
+    ]
+  },
+  {
+    id: 'artist_portal',
+    label: 'Artist Portal',
+    items: [
+      { href: '/artist/dashboard', icon: LayoutDashboard, label: 'Artist Overview', superAdminOnly: true },
+      { href: '/artist/upload', icon: Upload, label: 'Upload Track', superAdminOnly: true },
+      { href: '/artist/dashboard?tab=My Music', icon: Music2, label: 'My Music', superAdminOnly: true },
+      { href: '/artist/dashboard?tab=Revenue', icon: DollarSign, label: 'Artist Revenue', superAdminOnly: true },
+      { href: '/artist/dashboard?tab=Audience', icon: Users, label: 'Audience', superAdminOnly: true },
+      { href: '/artist/dashboard?tab=Live Events', icon: Calendar, label: 'Live Events', superAdminOnly: true },
+    ]
+  },
+  {
+    id: 'ads_management',
+    label: 'Ads Management',
+    items: [
+      { href: '/admin/dashboard?tab=adsmanagement', icon: Megaphone, label: 'Ads Manager', superAdminOnly: true },
+    ]
+  }
+];
+
 function SidebarContent() {
   const pathname = usePathname();
   const router = useRouter();
@@ -37,6 +130,328 @@ function SidebarContent() {
   const [adminPanelExpanded, setAdminPanelExpanded] = useState(false);
   const [createMenuOpen, setCreateMenuOpen] = useState(false);
   const activeApp = user ? getApplicationByUserId(user.id) : undefined;
+
+  const searchParams = useSearchParams();
+
+  const isActive = (href: string) => {
+    if (href === '/home') return pathname === '/home';
+    const [path, query] = href.split('?');
+    if (pathname !== path) return false;
+    if (!query) {
+      return !searchParams.toString();
+    }
+    const hrefTab = new URLSearchParams(query).get('tab');
+    const currentTab = searchParams.get('tab');
+    return hrefTab === currentTab;
+  };
+
+  const hasPermission = (perm: string) => {
+    if (!user) return false;
+    const userRole = user.role || 'USER';
+    if (userRole === 'SUPER_ADMIN' || userRole === 'super_admin') return true;
+    
+    // Client-side fallback if not loaded yet
+    const getFallbackPermissions = (roleName: string, serverPermissions?: string[]) => {
+      if (serverPermissions !== undefined && Array.isArray(serverPermissions)) {
+        return serverPermissions;
+      }
+      const r = roleName.toLowerCase();
+      if (r === 'admin') {
+        return ['manage_users','manage_artists','manage_songs','manage_subscriptions','manage_payments','view_analytics','manage_reports','manage_notifications','manage_support','manage_content','manage_marketing'];
+      }
+      if (r === 'moderator') {
+        return ['manage_artists','manage_songs','manage_reports','manage_support','manage_content'];
+      }
+      if (r === 'analyst') {
+        return ['view_analytics','manage_reports','export_data'];
+      }
+      return [];
+    };
+
+    const permissions = getFallbackPermissions(userRole, user.permissions);
+    const has = permissions.includes(perm);
+    console.log(`[Sidebar] User ${user.email} checking permission: ${perm}. Has it? ${has}. Permissions used:`, permissions);
+    return has;
+  };
+
+  const [adminSearchQuery, setAdminSearchQuery] = useState('');
+  const [expandedAdminSections, setExpandedAdminSections] = useState<Record<string, boolean>>({});
+  const [hoveredSection, setHoveredSection] = useState<string | null>(null);
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [hoveredBtn, setHoveredBtn] = useState<'expand' | 'collapse' | null>(null);
+
+  useEffect(() => {
+    if (adminSearchQuery.trim()) return;
+
+    let updated = false;
+    const newExpanded = { ...expandedAdminSections };
+
+    adminSections.forEach(section => {
+      const hasActive = section.items.some(item => isActive(item.href));
+      if (hasActive && !newExpanded[section.id]) {
+        newExpanded[section.id] = true;
+        updated = true;
+      }
+    });
+
+    if (updated) {
+      setExpandedAdminSections(newExpanded);
+    }
+  }, [pathname, searchParams, adminSearchQuery]);
+
+  const getFilteredAdminSections = (isSuperAdmin: boolean) => {
+    const query = adminSearchQuery.trim().toLowerCase();
+    
+    return adminSections
+      .map(section => {
+        const visibleItems = section.items.filter(item => {
+          if (item.superAdminOnly && !isSuperAdmin) return false;
+          if (item.permission && !isSuperAdmin) {
+            return hasPermission(item.permission);
+          }
+          if (query && !item.label.toLowerCase().includes(query)) {
+            return false;
+          }
+          return true;
+        });
+
+        return {
+          ...section,
+          items: visibleItems
+        };
+      })
+      .filter(section => section.items.length > 0);
+  };
+
+  const toggleAdminSection = (sectionId: string) => {
+    setExpandedAdminSections(prev => ({
+      ...prev,
+      [sectionId]: !prev[sectionId]
+    }));
+  };
+
+  const expandAllAdminSections = () => {
+    const expanded: Record<string, boolean> = {};
+    adminSections.forEach(s => {
+      expanded[s.id] = true;
+    });
+    setExpandedAdminSections(expanded);
+  };
+
+  const collapseAllAdminSections = () => {
+    setExpandedAdminSections({});
+  };
+
+  const renderCollapsibleAdminSections = (isSuperAdmin: boolean) => {
+    const visibleSections = getFilteredAdminSections(isSuperAdmin);
+
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', width: '100%' }}>
+        {/* Search Bar */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            background: searchFocused ? 'rgba(255, 255, 255, 0.85)' : 'rgba(255, 255, 255, 0.45)',
+            border: '1px solid ' + (searchFocused ? '#b08850' : 'rgba(176, 136, 80, 0.15)'),
+            borderRadius: '8px',
+            padding: '6px 10px',
+            margin: '6px 8px 10px 8px',
+            boxShadow: searchFocused ? '0 0 0 2px rgba(176, 136, 80, 0.1)' : 'none',
+            transition: 'all 0.2s ease',
+          }}
+        >
+          <Search size={13} color="#87786c" style={{ flexShrink: 0 }} />
+          <input
+            type="text"
+            value={adminSearchQuery}
+            onChange={(e) => setAdminSearchQuery(e.target.value)}
+            onFocus={() => setSearchFocused(true)}
+            onBlur={() => setSearchFocused(false)}
+            placeholder="Search admin tools..."
+            style={{
+              border: 'none',
+              background: 'transparent',
+              outline: 'none',
+              fontSize: '11.5px',
+              fontFamily: 'inherit',
+              color: '#221a15',
+              width: '100%',
+            }}
+          />
+          {adminSearchQuery && (
+            <button
+              onClick={() => setAdminSearchQuery('')}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0 }}
+            >
+              <X size={13} color="#87786c" />
+            </button>
+          )}
+        </div>
+
+        {/* Controls */}
+        {!adminSearchQuery.trim() && (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: '8px',
+              padding: '0 8px 6px 8px',
+            }}
+          >
+            <button
+              onClick={expandAllAdminSections}
+              onMouseEnter={() => setHoveredBtn('expand')}
+              onMouseLeave={() => setHoveredBtn(null)}
+              style={{
+                background: hoveredBtn === 'expand' ? 'rgba(176, 136, 80, 0.08)' : 'transparent',
+                border: 'none',
+                fontSize: '9.5px',
+                fontWeight: 700,
+                color: hoveredBtn === 'expand' ? '#b08850' : '#87786c',
+                cursor: 'pointer',
+                padding: '2px 6px',
+                borderRadius: '4px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              Expand All
+            </button>
+            <button
+              onClick={collapseAllAdminSections}
+              onMouseEnter={() => setHoveredBtn('collapse')}
+              onMouseLeave={() => setHoveredBtn(null)}
+              style={{
+                background: hoveredBtn === 'collapse' ? 'rgba(176, 136, 80, 0.08)' : 'transparent',
+                border: 'none',
+                fontSize: '9.5px',
+                fontWeight: 700,
+                color: hoveredBtn === 'collapse' ? '#b08850' : '#87786c',
+                cursor: 'pointer',
+                padding: '2px 6px',
+                borderRadius: '4px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              Collapse All
+            </button>
+          </div>
+        )}
+
+        {/* Section Accordions */}
+        {visibleSections.map(section => {
+          const isExpanded = adminSearchQuery.trim() ? true : !!expandedAdminSections[section.id];
+          const hasActiveItem = section.items.some(item => isActive(item.href));
+          const sectionBadgeCount = section.items.length;
+
+          return (
+            <div key={section.id}>
+              <div
+                onClick={() => toggleAdminSection(section.id)}
+                onMouseEnter={() => setHoveredSection(section.id)}
+                onMouseLeave={() => setHoveredSection(null)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '6px 8px',
+                  margin: '2px 4px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  userSelect: 'none',
+                  background: hoveredSection === section.id ? 'rgba(176, 136, 80, 0.05)' : 'transparent',
+                }}
+              >
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: '10px',
+                      fontWeight: hasActiveItem ? 900 : 800,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.08em',
+                      color: (hasActiveItem || hoveredSection === section.id) ? '#b08850' : '#87786c',
+                      transition: 'color 0.2s ease',
+                    }}
+                  >
+                    {section.label}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: '8px',
+                      fontWeight: 700,
+                      background: (hoveredSection === section.id) ? 'rgba(176, 136, 80, 0.12)' : 'rgba(43, 34, 26, 0.06)',
+                      color: (hoveredSection === section.id) ? '#b08850' : '#87786c',
+                      padding: '1px 6px',
+                      borderRadius: '10px',
+                      minWidth: '14px',
+                      textAlign: 'center',
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    {sectionBadgeCount}
+                  </span>
+                </div>
+                <ChevronRight
+                  size={11}
+                  style={{
+                    color: (hoveredSection === section.id) ? '#b08850' : '#87786c',
+                    transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease',
+                  }}
+                />
+              </div>
+
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateRows: isExpanded ? '1fr' : '0fr',
+                  transition: 'grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  overflow: 'hidden',
+                }}
+              >
+                <div
+                  style={{
+                    minHeight: 0,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '1px',
+                    borderLeft: '1px dashed rgba(176, 136, 80, 0.15)',
+                    marginLeft: '14px',
+                    paddingLeft: '4px',
+                    marginBottom: '4px',
+                  }}
+                >
+                  {section.items.map(item => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`sidebar-sub-link ${isActive(item.href) ? 'active' : ''}`}
+                      style={item.superAdminOnly ? { color: '#b08850', fontWeight: 700 } : {}}
+                    >
+                      <item.icon size={13} style={item.superAdminOnly ? { color: '#b08850' } : {}} />
+                      <span>{item.label}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
 
   useEffect(() => {
     const saved = localStorage.getItem('beato-artist-portal-expanded');
@@ -117,49 +532,6 @@ function SidebarContent() {
     ...mockPlaylists.filter(p => user?.playlists?.includes(p.id))
   ];
 
-  const searchParams = useSearchParams();
-
-  const isActive = (href: string) => {
-    if (href === '/home') return pathname === '/home';
-    const [path, query] = href.split('?');
-    if (pathname !== path) return false;
-    if (!query) {
-      return !searchParams.toString();
-    }
-    const hrefTab = new URLSearchParams(query).get('tab');
-    const currentTab = searchParams.get('tab');
-    return hrefTab === currentTab;
-  };
-
-  const hasPermission = (perm: string) => {
-    if (!user) return false;
-    const userRole = user.role || 'USER';
-    if (userRole === 'SUPER_ADMIN' || userRole === 'super_admin') return true;
-    
-    // Client-side fallback if not loaded yet
-    const getFallbackPermissions = (roleName: string, serverPermissions?: string[]) => {
-      if (serverPermissions !== undefined && Array.isArray(serverPermissions)) {
-        return serverPermissions;
-      }
-      const r = roleName.toLowerCase();
-      if (r === 'admin') {
-        return ['manage_users','manage_artists','manage_songs','manage_subscriptions','manage_payments','view_analytics','manage_reports','manage_notifications','manage_support','manage_content','manage_marketing'];
-      }
-      if (r === 'moderator') {
-        return ['manage_artists','manage_songs','manage_reports','manage_support','manage_content'];
-      }
-      if (r === 'analyst') {
-        return ['view_analytics','manage_reports','export_data'];
-      }
-      return [];
-    };
-
-    const permissions = getFallbackPermissions(userRole, user.permissions);
-    const has = permissions.includes(perm);
-    console.log(`[Sidebar] User ${user.email} checking permission: ${perm}. Has it? ${has}. Permissions used:`, permissions);
-    return has;
-  };
-
   const role = user?.role || 'USER';
 
   return (
@@ -201,108 +573,8 @@ function SidebarContent() {
               />
             </div>
             <div className={`sidebar-accordion-wrapper ${adminPanelExpanded ? 'expanded' : ''}`}>
-              <div className="sidebar-accordion-inner">
-
-                {/* ── Platform Overview ─────────────────────── */}
-                <div style={{ padding: '6px 8px 2px', fontSize: 9, fontWeight: 800, color: '#b08850', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Platform</div>
-                {[
-                  { href: '/admin/dashboard', icon: BarChart3, label: 'Overview' },
-                  { href: '/admin/dashboard?tab=analytics', icon: TrendingUp, label: 'Analytics' },
-                  { href: '/admin/dashboard?tab=health', icon: Activity, label: 'System Health' },
-                  { href: '/admin/dashboard?tab=settings', icon: Settings, label: 'Settings' },
-                ].map(({ href, icon: Icon, label }) => (
-                  <Link key={`${href}-${label}`} href={href} className={`sidebar-sub-link ${isActive(href) ? 'active' : ''}`}>
-                    <Icon size={14} /><span>{label}</span>
-                  </Link>
-                ))}
-
-                {/* ── People ─────────────────────────────────── */}
-                <div style={{ padding: '8px 8px 2px', fontSize: 9, fontWeight: 800, color: '#87786c', textTransform: 'uppercase', letterSpacing: '0.1em' }}>People</div>
-                {[
-                  { href: '/admin/dashboard?tab=users', icon: Users, label: 'Users' },
-                  { href: '/admin/dashboard?tab=artists', icon: Mic2, label: 'Artists' },
-                  { href: '/admin/dashboard?tab=superadmin', icon: Crown, label: 'Roles & Admins', superAdminOnly: true },
-                ].map(({ href, icon: Icon, label, superAdminOnly }: any) => (
-                  <Link key={`${href}-${label}`} href={href}
-                    className={`sidebar-sub-link ${isActive(href) ? 'active' : ''}`}
-                    style={superAdminOnly ? { color: '#b08850', fontWeight: 700 } : {}}>
-                    <Icon size={14} style={superAdminOnly ? { color: '#b08850' } : {}} /><span>{label}</span>
-                  </Link>
-                ))}
-
-                {/* ── Content ────────────────────────────────── */}
-                <div style={{ padding: '8px 8px 2px', fontSize: 9, fontWeight: 800, color: '#87786c', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Content</div>
-                {[
-                  { href: '/admin/dashboard?tab=songs', icon: Music2, label: 'Songs' },
-                  { href: '/admin/dashboard?tab=content', icon: Library, label: 'Content Library' },
-                  { href: '/admin/dashboard?tab=reports', icon: AlertTriangle, label: 'Reports' },
-                ].map(({ href, icon: Icon, label }) => (
-                  <Link key={`${href}-${label}`} href={href} className={`sidebar-sub-link ${isActive(href) ? 'active' : ''}`}>
-                    <Icon size={14} /><span>{label}</span>
-                  </Link>
-                ))}
-
-                {/* ── Finance ────────────────────────────────── */}
-                <div style={{ padding: '8px 8px 2px', fontSize: 9, fontWeight: 800, color: '#87786c', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Finance</div>
-                {[
-                  { href: '/admin/dashboard?tab=subscriptions', icon: CreditCard, label: 'Subscriptions' },
-                  { href: '/admin/dashboard?tab=payments', icon: DollarSign, label: 'Payments' },
-                  { href: '/admin/dashboard?tab=payouts', icon: TrendingUp, label: 'Payouts' },
-                  { href: '/admin/dashboard?tab=geography', icon: Globe, label: 'Geography' },
-                ].map(({ href, icon: Icon, label }) => (
-                  <Link key={`${href}-${label}`} href={href} className={`sidebar-sub-link ${isActive(href) ? 'active' : ''}`}>
-                    <Icon size={14} /><span>{label}</span>
-                  </Link>
-                ))}
-
-                {/* ── Growth ─────────────────────────────────── */}
-                <div style={{ padding: '8px 8px 2px', fontSize: 9, fontWeight: 800, color: '#87786c', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Growth</div>
-                {[
-                  { href: '/admin/dashboard?tab=marketing', icon: Megaphone, label: 'Marketing' },
-                  { href: '/admin/dashboard?tab=notifications', icon: BellRing, label: 'Notifications' },
-                  { href: '/admin/dashboard?tab=support', icon: Headphones, label: 'Support' },
-                  { href: '/admin/dashboard?tab=abtests', icon: FlaskConical, label: 'A/B Testing' },
-                ].map(({ href, icon: Icon, label }) => (
-                  <Link key={`${href}-${label}`} href={href} className={`sidebar-sub-link ${isActive(href) ? 'active' : ''}`}>
-                    <Icon size={14} /><span>{label}</span>
-                  </Link>
-                ))}
-
-                {/* ── Developer ──────────────────────────────── */}
-                <div style={{ padding: '8px 8px 2px', fontSize: 9, fontWeight: 800, color: '#87786c', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Developer</div>
-                {[
-                  { href: '/admin/dashboard?tab=api', icon: Key, label: 'API Keys' },
-                  { href: '/admin/dashboard?tab=audit', icon: BookOpen, label: 'Audit Logs' },
-                  { href: '/admin/dashboard?tab=email', icon: Mail, label: 'Email Config' },
-                ].map(({ href, icon: Icon, label }) => (
-                  <Link key={`${href}-${label}`} href={href} className={`sidebar-sub-link ${isActive(href) ? 'active' : ''}`}>
-                    <Icon size={14} /><span>{label}</span>
-                  </Link>
-                ))}
-
-                {/* ── Artist Portal (merged) ─────────────────── */}
-                <div style={{ padding: '8px 8px 2px', fontSize: 9, fontWeight: 800, color: '#87786c', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Artist Portal</div>
-                {[
-                  { href: '/artist/dashboard', icon: LayoutDashboard, label: 'Artist Overview' },
-                  { href: '/artist/upload', icon: Upload, label: 'Upload Track' },
-                  { href: '/artist/dashboard?tab=My Music', icon: Music2, label: 'My Music' },
-                  { href: '/artist/dashboard?tab=Revenue', icon: DollarSign, label: 'Artist Revenue' },
-                  { href: '/artist/dashboard?tab=Audience', icon: Users, label: 'Audience' },
-                  { href: '/artist/dashboard?tab=Live Events', icon: Calendar, label: 'Live Events' },
-                ].map(({ href, icon: Icon, label }) => (
-                  <Link key={`${href}-${label}`} href={href} className={`sidebar-sub-link ${isActive(href) ? 'active' : ''}`}>
-                    <Icon size={14} /><span>{label}</span>
-                  </Link>
-                ))}
-
-                {/* ── Ads Management ─────────────────────────── */}
-                <div style={{ padding: '8px 8px 2px', fontSize: 9, fontWeight: 800, color: '#b08850', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Ads Management</div>
-                <Link href="/admin/dashboard?tab=adsmanagement"
-                  className={`sidebar-sub-link ${isActive('/admin/dashboard?tab=adsmanagement') ? 'active' : ''}`}
-                  style={{ color: '#b08850', fontWeight: 700 }}>
-                  <Megaphone size={14} style={{ color: '#b08850' }} /><span>📣 Ads Manager</span>
-                </Link>
-
+              <div className="sidebar-accordion-inner" style={{ borderLeft: 'none', marginLeft: 0, paddingLeft: 0 }}>
+                {renderCollapsibleAdminSections(true)}
               </div>
             </div>
           </div>
@@ -363,34 +635,8 @@ function SidebarContent() {
               />
             </div>
             <div className={`sidebar-accordion-wrapper ${adminPanelExpanded ? 'expanded' : ''}`}>
-              <div className="sidebar-accordion-inner">
-                {[
-                  { href: '/admin/dashboard', icon: BarChart3, label: 'Overview' },
-                  { href: '/admin/dashboard?tab=users', icon: Users, label: 'Users', permission: 'manage_users' },
-                  { href: '/admin/dashboard?tab=artists', icon: Shield, label: 'Artists', permission: 'manage_artists' },
-                  { href: '/admin/dashboard?tab=songs', icon: Music2, label: 'Songs', permission: 'manage_songs' },
-                  { href: '/admin/dashboard?tab=reports', icon: AlertTriangle, label: 'Reports', permission: 'manage_reports' },
-                  { href: '/admin/dashboard?tab=subscriptions', icon: CreditCard, label: 'Subscriptions', permission: 'manage_subscriptions' },
-                  { href: '/admin/dashboard?tab=payments', icon: DollarSign, label: 'Payments', permission: 'manage_payments' },
-                  { href: '/admin/dashboard?tab=analytics', icon: TrendingUp, label: 'Analytics', permission: 'view_analytics' },
-                  { href: '/admin/dashboard?tab=marketing', icon: Megaphone, label: 'Marketing', permission: 'manage_marketing' },
-                  { href: '/admin/dashboard?tab=notifications', icon: BellRing, label: 'Notifications', permission: 'manage_notifications' },
-                  { href: '/admin/dashboard?tab=support', icon: Headphones, label: 'Support', permission: 'manage_support' },
-                  { href: '/admin/dashboard?tab=payouts', icon: TrendingUp, label: 'Payouts', permission: 'manage_payouts' },
-                  { href: '/admin/dashboard?tab=geography', icon: Globe, label: 'Geography', permission: 'manage_geography' },
-                  { href: '/admin/dashboard?tab=health', icon: Activity, label: 'System Health', permission: 'manage_settings' },
-                  { href: '/admin/dashboard?tab=api', icon: Key, label: 'API Keys', permission: 'manage_api_keys' },
-                  { href: '/admin/dashboard?tab=audit', icon: BookOpen, label: 'Audit Logs', permission: 'view_audit_logs' },
-                  { href: '/admin/dashboard?tab=abtests', icon: FlaskConical, label: 'A/B Testing', permission: 'manage_ab_tests' },
-                  { href: '/admin/dashboard?tab=email', icon: Mail, label: 'Email', permission: 'manage_email' },
-                  { href: '/admin/dashboard?tab=content', icon: Library, label: 'Content Library', permission: 'manage_content' },
-                  { href: '/admin/dashboard?tab=settings', icon: Settings, label: 'Settings', permission: 'manage_settings' },
-                ].filter((item: any) => item.permission ? hasPermission(item.permission) : true)
-                  .map(({ href, icon: Icon, label }: any) => (
-                    <Link key={`${href}-${label}`} href={href} className={`sidebar-sub-link ${isActive(href) ? 'active' : ''}`}>
-                      <Icon size={14} /><span>{label}</span>
-                    </Link>
-                  ))}
+              <div className="sidebar-accordion-inner" style={{ borderLeft: 'none', marginLeft: 0, paddingLeft: 0 }}>
+                {renderCollapsibleAdminSections(false)}
               </div>
             </div>
           </div>
