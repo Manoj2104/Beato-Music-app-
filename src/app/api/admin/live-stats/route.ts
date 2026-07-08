@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { dbSupabase } from '@/lib/dbSupabase';
 import { requireAdmin } from '@/lib/rbac';
 
 export const dynamic = 'force-dynamic';
@@ -15,8 +16,14 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const allUsers = db.getUsers();
-    const allDbTracks = db.getTracks();
+    // Fetch directly from Supabase so localhost and Vercel stats always match
+    const [allDbTracks, cloudUsers] = await Promise.all([
+      db.getTracksFromSupabase(),
+      process.env.DATABASE_MODE === 'supabase'
+        ? dbSupabase.getUsers().catch(() => db.getUsers())
+        : Promise.resolve(db.getUsers()),
+    ]);
+    const allUsers = cloudUsers;
 
     // 1. Calculate active browsing users from globalSessions map
     const globalSessions = (global as any).globalSessions as Map<string, number> || new Map();

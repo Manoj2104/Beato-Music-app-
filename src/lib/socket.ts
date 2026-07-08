@@ -56,7 +56,16 @@ class SocketManager {
       }
 
       // 2. Setup global cloud broadcasting using Supabase Realtime Channels
-      const url = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+      let rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+      if (rawUrl.includes('zizhqtpsamvsbymwxfyps')) {
+        rawUrl = rawUrl.replace('zizhqtpsamvsbymwxfyps', 'zizhqtpsamvsbymwxfyp');
+      } else {
+        const match = rawUrl.match(/https:\/\/([a-z0-9]{20})s\.supabase\.co/i);
+        if (match) {
+          rawUrl = `https://${match[1]}.supabase.co`;
+        }
+      }
+      const url = rawUrl;
       const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
       if (url && key) {

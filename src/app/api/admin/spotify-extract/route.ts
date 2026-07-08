@@ -28,6 +28,20 @@ function parseSpotifyUrl(url: string): { type: 'track' | 'playlist' | 'album'; i
   return { type, id };
 }
 
+// ─── Language Detection ───────────────────────────────────────────────────────
+
+const KNOWN_LANGUAGES = [
+  'tamil', 'hindi', 'telugu', 'malayalam', 'kannada',
+  'bengali', 'marathi', 'punjabi', 'gujarati', 'odia',
+  'english', 'spanish', 'french', 'korean', 'japanese',
+];
+
+function detectLanguage(title: string, album = ''): string {
+  const combined = `${title} ${album}`.toLowerCase();
+  for (const lang of KNOWN_LANGUAGES) { if (combined.includes(lang)) return lang; }
+  return '';
+}
+
 // ─── Spotify Metadata Crawler Scraper (No Token Required) ─────────────────────
 
 interface SpotifyTrackInfo {
@@ -44,58 +58,157 @@ interface SpotifyTrackInfo {
 
 async function scrapeSpotifyTrack(trackId: string): Promise<SpotifyTrackInfo> {
   const url = `https://open.spotify.com/track/${trackId}`;
-  const res = await fetch(url, {
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)',
-    },
-    signal: AbortSignal.timeout(10000),
-  });
 
-  if (!res.ok) {
-    throw new Error(`Spotify track page fetch failed with status ${res.status}`);
+  // Try multiple user agents — Spotify returns richer meta to some bots
+  const userAgents = [
+    'Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)',
+    'Twitterbot/1.0',
+    'facebookexternalhit/1.1',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+  ];
+
+  let html = '';
+  for (const ua of userAgents) {
+    try {
+      const res = await fetch(url, {
+        headers: { 'User-Agent': ua },
+        signal: AbortSignal.timeout(10000),
+      });
+      if (res.ok) {
+        html = await res.text();
+        if (html.length > 5000) break; // Got a real page
+      }
+    } catch { /* try next UA */ }
   }
 
-  const html = await res.text();
+  if (!html) throw new Error('Failed to fetch Spotify track page with all user agents');
 
-  // Extract metadata via Open Graph tags
-  const title = html.match(/<meta property="og:title" content="([^"]+)"/)?.[1] || 'Unknown Track';
-  const coverImage = html.match(/<meta property="og:image" content="([^"]+)"/)?.[1] || '';
-  const description = html.match(/<meta property="og:description" content="([^"]+)"/)?.[1] || '';
-
-  let artist = 'Unknown Artist';
-  let album = 'Single';
+  // ── Strategy 1: JSON-LD structured data (most reliable) ───────────────────
+  let title = '';
+  let artist = '';
+  let album = '';
+  let duration = 0;
+  let coverImage = '';
   let releaseDate = new Date().getFullYear().toString();
+  let explicit = false;
 
-  if (description) {
-    const cleanDesc = description.replace(/^Listen to [^·]+ on Spotify\.\s*/i, '');
-    const parts = cleanDesc.split(' · ').map(p => p.trim());
-
-    if (parts.length >= 3) {
-      if (parts[0].toLowerCase() === 'song') {
-        artist = parts[1];
-        if (parts.length === 4) {
-          album = parts[2];
-          releaseDate = parts[3];
-        } else {
-          releaseDate = parts[2];
+  try {
+    const jsonLdMatch = html.match(/<script type="application\/ld\+json">([^<]+)<\/script>/);
+    if (jsonLdMatch) {
+      const jsonLd = JSON.parse(jsonLdMatch[1]);
+      // Spotify uses MusicRecording schema
+      if (jsonLd['@type'] === 'MusicRecording' || jsonLd.name) {
+        title = jsonLd.name || '';
+        // Artist from byArtist
+        if (jsonLd.byArtist) {
+          const byArtist = Array.isArray(jsonLd.byArtist) ? jsonLd.byArtist : [jsonLd.byArtist];
+          artist = byArtist.map((a: any) => a.name || '').filter(Boolean).join(', ');
         }
+        // Album from inAlbum
+        if (jsonLd.inAlbum) album = jsonLd.inAlbum.name || '';
+        // Duration from ISO 8601 duration string like "PT3M45S"
+        if (jsonLd.duration) {
+          const dur = jsonLd.duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+          if (dur) {
+            duration = (parseInt(dur[1] || '0') * 3600) +
+                       (parseInt(dur[2] || '0') * 60) +
+                       parseInt(dur[3] || '0');
+          }
+        }
+        if (jsonLd.image) coverImage = Array.isArray(jsonLd.image) ? jsonLd.image[0] : jsonLd.image;
       }
-    } else if (parts.length === 2) {
-      artist = parts[0];
-      releaseDate = parts[1];
-    } else {
-      artist = cleanDesc;
+    }
+  } catch { /* JSON-LD parse failed */ }
+
+  // ── Strategy 2: OG meta tags ──────────────────────────────────────────────
+  if (!title) {
+    title = html.match(/<meta property="og:title" content="([^"]+)"/)?.[1] || '';
+  }
+  if (!coverImage) {
+    coverImage = html.match(/<meta property="og:image" content="([^"]+)"/)?.[1] || '';
+  }
+
+  // ── Strategy 3: Parse og:description for artist/album ────────────────────
+  if (!artist) {
+    const description = html.match(/<meta property="og:description" content="([^"]+)"/)?.[1] || '';
+    console.log(`[spotify-extract] OG description: "${description}"`);
+
+    if (description) {
+      // Format 1: "Song · Artist · Album · Year"
+      // Format 2: "Listen to Song on Spotify. Song · Artist · Year"
+      const cleanDesc = description
+        .replace(/^Listen to [^·]+ on Spotify\.\s*/i, '')
+        .replace(/^Listen to .+?\. /i, '');
+      const parts = cleanDesc.split(' · ').map(p => p.trim()).filter(Boolean);
+      console.log(`[spotify-extract] Description parts:`, parts);
+
+      if (parts[0]?.toLowerCase() === 'song') {
+        // "Song · Artist · [Album ·] Year"
+        artist = parts[1] || '';
+        if (parts.length >= 4) {
+          album = parts[2] || '';
+          releaseDate = parts[3] || releaseDate;
+        } else if (parts.length === 3) {
+          releaseDate = parts[2] || releaseDate;
+        }
+      } else if (parts.length >= 2) {
+        // Sometimes: "Artist · Year" directly
+        artist = parts[0] || '';
+        releaseDate = parts[parts.length - 1] || releaseDate;
+      } else {
+        artist = cleanDesc;
+      }
     }
   }
 
+  // ── Strategy 4: Extract from page's __NEXT_DATA__ / React state ──────────
+  if (!artist || artist === 'Unknown Artist') {
+    try {
+      // Spotify often embeds full track data in a script tag
+      const nextDataMatch = html.match(/<script id="__NEXT_DATA__" type="application\/json">([^<]+)<\/script>/);
+      if (nextDataMatch) {
+        const nextData = JSON.parse(nextDataMatch[1]);
+        const trackData = nextData?.props?.pageProps?.state?.data?.entity ||
+                          nextData?.props?.pageProps?.data?.entity;
+        if (trackData) {
+          if (!title && trackData.name) title = trackData.name;
+          if (trackData.artists?.items?.length) {
+            artist = trackData.artists.items.map((a: any) => a.profile?.name || a.name || '').filter(Boolean).join(', ');
+          }
+          if (!album && trackData.albumOfTrack?.name) album = trackData.albumOfTrack.name;
+          if (!duration && trackData.duration?.totalMilliseconds) {
+            duration = Math.round(trackData.duration.totalMilliseconds / 1000);
+          }
+        }
+      }
+    } catch { /* Next.js data parse failed */ }
+  }
+
+  // ── Strategy 5: Twitter meta tags as final fallback ───────────────────────
+  if (!title) {
+    title = html.match(/<meta name="twitter:title" content="([^"]+)"/)?.[1] ||
+            html.match(/<title>([^<]+)<\/title>/)?.[1]?.replace(' | Spotify', '') ||
+            'Unknown Track';
+  }
+  if (!artist) {
+    const twitterDesc = html.match(/<meta name="twitter:description" content="([^"]+)"/)?.[1] || '';
+    const parts = twitterDesc.split(' · ');
+    if (parts.length >= 2) artist = parts[1]?.trim() || 'Unknown Artist';
+    else artist = 'Unknown Artist';
+  }
+
+  // ── Detect language from title/album for accurate YouTube search ──────────
+  const detectedLang = detectLanguage(title, album);
+  console.log(`[spotify-extract] Scraped: title="${title}" artist="${artist}" album="${album}" duration=${duration}s lang=${detectedLang || 'unknown'}`);
+
   return {
     id: trackId,
-    title,
-    artist,
-    album,
+    title: title || 'Unknown Track',
+    artist: artist || 'Unknown Artist',
+    album: album || 'Single',
     coverImage,
-    duration: 240, // default fallback duration (4 minutes)
-    explicit: false,
+    duration: duration || 210, // Use 210s (3.5min) as fallback if parse fails
+    explicit,
     releaseDate,
     spotifyUrl: url,
   };
@@ -151,53 +264,121 @@ async function scrapeSpotifyPlaylistOrAlbum(type: 'playlist' | 'album', id: stri
   };
 }
 
-// ─── YouTube Search (Pure JS, no binary required, works on Vercel) ────────────
+// ─── YouTube Search — Smart multi-strategy with language awareness ────────────
+// (KNOWN_LANGUAGES and detectLanguage are declared above near the top of this file)
 
-async function findYouTubeVideoId(searchQuery: string): Promise<string | null> {
-  // Try local yt-dlp first if available
+function buildSearchQueries(artist: string, title: string, album = ''): string[] {
+  const lang = detectLanguage(title, album);
+  const cleanTitle = title.replace(/\s*\(from\s+"[^"]+"\s*\w*\)\s*$/i, '').trim();
+  const queries: string[] = [];
+  if (lang) {
+    queries.push(`${artist} ${cleanTitle || title} ${lang} official audio`);
+    queries.push(`${cleanTitle || title} ${lang} ${artist}`);
+    queries.push(`${artist} ${cleanTitle || title} ${lang}`);
+  }
+  queries.push(`"${title}" "${artist}" audio`);
+  if (cleanTitle && cleanTitle !== title) queries.push(`${artist} ${cleanTitle} official audio`);
+  queries.push(`${artist} ${title}`);
+  queries.push(`${title} ${artist} lyrics`);
+  return queries;
+}
+
+function scoreMatch(videoTitle: string, targetTitle: string, targetArtist: string, targetLang = ''): number {
+  const vt = videoTitle.toLowerCase();
+  const tt = targetTitle.toLowerCase();
+  const ta = targetArtist.toLowerCase();
+  let score = 0;
+  const words = tt.split(/\s+/).filter(w => w.length > 2);
+  score += (words.filter(w => vt.includes(w)).length / Math.max(words.length, 1)) * 50;
+  const artistWords = ta.split(/\s+/).filter(w => w.length > 1);
+  if (artistWords.some(w => vt.includes(w))) score += 20;
+  if (targetLang) {
+    if (vt.includes(targetLang)) score += 35;
+    else {
+      const wrongLang = KNOWN_LANGUAGES.find(l => l !== targetLang && vt.includes(l));
+      if (wrongLang) score -= 50;
+    }
+  }
+  if (/\b(cover|remix|karaoke|reaction|instrumental|tribute|parody)\b/i.test(vt)) score -= 30;
+  if (/\b(official|audio|lyrics|hd|hq|full\s+song)\b/i.test(vt)) score += 10;
+  return score;
+}
+
+async function findYouTubeVideoId(
+  searchQuery: string,
+  artist = '',
+  title = '',
+  album = '',
+  expectedDurationSec = 0,
+): Promise<string | null> {
+  const lang = detectLanguage(title, album);
+  // ── yt-dlp local binary (most accurate) ───────────────────────────────
   if (fs.existsSync(YTDLP_PATH)) {
+    const allQueries = [searchQuery, ...buildSearchQueries(artist, title, album).filter(q => q !== searchQuery)];
+    for (const q of allQueries) {
+      try {
+        const { stdout } = await execFileAsync(YTDLP_PATH, [
+          '--dump-json', '--no-playlist', '--no-warnings', '--no-cache-dir',
+          `ytsearch5:${q}`,
+        ], { timeout: 30_000, maxBuffer: 8 * 1024 * 1024 });
+        const lines = stdout.trim().split('\n').filter(Boolean);
+        const results: { id: string; score: number }[] = [];
+        for (const line of lines) {
+          try {
+            const info = JSON.parse(line);
+            if (!info.id) continue;
+            const dur = info.duration || 0;
+            if (expectedDurationSec > 0 && Math.abs(dur - expectedDurationSec) > 45) continue;
+            results.push({ id: info.id, score: scoreMatch(info.title || '', title || searchQuery, artist, lang) });
+          } catch { /* bad JSON */ }
+        }
+        if (results.length > 0) {
+          results.sort((a, b) => b.score - a.score);
+          return results[0].id;
+        }
+      } catch { /* try next query */ }
+    }
+  }
+
+  // ── HTML scraping fallback ────────────────────────────────────────────
+  const queriesToTry = [searchQuery, ...buildSearchQueries(artist, title, album)].slice(0, 3);
+  for (const q of queriesToTry) {
     try {
-      const { stdout } = await execFileAsync(YTDLP_PATH, [
-        '--dump-json', '--no-playlist', '--no-warnings', '--no-cache-dir',
-        `ytsearch1:${searchQuery}`,
-      ], { timeout: 30_000, maxBuffer: 5 * 1024 * 1024 });
-
-      const firstLine = stdout.trim().split('\n')[0];
-      if (firstLine) {
-        const info = JSON.parse(firstLine);
-        if (info.id) return info.id;
+      const res = await fetch(
+        `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`,
+        {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+            'Accept-Language': 'en-US,en;q=0.9',
+          },
+          signal: AbortSignal.timeout(10000),
+        },
+      );
+      if (!res.ok) continue;
+      const html = await res.text();
+      const videoIdRegex = /"videoId":"([^"]+)"/g;
+      const titleRegex = /"title":{"runs":\[{"text":"([^"]+)"/g;
+      const videoIds: string[] = [];
+      let m: RegExpExecArray | null;
+      while ((m = videoIdRegex.exec(html)) !== null) {
+        if (!videoIds.includes(m[1])) videoIds.push(m[1]);
+        if (videoIds.length >= 8) break;
       }
-    } catch {
-      // fallback to scraping
-    }
-  }
-
-  // Pure JS fallback scraping (works in serverless / cloud environment)
-  const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(searchQuery)}`;
-  try {
-    const res = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
-        'Accept-Language': 'en-US,en;q=0.9'
-      },
-      signal: AbortSignal.timeout(10000),
-    });
-    if (!res.ok) return null;
-    const html = await res.text();
-    const regex = /"videoId":"([^"]+)"/g;
-    let match;
-    const videoIds: string[] = [];
-    while ((match = regex.exec(html)) !== null) {
-      if (!videoIds.includes(match[1])) {
-        videoIds.push(match[1]);
+      if (videoIds.length === 0) continue;
+      const titles: string[] = [];
+      while ((m = titleRegex.exec(html)) !== null) {
+        titles.push(m[1]);
+        if (titles.length >= 8) break;
       }
-      if (videoIds.length >= 5) break;
-    }
-    return videoIds[0] || null;
-  } catch (err) {
-    console.error('[youtube-search] Error:', err);
-    return null;
+      if (titles.length > 0 && (artist || title)) {
+        const scored = videoIds.map((id, idx) => ({ id, score: scoreMatch(titles[idx] || '', title || searchQuery, artist, lang) }));
+        scored.sort((a, b) => b.score - a.score);
+        if (scored[0].score > -10) return scored[0].id;
+      }
+      return videoIds[0] || null;
+    } catch { /* try next query */ }
   }
+  return null;
 }
 
 // ─── MAIN ROUTE ────────────────────────────────────────────────────────────────
@@ -237,9 +418,10 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: `Failed to fetch track: ${err.message}` }, { status: 422 });
       }
 
-      const searchQuery = `${trackInfo.artist} ${trackInfo.title} official audio`;
-      console.log(`[spotify-extract] Searching YouTube: "${searchQuery}"`);
-      const youtubeVideoId = await findYouTubeVideoId(searchQuery);
+      const lang = detectLanguage(trackInfo.title, trackInfo.album);
+      const searchQuery = `${trackInfo.artist} ${lang ? trackInfo.title.replace(/\s*\(from.*\)/i, '').trim() + ' ' + lang : trackInfo.title} official audio`;
+      console.log(`[spotify-extract] 🔍 Searching: "${trackInfo.title}" by "${trackInfo.artist}" lang=${lang || 'unknown'}`);
+      const youtubeVideoId = await findYouTubeVideoId(searchQuery, trackInfo.artist, trackInfo.title, trackInfo.album, trackInfo.duration);
 
       return NextResponse.json({
         success: true,
@@ -279,7 +461,10 @@ export async function POST(request: NextRequest) {
       const enrichedTracks = await Promise.all(
         tracksToProcess.map(async (t) => {
           const searchQuery = `${t.artist} ${t.title} official audio`;
-          const youtubeVideoId = await findYouTubeVideoId(searchQuery);
+          const youtubeVideoId = await findYouTubeVideoId(
+            `${t.artist} ${t.title} official audio`,
+            t.artist, t.title, t.album, t.duration
+          );
           return {
             spotifyId: t.id,
             spotifyUrl: t.spotifyUrl,

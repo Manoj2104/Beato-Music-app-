@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/rbac';
 import { db } from '@/lib/db';
+import { dbSupabase } from '@/lib/dbSupabase';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,8 +15,13 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const allUsers = db.getUsers();
-    const allTracks = db.getTracks();
+    const [allTracks, cloudUsers] = await Promise.all([
+      db.getTracksFromSupabase(),
+      process.env.DATABASE_MODE === 'supabase'
+        ? dbSupabase.getUsers().catch(() => db.getUsers())
+        : Promise.resolve(db.getUsers()),
+    ]);
+    const allUsers = cloudUsers;
 
     // Map each artist user to include their dynamic track counts and aggregate metrics
     const artists = allUsers

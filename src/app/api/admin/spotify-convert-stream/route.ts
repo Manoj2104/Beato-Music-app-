@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { requireAdmin } from '@/lib/rbac';
 import { db } from '@/lib/db';
+import { dbSupabase } from '@/lib/dbSupabase';
 import { logSecurityEvent } from '@/lib/audit';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
@@ -45,53 +46,198 @@ function sseEvent(data: object): string {
   return `data: ${JSON.stringify(data)}\n\n`;
 }
 
-// ─── YouTube Search (Pure JS, no binary required, works on Vercel) ────────────
-async function findYouTubeVideoId(searchQuery: string): Promise<string | null> {
-  // Try local yt-dlp first if available
+
+// ─── Language detection from Spotify metadata ─────────────────────────────
+const KNOWN_LANGUAGES = [
+  'tamil', 'hindi', 'telugu', 'malayalam', 'kannada',
+  'bengali', 'marathi', 'punjabi', 'gujarati', 'odia',
+  'english', 'spanish', 'french', 'korean', 'japanese',
+];
+
+function detectLanguage(title: string, album: string = ''): string {
+  const combined = `${title} ${album}`.toLowerCase();
+  for (const lang of KNOWN_LANGUAGES) {
+    if (combined.includes(lang)) return lang;
+  }
+  return '';
+}
+
+// ─── Build multiple search queries (language-aware) ────────────────────────
+function buildSearchQueries(artist: string, title: string, album = '', duration?: number): string[] {
+  const lang = detectLanguage(title, album);
+
+  // Strip Spotify's "(From "Movie" Language)" suffix for a shorter clean title
+  const cleanTitle = title
+    .replace(/\s*\(from\s+"[^"]+"\s*\w*\)\s*$/i, '')
+    .replace(/\s*-\s*[^-]+$/, '') // strip " - The Pain of Love" style suffixes only when lang is detected
+    .trim();
+
+  const queries: string[] = [];
+
+  if (lang) {
+    // Language-specific queries are HIGHEST priority
+    queries.push(`${artist} ${cleanTitle || title} ${lang} official audio`);
+    queries.push(`${cleanTitle || title} ${lang} ${artist}`);
+    queries.push(`${artist} ${cleanTitle || title} ${lang}`);
+  }
+
+  // Generic fallbacks
+  queries.push(`"${title}" "${artist}" audio`);
+  if (cleanTitle && cleanTitle !== title) queries.push(`${artist} ${cleanTitle} official audio`);
+  queries.push(`${artist} ${title}`);
+  queries.push(`${title} ${artist} lyrics`);
+
+  return queries;
+}
+
+// ─── Score how well a YouTube video matches the target song ────────────────
+function scoreMatch(
+  videoTitle: string,
+  targetTitle: string,
+  targetArtist: string,
+  targetLang = '',
+): number {
+  const vt = videoTitle.toLowerCase();
+  const tt = targetTitle.toLowerCase();
+  const ta = targetArtist.toLowerCase();
+  let score = 0;
+
+  // Word overlap between Spotify title and YouTube title
+  const words = tt.split(/\s+/).filter(w => w.length > 2);
+  const matched = words.filter(w => vt.includes(w));
+  score += (matched.length / Math.max(words.length, 1)) * 50;
+
+  // Artist name match bonus
+  const artistWords = ta.split(/\s+/).filter(w => w.length > 1);
+  if (artistWords.some(w => vt.includes(w))) score += 20;
+
+  // ── Language matching (most important for Indian/multilingual songs) ──
+  if (targetLang) {
+    if (vt.includes(targetLang)) {
+      score += 35; // Big bonus for correct language
+    } else {
+      // Penalise if video is in a DIFFERENT known language
+      const wrongLang = KNOWN_LANGUAGES.find(l => l !== targetLang && vt.includes(l));
+      if (wrongLang) score -= 50; // Heavy penalty for wrong language
+    }
+  }
+
+  // Penalise covers, remixes, reactions, karaoke
+  if (/\b(cover|remix|karaoke|reaction|instrumental|tribute|parody)\b/i.test(vt)) score -= 30;
+
+  // Bonus for official indicators
+  if (/\b(official|audio|lyrics|hd|hq|full\s+song)\b/i.test(vt)) score += 10;
+
+  return score;
+}
+
+// ─── YouTube Search ────────────────────────────────────────────────────────
+async function findYouTubeVideoId(
+  searchQuery: string,
+  artist = '',
+  title = '',
+  album = '',
+  expectedDurationSec = 0,
+): Promise<string | null> {
+  const lang = detectLanguage(title, album);
+
+  // ── Strategy A: yt-dlp (local binary, most accurate) ──────────────────
   if (fs.existsSync(YTDLP_PATH)) {
+    // Try language-aware queries first, then generic ones
+    const queries = buildSearchQueries(artist, title, album, expectedDurationSec);
+    // Always include the original query first
+    const allQueries = [searchQuery, ...queries.filter(q => q !== searchQuery)];
+
+    for (const q of allQueries) {
+      try {
+        const { stdout } = await execFileAsync(YTDLP_PATH, [
+          '--dump-json', '--no-playlist', '--no-warnings', '--no-cache-dir',
+          '--default-search', 'ytsearch',
+          `ytsearch5:${q}`,  // Get top 5 results to pick the best one
+        ], { timeout: 30000, maxBuffer: 8 * 1024 * 1024 });
+
+        const lines = stdout.trim().split('\n').filter(Boolean);
+        const results: { id: string; score: number; dur: number }[] = [];
+
+        for (const line of lines) {
+          try {
+            const info = JSON.parse(line);
+            if (!info.id) continue;
+
+            const dur = info.duration || 0;
+            // Duration check: if we know expected duration, skip videos way off (>45s diff)
+            if (expectedDurationSec > 0 && Math.abs(dur - expectedDurationSec) > 45) continue;
+
+            const score = scoreMatch(info.title || '', title || searchQuery, artist, lang);
+            results.push({ id: info.id, score, dur });
+          } catch { /* bad JSON line */ }
+        }
+
+        if (results.length > 0) {
+          // Pick highest-scoring result
+          results.sort((a, b) => b.score - a.score);
+          const best = results[0];
+          console.log(`[youtube-search] ✅ Best match: ${best.id} (score: ${best.score})`);
+          return best.id;
+        }
+      } catch { /* try next query */ }
+    }
+  }
+
+  // ── Strategy B: YouTube HTML scraping fallback ─────────────────────────
+  const queriesToTry = buildSearchQueries(artist, title, album, expectedDurationSec);
+  queriesToTry.unshift(searchQuery);
+
+  for (const q of queriesToTry.slice(0, 3)) { // Try top 3 queries
+    const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`;
     try {
-      const { stdout } = await execFileAsync(YTDLP_PATH, [
-        '--dump-json', '--no-playlist', '--no-warnings',
-        '--default-search', 'ytsearch',
-        `ytsearch1:${searchQuery}`,
-      ], { timeout: 30000, maxBuffer: 5 * 1024 * 1024 });
+      const res = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+          'Accept-Language': 'en-US,en;q=0.9',
+        },
+        signal: AbortSignal.timeout(10000),
+      });
+      if (!res.ok) continue;
+      const html = await res.text();
 
-      const firstLine = stdout.trim().split('\n')[0];
-      if (firstLine) {
-        const info = JSON.parse(firstLine);
-        if (info.id) return info.id;
+      // Extract video IDs with their titles
+      const videoIdRegex = /"videoId":"([^"]+)"/g;
+      const titleRegex = /"title":{"runs":\[{"text":"([^"]+)"/g;
+
+      const videoIds: string[] = [];
+      let m: RegExpExecArray | null;
+      while ((m = videoIdRegex.exec(html)) !== null) {
+        if (!videoIds.includes(m[1])) videoIds.push(m[1]);
+        if (videoIds.length >= 8) break;
       }
-    } catch {
-      // fallback to scraping
-    }
+
+      if (videoIds.length === 0) continue;
+
+      // Try to extract titles for scoring
+      const titles: string[] = [];
+      while ((m = titleRegex.exec(html)) !== null) {
+        titles.push(m[1]);
+        if (titles.length >= 8) break;
+      }
+
+      if (titles.length > 0 && (artist || title)) {
+        // Score each video by title match
+        const scored = videoIds.map((id, idx) => ({
+          id,
+          score: scoreMatch(titles[idx] || '', title || searchQuery, artist, lang),
+        }));
+        scored.sort((a, b) => b.score - a.score);
+        // Only return if score is reasonable (not a garbage match)
+        if (scored[0].score > -10) return scored[0].id;
+      }
+
+      // Fallback: return first result
+      return videoIds[0] || null;
+    } catch { /* try next query */ }
   }
 
-  // Pure JS fallback scraping (works in serverless / cloud environment)
-  const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(searchQuery)}`;
-  try {
-    const res = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
-        'Accept-Language': 'en-US,en;q=0.9'
-      },
-      signal: AbortSignal.timeout(10000),
-    });
-    if (!res.ok) return null;
-    const html = await res.text();
-    const regex = /"videoId":"([^"]+)"/g;
-    let match;
-    const videoIds: string[] = [];
-    while ((match = regex.exec(html)) !== null) {
-      if (!videoIds.includes(match[1])) {
-        videoIds.push(match[1]);
-      }
-      if (videoIds.length >= 5) break;
-    }
-    return videoIds[0] || null;
-  } catch (err) {
-    console.error('[youtube-search] Error:', err);
-    return null;
-  }
+  return null;
 }
 
 export async function POST(request: NextRequest) {
@@ -153,9 +299,16 @@ export async function POST(request: NextRequest) {
         let videoId = item.youtubeVideoId || null;
 
         if (!videoId) {
-          // Auto-search YouTube using yt-dlp
-          const searchQuery = item.youtubeSearchQuery || `${item.artist || ''} ${title} official audio`;
-          videoId = await findYouTubeVideoId(searchQuery);
+          const artist = item.artist || '';
+          const album = item.album || item.albumName || '';
+          const expectedDuration = parseInt(item.duration) || 0;
+          const detectedLang = detectLanguage(title, album);
+          const searchQuery = item.youtubeSearchQuery || `${artist} ${title}${detectedLang ? ' ' + detectedLang : ''} official audio`;
+          console.log(`[spotify-convert-stream] 🔍 Searching: "${title}" by "${artist}" lang=${detectedLang || 'unknown'} (${expectedDuration}s)`);
+          videoId = await findYouTubeVideoId(searchQuery, artist, title, album, expectedDuration);
+          if (videoId) {
+            console.log(`[spotify-convert-stream] ✅ Found video: https://youtu.be/${videoId}`);
+          }
         }
 
         if (!videoId) {
@@ -317,7 +470,17 @@ export async function POST(request: NextRequest) {
           const destFilename = `sp_${safeId}_${safeTitle}.mp3`;
           const destPath = path.join(uploadsDir, destFilename);
           fs.copyFileSync(mp3Path, destPath);
-          const audioUrl = `/uploads/${destFilename}`;
+
+          // Upload to Supabase Storage so Vercel (and localhost) can both stream it
+          let audioUrl = `/uploads/${destFilename}`; // local fallback
+          try {
+            const fileBuffer = fs.readFileSync(destPath);
+            const supabasePublicUrl = await dbSupabase.uploadAudio(fileBuffer, destFilename, 'audio/mpeg');
+            audioUrl = supabasePublicUrl;
+            console.log(`[spotify-convert-stream] Uploaded to Supabase Storage: ${audioUrl}`);
+          } catch (storageErr: any) {
+            console.error('[spotify-convert-stream] Supabase Storage upload failed, falling back to local URL:', storageErr?.message);
+          }
 
           // ── Step 5: Registering ──
           send({

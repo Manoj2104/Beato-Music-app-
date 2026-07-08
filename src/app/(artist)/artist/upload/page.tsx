@@ -1359,8 +1359,10 @@ export default function UploadPage() {
       {/* Main Studio Area */}
       <div className="upload-studio-container">
         
-        {/* Toggle between standard upload, YouTube MP3 Extractor, and Spotify Extractor (Super Admin only) */}
-        {(user?.role === 'SUPER_ADMIN' || user?.role === 'super_admin') && (
+        {/* Toggle between standard upload, YouTube MP3 Extractor, and Spotify Extractor (Super Admin only, and only on localhost:3000) */}
+        {typeof window !== 'undefined' && 
+         (window.location.host === 'localhost:3000' || window.location.host === '127.0.0.1:3000') && 
+         (user?.role === 'SUPER_ADMIN' || user?.role === 'super_admin') && (
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
             <div style={{ display: 'inline-flex', background: 'var(--color-ss-elevated, #ffffff)', border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))', borderRadius: 24, padding: 4, gap: 2 }}>
               <button
@@ -2270,8 +2272,10 @@ export default function UploadPage() {
           )}
         </AnimatePresence>
 
-        {/* YouTube MP3 Extractor Panel (Super Admin only, when uploadMode is 'youtube') */}
-        {uploadMode === 'youtube' && (
+        {/* YouTube MP3 Extractor Panel (Super Admin only, when uploadMode is 'youtube', and only on localhost:3000) */}
+        {uploadMode === 'youtube' && 
+         typeof window !== 'undefined' && 
+         (window.location.host === 'localhost:3000' || window.location.host === '127.0.0.1:3000') && (
           <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
             style={{
               background: 'var(--color-ss-elevated, #ffffff)', border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
@@ -2630,8 +2634,10 @@ export default function UploadPage() {
           </motion.div>
         )}
 
-        {/* ── Spotify Song Extractor Panel ───────────────────────────────────── */}
-        {uploadMode === 'spotify' && (
+        {/* ── Spotify Song Extractor Panel (only on localhost:3000) ───────────────────────────────────── */}
+        {uploadMode === 'spotify' && 
+         typeof window !== 'undefined' && 
+         (window.location.host === 'localhost:3000' || window.location.host === '127.0.0.1:3000') && (
           <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
             style={{
               background: 'var(--color-ss-elevated, #ffffff)',

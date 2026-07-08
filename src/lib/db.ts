@@ -1571,7 +1571,7 @@ export async function syncWithSupabase() {
     // 2. Fetch Tracks
     const cloudTracks = await dbSupabase.getTracks();
     if (cloudTracks && cloudTracks.length > 0) {
-      data.tracks = cloudTracks.map((t: any) => ({
+      const mapped = cloudTracks.map((t: any) => ({
         id: t.id,
         title: t.title,
         artistId: t.artist_id,
@@ -1593,6 +1593,9 @@ export async function syncWithSupabase() {
         status: t.status || 'approved',
         featured: t.featured || false,
       }));
+      // Deduplicate by ID in case Supabase returned duplicates
+      const seenIds = new Set<string>();
+      data.tracks = mapped.filter((t: any) => { if (seenIds.has(t.id)) return false; seenIds.add(t.id); return true; });
     }
 
     // 3. Fetch Comments
@@ -1918,7 +1921,45 @@ export const db = {
 
   // --- Tracks ---
   getTracks: (): TrackEntity[] => {
+    // NOTE: In supabase mode, the API route calls dbSupabase.getTracks() directly.
+    // This local version is used as a fallback (e.g. for non-API code).
     return readDb().tracks || [];
+  },
+
+  // Direct Supabase fetch — used by API routes for live data
+  getTracksFromSupabase: async (): Promise<TrackEntity[]> => {
+    if (process.env.DATABASE_MODE !== 'supabase') {
+      return readDb().tracks || [];
+    }
+    try {
+      const cloudTracks = await dbSupabase.getTracks();
+      if (!cloudTracks || cloudTracks.length === 0) return readDb().tracks || [];
+      return cloudTracks.map((t: any) => ({
+        id: t.id,
+        title: t.title,
+        artistId: t.artist_id,
+        artistName: t.artist_name,
+        albumId: t.album_id,
+        albumName: t.album_name,
+        coverImage: t.cover_image,
+        duration: t.duration,
+        audioUrl: t.audio_url,
+        genre: t.genre,
+        year: t.year,
+        plays: t.plays || 0,
+        liked: t.liked || false,
+        explicit: t.explicit || false,
+        trackNumber: t.track_number || 1,
+        lyrics: t.lyrics || '',
+        uploadedBy: t.uploaded_by,
+        uploadedAt: t.uploaded_at,
+        status: t.status || 'approved',
+        featured: t.featured || false,
+      }));
+    } catch (err) {
+      console.error('getTracksFromSupabase error, falling back to local:', err);
+      return readDb().tracks || [];
+    }
   },
 
   addTrack: (track: TrackEntity): TrackEntity => {
@@ -1951,7 +1992,10 @@ export const db = {
     }
     const data = readDb();
     data.tracks = data.tracks || [];
-    data.tracks.push(track);
+    // Skip if already exists locally (prevents duplicates when sync pulls it back)
+    if (!data.tracks.some((t) => t.id === track.id)) {
+      data.tracks.push(track);
+    }
     writeDb(data);
     return track;
   },
@@ -1993,17 +2037,19 @@ export const db = {
   },
 
   deleteTrack: (trackId: string): boolean => {
+    // Always delete from Supabase first (primary source of truth)
     if (process.env.DATABASE_MODE === 'supabase') {
       dbSupabase.deleteTrack(trackId).catch(err => {
         console.error('Supabase background deleteTrack error:', err);
       });
     }
+    // Also delete from local JSON (may or may not exist there)
     const data = readDb();
-    const originalLength = data.tracks.length;
-    data.tracks = data.tracks.filter((t) => t.id !== trackId);
-    if (data.tracks.length === originalLength) return false;
+    const before = (data.tracks || []).length;
+    data.tracks = (data.tracks || []).filter((t) => t.id !== trackId);
     writeDb(data);
-    return true;
+    // Return true if deleted from either Supabase (supabase mode) or local JSON
+    return process.env.DATABASE_MODE === 'supabase' || data.tracks.length < before;
   },
 
   // --- Transactions ---

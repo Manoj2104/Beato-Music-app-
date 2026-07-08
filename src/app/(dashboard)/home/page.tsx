@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, ReactNode } from 'react';
+import { useState, useEffect, useRef, useMemo, ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, ChevronRight, Heart, Music, Sparkles, TrendingUp, Clock, Headphones, Star, Search, X, Plus, Check, Bell } from 'lucide-react';
 import Link from 'next/link';
@@ -541,13 +541,13 @@ export default function HomePage() {
   const isMobile = useIsMobile(); // ⚡ shared single resize listener
   const [hasShownToast, setHasShownToast] = useState(false);
   const [showMobileNotificationDropdown, setShowMobileNotificationDropdown] = useState(false);
-  const { getAllTracks, getForYouTracks, uploadedTracks, recentlyPlayed, genreScores, activeArtistIds, fetchTracks } = useMusicStore();
+  const { allTracks: baseTracks, getAllTracks, getForYouTracks, uploadedTracks, recentlyPlayed, genreScores, activeArtistIds, fetchTracks } = useMusicStore();
   const { customPlaylists } = usePlaylistStore();
   const { downloadedTracks } = useDownloadStore();
 
 
 
-  const approvedUploadedTracks = uploadedTracks.filter(t => t.status === 'approved');
+  const approvedUploadedTracks = useMemo(() => uploadedTracks.filter(t => t.status === 'approved'), [uploadedTracks]);
 
 
 
@@ -737,19 +737,19 @@ export default function HomePage() {
 
 
   // Real-time data
-  const allTracks = getAllTracks();
-  const likedSongIds = user?.likedSongs ?? [];
-  const likedTracks = allTracks.filter(t => likedSongIds.includes(t.id));
+  const allTracks = useMemo(() => getAllTracks(), [baseTracks, uploadedTracks, activeArtistIds]);
+  const likedSongIds = useMemo(() => user?.likedSongs ?? [], [user?.likedSongs]);
+  const likedTracks = useMemo(() => allTracks.filter(t => likedSongIds.includes(t.id)), [allTracks, likedSongIds]);
   
   // Real-time recommendations using helper algorithms
-  const recentTrackIds = recentlyPlayed.map(t => t.id);
-  const forYouTracks = getDiscoverWeekly(likedSongIds, recentTrackIds, allTracks, 20);
-  const recommendedTracks = getDailyMix(likedSongIds, genreScores, allTracks, 20);
+  const recentTrackIds = useMemo(() => recentlyPlayed.map(t => t.id), [recentlyPlayed]);
+  const forYouTracks = useMemo(() => getDiscoverWeekly(likedSongIds, recentTrackIds, allTracks, 20), [likedSongIds, recentTrackIds, allTracks]);
+  const recommendedTracks = useMemo(() => getDailyMix(likedSongIds, genreScores, allTracks, 20), [likedSongIds, genreScores, allTracks]);
   
-  const newTracks = [...approvedUploadedTracks, ...allTracks.filter(t => !approvedUploadedTracks.some(ut => ut.id === t.id))].slice(0, 8);
-  const trendingTracks = [...allTracks].sort((a, b) => b.plays - a.plays).slice(0, 8);
-  const recentTracks = recentlyPlayed.length > 0 ? recentlyPlayed.slice(0, 6) : allTracks.slice(0, 6);
-  const topGenres = Object.entries(genreScores).sort((a, b) => b[1] - a[1]).slice(0, 4);
+  const newTracks = useMemo(() => [...approvedUploadedTracks, ...allTracks.filter(t => !approvedUploadedTracks.some(ut => ut.id === t.id))].slice(0, 8), [approvedUploadedTracks, allTracks]);
+  const trendingTracks = useMemo(() => [...allTracks].sort((a, b) => b.plays - a.plays).slice(0, 8), [allTracks]);
+  const recentTracks = useMemo(() => recentlyPlayed.length > 0 ? recentlyPlayed.slice(0, 6) : allTracks.slice(0, 6), [recentlyPlayed, allTracks]);
+  const topGenres = useMemo(() => Object.entries(genreScores).sort((a, b) => b[1] - a[1]).slice(0, 4), [genreScores]);
   const hasPersonalization = topGenres.length > 0;
 
   const activeArtistIdsList = activeArtistIds || ['artist-1', 'artist-2', 'artist-3', 'artist-4', 'artist-5', 'artist-6'];
@@ -801,6 +801,9 @@ export default function HomePage() {
   };
 
   const renderSectionTracks = (tracksToRender: typeof allTracks, configObj: any = null) => {
+    // Deduplicate by track.id to prevent React duplicate key warnings
+    const seen = new Set<string>();
+    const uniqueTracks = tracksToRender.filter(t => { if (seen.has(t.id)) return false; seen.add(t.id); return true; });
     const cStyle = configObj?.cardStyle || 'classic';
     const cSize = configObj?.cardSize || 'md';
     const isBanner = configObj?.cardShape?.includes('banner');
@@ -810,9 +813,9 @@ export default function HomePage() {
       const itemWidth = isBanner ? 260 : (cSize === 'xs' ? 115 : cSize === 'sm' ? 135 : 160);
       return (
         <div style={{ display: 'flex', gap: 10, overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', margin: '0 -16px', padding: '0 16px 10px' }} className="no-scrollbar">
-          {tracksToRender.map(track => (
+          {uniqueTracks.map(track => (
             <div key={track.id} style={{ width: itemWidth, flexShrink: 0, marginRight: 0 }}>
-              <AlbumCardInline track={track} onPlay={() => playTrack(track, tracksToRender)} isPlaying={isPlaying} isActive={currentTrack?.id === track.id} cardStyle={cStyle} cardSize={cSize} customImage={configObj?.customImage} cardShape={configObj?.cardShape} cardWidth={configObj?.cardWidth} cardHeight={configObj?.cardHeight} isMobile={isMobile} />
+              <AlbumCardInline track={track} onPlay={() => playTrack(track, uniqueTracks)} isPlaying={isPlaying} isActive={currentTrack?.id === track.id} cardStyle={cStyle} cardSize={cSize} customImage={configObj?.customImage} cardShape={configObj?.cardShape} cardWidth={configObj?.cardWidth} cardHeight={configObj?.cardHeight} isMobile={isMobile} />
             </div>
           ))}
         </div>
@@ -825,8 +828,8 @@ export default function HomePage() {
     
     return (
       <div style={{ display: 'grid', gridTemplateColumns: cols, gap: 16 }}>
-        {tracksToRender.slice(0, limit).map(track => (
-          <AlbumCardInline key={track.id} track={track} onPlay={() => playTrack(track, tracksToRender)} isPlaying={isPlaying} isActive={currentTrack?.id === track.id} cardStyle={cStyle} cardSize={cSize} customImage={configObj?.customImage} cardShape={configObj?.cardShape} cardWidth={configObj?.cardWidth} cardHeight={configObj?.cardHeight} isMobile={isMobile} />
+        {uniqueTracks.slice(0, limit).map(track => (
+          <AlbumCardInline key={track.id} track={track} onPlay={() => playTrack(track, uniqueTracks)} isPlaying={isPlaying} isActive={currentTrack?.id === track.id} cardStyle={cStyle} cardSize={cSize} customImage={configObj?.customImage} cardShape={configObj?.cardShape} cardWidth={configObj?.cardWidth} cardHeight={configObj?.cardHeight} isMobile={isMobile} />
         ))}
       </div>
     );
@@ -2822,7 +2825,7 @@ export default function HomePage() {
                         onClick={() => playTrack(track, tracks)}
                         style={{ display: 'flex', gap: 12, alignItems: 'center', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: 10, padding: 10, cursor: 'pointer' }}
                       >
-                        <img src={track.coverImage} alt="" style={{ width: isMobile ? 36 : 50, height: isMobile ? 36 : 50, borderRadius: 6, objectFit: 'cover' }} />
+                        <img src={track.coverImage || null} alt="" style={{ width: isMobile ? 36 : 50, height: isMobile ? 36 : 50, borderRadius: 6, objectFit: 'cover' }} />
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.title}</div>
                           <div style={{ fontSize: isMobile ? 10 : 12, color: 'var(--theme-text-muted, #737373)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 2 }}>{track.artistName}</div>
@@ -2901,7 +2904,7 @@ export default function HomePage() {
                       cursor: 'pointer'
                     }}
                   >
-                    <img src={t2.coverImage} alt="" style={{ width: isMobile ? 32 : 44, height: isMobile ? 32 : 44, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
+                    <img src={t2.coverImage || null} alt="" style={{ width: isMobile ? 32 : 44, height: isMobile ? 32 : 44, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 850, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t2.title}</div>
                     </div>
@@ -3250,7 +3253,7 @@ export default function HomePage() {
                         
                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', margin: '10px 0' }}>
                           <div style={{ position: 'relative', width: 64, height: 64, borderRadius: 12, overflow: 'hidden', boxShadow: '0 8px 20px rgba(43, 34, 26, 0.15)' }}>
-                            <img src={mainTrack.coverImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <img src={mainTrack.coverImage || null} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                           </div>
                           <div style={{ color: 'var(--color-ss-text-primary, #221a15)', fontSize: 12, fontWeight: 900, fontFamily: 'Outfit, sans-serif', marginTop: 10, textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {mainTrack.title}
@@ -3428,7 +3431,7 @@ export default function HomePage() {
                       >
                         {/* Background Cover Image */}
                         <img
-                          src={mainTrack.coverImage}
+                          src={mainTrack.coverImage || null}
                           alt=""
                           style={{
                             position: 'absolute',
@@ -3602,7 +3605,7 @@ export default function HomePage() {
                                 position: 'relative'
                               }}>
                                 <motion.img 
-                                  src={track.coverImage} 
+                                  src={track.coverImage || null} 
                                   alt="" 
                                   whileHover={{ rotate: -12, scale: 1.1 }}
                                   style={{ 
@@ -3618,7 +3621,7 @@ export default function HomePage() {
                                   }} 
                                 />
                                 <motion.img 
-                                  src={prevTrack.coverImage} 
+                                  src={prevTrack.coverImage || null} 
                                   alt="" 
                                   whileHover={{ rotate: 12, scale: 1.1 }}
                                   style={{ 
@@ -4141,7 +4144,7 @@ export default function HomePage() {
                         onClick={() => playTrack(track, displayHubTracks)}
                         >
                           <div style={{ width: '100%', aspectRatio: '1', borderRadius: 8, overflow: 'hidden', marginBottom: 8, position: 'relative' }}>
-                            <img src={track.coverImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <img src={track.coverImage || null} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             {isCurrent && isPlaying && (
                               <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 <span style={{ fontSize: 20 }}>Ã°Å¸â€Å </span>
@@ -5594,7 +5597,7 @@ export default function HomePage() {
                                   }}
                                 >
                                   <img
-                                    src={cur.imageUrl || cur.coverImage || config.customImage || ''}
+                                    src={cur.imageUrl || cur.coverImage || config.customImage || null}
                                     alt={title}
                                     style={{
                                       width: '100%',

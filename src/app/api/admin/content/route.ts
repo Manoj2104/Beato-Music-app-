@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const dbTracks = db.getTracks();
+    const dbTracks = await db.getTracksFromSupabase();
     const users = db.getUsers();
 
     // Map tracks to ContentItems
@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'ID and action are required' }, { status: 400 });
     }
 
-    const dbTracks = db.getTracks();
+    const dbTracks = await db.getTracksFromSupabase();
     let targetTrack = dbTracks.find(t => t.id === id);
 
     const ip = request.headers.get('x-forwarded-for') || '127.0.0.1';

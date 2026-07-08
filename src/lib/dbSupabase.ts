@@ -1,6 +1,18 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+let rawSupabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+
+// Auto-correct common typo (trailing 's' in 21-character project ID)
+if (rawSupabaseUrl.includes('zizhqtpsamvsbymwxfyps')) {
+  rawSupabaseUrl = rawSupabaseUrl.replace('zizhqtpsamvsbymwxfyps', 'zizhqtpsamvsbymwxfyp');
+} else {
+  const match = rawSupabaseUrl.match(/https:\/\/([a-z0-9]{20})s\.supabase\.co/i);
+  if (match) {
+    rawSupabaseUrl = `https://${match[1]}.supabase.co`;
+  }
+}
+
+const supabaseUrl = rawSupabaseUrl;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 // Create a single supabase client for server-side use with admin privileges (Service Role Key)
@@ -318,5 +330,28 @@ export const dbSupabase = {
       .single();
     if (error) throw error;
     return data;
-  }
+  },
+
+  // --- Audio Storage ---
+  uploadAudio: async (fileBuffer: Buffer, filename: string, mimeType = 'audio/mpeg'): Promise<string> => {
+    // Ensure the bucket exists (create if not)
+    const bucketName = 'audio-uploads';
+
+    // Upload the file to Supabase Storage
+    const { error } = await supabase.storage
+      .from(bucketName)
+      .upload(filename, fileBuffer, {
+        contentType: mimeType,
+        upsert: true, // overwrite if same name exists
+      });
+
+    if (error) throw error;
+
+    // Get the public URL
+    const { data } = supabase.storage
+      .from(bucketName)
+      .getPublicUrl(filename);
+
+    return data.publicUrl;
+  },
 };

@@ -66,10 +66,10 @@ export function getDailyMix(
       popularityScore(track) * 0.20 +
       noveltyScore(track, listenedIds) * 0.15
     );
-    return { track, score: s + Math.random() * 0.05 }; // small random for variety
+    return { track, score: s };
   });
 
-  return scored.sort((a, b) => b.score - a.score).slice(0, count).map(x => x.track);
+  return scored.sort((a, b) => b.score - a.score || b.track.id.localeCompare(a.track.id)).slice(0, count).map(x => x.track);
 }
 
 export function getDiscoverWeekly(
@@ -84,10 +84,10 @@ export function getDiscoverWeekly(
   const likedTracks = allTracks.filter(t => likedTrackIds.includes(t.id));
   const scored = candidates.map(track => ({
     track,
-    score: collaborativeScore(track, likedTracks) * 0.5 + popularityScore(track) * 0.3 + Math.random() * 0.2,
+    score: collaborativeScore(track, likedTracks) * 0.5 + popularityScore(track) * 0.3,
   }));
 
-  return scored.sort((a, b) => b.score - a.score).slice(0, count).map(x => x.track);
+  return scored.sort((a, b) => b.score - a.score || b.track.id.localeCompare(a.track.id)).slice(0, count).map(x => x.track);
 }
 
 export function getReleaseRadar(
@@ -100,7 +100,7 @@ export function getReleaseRadar(
     followedArtistIds.includes(t.artistId) && t.year >= recentYear - 1
   );
   const rest = allTracks.filter(t => t.year >= recentYear).slice(0, count - fromFollowed.length);
-  return shuffle([...fromFollowed, ...rest]).slice(0, count);
+  return [...fromFollowed, ...rest].sort((a, b) => b.year - a.year || b.plays - a.plays || b.id.localeCompare(a.id)).slice(0, count);
 }
 
 export function getMoodRecommendations(
@@ -109,15 +109,15 @@ export function getMoodRecommendations(
   count = 25
 ): Track[] {
   const targetGenres = MOOD_GENRES[mood.toLowerCase()] ?? [];
-  if (targetGenres.length === 0) return shuffle(allTracks).slice(0, count);
+  if (targetGenres.length === 0) return [...allTracks].sort((a, b) => b.plays - a.plays || b.id.localeCompare(a.id)).slice(0, count);
 
   const scored = allTracks.map(t => {
     const genreRank = targetGenres.indexOf(t.genre);
     const sc = genreRank >= 0 ? (targetGenres.length - genreRank) / targetGenres.length : 0;
-    return { t, sc: sc + popularityScore(t) * 0.3 + Math.random() * 0.1 };
+    return { t, sc: sc + popularityScore(t) * 0.3 };
   });
 
-  return scored.sort((a, b) => b.sc - a.sc).slice(0, count).map(x => x.t);
+  return scored.sort((a, b) => b.sc - a.sc || b.t.id.localeCompare(a.t.id)).slice(0, count).map(x => x.t);
 }
 
 export function getSimilarArtists(
@@ -132,10 +132,10 @@ export function getSimilarArtists(
     .filter(a => a.id !== artistId)
     .map(a => {
       const genreOverlap = a.genres.filter(g => artist.genres.includes(g)).length;
-      return { a, sc: genreOverlap * 2 + (a.monthlyListeners / 10_000_000) * 0.5 + Math.random() * 0.5 };
+      return { a, sc: genreOverlap * 2 + (a.monthlyListeners / 10_000_000) * 0.5 };
     });
 
-  return scored.sort((a, b) => b.sc - a.sc).slice(0, count).map(x => x.a);
+  return scored.sort((a, b) => b.sc - a.sc || b.a.id.localeCompare(a.a.id)).slice(0, count).map(x => x.a);
 }
 
 export function getTopCharts(
@@ -143,7 +143,7 @@ export function getTopCharts(
   limit = 50
 ): Track[] {
   return [...allTracks]
-    .sort((a, b) => b.plays - a.plays)
+    .sort((a, b) => b.plays - a.plays || b.id.localeCompare(a.id))
     .slice(0, limit);
 }
 

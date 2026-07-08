@@ -395,7 +395,7 @@ export default function PlayerBar() {
 
   // Poll YouTube track progress
   useEffect(() => {
-    const isYtTrack = !!(currentTrack as any)?.youtubeVideoId;
+    const isYtTrack = !!(currentTrack as any)?.youtubeVideoId && (!currentTrack?.audioUrl || currentTrack.audioUrl.startsWith('/api/track/stream'));
     if (!isPlaying || !isYtTrack || !ytPlayer || typeof ytPlayer.getCurrentTime !== 'function') return;
 
     const interval = setInterval(() => {
@@ -409,11 +409,11 @@ export default function PlayerBar() {
     }, 250);
 
     return () => clearInterval(interval);
-  }, [isPlaying, currentTrack?.id, ytPlayer, setProgress]);
+  }, [isPlaying, currentTrack?.id, currentTrack?.audioUrl, ytPlayer, setProgress]);
 
   // Retrieve YouTube track duration
   useEffect(() => {
-    const isYtTrack = !!(currentTrack as any)?.youtubeVideoId;
+    const isYtTrack = !!(currentTrack as any)?.youtubeVideoId && (!currentTrack?.audioUrl || currentTrack.audioUrl.startsWith('/api/track/stream'));
     if (!isYtTrack || !ytPlayer || typeof ytPlayer.getDuration !== 'function') return;
     
     const checkDuration = setInterval(() => {
@@ -427,7 +427,7 @@ export default function PlayerBar() {
     }, 500);
     
     return () => clearInterval(checkDuration);
-  }, [currentTrack?.id, ytPlayer, setDuration]);
+  }, [currentTrack?.id, currentTrack?.audioUrl, ytPlayer, setDuration]);
 
   const liveListeners = useRealtimeStore(state => state.liveListeners);
   const isLiked = currentTrack ? user?.likedSongs.includes(currentTrack.id) : false;
@@ -541,7 +541,7 @@ export default function PlayerBar() {
       return;
     }
 
-    const isYtTrack = !!(currentTrack as any).youtubeVideoId;
+    const isYtTrack = !!(currentTrack as any).youtubeVideoId && (!currentTrack?.audioUrl || currentTrack.audioUrl.startsWith('/api/track/stream'));
 
     if (isYtTrack) {
       // Pause local audio element & clean src to release connection
@@ -645,7 +645,7 @@ export default function PlayerBar() {
     return () => {
       active = false;
     };
-  }, [currentTrack?.id, isPlaying, volume, isMuted, currentSpeed, setProgress, setIsPlaying, setDuration, ytPlayer]);
+  }, [currentTrack?.id, currentTrack?.audioUrl, isPlaying, volume, isMuted, currentSpeed, setProgress, setIsPlaying, setDuration, ytPlayer]);
 
   // Media Session API for Lock Screen & Status Bar controls (Web + Native via @capgo/capacitor-media-session)
   useEffect(() => {
@@ -684,7 +684,7 @@ export default function PlayerBar() {
         onPrevious: () => usePlayerStore.getState().playPrevious(),
         onNext: () => usePlayerStore.getState().playNext(),
         onSeekTo: (time: number) => {
-          const isYtTrack = !!(currentTrack as any)?.youtubeVideoId;
+          const isYtTrack = !!(currentTrack as any)?.youtubeVideoId && (!currentTrack?.audioUrl || currentTrack.audioUrl.startsWith('/api/track/stream'));
           if (isYtTrack && ytPlayer && typeof ytPlayer.seekTo === 'function') {
             try { ytPlayer.seekTo(time, true); } catch {}
           } else if (audioRef.current) {
@@ -709,7 +709,7 @@ export default function PlayerBar() {
     const ms = sleepTimer * 60 * 1000;
     const timeoutId = setTimeout(() => {
       setIsPlaying(false);
-      const isYtTrack = !!(currentTrack as any)?.youtubeVideoId;
+      const isYtTrack = !!(currentTrack as any)?.youtubeVideoId && (!currentTrack?.audioUrl || currentTrack.audioUrl.startsWith('/api/track/stream'));
       if (isYtTrack && ytPlayer && typeof ytPlayer.pauseVideo === 'function') {
         try { ytPlayer.pauseVideo(); } catch {}
       } else if (audioRef.current) {
@@ -724,7 +724,7 @@ export default function PlayerBar() {
   useEffect(() => {
     const handleSeek = (e: Event) => {
       const customEvent = e as CustomEvent<number>;
-      const isYtTrack = !!(currentTrack as any)?.youtubeVideoId;
+      const isYtTrack = !!(currentTrack as any)?.youtubeVideoId && (!currentTrack?.audioUrl || currentTrack.audioUrl.startsWith('/api/track/stream'));
       if (isYtTrack && ytPlayer && typeof ytPlayer.seekTo === 'function') {
         try { ytPlayer.seekTo(customEvent.detail, true); } catch {}
       } else if (audioRef.current) {
@@ -742,7 +742,7 @@ export default function PlayerBar() {
     const handleSpeed = (e: Event) => {
       const customEvent = e as CustomEvent<number>;
       setCurrentSpeed(customEvent.detail);
-      const isYtTrack = !!(currentTrack as any)?.youtubeVideoId;
+      const isYtTrack = !!(currentTrack as any)?.youtubeVideoId && (!currentTrack?.audioUrl || currentTrack.audioUrl.startsWith('/api/track/stream'));
       if (isYtTrack && ytPlayer && typeof ytPlayer.setPlaybackRate === 'function') {
         try { ytPlayer.setPlaybackRate(customEvent.detail); } catch {}
       } else if (audioRef.current) {
@@ -771,7 +771,7 @@ export default function PlayerBar() {
 
   const handleEnded = useCallback(() => {
     if (repeat === 'one') {
-      const isYtTrack = !!(currentTrack as any)?.youtubeVideoId;
+      const isYtTrack = !!(currentTrack as any)?.youtubeVideoId && (!currentTrack?.audioUrl || currentTrack.audioUrl.startsWith('/api/track/stream'));
       if (isYtTrack && ytPlayer && typeof ytPlayer.seekTo === 'function') {
         try {
           ytPlayer.seekTo(0, true);
@@ -808,7 +808,7 @@ export default function PlayerBar() {
 
   const handleAudioError = useCallback((e: Event) => {
     // If this is a YouTube track, ignore HTML5 audio element errors completely
-    const isYtTrack = !!(currentTrack as any)?.youtubeVideoId;
+    const isYtTrack = !!(currentTrack as any)?.youtubeVideoId && (!currentTrack?.audioUrl || currentTrack.audioUrl.startsWith('/api/track/stream'));
     if (isYtTrack) {
       console.info('[PlayerBar] Ignoring audio element error since this is a YouTube track.');
       return;

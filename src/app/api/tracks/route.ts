@@ -1,43 +1,56 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { dbSupabase } from '@/lib/dbSupabase';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
-    const dbTracks = db.getTracks();
-    
-    // Find all active artists in the database (must exist and have isActive === true)
+    // Fetch tracks and users directly from Supabase (single source of truth)
+    // so both localhost:3000 and Vercel always show identical live data.
+    const [dbTracks, cloudUsers] = await Promise.all([
+      db.getTracksFromSupabase(),
+      process.env.DATABASE_MODE === 'supabase'
+        ? dbSupabase.getUsers().catch(() => db.getUsers())
+        : Promise.resolve(db.getUsers()),
+    ]);
+
     const activeArtistIds = new Set(
-      db.getUsers()
-        .filter(u => u.role === 'ARTIST' && u.isActive === true)
-        .map(u => u.id)
+      cloudUsers
+        .filter((u: any) => {
+          const role = ((u.role || '') as string).toUpperCase();
+          const isActive = u.is_active ?? u.isActive ?? true;
+          return role === 'ARTIST' && isActive === true;
+        })
+        .map((u: any) => u.id)
     );
 
-    // Return database tracks only, filtered to active database artists.
-    const combinedTracks = dbTracks;
+    // Deduplicate by ID
     const seenIds = new Set<string>();
-    const uniqueTracks: typeof combinedTracks = [];
-    for (const track of combinedTracks) {
+    const uniqueTracks: typeof dbTracks = [];
+    for (const track of dbTracks) {
       if (!seenIds.has(track.id)) {
         seenIds.add(track.id);
         uniqueTracks.push(track);
       }
     }
-    const activeTracks = uniqueTracks.filter(
-      (t) => activeArtistIds.has(t.artistId)
-    );
 
-    // ⚡ Cache for 20 seconds, stale-while-revalidate for another 10s
-    // This dramatically speeds up repeated fetches from the client throttle window
-    const response = NextResponse.json({
+    // Show tracks whose artist is active in Supabase.
+    // Fallback: if no artists found, show all approved tracks.
+    const activeTracks = activeArtistIds.size > 0
+      ? uniqueTracks.filter(t => activeArtistIds.has(t.artistId))
+      : uniqueTracks.filter(t => t.status === 'approved');
+
+    return NextResponse.json({
       success: true,
       tracks: activeTracks,
       activeArtistIds: Array.from(activeArtistIds),
+    }, {
+      // No caching — changes (add/delete) must be reflected immediately
+      headers: { 'Cache-Control': 'no-store' },
     });
-    response.headers.set('Cache-Control', 's-maxage=20, stale-while-revalidate=10');
-    return response;
   } catch (e: any) {
+    console.error('[api/tracks] Error:', e);
     return NextResponse.json(
       { error: 'Failed to fetch tracks from database' },
       { status: 500 }
