@@ -1884,7 +1884,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                           {/* Album cover */}
                           <div style={{ width: 36, height: 36, borderRadius: 4, overflow: 'hidden', flexShrink: 0, background: '#282828' }}>
                             <img 
-                              src={track.coverImage || null} 
+                              src={track.coverImage || undefined} 
                               alt={track.title} 
                               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                             />
