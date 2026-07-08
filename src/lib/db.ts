@@ -1,6 +1,12 @@
 import fs from 'fs';
 import path from 'path';
 import bcrypt from 'bcryptjs';
+
+// Auto-default to supabase mode if credentials exist and mode is not explicitly local
+if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.DATABASE_MODE !== 'local') {
+  process.env.DATABASE_MODE = 'supabase';
+}
+
 import { Track, UserPreferences, UserStats } from '@/types';
 import { dbSupabase } from './dbSupabase';
 import { getDbFilePath } from './dbPath';
