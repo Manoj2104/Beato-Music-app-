@@ -12,7 +12,6 @@ export async function POST(
   try {
     const { roomId } = await params;
     
-    // Authenticate the request
     const token = request.headers.get('authorization')?.split(' ')[1] || 
                   request.cookies.get('beato-token')?.value;
 
@@ -25,13 +24,12 @@ export async function POST(
       return NextResponse.json({ error: 'Invalid or expired session' }, { status: 401 });
     }
 
-    const updatedRoom = roomDb.leaveRoom(roomId, decoded.userId);
+    const updatedRoom = await roomDb.leaveRoom(roomId, decoded.userId);
 
     if (!updatedRoom) {
       return NextResponse.json({ error: 'Room not found or inactive' }, { status: 404 });
     }
 
-    // Broadcast room participant update
     if (socketManager) {
       socketManager.emit('PLAYLIST_UPDATED', { roomId, action: 'leave', userId: decoded.userId });
     }

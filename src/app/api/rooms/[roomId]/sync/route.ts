@@ -12,7 +12,6 @@ export async function POST(
   try {
     const { roomId } = await params;
     
-    // Authenticate the request
     const token = request.headers.get('authorization')?.split(' ')[1] || 
                   request.cookies.get('beato-token')?.value;
 
@@ -28,26 +27,17 @@ export async function POST(
     const body = await request.json();
     const { currentTrackId, currentTrackPosition, isPlaying } = body;
 
-    const room = roomDb.getRoom(roomId);
+    const room = await roomDb.getRoom(roomId);
     if (!room) {
       return NextResponse.json({ error: 'Room not found or inactive' }, { status: 404 });
     }
 
-    // Enforce lock: only the host can control when room is locked
     if (room.isLocked && room.hostId !== decoded.userId) {
       return NextResponse.json({ error: 'Room is locked. Only the host can control playback.' }, { status: 403 });
     }
 
-    // Allow all joined participants to control playback in real-time
+    const updatedRoom = await roomDb.syncPlayback(roomId, currentTrackId, currentTrackPosition, isPlaying);
 
-    const updatedRoom = roomDb.syncPlayback(
-      roomId,
-      currentTrackId,
-      currentTrackPosition,
-      isPlaying
-    );
-
-    // Broadcast playback update to other room listeners via socket
     if (socketManager && updatedRoom) {
       socketManager.emit('PLAYLIST_UPDATED', {
         roomId,

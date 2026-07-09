@@ -274,3 +274,28 @@ ON CONFLICT (id) DO NOTHING;
 ALTER TABLE comments ADD COLUMN IF NOT EXISTS artist_id TEXT;
 ALTER TABLE comments ADD COLUMN IF NOT EXISTS reply TEXT DEFAULT '';
 ALTER TABLE comments ADD COLUMN IF NOT EXISTS track_title TEXT;
+
+-- 9. JAM ROOMS TABLE (for listening parties)
+CREATE TABLE IF NOT EXISTS jam_rooms (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT,
+    host_id TEXT NOT NULL,
+    host_name TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    is_active BOOLEAN DEFAULT TRUE,
+    participants JSONB DEFAULT '[]'::jsonb,
+    chat_history JSONB DEFAULT '[]'::jsonb,
+    current_track_id TEXT,
+    current_track_position FLOAT DEFAULT 0,
+    is_playing BOOLEAN DEFAULT FALSE,
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    queue JSONB DEFAULT '[]'::jsonb,
+    is_collaborative BOOLEAN DEFAULT FALSE,
+    is_locked BOOLEAN DEFAULT FALSE,
+    password TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_jam_rooms_is_active ON jam_rooms(is_active);
+CREATE INDEX IF NOT EXISTS idx_jam_rooms_host_id ON jam_rooms(host_id);
+ALTER TABLE jam_rooms ENABLE ROW LEVEL SECURITY;
+CREATE POLICY allow_all ON jam_rooms FOR ALL USING (true) WITH CHECK (true);

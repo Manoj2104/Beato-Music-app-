@@ -6,8 +6,8 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
-    roomDb.cleanupStaleRooms();
-    const rooms = roomDb.getRooms().filter(r => r.isActive);
+    await roomDb.cleanupStaleRooms();
+    const rooms = await roomDb.getRooms();
     return NextResponse.json({ success: true, rooms });
   } catch (error: any) {
     console.error('Fetch rooms API error:', error);
@@ -17,7 +17,6 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // Authenticate the request
     const token = request.headers.get('authorization')?.split(' ')[1] || 
                   request.cookies.get('beato-token')?.value;
 
@@ -33,12 +32,12 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { name, description, isCollaborative, password } = body;
 
-    const newRoom = roomDb.createRoom(
+    const newRoom = await roomDb.createRoom(
       name,
       description,
       decoded.userId,
       decoded.name,
-      undefined, // Avatar can be resolved dynamically on client or extended
+      undefined,
       !!isCollaborative,
       password || undefined
     );

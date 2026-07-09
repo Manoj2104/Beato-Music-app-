@@ -12,7 +12,6 @@ export async function POST(
   try {
     const { roomId } = await params;
     
-    // Authenticate the request
     const token = request.headers.get('authorization')?.split(' ')[1] || 
                   request.cookies.get('beato-token')?.value;
 
@@ -28,29 +27,27 @@ export async function POST(
     const body = await request.json().catch(() => ({}));
     const { password } = body;
 
-    const room = roomDb.getRoom(roomId);
+    const room = await roomDb.getRoom(roomId);
     if (!room) {
       return NextResponse.json({ error: 'Room not found or inactive' }, { status: 404 });
     }
 
-    // Check password if configured
     if (room.password && room.password !== password) {
       return NextResponse.json({ error: 'Incorrect password. Access denied.', passwordRequired: true }, { status: 403 });
     }
 
-    const updatedRoom = roomDb.joinRoom(roomId, {
+    const updatedRoom = await roomDb.joinRoom(roomId, {
       id: decoded.userId,
       name: decoded.name,
-      avatar: undefined // Can be fetched from user entity if needed
+      avatar: undefined
     });
 
     if (!updatedRoom) {
       return NextResponse.json({ error: 'Room not found or inactive' }, { status: 404 });
     }
 
-    // Broadcast room participant update to other devices/tabs
     if (socketManager) {
-      socketManager.emit('PLAYLIST_UPDATED', { roomId, action: 'join', userId: decoded.userId, name: decoded.name }); // Reuse PLAYLIST_UPDATED as a generic sync trigger
+      socketManager.emit('PLAYLIST_UPDATED', { roomId, action: 'join', userId: decoded.userId, name: decoded.name });
     }
 
     return NextResponse.json({ success: true, room: updatedRoom });

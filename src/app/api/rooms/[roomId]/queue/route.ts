@@ -12,7 +12,6 @@ export async function POST(
   try {
     const { roomId } = await params;
     
-    // Authenticate the request
     const token = request.headers.get('authorization')?.split(' ')[1] || 
                   request.cookies.get('beato-token')?.value;
 
@@ -26,31 +25,25 @@ export async function POST(
     }
 
     const body = await request.json();
-    const { queue } = body; // Array of track IDs
+    const { queue } = body;
 
     if (!Array.isArray(queue)) {
       return NextResponse.json({ error: 'Queue must be an array of song IDs' }, { status: 400 });
     }
 
-    const room = roomDb.getRoom(roomId);
+    const room = await roomDb.getRoom(roomId);
     if (!room) {
       return NextResponse.json({ error: 'Room not found or inactive' }, { status: 404 });
     }
 
-    // Verify permission: only host can change queue unless isCollaborative is true
     if (room.hostId !== decoded.userId && !room.isCollaborative) {
       return NextResponse.json({ error: 'Only the host can modify the queue in this room' }, { status: 403 });
     }
 
-    const updatedRoom = roomDb.updateQueue(roomId, queue);
+    const updatedRoom = await roomDb.updateQueue(roomId, queue);
 
-    // Broadcast queue update via socket
     if (socketManager && updatedRoom) {
-      socketManager.emit('PLAYLIST_UPDATED', {
-        roomId,
-        action: 'queue',
-        queue: updatedRoom.queue
-      });
+      socketManager.emit('PLAYLIST_UPDATED', { roomId, action: 'queue', queue: updatedRoom.queue });
     }
 
     return NextResponse.json({ success: true, room: updatedRoom });

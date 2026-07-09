@@ -12,7 +12,6 @@ export async function POST(
   try {
     const { roomId } = await params;
     
-    // Authenticate the request
     const token = request.headers.get('authorization')?.split(' ')[1] || 
                   request.cookies.get('beato-token')?.value;
 
@@ -32,13 +31,7 @@ export async function POST(
       return NextResponse.json({ error: 'Message text cannot be empty' }, { status: 400 });
     }
 
-    const updatedRoom = roomDb.addChatMessage(
-      roomId,
-      decoded.userId,
-      decoded.name,
-      undefined, // Avatar can be resolved dynamically
-      text
-    );
+    const updatedRoom = await roomDb.addChatMessage(roomId, decoded.userId, decoded.name, undefined, text);
 
     if (!updatedRoom) {
       return NextResponse.json({ error: 'Room not found or inactive' }, { status: 404 });
@@ -46,13 +39,8 @@ export async function POST(
 
     const latestMessage = updatedRoom.chatHistory[updatedRoom.chatHistory.length - 1];
 
-    // Broadcast chat message via socket
     if (socketManager) {
-      socketManager.emit('PLAYLIST_UPDATED', {
-        roomId,
-        action: 'chat',
-        message: latestMessage
-      });
+      socketManager.emit('PLAYLIST_UPDATED', { roomId, action: 'chat', message: latestMessage });
     }
 
     return NextResponse.json({ success: true, room: updatedRoom });

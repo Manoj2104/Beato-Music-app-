@@ -9,7 +9,7 @@ export async function GET(
 ) {
   try {
     const { roomId } = await params;
-    const room = roomDb.getRoom(roomId);
+    const room = await roomDb.getRoom(roomId);
     
     if (!room) {
       return NextResponse.json({ error: 'Room not found or inactive' }, { status: 404 });

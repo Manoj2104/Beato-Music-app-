@@ -1,8 +1,26 @@
-import fs from 'fs';
-import path from 'path';
-import { getDbFilePath } from './dbPath';
+/**
+ * roomDb.ts — Supabase-backed Room Database
+ * Replaces the local JSON file approach which doesn't work on Vercel (read-only filesystem).
+ * All room data is stored in Supabase table: `jam_rooms`
+ */
 
-const DB_FILE = getDbFilePath();
+import { createClient } from '@supabase/supabase-js';
+
+let rawSupabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+if (rawSupabaseUrl.includes('zizhqtpsamvsbymwxfyps')) {
+  rawSupabaseUrl = rawSupabaseUrl.replace('zizhqtpsamvsbymwxfyps', 'zizhqtpsamvsbymwxfyp');
+} else {
+  const match = rawSupabaseUrl.match(/https:\/\/([a-z0-9]{20})s\.supabase\.co/i);
+  if (match) rawSupabaseUrl = `https://${match[1]}.supabase.co`;
+}
+
+const supabaseUrl = rawSupabaseUrl;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: { persistSession: false, autoRefreshToken: false }
+});
+
+const TABLE = 'jam_rooms';
 
 export interface RoomParticipant {
   userId: string;
@@ -33,48 +51,69 @@ export interface RoomEntity {
   participants: RoomParticipant[];
   chatHistory: RoomMessage[];
   currentTrackId?: string;
-  currentTrackPosition?: number; // position in seconds
+  currentTrackPosition?: number;
   isPlaying?: boolean;
-  updatedAt: string; // ISO string when playback state changed
-  queue: string[]; // array of track IDs
-  isCollaborative: boolean; // if anyone can control playback
-  isLocked: boolean; // if true, only host can control playback
-  password?: string; // password protection
+  updatedAt: string;
+  queue: string[];
+  isCollaborative: boolean;
+  isLocked: boolean;
+  password?: string;
 }
 
-function readDbRaw(): any {
-  if (!fs.existsSync(DB_FILE)) {
-    return {};
-  }
-  try {
-    const content = fs.readFileSync(DB_FILE, 'utf-8');
-    return JSON.parse(content);
-  } catch (e) {
-    console.error('Failed to read database file for rooms:', e);
-    return {};
-  }
+// Helper: map Supabase row → RoomEntity
+function rowToRoom(row: any): RoomEntity {
+  return {
+    id: row.id,
+    name: row.name,
+    description: row.description,
+    hostId: row.host_id,
+    hostName: row.host_name,
+    createdAt: row.created_at,
+    isActive: row.is_active,
+    participants: row.participants || [],
+    chatHistory: row.chat_history || [],
+    currentTrackId: row.current_track_id,
+    currentTrackPosition: row.current_track_position || 0,
+    isPlaying: row.is_playing || false,
+    updatedAt: row.updated_at,
+    queue: row.queue || [],
+    isCollaborative: row.is_collaborative || false,
+    isLocked: row.is_locked || false,
+    password: row.password,
+  };
 }
 
-function writeDbRaw(data: any) {
-  try {
-    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
-  } catch (e) {
-    console.error('Failed to write database file for rooms:', e);
-  }
+// Helper: generate random 5-char room ID
+function generateId(): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let id = '';
+  for (let i = 0; i < 5; i++) id += chars.charAt(Math.floor(Math.random() * chars.length));
+  return id;
 }
 
 export const roomDb = {
-  getRooms(): RoomEntity[] {
-    const db = readDbRaw();
-    return db.rooms || [];
+  async getRooms(): Promise<RoomEntity[]> {
+    const { data, error } = await supabase
+      .from(TABLE)
+      .select('*')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false });
+    if (error) { console.error('getRooms error:', error); return []; }
+    return (data || []).map(rowToRoom);
   },
 
-  getRoom(roomId: string): RoomEntity | null {
-    const rooms = this.getRooms();
-    return rooms.find(r => r.id === roomId && r.isActive) || null;
+  async getRoom(roomId: string): Promise<RoomEntity | null> {
+    const { data, error } = await supabase
+      .from(TABLE)
+      .select('*')
+      .eq('id', roomId)
+      .eq('is_active', true)
+      .single();
+    if (error || !data) return null;
+    return rowToRoom(data);
   },
 
-  createRoom(
+  async createRoom(
     name: string,
     description: string,
     hostId: string,
@@ -82,242 +121,227 @@ export const roomDb = {
     hostAvatar?: string,
     isCollaborative = false,
     password?: string
-  ): RoomEntity {
-    const db = readDbRaw();
-    const rooms = db.rooms || [];
-    
-    // Deactivate any previous active room hosted by the same user to avoid ghost rooms
-    rooms.forEach((r: RoomEntity) => {
-      if (r.hostId === hostId) {
-        r.isActive = false;
-      }
-    });
+  ): Promise<RoomEntity> {
+    // Deactivate any existing rooms by this host
+    await supabase
+      .from(TABLE)
+      .update({ is_active: false })
+      .eq('host_id', hostId)
+      .eq('is_active', true);
 
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let newId = '';
-    let isUnique = false;
-    while (!isUnique) {
-      newId = '';
-      for (let i = 0; i < 5; i++) {
-        newId += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      isUnique = !rooms.some((r: RoomEntity) => r.id === newId);
+    // Generate unique ID
+    let newId = generateId();
+    // Check uniqueness
+    const { data: existing } = await supabase.from(TABLE).select('id').eq('id', newId);
+    while (existing && existing.length > 0) {
+      newId = generateId();
     }
 
-    const newRoom: RoomEntity = {
+    const now = new Date().toISOString();
+    const participants: RoomParticipant[] = [{
+      userId: hostId,
+      name: hostName,
+      avatar: hostAvatar,
+      role: 'host',
+      joinedAt: now,
+      lastActive: now,
+    }];
+    const chatHistory: RoomMessage[] = [{
+      id: `msg-system-${Date.now()}`,
+      userId: 'system',
+      userName: 'Beato Bot',
+      text: `🎵 Room "${name}" created! Share the link with friends to listen together.`,
+      timestamp: now,
+    }];
+
+    const row = {
       id: newId,
       name: name || `${hostName}'s Listening Party`,
       description: description || 'Join my real-time sound session on Beato!',
-      hostId,
-      hostName,
-      createdAt: new Date().toISOString(),
-      isActive: true,
-      participants: [
-        {
-          userId: hostId,
-          name: hostName,
-          avatar: hostAvatar,
-          role: 'host',
-          joinedAt: new Date().toISOString(),
-          lastActive: new Date().toISOString()
-        }
-      ],
-      chatHistory: [
-        {
-          id: `msg-system-${Date.now()}`,
-          userId: 'system',
-          userName: 'Beato Bot',
-          text: `🎵 Room "${name}" created! Share the link with friends to listen together.`,
-          timestamp: new Date().toISOString()
-        }
-      ],
-      currentTrackId: undefined,
-      currentTrackPosition: 0,
-      isPlaying: false,
-      updatedAt: new Date().toISOString(),
+      host_id: hostId,
+      host_name: hostName,
+      created_at: now,
+      is_active: true,
+      participants,
+      chat_history: chatHistory,
+      current_track_id: null,
+      current_track_position: 0,
+      is_playing: false,
+      updated_at: now,
       queue: [],
-      isCollaborative,
-      isLocked: false, // default: anyone in room can control
-      password // Optional password
+      is_collaborative: isCollaborative,
+      is_locked: false,
+      password: password || null,
     };
 
-    rooms.push(newRoom);
-    db.rooms = rooms;
-    writeDbRaw(db);
-    return newRoom;
+    const { data, error } = await supabase.from(TABLE).insert(row).select().single();
+    if (error) {
+      console.error('createRoom error:', error);
+      throw new Error(error.message);
+    }
+    return rowToRoom(data);
   },
 
-  joinRoom(roomId: string, user: { id: string; name: string; avatar?: string }): RoomEntity | null {
-    const db = readDbRaw();
-    const rooms: RoomEntity[] = db.rooms || [];
-    const roomIndex = rooms.findIndex(r => r.id === roomId && r.isActive);
-    if (roomIndex === -1) return null;
+  async joinRoom(roomId: string, user: { id: string; name: string; avatar?: string }): Promise<RoomEntity | null> {
+    const room = await this.getRoom(roomId);
+    if (!room) return null;
 
-    const room = rooms[roomIndex];
+    const now = new Date().toISOString();
     const existing = room.participants.find(p => p.userId === user.id);
-    const nowStr = new Date().toISOString();
+    let updatedParticipants: RoomParticipant[];
+    let updatedChat = [...room.chatHistory];
 
     if (existing) {
-      existing.lastActive = nowStr;
+      updatedParticipants = room.participants.map(p =>
+        p.userId === user.id ? { ...p, lastActive: now } : p
+      );
     } else {
-      room.participants.push({
-        userId: user.id,
-        name: user.name,
-        avatar: user.avatar,
-        role: room.hostId === user.id ? 'host' : 'guest',
-        joinedAt: nowStr,
-        lastActive: nowStr
-      });
-      room.chatHistory.push({
+      updatedParticipants = [
+        ...room.participants,
+        { userId: user.id, name: user.name, avatar: user.avatar, role: room.hostId === user.id ? 'host' : 'guest' as const, joinedAt: now, lastActive: now }
+      ];
+      updatedChat.push({
         id: `msg-system-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`,
         userId: 'system',
         userName: 'Beato Bot',
         text: `👋 ${user.name} joined the room!`,
-        timestamp: nowStr
+        timestamp: now,
       });
+      // Cap chat history
+      if (updatedChat.length > 100) updatedChat = updatedChat.slice(-100);
     }
 
-    db.rooms = rooms;
-    writeDbRaw(db);
-    return room;
+    const { data, error } = await supabase
+      .from(TABLE)
+      .update({ participants: updatedParticipants, chat_history: updatedChat, updated_at: now })
+      .eq('id', roomId)
+      .select()
+      .single();
+    if (error) { console.error('joinRoom error:', error); return null; }
+    return rowToRoom(data);
   },
 
-  leaveRoom(roomId: string, userId: string): RoomEntity | null {
-    const db = readDbRaw();
-    const rooms: RoomEntity[] = db.rooms || [];
-    const roomIndex = rooms.findIndex(r => r.id === roomId && r.isActive);
-    if (roomIndex === -1) return null;
+  async leaveRoom(roomId: string, userId: string): Promise<RoomEntity | null> {
+    const room = await this.getRoom(roomId);
+    if (!room) return null;
 
-    const room = rooms[roomIndex];
     const participant = room.participants.find(p => p.userId === userId);
     if (!participant) return room;
 
-    room.participants = room.participants.filter(p => p.userId !== userId);
-    
-    const nowStr = new Date().toISOString();
-    room.chatHistory.push({
+    const now = new Date().toISOString();
+    const updatedParticipants = room.participants.filter(p => p.userId !== userId);
+    const updatedChat = [...room.chatHistory, {
       id: `msg-system-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`,
       userId: 'system',
       userName: 'Beato Bot',
       text: `🚪 ${participant.name} left the room.`,
-      timestamp: nowStr
-    });
+      timestamp: now,
+    }];
 
-    // If host leaves, the session ends immediately for everyone
-    if (room.hostId === userId) {
-      room.isActive = false;
-    } else if (room.participants.length === 0) {
-      room.isActive = false;
-    }
+    // If host leaves, close the room
+    const isHostLeaving = room.hostId === userId;
+    const isRoomEmpty = updatedParticipants.length === 0;
 
-    db.rooms = rooms;
-    writeDbRaw(db);
-    return room;
+    const { data, error } = await supabase
+      .from(TABLE)
+      .update({
+        participants: updatedParticipants,
+        chat_history: updatedChat,
+        is_active: !(isHostLeaving || isRoomEmpty),
+        updated_at: now,
+      })
+      .eq('id', roomId)
+      .select()
+      .single();
+    if (error) { console.error('leaveRoom error:', error); return null; }
+    return rowToRoom(data);
   },
 
-  syncPlayback(
+  async syncPlayback(
     roomId: string,
     currentTrackId: string | undefined,
     currentTrackPosition: number,
     isPlaying: boolean
-  ): RoomEntity | null {
-    const db = readDbRaw();
-    const rooms: RoomEntity[] = db.rooms || [];
-    const roomIndex = rooms.findIndex(r => r.id === roomId && r.isActive);
-    if (roomIndex === -1) return null;
-
-    const room = rooms[roomIndex];
-    room.currentTrackId = currentTrackId;
-    room.currentTrackPosition = currentTrackPosition;
-    room.isPlaying = isPlaying;
-    room.updatedAt = new Date().toISOString();
-
-    db.rooms = rooms;
-    writeDbRaw(db);
-    return room;
+  ): Promise<RoomEntity | null> {
+    const now = new Date().toISOString();
+    const { data, error } = await supabase
+      .from(TABLE)
+      .update({
+        current_track_id: currentTrackId || null,
+        current_track_position: currentTrackPosition,
+        is_playing: isPlaying,
+        updated_at: now,
+      })
+      .eq('id', roomId)
+      .eq('is_active', true)
+      .select()
+      .single();
+    if (error) { console.error('syncPlayback error:', error); return null; }
+    return rowToRoom(data);
   },
 
-  addChatMessage(
+  async addChatMessage(
     roomId: string,
     userId: string,
     userName: string,
     userAvatar: string | undefined,
     text: string
-  ): RoomEntity | null {
-    const db = readDbRaw();
-    const rooms: RoomEntity[] = db.rooms || [];
-    const roomIndex = rooms.findIndex(r => r.id === roomId && r.isActive);
-    if (roomIndex === -1) return null;
+  ): Promise<RoomEntity | null> {
+    const room = await this.getRoom(roomId);
+    if (!room) return null;
 
-    const room = rooms[roomIndex];
-    const newMessage: RoomMessage = {
+    const now = new Date().toISOString();
+    const newMsg: RoomMessage = {
       id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`,
-      userId,
-      userName,
-      userAvatar,
-      text,
-      timestamp: new Date().toISOString()
+      userId, userName, userAvatar, text, timestamp: now,
     };
 
-    room.chatHistory.push(newMessage);
-    // Keep chat history capped to prevent file growth
-    if (room.chatHistory.length > 100) {
-      room.chatHistory = room.chatHistory.slice(room.chatHistory.length - 100);
-    }
+    let updatedChat = [...room.chatHistory, newMsg];
+    if (updatedChat.length > 100) updatedChat = updatedChat.slice(-100);
 
-    db.rooms = rooms;
-    writeDbRaw(db);
-    return room;
+    const { data, error } = await supabase
+      .from(TABLE)
+      .update({ chat_history: updatedChat, updated_at: now })
+      .eq('id', roomId)
+      .select()
+      .single();
+    if (error) { console.error('addChatMessage error:', error); return null; }
+    return rowToRoom(data);
   },
 
-  updateQueue(roomId: string, queue: string[]): RoomEntity | null {
-    const db = readDbRaw();
-    const rooms: RoomEntity[] = db.rooms || [];
-    const roomIndex = rooms.findIndex(r => r.id === roomId && r.isActive);
-    if (roomIndex === -1) return null;
-
-    const room = rooms[roomIndex];
-    room.queue = queue;
-
-    db.rooms = rooms;
-    writeDbRaw(db);
-    return room;
+  async updateQueue(roomId: string, queue: string[]): Promise<RoomEntity | null> {
+    const now = new Date().toISOString();
+    const { data, error } = await supabase
+      .from(TABLE)
+      .update({ queue, updated_at: now })
+      .eq('id', roomId)
+      .eq('is_active', true)
+      .select()
+      .single();
+    if (error) { console.error('updateQueue error:', error); return null; }
+    return rowToRoom(data);
   },
 
-  toggleLock(roomId: string, lock: boolean): RoomEntity | null {
-    const db = readDbRaw();
-    const rooms: RoomEntity[] = db.rooms || [];
-    const roomIndex = rooms.findIndex(r => r.id === roomId && r.isActive);
-    if (roomIndex === -1) return null;
-
-    rooms[roomIndex].isLocked = lock;
-    rooms[roomIndex].updatedAt = new Date().toISOString();
-
-    db.rooms = rooms;
-    writeDbRaw(db);
-    return rooms[roomIndex];
+  async toggleLock(roomId: string, lock: boolean): Promise<RoomEntity | null> {
+    const now = new Date().toISOString();
+    const { data, error } = await supabase
+      .from(TABLE)
+      .update({ is_locked: lock, updated_at: now })
+      .eq('id', roomId)
+      .eq('is_active', true)
+      .select()
+      .single();
+    if (error) { console.error('toggleLock error:', error); return null; }
+    return rowToRoom(data);
   },
 
-  cleanupStaleRooms() {
-    const db = readDbRaw();
-    const rooms: RoomEntity[] = db.rooms || [];
-    let changed = false;
-    const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
-
-    rooms.forEach((r: RoomEntity) => {
-      if (r.isActive) {
-        const roomTime = new Date(r.createdAt).getTime();
-        // If room is older than 24h, automatically clean it up
-        if (roomTime < oneDayAgo) {
-          r.isActive = false;
-          changed = true;
-        }
-      }
-    });
-
-    if (changed) {
-      db.rooms = rooms;
-      writeDbRaw(db);
-    }
-  }
+  async cleanupStaleRooms(): Promise<void> {
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const { error } = await supabase
+      .from(TABLE)
+      .update({ is_active: false })
+      .eq('is_active', true)
+      .lt('created_at', oneDayAgo);
+    if (error) console.error('cleanupStaleRooms error:', error);
+  },
 };

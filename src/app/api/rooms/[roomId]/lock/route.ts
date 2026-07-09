@@ -23,12 +23,11 @@ export async function POST(
       return NextResponse.json({ error: 'Invalid or expired session' }, { status: 401 });
     }
 
-    const room = roomDb.getRoom(roomId);
+    const room = await roomDb.getRoom(roomId);
     if (!room) {
       return NextResponse.json({ error: 'Room not found' }, { status: 404 });
     }
 
-    // Only the host can toggle the lock
     if (room.hostId !== decoded.userId) {
       return NextResponse.json({ error: 'Only the host can lock or unlock the room' }, { status: 403 });
     }
@@ -36,9 +35,8 @@ export async function POST(
     const body = await request.json();
     const { isLocked } = body;
 
-    const updatedRoom = roomDb.toggleLock(roomId, !!isLocked);
+    const updatedRoom = await roomDb.toggleLock(roomId, !!isLocked);
 
-    // Broadcast lock state change to all participants
     if (socketManager && updatedRoom) {
       socketManager.emit('PLAYLIST_UPDATED', {
         roomId,
