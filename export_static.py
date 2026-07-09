@@ -76,6 +76,43 @@ try:
         print("Error: Next.js compilation failed!")
         sys.exit(res.returncode)
         
+    print("4.5. Cleaning heavy media assets from out/ directory and native android assets to keep APK size small...")
+    media_extensions = {'.mp3', '.mp4', '.wav', '.m4a', '.webm', '.ogg'}
+    cleaned_count = 0
+    cleaned_size = 0
+    
+    # 1. Clean out/ folder
+    out_dir = 'out'
+    if os.path.exists(out_dir):
+        for root, dirs, files in os.walk(out_dir):
+            for file in files:
+                ext = os.path.splitext(file)[1].lower()
+                if ext in media_extensions:
+                    file_path = os.path.join(root, file)
+                    try:
+                        file_size = os.path.getsize(file_path)
+                        os.remove(file_path)
+                        cleaned_count += 1
+                        cleaned_size += file_size
+                    except Exception as e:
+                        print(f"   Warning: could not remove {file_path}: {e}")
+                        
+    # 2. Clean native android assets folder to remove previously synced large files
+    native_public_dir = r"android\app\src\main\res" # wait, the native files are in android\app\src\main\assets\public
+    android_assets_public = r"android\app\src\main\assets\public"
+    if os.path.exists(android_assets_public):
+        for root, dirs, files in os.walk(android_assets_public):
+            for file in files:
+                ext = os.path.splitext(file)[1].lower()
+                if ext in media_extensions:
+                    file_path = os.path.join(root, file)
+                    try:
+                        os.remove(file_path)
+                    except Exception as e:
+                        pass
+                        
+    print(f"   Cleaned {cleaned_count} media files (saved {cleaned_size / (1024*1024):.2f} MB).")
+        
     print("5. Syncing static assets to Android native code (npx cap sync android)...")
     cap_res = subprocess.run(
         "npx cap sync android",
