@@ -50,12 +50,12 @@ try:
         f.write(modified_cap)
         
     print("4. Compiling Next.js static export (npm run build)...")
-    # if os.path.exists(".next"):
-    #     print("   Cleaning .next directory to avoid stale types...")
-    #     try:
-    #         shutil.rmtree(".next")
-    #     except Exception as e:
-    #         print(f"   Warning: could not remove .next directory: {e}")
+    if os.path.exists(".next"):
+        print("   Cleaning .next directory to avoid stale types...")
+        try:
+            shutil.rmtree(".next")
+        except Exception as e:
+            print(f"   Warning: could not remove .next directory: {e}")
     res = subprocess.run(
         "npm run build",
         shell=True,

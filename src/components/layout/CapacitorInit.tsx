@@ -26,7 +26,7 @@ export default function CapacitorInit() {
         if (Capacitor.getPlatform() === 'android') {
           // Initial safe defaults
           document.documentElement.style.setProperty('--sat', '44px');
-          document.documentElement.style.setProperty('--sab', '0px');
+          document.documentElement.style.setProperty('--sab', 'env(safe-area-inset-bottom, 16px)');
           
           // Query dynamic status bar height
           StatusBar.getInfo().then(info => {
@@ -38,7 +38,7 @@ export default function CapacitorInit() {
           });
         } else {
           document.documentElement.style.setProperty('--sat', 'env(safe-area-inset-top, 44px)');
-          document.documentElement.style.setProperty('--sab', 'env(safe-area-inset-bottom, 0px)');
+          document.documentElement.style.setProperty('--sab', 'env(safe-area-inset-bottom, 16px)');
         }
       } else {
         document.documentElement.style.setProperty('--sat', '0px');

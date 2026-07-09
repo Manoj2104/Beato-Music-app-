@@ -28,5 +28,23 @@ public class MainActivity extends BridgeActivity {
             WebSettings settings = this.bridge.getWebView().getSettings();
             settings.setMediaPlaybackRequiresUserGesture(false);
         }
+
+        // Enable edge-to-edge layout (drawing under the bottom system navigation gesture bar/pill)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            getWindow().setDecorFitsSystemWindows(false);
+            getWindow().setNavigationBarColor(android.graphics.Color.TRANSPARENT);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().getDecorView().setSystemUiVisibility(
+                android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+                android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+            );
+            getWindow().setNavigationBarColor(android.graphics.Color.TRANSPARENT);
+        }
+        
+        // Disable navigation bar translucent scrim on Android 10+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            getWindow().setNavigationBarContrastEnforced(false);
+        }
     }
 }
