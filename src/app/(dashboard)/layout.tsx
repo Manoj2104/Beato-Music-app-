@@ -293,13 +293,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           transform: 'translateX(-50%)',
           width: '90%',
           maxWidth: 400,
-          background: 'rgba(176, 136, 80, 0.95)',
+          background: 'rgba(21, 128, 61, 0.96)',
           backdropFilter: 'blur(8px)',
           WebkitBackdropFilter: 'blur(8px)',
-          border: '1px solid rgba(255, 255, 255, 0.2)',
+          border: '1px solid rgba(255, 255, 255, 0.15)',
           borderRadius: 24,
           padding: '8px 16px',
-          boxShadow: '0 8px 32px rgba(43, 34, 26, 0.2)',
+          boxShadow: '0 8px 32px rgba(21, 128, 61, 0.25)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -321,32 +321,33 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 width: 10,
                 height: 10,
                 borderRadius: '50%',
-                background: '#10b981',
+                background: '#ffffff',
                 display: 'inline-block',
                 animation: 'pulse 1.5s infinite'
               }} />
             </div>
             
             <div style={{ minWidth: 0 }}>
-              <p style={{ color: '#000', fontSize: 12.5, fontWeight: 800, margin: 0, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+              <p style={{ color: '#ffffff', fontSize: 12.5, fontWeight: 800, margin: 0, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
                 Your Listening Room is Active 🎧
               </p>
-              <p style={{ color: 'rgba(0,0,0,0.65)', fontSize: 10.5, fontWeight: 600, margin: '2px 0 0', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+              <p style={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: 10.5, fontWeight: 600, margin: '2px 0 0', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
                 Click to return to: {activeRoomName || 'Room'}
               </p>
             </div>
           </div>
 
           <span style={{
-            background: '#000',
-            color: '#fff',
+            background: '#ffffff',
+            color: '#15803d',
             fontSize: 10,
             fontWeight: 800,
             padding: '5px 12px',
             borderRadius: 12,
             textTransform: 'uppercase',
             letterSpacing: '0.05em',
-            flexShrink: 0
+            flexShrink: 0,
+            boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
           }}>
             Open Room
           </span>

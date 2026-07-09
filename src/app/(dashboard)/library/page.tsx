@@ -891,11 +891,32 @@ function MobileLibraryView({
             <EmptyState icon={Music2} title="Your Library is empty" sub="Create a playlist or save tracks to see them here." />
           ) : view === 'grid' ? (
             /* Grid Layout */
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(2, 1fr)', 
+              gap: 16,
+              background: '#f1f5f9', // beautiful slate/grey container
+              border: '1px solid rgba(15, 81, 50, 0.08)',
+              borderRadius: 20,
+              padding: '16px',
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.02)'
+            }}>
               {/* Create Playlist option */}
               {activeTab === 'Playlists' && (
-                <div onClick={() => setCreateBottomSheetOpen(true)} style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <div style={{ aspectRatio: '1', width: '100%', borderRadius: 8, background: 'rgba(15,81,50,0.04)', border: '1px dashed rgba(15,81,50,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div onClick={() => setCreateBottomSheetOpen(true)} 
+                  style={{ 
+                    cursor: 'pointer', 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    gap: 8,
+                    padding: '8px',
+                    borderRadius: 12,
+                    transition: 'background-color 0.2s'
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(15, 81, 50, 0.04)'}
+                  onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
+                  <div style={{ aspectRatio: '1', width: '100%', borderRadius: 8, background: '#ffffff', border: '1px dashed rgba(15,81,50,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
                     <Plus size={28} color="#737373" />
                   </div>
                   <div>
@@ -910,7 +931,16 @@ function MobileLibraryView({
                 const isArtist = item.type === 'artist';
                 
                 return (
-                  <div key={item.id} style={{ display: 'flex', flexDirection: 'column', gap: 8, cursor: 'pointer' }}
+                  <div key={item.id} 
+                    style={{ 
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      gap: 8, 
+                      cursor: 'pointer',
+                      padding: '8px',
+                      borderRadius: 12,
+                      transition: 'background-color 0.2s'
+                    }}
                     onClick={() => {
                       if (isLiked) {
                         setActiveTab('Liked');
@@ -924,18 +954,20 @@ function MobileLibraryView({
                         router.push(`/room/${item.id}`);
                       }
                     }}
+                    onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(15, 81, 50, 0.04)'}
+                    onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
                     <div style={{
                       aspectRatio: '1',
                       width: '100%',
                       borderRadius: isArtist ? '50%' : 8,
                       overflow: 'hidden',
-                      background: isLiked ? 'linear-gradient(135deg,#064e3b,#10b981)' : (item.image ? 'transparent' : '#f1f5f9'),
+                      background: isLiked ? 'linear-gradient(135deg,#064e3b,#10b981)' : (item.image ? 'transparent' : '#ffffff'),
                       border: item.image ? 'none' : '1px solid #cbd5e1',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      boxShadow: 'none',
+                      boxShadow: item.image ? 'none' : '0 2px 8px rgba(0,0,0,0.03)',
                       position: 'relative'
                     }}>
                       {isLiked ? (
@@ -978,86 +1010,128 @@ function MobileLibraryView({
             </div>
           ) : (
             /* List Layout */
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              background: '#f1f5f9', // beautiful slate/grey container
+              border: '1px solid rgba(15, 81, 50, 0.08)',
+              borderRadius: 20,
+              padding: '16px',
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.02)'
+            }}>
               {/* Create Playlist option */}
               {activeTab === 'Playlists' && (
-                <div onClick={() => setCreateBottomSheetOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', padding: '4px 0' }}>
-                  <div style={{ width: 52, height: 52, borderRadius: 8, background: 'rgba(15,81,50,0.04)', border: '1px dashed rgba(15,81,50,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Plus size={20} color="#737373" />
+                <>
+                  <div onClick={() => setCreateBottomSheetOpen(true)} 
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: 12, 
+                      cursor: 'pointer', 
+                      padding: '8px 12px',
+                      margin: '0 -12px',
+                      borderRadius: 12,
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(15, 81, 50, 0.04)'}
+                    onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                  >
+                    <div style={{ width: 52, height: 52, borderRadius: 8, background: '#ffffff', border: '1px dashed rgba(15,81,50,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
+                      <Plus size={20} color="#737373" />
+                    </div>
+                    <div>
+                      <p style={{ color: '#0f172a', fontSize: 14, fontWeight: 600 }}>Create playlist</p>
+                      <p style={{ color: '#737373', fontSize: 12 }}>Build a custom collection</p>
+                    </div>
                   </div>
-                  <div>
-                    <p style={{ color: '#0f172a', fontSize: 14, fontWeight: 600 }}>Create playlist</p>
-                    <p style={{ color: '#737373', fontSize: 12 }}>Build a custom collection</p>
-                  </div>
-                </div>
+                  {getUnifiedList().length > 0 && (
+                    <div style={{ height: '1px', background: 'rgba(15, 81, 50, 0.06)', margin: '8px 0' }} />
+                  )}
+                </>
               )}
 
-              {getUnifiedList().map(item => {
+              {getUnifiedList().map((item, idx) => {
                 const isLiked = item.type === 'liked';
                 const isArtist = item.type === 'artist';
 
                 return (
-                  <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', padding: '4px 0' }}
-                    onClick={() => {
-                      if (isLiked) {
-                        setActiveTab('Liked');
-                      } else if (item.type === 'playlist') {
-                        router.push(`/playlist/${item.id}`);
-                      } else if (item.type === 'artist') {
-                        router.push(`/artist/${item.id}`);
-                      } else if (item.type === 'album') {
-                        router.push(`/album/${item.id}`);
-                      } else if (item.type === 'room') {
-                        router.push(`/room/${item.id}`);
-                      }
-                    }}
-                  >
-                    <div style={{
-                      width: 52,
-                      height: 52,
-                      borderRadius: isArtist ? '50%' : 8,
-                      overflow: 'hidden',
-                      background: isLiked ? 'linear-gradient(135deg,#064e3b,#10b981)' : (item.image ? 'transparent' : '#f1f5f9'),
-                      border: item.image ? 'none' : '1px solid #cbd5e1',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
-                      boxShadow: 'none'
-                    }}>
-                      {isLiked ? (
-                        <Heart size={20} color="#fff" fill="#fff" />
-                      ) : item.type === 'room' ? (
-                        <Users size={20} color="rgba(255,255,255,0.7)" />
-                      ) : item.image ? (
-                        <img src={item.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      ) : (
-                        <Music2 size={20} color="#94a3b8" />
-                      )}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{
-                        color: isLiked ? G : '#0f172a',
-                        fontSize: 14,
-                        fontWeight: 600,
+                  <div key={item.id}>
+                    {idx > 0 && (
+                      <div style={{ height: '1px', background: 'rgba(15, 81, 50, 0.06)', margin: '8px 0' }} />
+                    )}
+                    <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: 12, 
+                        cursor: 'pointer', 
+                        padding: '8px 12px',
+                        margin: '0 -12px',
+                        borderRadius: 12,
+                        transition: 'background-color 0.2s'
+                      }}
+                      onClick={() => {
+                        if (isLiked) {
+                          setActiveTab('Liked');
+                        } else if (item.type === 'playlist') {
+                          router.push(`/playlist/${item.id}`);
+                        } else if (item.type === 'artist') {
+                          router.push(`/artist/${item.id}`);
+                        } else if (item.type === 'album') {
+                          router.push(`/album/${item.id}`);
+                        } else if (item.type === 'room') {
+                          router.push(`/room/${item.id}`);
+                        }
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(15, 81, 50, 0.04)'}
+                      onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                    >
+                      <div style={{
+                        width: 52,
+                        height: 52,
+                        borderRadius: isArtist ? '50%' : 8,
                         overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        marginBottom: 2
-                      }}>{item.title}</p>
-                      <p style={{
-                        color: '#737373',
-                        fontSize: 12,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
+                        background: isLiked ? 'linear-gradient(135deg,#064e3b,#10b981)' : (item.image ? 'transparent' : '#ffffff'),
+                        border: item.image ? 'none' : '1px solid #cbd5e1',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 4
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                        boxShadow: item.image ? 'none' : '0 2px 8px rgba(0,0,0,0.03)'
                       }}>
-                        {item.pinned && <Pin size={10} color={G} fill={G} />}
-                        {item.subtitle}
-                      </p>
+                        {isLiked ? (
+                          <Heart size={20} color="#fff" fill="#fff" />
+                        ) : item.type === 'room' ? (
+                          <Users size={20} color="rgba(255,255,255,0.7)" />
+                        ) : item.image ? (
+                          <img src={item.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                          <Music2 size={20} color="#94a3b8" />
+                        )}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{
+                          color: isLiked ? G : '#0f172a',
+                          fontSize: 14,
+                          fontWeight: 600,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          marginBottom: 2
+                        }}>{item.title}</p>
+                        <p style={{
+                          color: '#737373',
+                          fontSize: 12,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 4
+                        }}>
+                          {item.pinned && <Pin size={10} color={G} fill={G} />}
+                          {item.subtitle}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 );
