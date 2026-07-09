@@ -500,9 +500,10 @@ function SidebarContent() {
 
   const { downloadedTracks } = useDownloadStore();
   const likedCount = user?.likedSongs?.length ?? 0;
+  const isFree = user?.subscription === 'free';
   const quickLinks = [
     { href: '/library?tab=liked', icon: Heart, label: 'Liked Songs', gradient: 'linear-gradient(135deg, #4338ca, #60a5fa)', count: `${likedCount} song${likedCount === 1 ? '' : 's'}` },
-    { href: '/downloads', icon: Download, label: 'Downloads', gradient: 'linear-gradient(135deg, #065f46, #14b8a6)', count: `${downloadedTracks.length} song${downloadedTracks.length === 1 ? '' : 's'}` },
+    ...(!isFree ? [{ href: '/downloads', icon: Download, label: 'Downloads', gradient: 'linear-gradient(135deg, #065f46, #14b8a6)', count: `${downloadedTracks.length} song${downloadedTracks.length === 1 ? '' : 's'}` }] : []),
   ];
 
   const handleCreatePlaylist = () => {

@@ -409,7 +409,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
     return () => clearInterval(interval);
   }, []);
 
-  const { customPlaylists, addTrackToPlaylist, removeTrackFromPlaylist, addPlaylist, setCustomPlaylists } = usePlaylistStore();
+  const { customPlaylists, addTrackToPlaylist, removeTrackFromPlaylist, addPlaylist, setCustomPlaylists, removePlaylist } = usePlaylistStore();
   const { downloadTrack, removeDownloadedTrack, downloadedTrackIds, downloadingIds } = useDownloadStore();
 
   const [pickerTrack, setPickerTrack] = useState<any | null>(null);
@@ -506,6 +506,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
 
   const { currentTrack, isPlaying, playTrack, togglePlay, toggleShuffle, shuffle } = usePlayerStore();
   const { user, toggleLikeSong, toggleSavePlaylist } = useAuthStore();
+  const isFree = user?.subscription === 'free';
   const isSaved = playlist 
     ? (user?.playlists || []).some((pid: string) => normalizeId(pid) === normalizeId(playlist.id))
     : false;
@@ -519,6 +520,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
   const [headerVisible, setHeaderVisible] = useState(true);
   const [miniHeader, setMiniHeader] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showMobileOptions, setShowMobileOptions] = useState(false);
   const [editTitle, setEditTitle] = useState(playlist?.title || '');
   const [editCover, setEditCover] = useState(playlist?.coverImage || '');
   const [editGrad, setEditGrad] = useState((playlist as any)?.gradientCss || EDIT_GRADIENTS[0].css);
@@ -585,6 +587,45 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
     setCustomPlaylists(updated);
     setShowEditModal(false);
     toast.success('Playlist updated! ✨', { style: { background: '#1a1a1a', color: '#fff' } });
+  };
+
+  const handleShare = () => {
+    if (!playlist) return;
+    const url = typeof window !== 'undefined' ? `${window.location.origin}/playlist/${playlist.id}` : '';
+    if (url) {
+      navigator.clipboard.writeText(url)
+        .then(() => toast.success('Playlist link copied to clipboard! 🔗', { style: { background: '#1a1a1a', color: '#fff' } }))
+        .catch(() => toast.error('Failed to copy link.'));
+    }
+  };
+
+  const handleDeletePlaylist = () => {
+    if (!playlist) return;
+    if (confirm(`Are you sure you want to delete "${playlist.title}"?`)) {
+      removePlaylist(playlist.id);
+      toast.success('Playlist deleted successfully 🗑️', { style: { background: '#1a1a1a', color: '#fff' } });
+      router.push('/library');
+    }
+  };
+
+  const togglePlaylistPrivacy = () => {
+    if (!playlist) return;
+    const currentPrivacy = playlist.isPublic !== false;
+    const newPrivacy = !currentPrivacy;
+    const normPlaylistId = normalizeId(playlist.id);
+    const updated = customPlaylists.map((p: any) => {
+      if (normalizeId(p.id) === normPlaylistId) {
+        return {
+          ...p,
+          isPublic: newPrivacy
+        };
+      }
+      return p;
+    });
+    setCustomPlaylists(updated);
+    toast.success(newPrivacy ? 'Playlist is now Public! 🌐' : 'Playlist is now Private! 🔒', {
+      style: { background: '#1a1a1a', color: '#fff' }
+    });
   };
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -1424,34 +1465,36 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
             )}
 
             {/* Download (↓) */}
-            <motion.button 
-              whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-              onClick={() => toast('Download requires Premium 👑', { icon: '⬇️', style: { background: '#1a1a1a', color: '#fff' } })}
-              style={{
-                width: 32,
-                height: 32,
-                borderRadius: '50%',
-                background: 'transparent',
-                border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
-                color: 'var(--color-ss-text-primary, #221a15)',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'all 0.2s',
-                flexShrink: 0
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.background = 'var(--color-ss-surface, #f4eede)';
-                e.currentTarget.style.borderColor = 'var(--color-ss-border, rgba(43, 34, 26, 0.08))';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.background = 'transparent';
-                e.currentTarget.style.borderColor = 'var(--color-ss-border, rgba(43, 34, 26, 0.08))';
-              }}
-            >
-              <Download size={14} />
-            </motion.button>
+            {!isFree && (
+              <motion.button 
+                whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                onClick={() => toast('Download requires Premium 👑', { icon: '⬇️', style: { background: '#1a1a1a', color: '#fff' } })}
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: '50%',
+                  background: 'transparent',
+                  border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
+                  color: 'var(--color-ss-text-primary, #221a15)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s',
+                  flexShrink: 0
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = 'var(--color-ss-surface, #f4eede)';
+                  e.currentTarget.style.borderColor = 'var(--color-ss-border, rgba(43, 34, 26, 0.08))';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.borderColor = 'var(--color-ss-border, rgba(43, 34, 26, 0.08))';
+                }}
+              >
+                <Download size={14} />
+              </motion.button>
+            )}
 
             {/* More options menu (vertical three dots) */}
             <div ref={menuRef} style={{ position: 'relative', flexShrink: 0 }}>
@@ -1491,16 +1534,34 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                     {[
                       { l: 'Add to Queue',         i: Layers,      fn: () => toast('Added to queue!', { icon: '🎶' }) },
                       { l: 'Go to Radio',           i: Radio,       fn: () => toast('Opening radio...', { icon: '📻' }) },
-                      { l: 'Copy Playlist Link',    i: Copy,        fn: () => toast.success('Copied!', { icon: '🔗' }) },
+                      { l: 'Copy Playlist Link',    i: Copy,        fn: handleShare },
                       { l: 'Open in New Tab',       i: ExternalLink,fn: () => toast('Opening...') },
+                      ...(isOwner && isCustomPlaylist ? [
+                        { l: playlist.isPublic !== false ? 'Make Private' : 'Make Public', i: playlist.isPublic !== false ? Lock : Globe, fn: togglePlaylistPrivacy },
+                        { l: 'Delete Playlist', i: Trash2, fn: handleDeletePlaylist, muted: false, isDelete: true }
+                      ] : []),
                       { l: 'Report Playlist',       i: Bell,        fn: () => toast('Reported', { icon: '⚠️' }), muted: true },
                     ].map(item => (
                       <button key={item.l} onClick={() => { setShowMoreMenu(false); item.fn(); }}
-                        style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '11px 16px', background: 'none', border: 'none', color: (item as any).muted ? '#525252' : '#fff', fontSize: 13, fontWeight: 500, cursor: 'pointer', textAlign: 'left', transition: 'background 0.1s' }}
+                        style={{ 
+                          width: '100%', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: 12, 
+                          padding: '11px 16px', 
+                          background: 'none', 
+                          border: 'none', 
+                          color: (item as any).isDelete ? '#ef4444' : ((item as any).muted ? '#525252' : '#fff'), 
+                          fontSize: 13, 
+                          fontWeight: 500, 
+                          cursor: 'pointer', 
+                          textAlign: 'left', 
+                          transition: 'background 0.1s' 
+                        }}
                         onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
                         onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                       >
-                        <item.i size={14} color={(item as any).muted ? '#525252' : 'inherit'} /> {item.l}
+                        <item.i size={14} color={(item as any).isDelete ? '#ef4444' : ((item as any).muted ? '#525252' : 'inherit')} /> {item.l}
                       </button>
                     ))}
                   </motion.div>
@@ -2086,28 +2147,30 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
             </button>
 
             {/* Download Icon */}
-            <button
-              onClick={() => toast('Download requires Premium 👑', { icon: '⬇️', style: { background: '#1a1a1a', color: '#fff' } })}
-              style={{
-                background: 'transparent',
-                border: '1.5px solid #a3a3a3',
-                borderRadius: '50%',
-                width: 28,
-                height: 28,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#a3a3a3',
-                cursor: 'pointer',
-                padding: 0
-              }}
-            >
-              <Download size={14} color="#94a3b8" />
-            </button>
+            {!isFree && (
+              <button
+                onClick={() => toast('Download requires Premium 👑', { icon: '⬇️', style: { background: '#1a1a1a', color: '#fff' } })}
+                style={{
+                  background: 'transparent',
+                  border: '1.5px solid #a3a3a3',
+                  borderRadius: '50%',
+                  width: 28,
+                  height: 28,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#a3a3a3',
+                  cursor: 'pointer',
+                  padding: 0
+                }}
+              >
+                <Download size={14} color="#94a3b8" />
+              </button>
+            )}
 
             {/* More options (three-dots) */}
             <button
-              onClick={() => toast('Playlist Options', { style: { background: '#1a1a1a', color: '#fff' } })}
+              onClick={() => setShowMobileOptions(true)}
               style={{
                 background: 'transparent',
                 border: 'none',
@@ -2157,7 +2220,6 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
             </button>
           </div>
         </div>
-
         {/* 5.5 CAPSULE ACTIONS ROW */}
         <div style={{
           display: 'flex',
@@ -2300,7 +2362,6 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
             </button>
           )}
         </div>
-
         {/* 6. TRACK LIST */}
         <div style={{ padding: '8px 0' }}>
           {isCustomPlaylist && isOwner && (
@@ -2745,6 +2806,216 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
 
 
       </div>
+
+      {/* ─── Mobile Options Bottom Sheet ───────────────────────────────── */}
+      <AnimatePresence>
+        {showMobileOptions && (
+          <>
+            {/* Backdrop */}
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }}
+              onClick={() => setShowMobileOptions(false)}
+              style={{
+                position: 'fixed',
+                inset: 0,
+                background: 'rgba(0, 0, 0, 0.6)',
+                backdropFilter: 'blur(4px)',
+                zIndex: 1100
+              }}
+            />
+            {/* Bottom Sheet Card */}
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+              style={{
+                position: 'fixed',
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: '#ffffff',
+                borderTopLeftRadius: 24,
+                borderTopRightRadius: 24,
+                padding: '24px 20px calc(24px + var(--sab, 0px)) 20px',
+                zIndex: 1101,
+                boxShadow: '0 -10px 40px rgba(0, 0, 0, 0.15)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 6
+              }}
+            >
+              {/* Drag Indicator */}
+              <div style={{ width: 40, height: 4, background: '#e2e8f0', borderRadius: 2, margin: '0 auto 16px' }} />
+
+              {/* Title & Metadata in Sheet */}
+              <div style={{ display: 'flex', gap: 14, alignItems: 'center', marginBottom: 16, paddingBottom: 16, borderBottom: '1px solid #f1f5f9' }}>
+                <div style={{ width: 48, height: 48, borderRadius: 8, overflow: 'hidden', background: 'linear-gradient(135deg, #0f5132, #10b981)' }}>
+                  {playlist?.coverImage ? (
+                    <img src={playlist.coverImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 16 }}>🎵</div>
+                  )}
+                </div>
+                <div>
+                  <h4 style={{ margin: 0, color: '#0f172a', fontSize: 16, fontWeight: 700 }}>{playlist?.title}</h4>
+                  <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: 12 }}>Playlist • {playlist?.ownerName || 'You'}</p>
+                </div>
+              </div>
+
+              {/* Options List */}
+              {!isOwner && (
+                /* Non-Owner Library toggle */
+                <button
+                  onClick={() => {
+                    setShowMobileOptions(false);
+                    toggleSavePlaylist(playlist.id);
+                    toast(isSaved ? 'Removed from library' : 'Added to library', {
+                      icon: isSaved ? '🗑️' : '✨',
+                      style: { background: '#1a1a1a', color: '#fff' }
+                    });
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    width: '100%',
+                    padding: '14px 12px',
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#0f172a',
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    borderRadius: 12,
+                    textAlign: 'left'
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                >
+                  {isSaved ? <Check size={18} color="#0f5132" /> : <Plus size={18} color="#0f5132" />}
+                  {isSaved ? 'In your library' : 'Add to library'}
+                </button>
+              )}
+
+              {/* Share Playlist */}
+              <button
+                onClick={() => {
+                  setShowMobileOptions(false);
+                  handleShare();
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  width: '100%',
+                  padding: '14px 12px',
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#0f172a',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  borderRadius: 12,
+                  textAlign: 'left'
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+              >
+                <Share2 size={18} color="#0f5132" /> Share
+              </button>
+
+              {/* Public/Private Toggle (if owner) */}
+              {isOwner && isCustomPlaylist && (
+                <button
+                  onClick={() => {
+                    setShowMobileOptions(false);
+                    togglePlaylistPrivacy();
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    width: '100%',
+                    padding: '14px 12px',
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#0f172a',
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    borderRadius: 12,
+                    textAlign: 'left'
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                >
+                  {playlist.isPublic !== false ? (
+                    <>
+                      <Lock size={18} color="#0f5132" /> Make Private
+                    </>
+                  ) : (
+                    <>
+                      <Globe size={18} color="#0f5132" /> Make Public
+                    </>
+                  )}
+                </button>
+              )}
+
+              {/* Delete Playlist (if owner) */}
+              {isOwner && isCustomPlaylist && (
+                <button
+                  onClick={() => {
+                    setShowMobileOptions(false);
+                    handleDeletePlaylist();
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    width: '100%',
+                    padding: '14px 12px',
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#ef4444',
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    borderRadius: 12,
+                    textAlign: 'left'
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#fef2f2'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                >
+                  <Trash2 size={18} color="#ef4444" /> Delete Playlist
+                </button>
+              )}
+
+              {/* Cancel Button */}
+              <button
+                onClick={() => setShowMobileOptions(false)}
+                style={{
+                  marginTop: 8,
+                  width: '100%',
+                  background: '#f1f5f9',
+                  color: '#64748b',
+                  border: 'none',
+                  borderRadius: 12,
+                  padding: '12px',
+                  fontSize: 14,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  fontFamily: 'var(--font-inter), sans-serif'
+                }}
+              >
+                Cancel
+              </button>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* ─── Edit Playlist Details Modal (Spotify-style) ─────────────── */}
       <AnimatePresence>

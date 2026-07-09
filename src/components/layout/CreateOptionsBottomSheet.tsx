@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Music2, Users, Layers, FolderPlus, X, AlertTriangle } from 'lucide-react';
+import { Music2, Users, Layers, FolderPlus, X, AlertTriangle, Crown } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '@/store/authStore';
@@ -23,6 +23,7 @@ const GRADIENTS = [
 export default function CreateOptionsBottomSheet() {
   const router = useRouter();
   const { user, isCreateBottomSheetOpen, setCreateBottomSheetOpen, toggleSavePlaylist } = useAuthStore();
+  const isFree = user?.subscription === 'free';
   const { addPlaylist } = usePlaylistStore();
 
   // Modals States
@@ -237,15 +238,31 @@ export default function CreateOptionsBottomSheet() {
                     title: 'Create Jam Room',
                     desc: 'Host a room and listen together with friends',
                     icon: Users,
-                    onClick: handleCreateRoomClick
+                    isPremium: true,
+                    onClick: () => {
+                      if (isFree) {
+                        setCreateBottomSheetOpen(false);
+                        router.push('/premium');
+                        toast('Jam Rooms require Beato Premium! 👑', { style: { background: '#1a1a1a', color: '#fff' } });
+                      } else {
+                        handleCreateRoomClick();
+                      }
+                    }
                   },
                   {
                     title: 'Join Jam Room',
                     desc: 'Join an existing room using a code',
                     icon: Users,
+                    isPremium: true,
                     onClick: () => {
-                      setCreateBottomSheetOpen(false);
-                      setShowJoinRoomModal(true);
+                      if (isFree) {
+                        setCreateBottomSheetOpen(false);
+                        router.push('/premium');
+                        toast('Jam Rooms require Beato Premium! 👑', { style: { background: '#1a1a1a', color: '#fff' } });
+                      } else {
+                        setCreateBottomSheetOpen(false);
+                        setShowJoinRoomModal(true);
+                      }
                     }
                   },
                   {
@@ -303,7 +320,26 @@ export default function CreateOptionsBottomSheet() {
                         <Icon size={20} color="var(--color-ss-primary, #b08850)" />
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{ color: 'var(--color-ss-text-primary, #221a15)', fontSize: 16, fontWeight: 700, margin: 0 }}>{item.title}</p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <p style={{ color: 'var(--color-ss-text-primary, #221a15)', fontSize: 16, fontWeight: 700, margin: 0 }}>{item.title}</p>
+                          {(item as any).isPremium && isFree && (
+                            <span style={{ 
+                              display: 'inline-flex', 
+                              alignItems: 'center', 
+                              gap: 3, 
+                              background: 'linear-gradient(135deg, #0f5132, #10b981)', 
+                              color: '#fff', 
+                              fontSize: 9, 
+                              fontWeight: 800, 
+                              padding: '2px 6px', 
+                              borderRadius: 8, 
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.05em'
+                            }}>
+                              <Crown size={8} fill="#fff" /> Premium
+                            </span>
+                          )}
+                        </div>
                         <p style={{ color: 'var(--color-ss-text-muted, #87786c)', fontSize: 12, margin: '3px 0 0', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.desc}</p>
                       </div>
                     </div>

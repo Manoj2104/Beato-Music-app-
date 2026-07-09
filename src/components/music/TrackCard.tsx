@@ -179,66 +179,68 @@ export default function TrackCard({ track, index, queue = [], showAlbum = true, 
           <Heart size={15} fill={isLiked ? GREEN : 'none'} color={isLiked ? GREEN : 'currentColor'} />
         </button>
         {/* Download Button */}
-        <button
-          className="track-card-download"
-          onClick={handleDownload}
-          title={downloaded ? 'Remove download' : downloading ? 'Downloading...' : 'Download for offline'}
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            opacity: isHovered || downloaded || downloading ? 1 : 0,
-            transition: 'opacity 0.15s',
-            padding: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-        >
-          {downloading ? (
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-              style={{ display: 'flex' }}
-            >
-              <Loader2 size={15} color={GREEN} />
-            </motion.div>
-          ) : downloaded ? (
-            <div style={{
-              width: 18,
-              height: 18,
-              borderRadius: '50%',
-              background: GREEN,
+        {user?.subscription !== 'free' && (
+          <button
+            className="track-card-download"
+            onClick={handleDownload}
+            title={downloaded ? 'Remove download' : downloading ? 'Downloading...' : 'Download for offline'}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              opacity: isHovered || downloaded || downloading ? 1 : 0,
+              transition: 'opacity 0.15s',
+              padding: 0,
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 0 6px rgba(15, 81, 50, 0.3)'
-            }}>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-            </div>
-          ) : (
-            <div style={{
-              width: 18,
-              height: 18,
-              borderRadius: '50%',
-              border: '2px solid #87786c',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'border-color 0.2s',
+              justifyContent: 'center'
             }}
-            onMouseEnter={e => e.currentTarget.style.borderColor = '#221a15'}
-            onMouseLeave={e => e.currentTarget.style.borderColor = '#87786c'}
-            >
-              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#87786c' }}>
-                <line x1="12" y1="5" x2="12" y2="19" />
-                <line x1="5" y1="12" x2="19" y2="12" />
-              </svg>
-            </div>
-          )}
-        </button>
+          >
+            {downloading ? (
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                style={{ display: 'flex' }}
+              >
+                <Loader2 size={15} color={GREEN} />
+              </motion.div>
+            ) : downloaded ? (
+              <div style={{
+                width: 18,
+                height: 18,
+                borderRadius: '50%',
+                background: GREEN,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 0 6px rgba(15, 81, 50, 0.3)'
+              }}>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              </div>
+            ) : (
+              <div style={{
+                width: 18,
+                height: 18,
+                borderRadius: '50%',
+                border: '2px solid #87786c',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'border-color 0.2s',
+              }}
+              onMouseEnter={e => e.currentTarget.style.borderColor = '#221a15'}
+              onMouseLeave={e => e.currentTarget.style.borderColor = '#87786c'}
+              >
+                <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#87786c' }}>
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+              </div>
+            )}
+          </button>
+        )}
         <span className="track-card-duration text-ss-text-muted" style={{ fontSize: 12, fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>
           {formatDuration(track.duration)}
         </span>

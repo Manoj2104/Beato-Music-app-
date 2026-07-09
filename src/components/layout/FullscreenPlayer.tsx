@@ -1031,80 +1031,78 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
               </button>
  
               {/* Download for offline */}
-              <button
-                onClick={handleDownloadClick}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: 4,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  minWidth: 28,
-                  minHeight: 28
-                }}
-              >
-                {downloading ? (
-                  <div style={{ position: 'relative', width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    {/* Progress track circle */}
-                    <svg width="28" height="28" viewBox="0 0 36 36" style={{ position: 'absolute', transform: 'rotate(-90deg)' }}>
-                      <circle
-                        cx="18"
-                        cy="18"
-                        r="15"
-                        fill="transparent"
-                        stroke="rgba(15, 81, 50, 0.1)"
-                        strokeWidth="3"
-                      />
-                      <motion.circle
-                        cx="18"
-                        cy="18"
-                        r="15"
-                        fill="transparent"
-                        stroke="#0f5132"
-                        strokeWidth="3"
-                        strokeDasharray="94.2"
-                        initial={{ strokeDashoffset: 94.2 }}
-                        animate={{ strokeDashoffset: 94.2 - (94.2 * currentTrackProgress) / 100 }}
-                        transition={{ duration: 0.1, ease: "easeOut" }}
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                    
-                    {/* Centered details */}
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 2 }}>
-                      <motion.div
-                        animate={{ y: [-1.5, 1.5, -1.5] }}
-                        transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut' }}
-                        style={{ display: 'flex' }}
-                      >
-                        <Download size={11} color="#0f5132" strokeWidth={3} />
-                      </motion.div>
-                      <span style={{ fontSize: 7, fontWeight: 900, color: '#0f5132', marginTop: 0.5, fontVariantNumeric: 'tabular-nums' }}>
-                        {currentTrackProgress}%
-                      </span>
+              {!isFree && (
+                <button
+                  onClick={handleDownloadClick}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: 4,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    minWidth: 28,
+                    minHeight: 28
+                  }}
+                >
+                  {downloading ? (
+                    <div style={{ position: 'relative', width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {/* Progress track circle */}
+                      <svg width="28" height="28" viewBox="0 0 36 36" style={{ position: 'absolute', transform: 'rotate(-90deg)' }}>
+                        <circle
+                          cx="18"
+                          cy="18"
+                          r="15"
+                          fill="none"
+                          stroke="rgba(15,81,50,0.15)"
+                          strokeWidth="2.5"
+                        />
+                        <circle
+                          cx="18"
+                          cy="18"
+                          r="15"
+                          fill="none"
+                          stroke="#0f5132"
+                          strokeWidth="2.5"
+                          strokeDasharray="94.2"
+                          strokeDashoffset={94.2 - (94.2 * currentTrackProgress) / 100}
+                        />
+                      </svg>
+                      {/* Download icon or percentage in center */}
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                        <motion.div
+                          animate={{ y: [0, -1, 0] }}
+                          transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                          style={{ display: 'flex' }}
+                        >
+                          <Download size={11} color="#0f5132" strokeWidth={3} />
+                        </motion.div>
+                        <span style={{ fontSize: 7, fontWeight: 900, color: '#0f5132', marginTop: 0.5, fontVariantNumeric: 'tabular-nums' }}>
+                          {currentTrackProgress}%
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ) : downloaded ? (
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: 'spring', stiffness: 300, damping: 12 }}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      width: 24,
-                      height: 24,
-                    }}
-                  >
-                    <Check size={22} color="#0f5132" strokeWidth={3} />
-                  </motion.div>
-                ) : (
-                  <Download size={22} color="#64748b" />
-                )}
-              </button>
+                  ) : downloaded ? (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: 'spring', stiffness: 300, damping: 12 }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: 24,
+                        height: 24,
+                      }}
+                    >
+                      <Check size={22} color="#0f5132" strokeWidth={3} />
+                    </motion.div>
+                  ) : (
+                    <Download size={22} color="#64748b" />
+                  )}
+                </button>
+              )}
             </div>
           </div>
         </div>

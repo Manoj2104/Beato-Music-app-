@@ -27,7 +27,7 @@ interface PlaylistStore {
   addTrackToPlaylist: (playlistId: string, trackId: string) => void;
   removeTrackFromPlaylist: (playlistId: string, trackId: string) => void;
   setCustomPlaylists: (playlists: CustomPlaylist[]) => void;
-  syncFromCloud: (userId: string) => Promise<void>;
+  syncFromCloud: (userId?: string) => Promise<void>;
 }
 
 export const usePlaylistStore = create<PlaylistStore>()(
@@ -46,7 +46,13 @@ export const usePlaylistStore = create<PlaylistStore>()(
       },
 
       removePlaylist: (id) => {
-        set(state => ({ customPlaylists: state.customPlaylists.filter(p => p.id !== id) }));
+        const normTarget = id.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+        set(state => ({
+          customPlaylists: state.customPlaylists.filter(p => {
+            const pNorm = p.id.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+            return pNorm !== normTarget;
+          })
+        }));
         // Sync deletion in background
         fetch(`/api/playlists?id=${encodeURIComponent(id)}`, {
           method: 'DELETE'
@@ -109,9 +115,10 @@ export const usePlaylistStore = create<PlaylistStore>()(
 
       setCustomPlaylists: (playlists) => set({ customPlaylists: playlists }),
 
-      syncFromCloud: async (userId: string) => {
+      syncFromCloud: async (userId?: string) => {
         try {
-          const res = await fetch(`/api/playlists?userId=${encodeURIComponent(userId)}`);
+          const url = userId ? `/api/playlists?userId=${encodeURIComponent(userId)}` : '/api/playlists';
+          const res = await fetch(url);
           const data = await res.json();
           if (data.success && data.playlists) {
             set({ customPlaylists: data.playlists });

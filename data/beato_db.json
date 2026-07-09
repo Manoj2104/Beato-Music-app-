@@ -580,9 +580,9 @@
       "createdAt": "2026-07-09T09:04:58.518+00:00",
       "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop",
       "coverImage": null,
-      "subscription": "free",
-      "paymentMethod": null,
-      "billingCycle": null,
+      "subscription": "premium",
+      "paymentMethod": "UPI",
+      "billingCycle": "Monthly",
       "country": "IN",
       "followers": 0,
       "following": 0,
@@ -594,7 +594,8 @@
         "artist-1783505262754"
       ],
       "playlists": [
-        "playlist-custom-1783593188278"
+        "playlist-custom-1783593188278",
+        "playlist-custom-1783599539942"
       ],
       "preferences": {
         "theme": "light",
@@ -603,6 +604,9 @@
       "stats": {
         "topGenres": [],
         "topTracks": [
+          "track-sp-1783584063209-ocwn7",
+          "track-sp-1783516050616-voicc",
+          "track-sp-1783582934236-ms1bq",
           "track-sp-1783582405225-6lzcw",
           "track-sp-1783584244854-hen1k",
           "track-sp-1783584085769-1vy70",
@@ -615,7 +619,7 @@
         ],
         "streaksCount": 0,
         "discoverScore": 0,
-        "totalListeningTime": 1580
+        "totalListeningTime": 2496
       },
       "bio": null,
       "verified": false,
@@ -11761,6 +11765,32 @@
       "isFlagged": false,
       "adRevenue": 0.0021,
       "device": "Mobile App"
+    },
+    {
+      "id": "STR-FBB39574",
+      "trackId": "track-sp-1783582405225-6lzcw",
+      "artistId": "artist-1783505262754",
+      "userId": "user-1783587898518",
+      "country": "IN",
+      "city": "Chennai",
+      "isPremium": false,
+      "timestamp": "2026-07-09T12:04:10.191Z",
+      "isFlagged": false,
+      "adRevenue": 0.0021,
+      "device": "Mobile App"
+    },
+    {
+      "id": "STR-7C3AE962",
+      "trackId": "track-sp-1783582934236-ms1bq",
+      "artistId": "artist-1783505262754",
+      "userId": "user-1783587898518",
+      "country": "IN",
+      "city": "Chennai",
+      "isPremium": false,
+      "timestamp": "2026-07-09T12:07:52.967Z",
+      "isFlagged": false,
+      "adRevenue": 0.0021,
+      "device": "Mobile App"
     }
   ],
   "payoutWithdrawalRequests": [],
@@ -19782,34 +19812,34 @@
       "password": "204"
     },
     {
-      "id": "PLDAQ",
+      "id": "6QJL3",
       "name": "Surya's Listening Party",
       "description": "Come listen to awesome music with me!",
       "hostId": "user-1783587898518",
       "hostName": "Surya",
-      "createdAt": "2026-07-09T12:03:40.678Z",
+      "createdAt": "2026-07-09T12:21:46.715Z",
       "isActive": true,
       "participants": [
         {
           "userId": "user-1783587898518",
           "name": "Surya",
           "role": "host",
-          "joinedAt": "2026-07-09T12:03:40.678Z",
-          "lastActive": "2026-07-09T12:03:41.841Z"
+          "joinedAt": "2026-07-09T12:21:46.716Z",
+          "lastActive": "2026-07-09T12:21:47.377Z"
         }
       ],
       "chatHistory": [
         {
-          "id": "msg-system-1783598620678",
+          "id": "msg-system-1783599706716",
           "userId": "system",
           "userName": "Beato Bot",
           "text": "🎵 Room \"Surya's Listening Party\" created! Share the link with friends to listen together.",
-          "timestamp": "2026-07-09T12:03:40.678Z"
+          "timestamp": "2026-07-09T12:21:46.716Z"
         }
       ],
       "currentTrackPosition": 0,
       "isPlaying": false,
-      "updatedAt": "2026-07-09T12:03:40.678Z",
+      "updatedAt": "2026-07-09T12:21:46.716Z",
       "queue": [],
       "isCollaborative": true,
       "isLocked": false,
@@ -20673,7 +20703,7 @@
           "frequency": 3,
           "priority": "medium",
           "type": "banner",
-          "impressions": 13,
+          "impressions": 18,
           "clicks": 0,
           "createdAt": "2026-07-03T11:02:22.549Z"
         },

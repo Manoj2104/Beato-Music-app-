@@ -1478,32 +1478,34 @@ export default function PlayerBar() {
           </button>
 
           {/* Download Button */}
-          <button
-            onClick={handleDownloadClick}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              padding: 4,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              color: downloading ? 'var(--color-ss-secondary, #8c6c44)' : downloaded ? 'var(--color-ss-secondary, #8c6c44)' : '#87786c',
-              transition: 'color 0.15s',
-              position: 'relative'
-            }}
-            title={downloaded ? "Remove download" : downloading ? "Downloading..." : "Download"}
-            onMouseEnter={e => { if (!downloaded && !downloading) e.currentTarget.style.color = '#221a15'; }}
-            onMouseLeave={e => { if (!downloaded && !downloading) e.currentTarget.style.color = '#87786c'; }}
-          >
-            {downloading ? (
-              <div style={{
-                width: 18, height: 18, border: '2px solid rgba(176,136,80,0.2)', borderTop: '2px solid var(--color-ss-secondary, #8c6c44)',
-                borderRadius: '50%', animation: 'spin 0.7s linear infinite'
-              }} />
-            ) : (
-              <Download size={18} strokeWidth={1.8} />
-            )}
-          </button>
+          {!isFree && (
+            <button
+              onClick={handleDownloadClick}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                padding: 4,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                color: downloading ? 'var(--color-ss-secondary, #8c6c44)' : downloaded ? 'var(--color-ss-secondary, #8c6c44)' : '#87786c',
+                transition: 'color 0.15s',
+                position: 'relative'
+              }}
+              title={downloaded ? "Remove download" : downloading ? "Downloading..." : "Download"}
+              onMouseEnter={e => { if (!downloaded && !downloading) e.currentTarget.style.color = '#221a15'; }}
+              onMouseLeave={e => { if (!downloaded && !downloading) e.currentTarget.style.color = '#87786c'; }}
+            >
+              {downloading ? (
+                <div style={{
+                  width: 18, height: 18, border: '2px solid rgba(176,136,80,0.2)', borderTop: '2px solid var(--color-ss-secondary, #8c6c44)',
+                  borderRadius: '50%', animation: 'spin 0.7s linear infinite'
+                }} />
+              ) : (
+                <Download size={18} strokeWidth={1.8} />
+              )}
+            </button>
+          )}
 
           {/* Previous Button */}
           <button

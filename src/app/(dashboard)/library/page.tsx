@@ -467,8 +467,44 @@ function MobileLibraryView({
 }: MobileLibraryViewProps) {
   const { setMobileDrawerOpen, setCreateBottomSheetOpen } = useAuthStore();
   const { currentTrack, isPlaying, togglePlay } = usePlayerStore();
+  const { customPlaylists } = usePlaylistStore();
   const router = useRouter();
   const G = 'var(--color-ss-primary, #0f5132)';
+
+  // Filter other users' custom playlists & seeded mock playlists for recommendation
+  const otherUsersPlaylists = customPlaylists.filter(p => p.ownerId !== user?.id && p.isPublic !== false);
+  const userPlaylistIds = user?.playlists || [];
+  const seededRecommendations = mockPlaylists.filter(p => p.id !== 'playlist-1' && !userPlaylistIds.includes(p.id));
+
+  const { getAllTracks } = useMusicStore();
+  const allTracks = getAllTracks();
+
+  const recommendedPlaylists = [
+    ...otherUsersPlaylists.map(p => {
+      const firstTrackId = p.tracks?.[0];
+      const firstTrack = allTracks.find(t => t.id === firstTrackId);
+      const resolvedCover = p.coverImage || firstTrack?.coverImage || '';
+      return {
+        id: p.id,
+        title: p.title,
+        ownerName: p.ownerName || 'Surya',
+        coverImage: resolvedCover,
+        gradientCss: p.gradientCss || 'linear-gradient(135deg,#1e3a5f,#0ea5e9)',
+      };
+    }),
+    ...seededRecommendations.map(p => {
+      const firstTrackId = p.tracks?.[0];
+      const firstTrack = allTracks.find(t => t.id === firstTrackId);
+      const resolvedCover = p.coverImage || firstTrack?.coverImage || '';
+      return {
+        id: p.id,
+        title: p.title,
+        ownerName: p.ownerName || 'Beato',
+        coverImage: resolvedCover,
+        gradientCss: (p as any).gradientCss || 'linear-gradient(135deg,#064e3b,#34d399)',
+      };
+    })
+  ];
   const SORT_OPTS = [
     { v: 'recents', l: 'Recently Added' },
     { v: 'az',      l: 'A → Z' },
@@ -1138,6 +1174,103 @@ function MobileLibraryView({
               })}
             </div>
           )}
+
+          {/* Recommended Playlists */}
+          {activeTab === 'Playlists' && recommendedPlaylists.length > 0 && (
+            <div style={{ marginTop: 32, marginBottom: 20 }}>
+              <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 18, fontWeight: 800, color: 'var(--color-ss-text-primary, #0f172a)', marginBottom: 4 }}>
+                Recommended Playlists
+              </h3>
+              <p style={{ color: '#737373', fontSize: 12, marginBottom: 16 }}>
+                Discover collections created by other music lovers
+              </p>
+
+              {/* Horizontal scroll view */}
+              <div style={{ 
+                display: 'flex', 
+                gap: 16, 
+                overflowX: 'auto', 
+                scrollbarWidth: 'none', 
+                msOverflowStyle: 'none', 
+                paddingBottom: 8,
+                WebkitOverflowScrolling: 'touch' 
+              }} className="no-scrollbar">
+                {recommendedPlaylists.map(pl => (
+                  <div 
+                    key={pl.id} 
+                    onClick={() => router.push(`/playlist/${pl.id}`)}
+                    style={{ 
+                      flexShrink: 0, 
+                      width: 140, 
+                      cursor: 'pointer',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 8
+                    }}
+                  >
+                    <div style={{ 
+                      width: 140, 
+                      height: 140, 
+                      borderRadius: 16, 
+                      overflow: 'hidden',
+                      background: pl.coverImage ? 'transparent' : pl.gradientCss,
+                      border: pl.coverImage ? 'none' : '1px solid rgba(0,0,0,0.05)',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      position: 'relative'
+                    }}>
+                      {pl.coverImage ? (
+                        <img src={pl.coverImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <Music2 size={36} color="rgba(255,255,255,0.7)" />
+                      )}
+                      {/* Play button overlay */}
+                      <div style={{ 
+                        position: 'absolute', 
+                        right: 8, 
+                        bottom: 8, 
+                        width: 32, 
+                        height: 32, 
+                        borderRadius: '50%', 
+                        background: G, 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.2)' 
+                      }}>
+                        <Play size={14} fill="#fff" color="#fff" style={{ marginLeft: 2 }} />
+                      </div>
+                    </div>
+                    <div>
+                      <h4 style={{ 
+                        fontSize: 13.5, 
+                        fontWeight: 700, 
+                        color: 'var(--color-ss-text-primary, #0f172a)',
+                        margin: 0,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {pl.title}
+                      </h4>
+                      <p style={{ 
+                        fontSize: 11, 
+                        color: '#737373', 
+                        margin: '2px 0 0 0',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        By {pl.ownerName}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -1197,8 +1330,12 @@ function LibraryPageContent() {
 
   const sortRef = useRef<HTMLDivElement>(null);
   const { user, toggleSavePlaylist, setCreateBottomSheetOpen } = useAuthStore();
-  const { customPlaylists, addPlaylist, removePlaylist } = usePlaylistStore();
+  const { customPlaylists, addPlaylist, removePlaylist, syncFromCloud } = usePlaylistStore();
   const { getAllTracks, activeArtistIds, fetchTracks, recentlyPlayed } = useMusicStore();
+
+  useEffect(() => {
+    syncFromCloud(user?.id);
+  }, [user, syncFromCloud]);
   const { currentTrack, isPlaying, playTrack, togglePlay } = usePlayerStore();
 
   const [isMobile, setIsMobile] = useState(false);

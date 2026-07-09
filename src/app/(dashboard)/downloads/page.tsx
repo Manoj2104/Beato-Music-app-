@@ -73,6 +73,13 @@ export default function DownloadsPage() {
     return () => el.removeEventListener('scroll', handler);
   }, []);
 
+  useEffect(() => {
+    if (isFree) {
+      router.replace('/home');
+      toast.error("Downloads is a Premium feature! Upgrade to Premium to access. 💎");
+    }
+  }, [isFree, router]);
+
   const handlePlayAll = () => {
     if (downloadedTracks.length > 0) {
       playTrack(downloadedTracks[0], downloadedTracks);

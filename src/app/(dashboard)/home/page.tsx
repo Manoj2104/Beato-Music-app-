@@ -3214,128 +3214,192 @@ export default function HomePage() {
                       </div>
                     </div>
 
-                    {/* 2. Main Grid */}
-                    <div style={{
-                      display: 'grid',
-                      gridTemplateColumns: '1.2fr 1fr 1fr',
-                      gap: 8,
-                      alignItems: 'stretch'
-                    }}>
-                      {/* Left Card: Steal Deals */}
+                    {/* 2. Redesigned Mobile Layout with Full-Bleed Images */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                      {/* Spotlight Card: Steal Deals (Full Bleed Background) */}
                       <div style={{
-                        gridRow: 'span 2',
-                        background: 'linear-gradient(135deg, var(--color-ss-elevated, #ffffff) 0%, var(--color-ss-surface, #f8faf8) 100%)',
-                        border: '1.5px solid rgba(15, 81, 50, 0.2)',
-                        borderRadius: 14,
-                        padding: 10,
+                        borderRadius: 18,
+                        height: 130,
                         display: 'flex',
                         flexDirection: 'column',
-                        justifyContent: 'space-between',
+                        justifyContent: 'flex-end',
+                        cursor: 'pointer',
+                        boxShadow: '0 8px 24px rgba(15, 81, 50, 0.08)',
                         position: 'relative',
                         overflow: 'hidden',
-                        cursor: 'pointer',
-                        boxShadow: '0 8px 24px rgba(15, 81, 50, 0.05)',
-                        backdropFilter: 'blur(8px)'
+                        border: '1px solid rgba(15, 81, 50, 0.22)',
+                        padding: '16px'
                       }}
                       onClick={() => playTrack(mainTrack, tracks)}
                       >
+                        {/* Background Cover Image */}
+                        <img
+                          src={mainTrack.coverImage || undefined}
+                          alt=""
+                          style={{
+                            position: 'absolute',
+                            inset: 0,
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            zIndex: 0,
+                          }}
+                        />
+                        {/* Gradient Overlay */}
                         <div style={{
-                          background: 'linear-gradient(90deg, var(--color-ss-primary, #0f5132), var(--color-ss-secondary, #198754))',
-                          padding: '4px 8px',
-                          borderRadius: 6,
+                          position: 'absolute',
+                          inset: 0,
+                          background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.75) 100%)',
+                          zIndex: 1,
+                        }} />
+
+                        {/* Top tag overlay */}
+                        <div style={{
+                          position: 'absolute',
+                          top: 14,
+                          right: 14,
+                          background: 'linear-gradient(135deg, var(--color-ss-primary, #0f5132) 0%, var(--color-ss-secondary, #198754) 100%)',
+                          padding: '4px 10px',
+                          borderRadius: 30,
                           fontSize: 9,
                           fontWeight: 900,
                           color: '#fff',
-                          alignSelf: 'flex-start',
                           letterSpacing: '0.05em',
-                          marginBottom: 10
+                          boxShadow: '0 4px 10px rgba(0, 0, 0, 0.2)',
+                          zIndex: 2,
+                          textTransform: 'uppercase'
                         }}>
                           STEAL DEALS
                         </div>
-                        
-                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', margin: '10px 0' }}>
-                          <div style={{ position: 'relative', width: 64, height: 64, borderRadius: 12, overflow: 'hidden', boxShadow: '0 8px 20px rgba(15, 81, 50, 0.15)' }}>
-                            <img src={mainTrack.coverImage || undefined} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+
+                        {/* Text info overlay */}
+                        <div style={{ position: 'relative', zIndex: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', width: '100%' }}>
+                          <div style={{ minWidth: 0, flex: 1 }}>
+                            <h4 style={{ color: '#ffffff', fontSize: 15, fontWeight: 900, fontFamily: 'Outfit, sans-serif', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {mainTrack.title}
+                            </h4>
+                            <p style={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: 11, margin: '2px 0 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {mainTrack.artistName || 'Various Artists'}
+                            </p>
                           </div>
-                          <div style={{ color: 'var(--color-ss-text-primary, #0f172a)', fontSize: 12, fontWeight: 900, fontFamily: 'Outfit, sans-serif', marginTop: 10, textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {mainTrack.title}
-                          </div>
-                          <div style={{ color: 'var(--color-ss-text-muted, #64748b)', fontSize: 10, marginTop: 2, textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {mainTrack.artistName || 'Various Artists'}
+                          
+                          <div style={{
+                            background: '#ffffff',
+                            color: 'var(--color-ss-primary, #0f5132)',
+                            padding: '6px 12px',
+                            borderRadius: 20,
+                            fontSize: 9.5,
+                            fontWeight: 900,
+                            textAlign: 'center',
+                            cursor: 'pointer',
+                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em',
+                            marginLeft: 12,
+                            flexShrink: 0
+                          }}>
+                            Listen Free
                           </div>
                         </div>
-
-                        <button style={{
-                          background: 'var(--color-ss-primary, #0f5132)',
-                          border: 'none',
-                          color: '#fff',
-                          padding: '6px 10px',
-                          borderRadius: 20,
-                          fontSize: 9.5,
-                          fontWeight: 900,
-                          textAlign: 'center',
-                          width: '100%',
-                          cursor: 'pointer',
-                          boxShadow: '0 4px 12px rgba(15, 81, 50, 0.3)',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.05em'
-                        }}>
-                          Listen Free
-                        </button>
                       </div>
 
-                      {/* Right 2x2 Grid */}
-                      {gridTracks.map((track, i) => {
-                        const prevTrack = mockTracks[(i + 2) % mockTracks.length];
-                        return (
-                          <div key={track.id} style={{
-                            background: gradients[i],
-                            border: borders[i],
-                            borderRadius: 14,
-                            padding: 8,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'space-between',
-                            height: 120,
-                            cursor: 'pointer',
-                            position: 'relative',
-                            boxShadow: '0 4px 14px rgba(15, 81, 50, 0.05)'
-                          }}
-                          onClick={() => playTrack(track, tracks)}
-                          >
-                            <div style={{ fontSize: 11, fontWeight: 800, fontFamily: 'Outfit, sans-serif', color: 'var(--color-ss-text-primary, #221a15)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                              {cardTitles[i]}
-                            </div>
-
-                            {/* Overlapping cover images in center */}
-                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '4px 0', height: 34 }}>
-                                  {track.coverImage
-                                  ? <img src={track.coverImage} alt="" style={{ width: 30, height: 30, borderRadius: 6, objectFit: 'cover', transform: 'rotate(-6deg) translateX(4px)', border: '1.5px solid var(--color-ss-elevated, #ffffff)', boxShadow: '0 4px 10px rgba(15, 81, 50, 0.15)', zIndex: 1 }} />
-                                  : <div style={{ width: 30, height: 30, borderRadius: 6, background: 'linear-gradient(135deg, #0f5132, #0a3d24)', transform: 'rotate(-6deg) translateX(4px)', border: '1.5px solid var(--color-ss-elevated, #ffffff)', zIndex: 1 }} />}
-                               {prevTrack.coverImage
-                                  ? <img src={prevTrack.coverImage} alt="" style={{ width: 30, height: 30, borderRadius: 6, objectFit: 'cover', transform: 'rotate(6deg) translateX(-4px)', border: '1.5px solid var(--color-ss-elevated, #ffffff)', boxShadow: '0 4px 10px rgba(15, 81, 50, 0.15)', zIndex: 2 }} />
-                                  : <div style={{ width: 30, height: 30, borderRadius: 6, background: 'linear-gradient(135deg, #0a3d24, #0f5132)', transform: 'rotate(6deg) translateX(-4px)', border: '1.5px solid var(--color-ss-elevated, #ffffff)', zIndex: 2 }} />}
-                            </div>
-
-                            <div style={{
-                              background: badgeBackgrounds[i],
-                              color: badgeColors[i],
-                              border: badgeBorders[i],
-                              padding: '3px 6px',
-                              borderRadius: 20,
-                              fontSize: 7.5,
-                              fontWeight: 800,
-                              textAlign: 'center',
-                              alignSelf: 'stretch',
+                      {/* 2x2 Grid for Category Tracks (Full Bleed Background) */}
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(2, 1fr)',
+                        gap: 10
+                      }}>
+                        {gridTracks.map((track, i) => {
+                          return (
+                            <div key={track.id} style={{
+                              borderRadius: 16,
+                              height: 100,
+                              cursor: 'pointer',
+                              boxShadow: '0 4px 14px rgba(0, 0, 0, 0.05)',
+                              position: 'relative',
                               overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap'
-                            }}>
-                              {badges[i]}
+                              border: borders[i],
+                              padding: '12px 14px',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              justifyContent: 'space-between',
+                              boxSizing: 'border-box'
+                            }}
+                            onClick={() => playTrack(track, tracks)}
+                            >
+                              {/* Background Image */}
+                              {track.coverImage ? (
+                                <img
+                                  src={track.coverImage}
+                                  alt=""
+                                  style={{
+                                    position: 'absolute',
+                                    inset: 0,
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'cover',
+                                    zIndex: 0,
+                                  }}
+                                />
+                              ) : (
+                                <div style={{
+                                  position: 'absolute',
+                                  inset: 0,
+                                  background: 'linear-gradient(135deg, #0f5132, #0a3d24)',
+                                  zIndex: 0,
+                                }} />
+                              )}
+
+                              {/* Gradient Overlay for text visibility */}
+                              <div style={{
+                                position: 'absolute',
+                                inset: 0,
+                                background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.7) 100%)',
+                                zIndex: 1,
+                              }} />
+
+                              {/* Card Title */}
+                              <div style={{ 
+                                position: 'relative',
+                                zIndex: 2,
+                                fontSize: 13, 
+                                fontWeight: 900, 
+                                fontFamily: 'Outfit, sans-serif', 
+                                color: '#ffffff', 
+                                overflow: 'hidden', 
+                                textOverflow: 'ellipsis', 
+                                whiteSpace: 'nowrap',
+                                textShadow: '0 1px 4px rgba(0,0,0,0.4)'
+                              }}>
+                                {cardTitles[i]}
+                              </div>
+
+                              {/* Badge */}
+                              <div style={{
+                                position: 'relative',
+                                zIndex: 2,
+                                background: 'rgba(255, 255, 255, 0.25)',
+                                backdropFilter: 'blur(4px)',
+                                color: '#ffffff',
+                                border: '1px solid rgba(255, 255, 255, 0.35)',
+                                padding: '2px 8px',
+                                borderRadius: 20,
+                                fontSize: 8,
+                                fontWeight: 900,
+                                textAlign: 'center',
+                                alignSelf: 'flex-start',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.02em'
+                              }}>
+                                {badges[i]}
+                              </div>
                             </div>
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
+                      </div>
                     </div>
 
                     {/* 3. Bottom Banner Strip */}
