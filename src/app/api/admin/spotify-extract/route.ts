@@ -244,16 +244,18 @@ async function scrapeSpotifyPlaylistOrAlbum(type: 'playlist' | 'album', id: stri
     throw new Error(`No tracks found in this ${type}`);
   }
 
-  // Scrape each track metadata sequentially to prevent rate limits
-  const tracksToScrape = uniqueIds.slice(0, 30);
+  // Scrape tracks in parallel batches to be extremely fast while avoiding rate limits
+  const tracksToScrape = uniqueIds.slice(0, 100);
   const tracks: SpotifyTrackInfo[] = [];
 
-  for (const trackId of tracksToScrape) {
-    try {
-      const track = await scrapeSpotifyTrack(trackId);
-      tracks.push(track);
-    } catch (err: any) {
-      console.warn(`[spotify-extract] Failed to scrape track ${trackId}:`, err.message);
+  const concurrency = 10;
+  for (let i = 0; i < tracksToScrape.length; i += concurrency) {
+    const chunk = tracksToScrape.slice(i, i + concurrency);
+    const chunkRes = await Promise.allSettled(chunk.map(id => scrapeSpotifyTrack(id)));
+    for (const r of chunkRes) {
+      if (r.status === 'fulfilled' && r.value) {
+        tracks.push(r.value);
+      }
     }
   }
 
@@ -420,8 +422,7 @@ export async function POST(request: NextRequest) {
 
       const lang = detectLanguage(trackInfo.title, trackInfo.album);
       const searchQuery = `${trackInfo.artist} ${lang ? trackInfo.title.replace(/\s*\(from.*\)/i, '').trim() + ' ' + lang : trackInfo.title} official audio`;
-      console.log(`[spotify-extract] 🔍 Searching: "${trackInfo.title}" by "${trackInfo.artist}" lang=${lang || 'unknown'}`);
-      const youtubeVideoId = await findYouTubeVideoId(searchQuery, trackInfo.artist, trackInfo.title, trackInfo.album, trackInfo.duration);
+      console.log(`[spotify-extract] 🔍 Metadata extracted: "${trackInfo.title}" by "${trackInfo.artist}" (YouTube ID will resolve during download)`);
 
       return NextResponse.json({
         success: true,
@@ -429,7 +430,7 @@ export async function POST(request: NextRequest) {
         track: {
           spotifyId: trackInfo.id,
           spotifyUrl: trackInfo.spotifyUrl,
-          youtubeVideoId: youtubeVideoId || null,
+          youtubeVideoId: null,
           title: trackInfo.title,
           songName: trackInfo.title,
           artist: trackInfo.artist,
@@ -457,30 +458,24 @@ export async function POST(request: NextRequest) {
         }, { status: 422 });
       }
 
-      const tracksToProcess = result.tracks.slice(0, 50);
-      const enrichedTracks = await Promise.all(
-        tracksToProcess.map(async (t) => {
-          const searchQuery = `${t.artist} ${t.title} official audio`;
-          const youtubeVideoId = await findYouTubeVideoId(
-            `${t.artist} ${t.title} official audio`,
-            t.artist, t.title, t.album, t.duration
-          );
-          return {
-            spotifyId: t.id,
-            spotifyUrl: t.spotifyUrl,
-            youtubeVideoId: youtubeVideoId || null,
-            title: t.title,
-            songName: t.title,
-            artist: t.artist,
-            album: t.album,
-            coverImage: t.coverImage || result.coverImage,
-            duration: t.duration,
-            explicit: t.explicit,
-            releaseDate: t.releaseDate,
-            youtubeSearchQuery: searchQuery,
-          };
-        })
-      );
+      const tracksToProcess = result.tracks.slice(0, 100);
+      const enrichedTracks = tracksToProcess.map((t) => {
+        const searchQuery = `${t.artist} ${t.title} official audio`;
+        return {
+          spotifyId: t.id,
+          spotifyUrl: t.spotifyUrl,
+          youtubeVideoId: null,
+          title: t.title,
+          songName: t.title,
+          artist: t.artist,
+          album: t.album,
+          coverImage: t.coverImage || result.coverImage,
+          duration: t.duration,
+          explicit: t.explicit,
+          releaseDate: t.releaseDate,
+          youtubeSearchQuery: searchQuery,
+        };
+      });
 
       return NextResponse.json({
         success: true,

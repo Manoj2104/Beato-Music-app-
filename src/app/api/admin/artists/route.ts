@@ -25,9 +25,9 @@ export async function GET(request: NextRequest) {
 
     // Map each artist user to include their dynamic track counts and aggregate metrics
     const artists = allUsers
-      .filter((u) => u.role === 'ARTIST')
-      .map((user) => {
-        const tracksCount = allTracks.filter((t) => t.artistId === user.id && t.status === 'approved').length;
+      .filter((u: any) => u.role === 'ARTIST')
+      .map((user: any) => {
+        const tracksCount = allTracks.filter((t: any) => t.artistId === user.id && t.status === 'approved').length;
         return {
           id: user.id,
           name: user.name,

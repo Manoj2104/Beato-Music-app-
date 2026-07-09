@@ -12,15 +12,15 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 /* ─── Design tokens ─── */
-const G = '#b08850';
-const BG = 'var(--color-ss-bg, #fbf9f5)';
+const G = 'var(--color-ss-primary, #0f5132)';
+const BG = 'var(--color-ss-bg, #ffffff)';
 const CARD = 'var(--color-ss-elevated, #ffffff)';
-const CARD2 = 'var(--color-ss-surface, #f4eede)';
-const BORDER = 'var(--color-ss-border, rgba(43, 34, 26, 0.08))';
-const BORDER2 = 'var(--color-ss-border, rgba(43, 34, 26, 0.05))';
-const MUTED = 'var(--color-ss-text-muted, #87786c)';
-const SOFT = '#4d3f35';
-const WHITE = 'var(--color-ss-text-primary, #221a15)';
+const CARD2 = 'var(--color-ss-surface, #f8faf8)';
+const BORDER = 'var(--color-ss-border, rgba(15, 81, 50, 0.08))';
+const BORDER2 = 'var(--color-ss-border, rgba(15, 81, 50, 0.05))';
+const MUTED = 'var(--color-ss-text-muted, #64748b)';
+const SOFT = 'var(--color-ss-text-secondary, #334155)';
+const WHITE = 'var(--color-ss-text-primary, #0f172a)';
 
 const BANNER_IMG = '/images/settings_banner.png';
 
@@ -246,7 +246,8 @@ export default function SettingsPage() {
             width: '100%', 
             height: '100%', 
             objectFit: 'cover',
-            opacity: 0.65
+            opacity: 0.65,
+            filter: 'hue-rotate(95deg) saturate(1.1) contrast(1.05)'
           }} 
         />
         
@@ -254,7 +255,7 @@ export default function SettingsPage() {
         <div style={{
           position: 'absolute',
           inset: 0,
-          background: 'linear-gradient(to bottom, rgba(43,34,26,0.15) 0%, rgba(43,34,26,0.85) 100%)',
+          background: 'linear-gradient(to bottom, rgba(6,29,18,0.15) 0%, rgba(6,29,18,0.85) 100%)',
           zIndex: 1
         }} />
 
@@ -277,7 +278,7 @@ export default function SettingsPage() {
               display: 'flex', 
               alignItems: 'center', 
               justifyContent: 'center', 
-              color: WHITE, 
+              color: '#fff', 
               transition: 'background 0.2s' 
             }}
             onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.8)'}
@@ -350,15 +351,15 @@ export default function SettingsPage() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#000',
+              color: '#fff',
               flexShrink: 0
             }}>
-              <Check size={10} strokeWidth={4} color="black" />
+              <Check size={10} strokeWidth={4} color="white" />
             </div>
             <span style={{ 
               fontSize: 12, 
               fontWeight: 700, 
-              color: WHITE,
+              color: '#fff',
               fontFamily: 'Inter, sans-serif'
             }}>
               System Preferences
@@ -372,7 +373,7 @@ export default function SettingsPage() {
             fontWeight: 900, 
             letterSpacing: '-0.02em', 
             margin: '0 0 2px 0',
-            color: WHITE,
+            color: '#fff',
             lineHeight: 1.1,
             textShadow: '0 2px 8px rgba(0,0,0,0.6)'
           }}>
@@ -412,9 +413,9 @@ export default function SettingsPage() {
             style={{
               padding: '8px 24px',
               borderRadius: 20,
-              background: saved ? 'rgba(176, 136, 80, 0.15)' : G,
-              border: saved ? `1px solid rgba(176, 136, 80,0.4)` : 'none',
-              color: saved ? G : '#000',
+              background: saved ? 'rgba(15, 81, 50, 0.15)' : G,
+              border: saved ? `1px solid rgba(15, 81, 50,0.4)` : 'none',
+              color: saved ? G : '#fff',
               fontSize: 13,
               fontWeight: 800,
               cursor: 'pointer',
@@ -423,7 +424,7 @@ export default function SettingsPage() {
               alignItems: 'center',
               gap: 6,
               transition: 'all 0.2s',
-              boxShadow: saved ? 'none' : '0 4px 14px rgba(176, 136, 80,0.35)',
+              boxShadow: saved ? 'none' : '0 4px 14px rgba(15, 81, 50,0.35)',
             }}
           >
             {saved ? <Check size={14} /> : <Save size={14} />}

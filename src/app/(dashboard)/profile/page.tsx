@@ -17,12 +17,12 @@ import { mockArtists, mockPlaylists } from '@/lib/mockData';
 import toast from 'react-hot-toast';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
-const G = '#b08850';
-const BG = 'var(--color-ss-bg, #fbf9f5)';
-const BORDER = 'var(--color-ss-border, rgba(43, 34, 26, 0.08))';
-const SOFT = '#4d3f35';
-const MUTED = 'var(--color-ss-text-muted, #87786c)';
-const WHITE = 'var(--color-ss-text-primary, #221a15)';
+const G = 'var(--color-ss-primary, #0f5132)';
+const BG = 'var(--color-ss-bg, #ffffff)';
+const BORDER = 'var(--color-ss-border, rgba(15, 81, 50, 0.08))';
+const SOFT = 'var(--color-ss-text-secondary, #334155)';
+const MUTED = 'var(--color-ss-text-muted, #64748b)';
+const WHITE = 'var(--color-ss-text-primary, #0f172a)';
 
 // Default banner cover image if the user has not uploaded one
 const DEFAULT_BANNER = '/images/profile_banner.png';
@@ -143,7 +143,7 @@ export default function ProfilePage() {
         setVerifyOtp(code);
         toast.success('OTP auto-read successfully! 📱', {
           id: 'otp-auto-read',
-          style: { background: '#1a1a1a', color: '#fff', border: '1px solid #b08850', borderRadius: 12 }
+          style: { background: '#1a1a1a', color: '#fff', border: '1px solid var(--color-ss-primary, #0f5132)', borderRadius: 12 }
         });
       }, 10);
     }, 10);
@@ -161,7 +161,7 @@ export default function ProfilePage() {
       setVerifyStep(3); // Move to Step 3: Identity proof form
       setVerifyName(user?.name || ''); // Default to display name
       toast.success('Mobile verification successful! 📱 Please submit identity proof.', {
-        style: { background: '#1a1a1a', color: '#fff', border: '1px solid #b08850', borderRadius: 12 }
+        style: { background: '#1a1a1a', color: '#fff', border: '1px solid var(--color-ss-primary, #0f5132)', borderRadius: 12 }
       });
     }, 10);
   };
@@ -245,7 +245,7 @@ export default function ProfilePage() {
           verificationRequest: reqPayload
         } as any);
         toast.success('Verification details submitted! Under review. 📄', {
-          style: { background: '#1a1a1a', color: '#fff', border: '1px solid #b08850', borderRadius: 12 }
+          style: { background: '#1a1a1a', color: '#fff', border: '1px solid var(--color-ss-primary, #0f5132)', borderRadius: 12 }
         });
         setVerifyStep(4); // Move to submitted review screen
       } else {
@@ -456,9 +456,9 @@ export default function ProfilePage() {
         .profile-modal-themed button {
           border-color: rgba(43, 34, 26, 0.3) !important;
         }
-        .profile-modal-themed button[style*="background: rgb(176, 136, 80)"],
-        .profile-modal-themed button[style*="background: #b08850"] {
-          color: #000 !important;
+        .profile-modal-themed button[style*="background: var(--color-ss-primary)"],
+        .profile-modal-themed button[style*="background: #0f5132"] {
+          color: #fff !important;
           border: none !important;
         }
       `}</style>
@@ -480,7 +480,8 @@ export default function ProfilePage() {
             width: '100%', 
             height: '100%', 
             objectFit: 'cover',
-            opacity: 0.85
+            opacity: 0.85,
+            filter: displayCover === DEFAULT_BANNER ? 'hue-rotate(95deg) saturate(1.1) contrast(1.05)' : 'none'
           }} 
         />
 
@@ -488,7 +489,7 @@ export default function ProfilePage() {
         <div style={{
           position: 'absolute',
           inset: 0,
-          background: 'linear-gradient(to bottom, rgba(43,34,26,0.15) 0%, rgba(43,34,26,0.85) 100%)',
+          background: 'linear-gradient(to bottom, rgba(6,29,18,0.15) 0%, rgba(6,29,18,0.85) 100%)',
           zIndex: 1
         }} />
 
@@ -539,14 +540,14 @@ export default function ProfilePage() {
               width: 16,
               height: 16,
               borderRadius: '50%',
-              background: user?.verified ? '#b08850' : '#6b6b6b',
+              background: user?.verified ? G : '#6b6b6b',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#000',
+              color: '#fff',
               flexShrink: 0
             }}>
-              <Check size={10} strokeWidth={4} color={user?.verified ? "black" : "#ccc"} />
+              <Check size={10} strokeWidth={4} color={user?.verified ? "white" : "#ccc"} />
             </div>
             <span style={{ 
               fontSize: 12, 

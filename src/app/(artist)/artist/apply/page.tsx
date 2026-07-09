@@ -12,15 +12,15 @@ import { useArtistApplicationStore } from '@/store/artistApplicationStore';
 import toast from 'react-hot-toast';
 
 /* ─── Design tokens ─── */
-const G = '#b08850';
-const BG = 'var(--color-ss-bg, #fbf9f5)';
+const G = 'var(--color-ss-primary, #0f5132)';
+const BG = 'var(--color-ss-bg, #ffffff)';
 const CARD = 'var(--color-ss-elevated, #ffffff)';
-const CARD2 = 'var(--color-ss-surface, #f4eede)';
-const BORDER = 'var(--color-ss-border, rgba(43, 34, 26, 0.08))';
-const BORDER2 = 'var(--color-ss-border, rgba(43, 34, 26, 0.05))';
-const MUTED = 'var(--color-ss-text-muted, #87786c)';
-const SOFT = 'var(--color-ss-text-secondary, #4d3f35)';
-const WHITE = 'var(--color-ss-text-primary, #221a15)';
+const CARD2 = 'var(--color-ss-surface, #f8faf8)';
+const BORDER = 'var(--color-ss-border, rgba(15, 81, 50, 0.08))';
+const BORDER2 = 'var(--color-ss-border, rgba(15, 81, 50, 0.05))';
+const MUTED = 'var(--color-ss-text-muted, #64748b)';
+const SOFT = 'var(--color-ss-text-secondary, #334155)';
+const WHITE = 'var(--color-ss-text-primary, #0f172a)';
 
 const labelS: React.CSSProperties = {
   display: 'block',
@@ -52,7 +52,7 @@ function ArtistDashboardButton({ artistName, userId }: { artistName: string; use
           upgradeToArtist(userId);
         }
         toast.success(`Welcome, ${artistName}! Artist Portal unlocked.`, {
-          style: { background: '#1a1a1a', color: '#fff', border: '1px solid rgba(176, 136, 80,0.3)', borderRadius: 12 },
+          style: { background: '#1a1a1a', color: '#fff', border: '1px solid rgba(15, 81, 50,0.3)', borderRadius: 12 },
         });
         window.location.href = '/artist/dashboard';
       } else {
@@ -72,13 +72,13 @@ function ArtistDashboardButton({ artistName, userId }: { artistName: string; use
       disabled={loading}
       style={{
         padding: '12px 24px', borderRadius: 20,
-        background: loading ? 'rgba(176, 136, 80,0.5)' : G,
+        background: loading ? 'rgba(15, 81, 50,0.5)' : G,
         border: 'none', color: '#000', fontWeight: 800, fontSize: 13,
         cursor: loading ? 'not-allowed' : 'pointer',
         fontFamily: 'Outfit, sans-serif',
         display: 'flex', alignItems: 'center', gap: 8,
         transition: 'all 0.2s',
-        boxShadow: loading ? 'none' : '0 4px 18px rgba(176, 136, 80,0.28)',
+        boxShadow: loading ? 'none' : '0 4px 18px rgba(15, 81, 50,0.28)',
       }}
     >
       {loading
@@ -105,7 +105,7 @@ function FormInput({ value, onChange, placeholder, type = 'text', required = fal
         color: WHITE, fontSize: 14, outline: 'none',
         fontFamily: 'Inter, sans-serif',
         boxSizing: 'border-box', transition: 'border-color 0.2s',
-        boxShadow: focused ? `0 0 0 3px rgba(176, 136, 80,0.12)` : 'none',
+        boxShadow: focused ? `0 0 0 3px rgba(15, 81, 50,0.12)` : 'none',
       }}
     />
   );
@@ -302,7 +302,7 @@ export default function ArtistApplyPage() {
         width: '100%',
         maxWidth: 1200,
         height: 600,
-        background: 'radial-gradient(100% 100% at 50% 0%, rgba(176, 136, 80,0.14) 0%, rgba(16, 185, 129,0.08) 50%, transparent 100%)',
+        background: 'radial-gradient(100% 100% at 50% 0%, rgba(15, 81, 50,0.14) 0%, rgba(16, 185, 129,0.08) 50%, transparent 100%)',
         pointerEvents: 'none',
         zIndex: 0
       }} />
@@ -324,7 +324,7 @@ export default function ArtistApplyPage() {
           {step === 1 && (
             <motion.div key="step-1" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
               <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 100, background: 'rgba(176, 136, 80,0.1)', border: `1px solid ${G}30`, marginBottom: 16 }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 100, background: 'rgba(15, 81, 50,0.1)', border: `1px solid ${G}30`, marginBottom: 16 }}>
                   <Sparkles size={13} color={G} />
                   <span style={{ color: G, fontSize: 12, fontWeight: 700 }}>Claim your profile</span>
                 </div>
@@ -339,7 +339,7 @@ export default function ArtistApplyPage() {
               {/* Benefit Grid */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: isMobile ? 10 : 16 }}>
                 {[
-                  { icon: Globe, t: 'Global Distribution', d: 'Your music will instantly sync to listeners in over 180 countries.', border: '#b08850', bg: 'rgba(176, 136, 80,0.02)' },
+                  { icon: Globe, t: 'Global Distribution', d: 'Your music will instantly sync to listeners in over 180 countries.', border: 'var(--color-ss-primary, #0f5132)', bg: 'rgba(15, 81, 50,0.02)' },
                   { icon: Award, t: 'Verified Badge', d: 'Get the blue verification checkmark on your public artist page.', border: '#10b981', bg: 'rgba(16, 185, 129,0.02)' },
                   { icon: Mic2, t: 'Artist Analytics', d: 'Track your streaming stats, listener demographics, and playlist adds in real-time.', border: '#eab308', bg: 'rgba(234,179,8,0.02)' },
                   { icon: Shield, t: 'Copyright Protection', d: 'Our automated sample matching system keeps your intellectual property secure.', border: '#34d399', bg: 'rgba(52, 211, 153,0.02)' },
@@ -389,16 +389,16 @@ export default function ArtistApplyPage() {
                   background: G, border: 'none', color: '#000', fontWeight: 800, fontSize: 15, 
                   cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, 
                   fontFamily: 'Outfit, sans-serif', alignSelf: 'center',
-                  boxShadow: `0 4px 18px rgba(176, 136, 80,0.35)`,
+                  boxShadow: `0 4px 18px rgba(15, 81, 50,0.35)`,
                   transition: 'all 0.2s'
                 }}
                 onMouseEnter={e => {
                   e.currentTarget.style.transform = 'scale(1.02)';
-                  e.currentTarget.style.boxShadow = `0 6px 22px rgba(176, 136, 80,0.45)`;
+                  e.currentTarget.style.boxShadow = `0 6px 22px rgba(15, 81, 50,0.45)`;
                 }}
                 onMouseLeave={e => {
                   e.currentTarget.style.transform = 'none';
-                  e.currentTarget.style.boxShadow = `0 4px 18px rgba(176, 136, 80,0.35)`;
+                  e.currentTarget.style.boxShadow = `0 4px 18px rgba(15, 81, 50,0.35)`;
                 }}
               >
                 Get Started <ArrowRight size={16} />
@@ -590,8 +590,8 @@ export default function ArtistApplyPage() {
                   Back
                 </button>
                 <button type="submit" disabled={!agreed || submitting} style={{
-                  flex: 2, padding: '14px', borderRadius: 20, background: (agreed && !submitting) ? G : 'rgba(176, 136, 80,0.3)', border: 'none', color: '#000', fontWeight: 800, cursor: (agreed && !submitting) ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontFamily: 'Outfit, sans-serif', fontSize: 13,
-                  boxShadow: (agreed && !submitting) ? `0 4px 16px rgba(176, 136, 80,0.3)` : 'none'
+                  flex: 2, padding: '14px', borderRadius: 20, background: (agreed && !submitting) ? G : 'rgba(15, 81, 50,0.3)', border: 'none', color: '#000', fontWeight: 800, cursor: (agreed && !submitting) ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontFamily: 'Outfit, sans-serif', fontSize: 13,
+                  boxShadow: (agreed && !submitting) ? `0 4px 16px rgba(15, 81, 50,0.3)` : 'none'
                 }}>
                   {submitting ? (
                     <><Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> Submitting...</>
@@ -609,7 +609,7 @@ export default function ArtistApplyPage() {
               <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 18, padding: 36, textAlign: 'center' }}>
                 <div style={{
                   width: 60, height: 60, borderRadius: '50%',
-                  background: activeApp.status === 'PENDING' ? 'rgba(245,158,11,0.12)' : activeApp.status === 'APPROVED' ? 'rgba(176, 136, 80,0.12)' : 'rgba(239,68,68,0.12)',
+                  background: activeApp.status === 'PENDING' ? 'rgba(245,158,11,0.12)' : activeApp.status === 'APPROVED' ? 'rgba(15, 81, 50,0.12)' : 'rgba(239,68,68,0.12)',
                   border: `2px solid ${activeApp.status === 'PENDING' ? '#f59e0b' : activeApp.status === 'APPROVED' ? G : '#ef4444'}`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px',
                 }}>
@@ -779,12 +779,12 @@ export default function ArtistApplyPage() {
                     padding: '12px',
                     borderRadius: 14,
                     border: 'none',
-                    background: '#b08850',
-                    color: '#000',
+                    background: 'var(--color-ss-primary, #0f5132)',
+                    color: '#fff',
                     fontSize: 13.5,
                     fontWeight: 800,
                     cursor: 'pointer',
-                    boxShadow: `0 4px 16px rgba(176, 136, 80,0.25)`,
+                    boxShadow: `0 4px 16px rgba(15, 81, 50,0.25)`,
                     transition: 'all 0.2s',
                     fontFamily: 'Outfit, sans-serif'
                   }}

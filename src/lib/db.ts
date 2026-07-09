@@ -575,6 +575,7 @@ interface DatabaseSchema {
   otps: OtpEntity[];
   sessions: SessionEntity[];
   tracks: TrackEntity[];
+  rooms?: any[];
   transactions?: TransactionEntity[];
   planPrices?: Record<string, number>;
   globalCurrency?: string;
@@ -857,6 +858,7 @@ function readDb(): DatabaseSchema {
       }
     }
     parsed.tracks = parsed.tracks || [];
+    parsed.rooms = parsed.rooms || [];
     parsed.transactions = parsed.transactions || [];
     parsed.planPrices = parsed.planPrices || { free: 0, student: 4.99, premium: 9.99, family: 15.99, creator: 19.99 };
     parsed.adminNotifications = parsed.adminNotifications || [];
@@ -881,6 +883,18 @@ function readDb(): DatabaseSchema {
     // Migration logic to remove fake data and link tickets ONLY to real registered database users
     const activeEmails = new Set(parsed.users.map((u: any) => u.email.toLowerCase().trim()));
     let migrated = false;
+
+    // Database optimization to strip huge duplicate customSections from adsConfig
+    if (parsed.adsConfig) {
+      if (parsed.adsConfig._adsData && parsed.adsConfig._adsData.customSections) {
+        delete parsed.adsConfig._adsData.customSections;
+        migrated = true;
+      }
+      if (parsed.adsConfig._fullAdsData && parsed.adsConfig._fullAdsData.customSections) {
+        delete parsed.adsConfig._fullAdsData.customSections;
+        migrated = true;
+      }
+    }
 
     // Migrate old API keys that don't have new properties
     parsed.apiKeys.forEach((key: any) => {
@@ -1636,10 +1650,10 @@ if (typeof window === 'undefined' && process.env.NEXT_PHASE !== 'phase-productio
     syncWithSupabase().catch(console.error);
   }, 100);
 
-  // Sync every 8 seconds
+  // Sync every 45 seconds
   setInterval(() => {
     syncWithSupabase().catch(console.error);
-  }, 8000);
+  }, 45000);
 }
 
 export const db = {

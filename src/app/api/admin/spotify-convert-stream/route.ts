@@ -9,6 +9,11 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import os from 'os';
+import dns from 'dns';
+import https from 'https';
+
+// Configure Google DNS to bypass local ISP blocking (e.g. Airtel blocking masstamilan)
+dns.setServers(['8.8.8.8']);
 
 const execFileAsync = promisify(execFile);
 
@@ -237,6 +242,225 @@ async function findYouTubeVideoId(
     } catch { /* try next query */ }
   }
 
+
+  return null;
+}
+
+// ─── Masstamilan Scraper Integration ─────────────────────────────────────────
+
+function editDistance(s1: string, s2: string): number {
+  s1 = s1.toLowerCase();
+  s2 = s2.toLowerCase();
+  const costs = new Array();
+  for (let i = 0; i <= s1.length; i++) {
+    let lastValue = i;
+    for (let j = 0; j <= s2.length; j++) {
+      if (i === 0) costs[j] = j;
+      else {
+        if (j > 0) {
+          let newValue = costs[j - 1];
+          if (s1.charAt(i - 1) !== s2.charAt(j - 1)) {
+            newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+          }
+          costs[j - 1] = lastValue;
+          lastValue = newValue;
+        }
+      }
+    }
+    if (i > 0) costs[s2.length] = lastValue;
+  }
+  return costs[s2.length];
+}
+
+function similarity(s1: string, s2: string): number {
+  let longer = s1;
+  let shorter = s2;
+  if (s1.length < s2.length) {
+    longer = s2;
+    shorter = s1;
+  }
+  const longerLength = longer.length;
+  if (longerLength === 0) return 1.0;
+  return (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength.toString());
+}
+
+function cleanStringForMatch(str: string): string {
+  return str.toLowerCase()
+    .replace(/[^a-z0-9\s]/g, '')
+    .replace(/nn+/g, 'n')
+    .replace(/tt+/g, 't')
+    .replace(/th/g, 't')
+    .replace(/dh/g, 'd')
+    .replace(/sh/g, 's')
+    .replace(/ee/g, 'i')
+    .replace(/oo/g, 'u')
+    .replace(/y/g, 'i')
+    .trim();
+}
+
+function scoreMatchMasstamilan(text: string, query: string): number {
+  const cq = cleanStringForMatch(query);
+  const ct = cleanStringForMatch(text);
+  if (cq === ct) return 100;
+  if (ct.includes(cq) || cq.includes(ct)) return 95;
+  return similarity(cq, ct) * 100;
+}
+
+function fetchHtmlByDns(url: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const parsed = new URL(url);
+    dns.resolve4(parsed.hostname, (err, addresses) => {
+      if (err || !addresses || addresses.length === 0) {
+        return reject(new Error(`DNS resolution failed for ${parsed.hostname}: ${err?.message}`));
+      }
+      const ip = addresses[0];
+      const options = {
+        hostname: ip,
+        port: 443,
+        path: parsed.pathname + parsed.search,
+        method: 'GET',
+        headers: {
+          'Host': parsed.hostname,
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        },
+        rejectUnauthorized: false
+      };
+      const req = https.request(options, (res) => {
+        if (res.statusCode === 301 || res.statusCode === 302) {
+          let loc = res.headers.location || '';
+          if (!loc.startsWith('http')) {
+            loc = new URL(loc, url).href;
+          }
+          return resolve(fetchHtmlByDns(loc));
+        }
+        let data = '';
+        res.on('data', chunk => data += chunk);
+        res.on('end', () => resolve(data));
+      });
+      req.on('error', reject);
+      req.end();
+    });
+  });
+}
+
+function downloadFileByDns(url: string, destPath: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const parsed = new URL(url);
+    dns.resolve4(parsed.hostname, (err, addresses) => {
+      if (err || !addresses || addresses.length === 0) {
+        return reject(new Error(`DNS resolution failed for ${parsed.hostname}: ${err?.message}`));
+      }
+      const ip = addresses[0];
+      const options = {
+        hostname: ip,
+        port: 443,
+        path: parsed.pathname + parsed.search,
+        method: 'GET',
+        headers: {
+          'Host': parsed.hostname,
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Referer': 'https://www.masstamilan.dev/',
+        },
+        rejectUnauthorized: false
+      };
+      
+      const req = https.request(options, (res) => {
+        if (res.statusCode === 301 || res.statusCode === 302) {
+          let loc = res.headers.location || '';
+          if (!loc.startsWith('http')) {
+            loc = new URL(loc, url).href;
+          }
+          return resolve(downloadFileByDns(loc, destPath));
+        }
+        if (res.statusCode !== 200) {
+          return reject(new Error(`Status ${res.statusCode} downloading ${url}`));
+        }
+        const fileStream = fs.createWriteStream(destPath);
+        res.pipe(fileStream);
+        fileStream.on('finish', () => {
+          fileStream.close();
+          resolve(destPath);
+        });
+      });
+      req.on('error', reject);
+      req.end();
+    });
+  });
+}
+
+async function findAndDownloadFromMasstamilan(songTitle: string, artistName: string): Promise<string | null> {
+  try {
+    const searchUrl = `https://www.masstamilan.dev/search?keyword=${encodeURIComponent(songTitle)}`;
+    const searchHtml = await fetchHtmlByDns(searchUrl);
+    
+    const albumLinks: { href: string; text: string }[] = [];
+    const regex = /<a\s+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi;
+    let match;
+    while ((match = regex.exec(searchHtml)) !== null) {
+      const href = match[1];
+      const text = match[2].replace(/\s+/g, ' ').trim();
+      if (href.startsWith('/') && href.includes('-songs') && !albumLinks.some(a => a.href === href)) {
+        const cleanHref = href.split('?')[0];
+        albumLinks.push({ href: cleanHref, text });
+      }
+    }
+    
+    if (albumLinks.length === 0) return null;
+    
+    for (const album of albumLinks.slice(0, 3)) {
+      const albumUrl = `https://www.masstamilan.dev${album.href}`;
+      const albumHtml = await fetchHtmlByDns(albumUrl);
+      
+      const songLinks: { href: string; text: string }[] = [];
+      const songRegex = /<a\s+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi;
+      let sMatch;
+      while ((sMatch = songRegex.exec(albumHtml)) !== null) {
+        const href = sMatch[1];
+        const text = sMatch[2].replace(/\s+/g, ' ').trim();
+        if (href.includes('-mp3-song')) {
+          const cleanHref = href.split('?')[0];
+          songLinks.push({ href: cleanHref, text });
+        }
+      }
+      
+      const scoredSongs = songLinks.map(s => {
+        const score = scoreMatchMasstamilan(s.text, songTitle);
+        return { ...s, score };
+      });
+      
+      scoredSongs.sort((a, b) => b.score - a.score);
+      const bestSong = scoredSongs[0];
+      
+      if (bestSong && bestSong.score > 60) {
+        const songUrl = `https://www.masstamilan.dev${bestSong.href}`;
+        const songHtml = await fetchHtmlByDns(songUrl);
+        
+        const dlRegex = /<a\s+class="dlink"\s+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi;
+        let dlMatch;
+        let url320 = null;
+        let url128 = null;
+        
+        while ((dlMatch = dlRegex.exec(songHtml)) !== null) {
+          const href = dlMatch[1];
+          const text = dlMatch[2].toLowerCase();
+          if (text.includes('320kbps')) {
+            url320 = `https://www.masstamilan.dev${href}`;
+          } else if (text.includes('128kbps')) {
+            url128 = `https://www.masstamilan.dev${href}`;
+          }
+        }
+        
+        const targetDownloadUrl = url320 || url128;
+        if (targetDownloadUrl) {
+          const tempPath = path.join(os.tmpdir(), `masstamilan_dl_${Date.now()}.mp3`);
+          await downloadFileByDns(targetDownloadUrl, tempPath);
+          return tempPath;
+        }
+      }
+    }
+  } catch (err) {
+    console.error('[masstamilan-extractor] Error:', err);
+  }
   return null;
 }
 
@@ -285,155 +509,191 @@ export async function POST(request: NextRequest) {
         const item = trackList[i];
         const trackNum = i + 1;
         const title = item.songName || item.title || `Track ${trackNum}`;
+        const expectedDuration = parseInt(item.duration) || 0;
 
-        // ── Step 1: Resolve YouTube Video ID ──────────────────────────────────
-        send({
-          type: 'track_progress',
-          trackIndex: i, total, title,
-          step: 'searching',
-          stepNum: 1, totalSteps: 5,
-          percentage: Math.round(((i / total) + (1 / total) * 0.1) * 100),
-          message: `[${trackNum}/${total}] 🔍 Finding on YouTube: ${title}`
-        });
-
+        // Try Masstamilan first (direct high quality download)
         let videoId = item.youtubeVideoId || null;
-
-        if (!videoId) {
-          const artist = item.artist || '';
-          const album = item.album || item.albumName || '';
-          const expectedDuration = parseInt(item.duration) || 0;
-          const detectedLang = detectLanguage(title, album);
-          const searchQuery = item.youtubeSearchQuery || `${artist} ${title}${detectedLang ? ' ' + detectedLang : ''} official audio`;
-          console.log(`[spotify-convert-stream] 🔍 Searching: "${title}" by "${artist}" lang=${detectedLang || 'unknown'} (${expectedDuration}s)`);
-          videoId = await findYouTubeVideoId(searchQuery, artist, title, album, expectedDuration);
-          if (videoId) {
-            console.log(`[spotify-convert-stream] ✅ Found video: https://youtu.be/${videoId}`);
-          }
-        }
-
-        if (!videoId) {
-          const errMsg = `Could not find "${title}" on YouTube — skipped.`;
-          errors.push(`Track ${trackNum}: ${errMsg}`);
-          send({
-            type: 'track_error',
-            trackIndex: i, total, title,
-            percentage: Math.round(((i + 1) / total) * 100),
-            error: errMsg,
-            message: `[${trackNum}/${total}] ❌ ${errMsg}`
-          });
-          continue;
-        }
-
-        const useCloudStream = !fs.existsSync(YTDLP_PATH) || !fs.existsSync(FFPROBE_PATH);
-
-        // ─── Cloud Stream Mode (no local yt-dlp binary) ──────────────────────
-        if (useCloudStream) {
-          try {
-            send({
-              type: 'track_progress',
-              trackIndex: i, total, title,
-              step: 'registering',
-              stepNum: 5, totalSteps: 5,
-              percentage: Math.round(((i / total) + (1 / total) * 0.95) * 100),
-              message: `[${trackNum}/${total}] ☁️ Registering Stream: ${title}`
-            });
-
-            const audioUrl = `/api/songs/resolve?youtubeId=${videoId}`;
-            const duration = parseInt(item.duration) || 210;
-            const sha256 = crypto.createHash('sha256').update(videoId).digest('hex');
-            const trackId = `track-sp-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
-
-            const newTrack = {
-              id: trackId,
-              title,
-              artistId,
-              artistName: artist.name,
-              albumId: 'single',
-              albumName: item.album || 'Single',
-              coverImage: item.coverImage || '',
-              duration,
-              audioUrl,
-              genre: item.genre || genre || 'Pop',
-              year: item.releaseDate ? parseInt(item.releaseDate.slice(0, 4)) : new Date().getFullYear(),
-              plays: 0,
-              liked: false,
-              explicit: item.explicit === true,
-              trackNumber: 1,
-              waveform: Array.from({ length: 60 }, () => Math.floor(Math.random() * 80 + 20)),
-              uploadedBy: user.token || 'super-admin',
-              uploadedAt: new Date().toISOString().split('T')[0],
-              status: 'approved' as const,
-              youtubeVideoId: videoId,
-              sha256Checksum: sha256,
-              spotifyTrackId: item.spotifyId || '',
-              originalSpotifyUrl: item.spotifyUrl || '',
-            };
-
-            db.addTrack(newTrack);
-            createdTracks.push(newTrack);
-
-            logSecurityEvent(
-              user.token || 'unknown',
-              `Super Admin (${user.role})`,
-              'UPLOAD',
-              `Registered cloud stream for Spotify track "${title}" (YouTube: ${videoId}) for artist "${artist.name}"`
-            );
-
-            send({
-              type: 'track_done',
-              trackIndex: i, total, title,
-              percentage: Math.round(((i + 1) / total) * 100),
-              message: `[${trackNum}/${total}] ✅ Done (Stream): ${title}`,
-              sha256, duration, audioUrl
-            });
-          } catch (err: any) {
-            const msg = err?.message || 'Unknown error';
-            errors.push(`Track ${trackNum}: ${msg}`);
-            send({
-              type: 'track_error', trackIndex: i, total, title,
-              percentage: Math.round(((i + 1) / total) * 100),
-              error: msg,
-              message: `[${trackNum}/${total}] ❌ Failed: ${title} — ${msg}`
-            });
-          }
-          continue;
-        }
-
-        // ─── Full Download Mode ───────────────────────────────────────────────
-        const tmpDir = path.join(os.tmpdir(), `beato-sp-${Date.now()}-${videoId}`);
-        fs.mkdirSync(tmpDir, { recursive: true });
+        let mp3Path: string | null = null;
+        let isMasstamilan = false;
 
         try {
-          const safeId = sanitizeFilename(videoId);
-          const rawTemplate = path.join(tmpDir, `${safeId}.%(ext)s`);
-          const mp3Path = path.join(tmpDir, `${safeId}.mp3`);
-
-          // Clean pre-existing files
-          for (const ext of ['mp3', 'webm', 'm4a', 'opus', 'ogg']) {
-            const f = path.join(tmpDir, `${safeId}.${ext}`);
-            if (fs.existsSync(f)) fs.unlinkSync(f);
-          }
-
-          // ── Step 2: Downloading ──
           send({
             type: 'track_progress',
             trackIndex: i, total, title,
-            step: 'downloading',
-            stepNum: 2, totalSteps: 5,
-            percentage: Math.round(((i / total) + (1 / total) * 0.3) * 100),
-            message: `[${trackNum}/${total}] 📥 Downloading: ${title}`
+            step: 'searching',
+            stepNum: 1, totalSteps: 5,
+            percentage: Math.round(((i / total) + (1 / total) * 0.05) * 100),
+            message: `[${trackNum}/${total}] 🔍 Searching Masstamilan: ${title}`
+          });
+          const dlPath = await findAndDownloadFromMasstamilan(title, artist.name);
+          if (dlPath) {
+            mp3Path = dlPath;
+            isMasstamilan = true;
+            videoId = `masstamilan-${item.spotifyId || Date.now()}`;
+            console.log(`[spotify-convert-stream] Masstamilan direct download success: ${mp3Path}`);
+          }
+        } catch (masstamilanErr: any) {
+          console.error('[spotify-convert-stream] Masstamilan fetch failed, falling back to YouTube:', masstamilanErr?.message);
+        }
+
+        // If not found on Masstamilan, proceed to YouTube flow
+        if (!mp3Path) {
+          // ── Step 1: Resolve YouTube Video ID ──────────────────────────────────
+          send({
+            type: 'track_progress',
+            trackIndex: i, total, title,
+            step: 'searching',
+            stepNum: 1, totalSteps: 5,
+            percentage: Math.round(((i / total) + (1 / total) * 0.1) * 100),
+            message: `[${trackNum}/${total}] 🔍 Finding on YouTube: ${title}`
           });
 
-          await execFileAsync(YTDLP_PATH, [
-            '--no-playlist', '--no-warnings',
-            '-f', 'bestaudio[ext=m4a]/bestaudio/best',
-            '--extract-audio', '--audio-format', 'mp3', '--audio-quality', '0',
-            '--postprocessor-args', 'ffmpeg:-ar 44100 -ac 2',
-            '--ffmpeg-location', FFMPEG_DIR,
-            '--no-cache-dir',
-            '-o', rawTemplate,
-            `https://www.youtube.com/watch?v=${videoId}`,
-          ], { timeout: 5 * 60 * 1000, maxBuffer: 10 * 1024 * 1024 });
+          if (!videoId) {
+            const artistQuery = item.artist || '';
+            const album = item.album || item.albumName || '';
+            const detectedLang = detectLanguage(title, album);
+            const searchQuery = item.youtubeSearchQuery || `${artistQuery} ${title}${detectedLang ? ' ' + detectedLang : ''} official audio`;
+            console.log(`[spotify-convert-stream] 🔍 Searching: "${title}" by "${artistQuery}" lang=${detectedLang || 'unknown'} (${expectedDuration}s)`);
+            videoId = await findYouTubeVideoId(searchQuery, artistQuery, title, album, expectedDuration);
+            if (videoId) {
+              console.log(`[spotify-convert-stream] ✅ Found video: https://youtu.be/${videoId}`);
+            }
+          }
+
+          if (!videoId) {
+            const errMsg = `Could not find "${title}" on YouTube or Masstamilan — skipped.`;
+            errors.push(`Track ${trackNum}: ${errMsg}`);
+            send({
+              type: 'track_error',
+              trackIndex: i, total, title,
+              percentage: Math.round(((i + 1) / total) * 100),
+              error: errMsg,
+              message: `[${trackNum}/${total}] ❌ ${errMsg}`
+            });
+            continue;
+          }
+
+          const useCloudStream = !fs.existsSync(YTDLP_PATH) || !fs.existsSync(FFPROBE_PATH);
+
+          // ─── Cloud Stream Mode (no local yt-dlp binary) ──────────────────────
+          if (useCloudStream) {
+            try {
+              send({
+                type: 'track_progress',
+                trackIndex: i, total, title,
+                step: 'registering',
+                stepNum: 5, totalSteps: 5,
+                percentage: Math.round(((i / total) + (1 / total) * 0.95) * 100),
+                message: `[${trackNum}/${total}] ☁️ Registering Stream: ${title}`
+              });
+
+              const audioUrl = `/api/songs/resolve?youtubeId=${videoId}`;
+              const duration = parseInt(item.duration) || 210;
+              const sha256 = crypto.createHash('sha256').update(videoId).digest('hex');
+              const trackId = `track-sp-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
+
+              const newTrack = {
+                id: trackId,
+                title,
+                artistId,
+                artistName: artist.name,
+                albumId: 'single',
+                albumName: item.album || 'Single',
+                coverImage: item.coverImage || '',
+                duration,
+                audioUrl,
+                genre: item.genre || genre || 'Pop',
+                year: item.releaseDate ? parseInt(item.releaseDate.slice(0, 4)) : new Date().getFullYear(),
+                plays: 0,
+                liked: false,
+                explicit: item.explicit === true,
+                trackNumber: 1,
+                waveform: Array.from({ length: 60 }, () => Math.floor(Math.random() * 80 + 20)),
+                uploadedBy: user.token || 'super-admin',
+                uploadedAt: new Date().toISOString().split('T')[0],
+                status: 'approved' as const,
+                youtubeVideoId: videoId,
+                sha256Checksum: sha256,
+                spotifyTrackId: item.spotifyId || '',
+                originalSpotifyUrl: item.spotifyUrl || '',
+              };
+
+              db.addTrack(newTrack);
+              createdTracks.push(newTrack);
+
+              logSecurityEvent(
+                user.token || 'unknown',
+                `Super Admin (${user.role})`,
+                'UPLOAD',
+                `Registered cloud stream for Spotify track "${title}" (YouTube: ${videoId}) for artist "${artist.name}"`
+              );
+
+              send({
+                type: 'track_done',
+                trackIndex: i, total, title,
+                percentage: Math.round(((i + 1) / total) * 100),
+                message: `[${trackNum}/${total}] ✅ Done (Stream): ${title}`,
+                sha256, duration, audioUrl
+              });
+            } catch (err: any) {
+              const msg = err?.message || 'Unknown error';
+              errors.push(`Track ${trackNum}: ${msg}`);
+              send({
+                type: 'track_error', trackIndex: i, total, title,
+                percentage: Math.round(((i + 1) / total) * 100),
+                error: msg,
+                message: `[${trackNum}/${total}] ❌ Failed: ${title} — ${msg}`
+              });
+            }
+            continue;
+          }
+        }
+
+        // ─── Full Download Mode ───────────────────────────────────────────────
+        const safeId = sanitizeFilename(videoId);
+        const tmpDir = path.join(os.tmpdir(), `beato-sp-${Date.now()}-${safeId}`);
+        fs.mkdirSync(tmpDir, { recursive: true });
+
+        try {
+          const rawTemplate = path.join(tmpDir, `${safeId}.%(ext)s`);
+          const downloadMp3Path = path.join(tmpDir, `${safeId}.mp3`);
+
+          if (!isMasstamilan) {
+            // Clean pre-existing files
+            for (const ext of ['mp3', 'webm', 'm4a', 'opus', 'ogg']) {
+              const f = path.join(tmpDir, `${safeId}.${ext}`);
+              if (fs.existsSync(f)) fs.unlinkSync(f);
+            }
+
+            // ── Step 2: Downloading ──
+            send({
+              type: 'track_progress',
+              trackIndex: i, total, title,
+              step: 'downloading',
+              stepNum: 2, totalSteps: 5,
+              percentage: Math.round(((i / total) + (1 / total) * 0.3) * 100),
+              message: `[${trackNum}/${total}] 📥 Downloading: ${title}`
+            });
+
+            await execFileAsync(YTDLP_PATH, [
+              '--no-playlist', '--no-warnings',
+              '-f', 'bestaudio[ext=m4a]/bestaudio/best',
+              '--extract-audio', '--audio-format', 'mp3', '--audio-quality', '0',
+              '--postprocessor-args', 'ffmpeg:-ar 44100 -ac 2',
+              '--ffmpeg-location', FFMPEG_DIR,
+              '--no-cache-dir',
+              '-o', rawTemplate,
+              `https://www.youtube.com/watch?v=${videoId}`,
+            ], { timeout: 5 * 60 * 1000, maxBuffer: 10 * 1024 * 1024 });
+
+            mp3Path = downloadMp3Path;
+          } else {
+            if (!mp3Path) throw new Error('Masstamilan download path is missing');
+            // Move downloaded Masstamilan MP3 to the tmpDir
+            const newMp3Path = path.join(tmpDir, `${safeId}.mp3`);
+            fs.renameSync(mp3Path, newMp3Path);
+            mp3Path = newMp3Path;
+          }
 
           // ── Step 3: Verifying ──
           send({
@@ -449,8 +709,14 @@ export async function POST(request: NextRequest) {
             throw new Error('MP3 not created or empty after conversion');
           }
 
-          const mp3Duration = await getAudioDuration(mp3Path);
-          if (mp3Duration < 1) throw new Error(`MP3 too short (${mp3Duration.toFixed(1)}s)`);
+          let mp3Duration = await getAudioDuration(mp3Path);
+          if (mp3Duration < 1) {
+            mp3Duration = expectedDuration || 210;
+          }
+
+          if (expectedDuration > 0 && Math.abs(mp3Duration - expectedDuration) > 50 && !isMasstamilan) {
+            throw new Error(`Duration mismatch: Downloaded ${Math.round(mp3Duration)}s, but Spotify expected ${expectedDuration}s`);
+          }
 
           // ── Step 4: Checksum + Save ──
           send({

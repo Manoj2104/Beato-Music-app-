@@ -8,15 +8,15 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import toast from 'react-hot-toast';
 
-const PRIMARY = '#b08850';
-const PRIMARY_DARK = '#937041';
-const BG = '#f4eede';
-const SURFACE = '#fbf9f5';
+const PRIMARY = '#0f5132';
+const PRIMARY_DARK = '#0b3d26';
+const BG = '#f2f6f3';
+const SURFACE = '#ffffff';
 const ELEVATED = '#ffffff';
-const TEXT = '#221a15';
-const TEXT_SEC = '#4d3f35';
-const TEXT_MUTED = '#87786c';
-const BORDER = 'rgba(43, 34, 26, 0.1)';
+const TEXT = '#0f172a';
+const TEXT_SEC = '#334155';
+const TEXT_MUTED = '#64748b';
+const BORDER = 'rgba(15, 81, 50, 0.1)';
 
 const GoogleIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" style={{ position: 'absolute', left: '20px' }}>
@@ -396,7 +396,7 @@ export default function LoginPage() {
 
         .auth-input:focus {
           border-color: ${PRIMARY} !important;
-          box-shadow: 0 0 0 3px rgba(176, 136, 80, 0.12) !important;
+          box-shadow: 0 0 0 3px rgba(15, 81, 50, 0.12) !important;
         }
         .auth-input::placeholder { color: #b0a391; }
 
@@ -416,12 +416,12 @@ export default function LoginPage() {
           gap: 8px;
           font-family: 'Outfit', sans-serif;
           transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
-          box-shadow: 0 4px 16px rgba(176, 136, 80, 0.25);
+          box-shadow: 0 4px 16px rgba(15, 81, 50, 0.25);
           letter-spacing: 0.02em;
         }
         .auth-btn-primary:hover:not(:disabled) {
           background: ${PRIMARY_DARK};
-          box-shadow: 0 6px 20px rgba(176, 136, 80, 0.35);
+          box-shadow: 0 6px 20px rgba(15, 81, 50, 0.35);
         }
         .auth-btn-primary:active:not(:disabled) {
           transform: scale(0.98);
@@ -447,7 +447,7 @@ export default function LoginPage() {
         }
         .auth-btn-secondary:hover {
           background: ${SURFACE};
-          border-color: rgba(176, 136, 80, 0.35);
+          border-color: rgba(15, 81, 50, 0.35);
         }
 
         .social-oauth-btn {
@@ -470,7 +470,7 @@ export default function LoginPage() {
         }
         .social-oauth-btn:hover {
           background: ${SURFACE};
-          border-color: rgba(176, 136, 80, 0.35);
+          border-color: rgba(15, 81, 50, 0.35);
         }
 
         @media (max-width: 480px) {

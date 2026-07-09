@@ -27,7 +27,7 @@ import {
   registerMediaActionHandlers
 } from '@/lib/mediaSessionHelper';
 
-const GREEN = '#b08850';
+const GREEN = 'var(--color-ss-primary, #0f5132)';
 
 const EQ_PRESETS = {
   'Flat': [50, 50, 50, 50, 50],
@@ -1398,6 +1398,17 @@ export default function PlayerBar() {
         className="mobile-player-layout" 
         onClick={() => setIsFullscreen(true)}
         style={{ cursor: 'pointer' }}
+        onTouchStart={(e) => {
+          (e.currentTarget as any)._touchStartY = e.touches[0].clientY;
+        }}
+        onTouchEnd={(e) => {
+          const startY = (e.currentTarget as any)._touchStartY || 0;
+          const endY = e.changedTouches[0].clientY;
+          const dy = startY - endY; // positive = swipe up
+          if (dy > 60) {
+            setIsFullscreen(true); // swipe UP → open fullscreen
+          }
+        }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0, flex: 1 }}>
           {/* Circular Album Cover Art with progress ring (48px outer, 38px inner) */}
@@ -1642,12 +1653,12 @@ export default function PlayerBar() {
                     background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left',
                     padding: '12px 16px', borderRadius: 8, transition: 'background 0.15s',
                   }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(43,34,26,0.04)'}
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,81,50,0.04)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'none'}
                 >
                   <div style={{
                     width: 44, height: 44, borderRadius: 6, flexShrink: 0,
-                    background: 'linear-gradient(135deg, #b08850, #ebdcb9)',
+                    background: 'linear-gradient(135deg, var(--color-ss-primary, #0f5132), var(--color-ss-secondary, #198754))',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>
                     <Heart size={20} fill="#fff" color="#fff" />
@@ -1724,12 +1735,12 @@ export default function PlayerBar() {
                             background: 'none', border: 'none', cursor: 'pointer',
                             textAlign: 'left', transition: 'background 0.15s',
                           }}
-                          onMouseEnter={e => e.currentTarget.style.background = 'rgba(43,34,26,0.04)'}
+                          onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,81,50,0.04)'}
                           onMouseLeave={e => e.currentTarget.style.background = 'none'}
                         >
                           <div style={{
                             width: 44, height: 44, borderRadius: 6, flexShrink: 0,
-                            background: pl.gradientCss || 'linear-gradient(135deg,#b08850,#ebdcb9)',
+                            background: pl.gradientCss || 'linear-gradient(135deg, var(--color-ss-primary, #0f5132), var(--color-ss-secondary, #198754))',
                             display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
                           }}>
                             {pl.coverImage ? (

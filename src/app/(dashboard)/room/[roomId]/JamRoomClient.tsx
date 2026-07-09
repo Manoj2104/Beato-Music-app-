@@ -600,9 +600,9 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', width: '100%', height: '80vh', alignItems: 'center', justifyContent: 'center', background: '#fbf9f5' }}>
+      <div style={{ display: 'flex', width: '100%', height: '80vh', alignItems: 'center', justifyContent: 'center', background: '#ffffff' }}>
         <div style={{ textAlign: 'center' }}>
-          <Headphones size={40} className="pulse" color="#b08850" style={{ marginBottom: 12 }} />
+          <Headphones size={40} className="pulse" color="#15803d" style={{ marginBottom: 12 }} />
           <p style={{ color: '#706155', fontSize: 14, fontWeight: 600 }}>Tuning in to Jam Room...</p>
         </div>
       </div>
@@ -618,8 +618,8 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
   return (
     <div className="jam-room-page" style={{
       minHeight: '100vh',
-      background: 'var(--color-ss-bg, #fbf9f5)',
-      color: '#221a15',
+      background: '#ffffff',
+      color: '#15803d',
       fontFamily: 'Inter, sans-serif',
       boxSizing: 'border-box'
     }}>
@@ -628,7 +628,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
         position: 'sticky',
         top: 0,
         zIndex: 1000,
-        background: 'var(--color-ss-bg, #fbf9f5)',
+        background: 'var(--color-ss-bg, #ffffff)',
         paddingTop: isMobile ? 'calc(var(--sat, 0px) + 8px)' : 16,
         paddingBottom: 8,
         width: '100%',
@@ -642,7 +642,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
           justifyContent: 'space-between',
           gap: isMobile ? 16 : 12,
           paddingBottom: '16px',
-          borderBottom: '1px solid rgba(176,136,80,0.18)',
+          borderBottom: '1px solid rgba(21,128,61,0.18)',
           marginBottom: isMobile ? '12px' : '24px'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -650,14 +650,14 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
               width: 48,
               height: 48,
               borderRadius: 12,
-              background: 'linear-gradient(135deg, #b08850, #8f6a39)',
+              background: 'linear-gradient(135deg, #15803d, #166534)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 4px 12px rgba(176,136,80,0.2)',
+              boxShadow: '0 4px 12px rgba(21,128,61,0.2)',
               flexShrink: 0
             }}>
-              <Headphones size={24} color="#000" />
+              <Headphones size={24} color="#ffffff" />
             </div>
             <div>
               <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(17px, 5vw, 20px)', fontWeight: 900, margin: 0 }}>{room.name}</h1>
@@ -672,8 +672,9 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
               onClick={handleShareRoom}
               style={{
                 flex: isMobile ? 1 : 'initial',
-                background: 'rgba(176,136,80,0.08)',
-                border: '1px solid rgba(176,136,80,0.18)',
+                background: 'rgba(21,128,61,0.1)',
+                border: '1px solid rgba(21,128,61,0.3)',
+                color: '#15803d',
                 padding: '8px 16px',
                 borderRadius: 20,
                 fontSize: 12,
@@ -687,7 +688,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                 boxSizing: 'border-box'
               }}
             >
-              <Share2 size={13} color="#b08850" /> Invite Friends
+              <Share2 size={13} color="#15803d" /> Invite Friends
             </button>
 
             {/* Lock/Unlock control — host only */}
@@ -734,8 +735,8 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
               onClick={handleLeaveRoom}
               style={{
                 flex: isMobile ? 1 : 'initial',
-                background: '#b08850',
-                color: '#000',
+                background: '#15803d',
+                color: '#ffffff',
                 border: 'none',
                 padding: '8px 16px',
                 borderRadius: 20,
@@ -759,8 +760,8 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
         {isMobile && (
           <div style={{
             display: 'flex',
-            background: 'rgba(176,136,80,0.06)',
-            border: '1px solid rgba(176,136,80,0.12)',
+            background: 'rgba(21,128,61,0.06)',
+            border: '1px solid rgba(21,128,61,0.12)',
             borderRadius: 20,
             padding: 3,
             marginBottom: 8,
@@ -782,8 +783,8 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                     padding: '8px 10px',
                     borderRadius: 18,
                     border: 'none',
-                    background: active ? '#b08850' : 'transparent',
-                    color: active ? '#000' : '#706155',
+                    background: active ? '#15803d' : 'transparent',
+                    color: active ? '#ffffff' : '#6b7280',
                     fontWeight: 700,
                     fontSize: 12,
                     cursor: 'pointer',
@@ -819,9 +820,9 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
             {/* Main Sync Player Card (Matches Spotify-like second reference image!) */}
             {(!isMobile || activeMobileTab === 'player') && (
               <div className="jam-player-card" style={{
-                background: '#f5f0e6', // Soft cream background matching second ref image
+                background: '#ffffff',
                 borderRadius: 24,
-                border: '1px solid rgba(176,136,80,0.15)',
+                border: '1px solid rgba(21,128,61,0.15)',
                 boxShadow: '0 8px 30px rgba(43,34,26,0.04)',
                 padding: '20px 24px',
                 display: 'flex',
@@ -837,7 +838,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                   <p style={{ color: '#706155', fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.15em', margin: 0 }}>
                     Playing from your library
                   </p>
-                  <p style={{ color: '#221a15', fontSize: 12.5, fontWeight: 700, margin: '2px 0 0 0' }}>
+                  <p style={{ color: '#15803d', fontSize: 12.5, fontWeight: 700, margin: '2px 0 0 0' }}>
                     {room.name}
                   </p>
                 </div>
@@ -855,15 +856,15 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                     height: 'clamp(200px, 60vw, 280px)',
                     borderRadius: 16,
                     overflow: 'hidden',
-                    boxShadow: '0 12px 36px rgba(0,0,0,0.12)',
+                    boxShadow: 'none',
                     background: '#e5e7eb',
-                    border: '1px solid rgba(176,136,80,0.1)'
+                    border: '1px solid rgba(21,128,61,0.1)'
                   }}>
                     {currentRoomTrack?.coverImage ? (
                       <img src={currentRoomTrack.coverImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     ) : (
                       <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#374151' }}>
-                        <Music size={40} color="#b08850" />
+                        <Music size={40} color="#15803d" />
                       </div>
                     )}
                   </div>
@@ -877,7 +878,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                   
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: 12 }}>
                     <div style={{ minWidth: 0, flex: 1 }}>
-                      <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(18px, 5.5vw, 22px)', fontWeight: 900, margin: 0, color: '#221a15', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                      <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(18px, 5.5vw, 22px)', fontWeight: 900, margin: 0, color: '#15803d', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
                         {currentRoomTrack ? currentRoomTrack.title : 'Nothing playing'}
                       </h2>
                       <p style={{ color: '#706155', fontSize: 13, margin: '2px 0 0 0', fontWeight: 500, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
@@ -916,7 +917,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                     disabled={!canControl}
                     style={{
                       width: '100%',
-                      accentColor: '#221a15',
+                      accentColor: '#0f172a',
                       cursor: canControl ? 'pointer' : 'not-allowed',
                       opacity: canControl ? 1 : 0.5,
                       margin: 0,
@@ -950,7 +951,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                   {/* Skip Back / Previous */}
                   <motion.button
                     whileTap={{ scale: 0.95 }}
-                    style={{ background: 'none', border: 'none', cursor: canControl ? 'pointer' : 'not-allowed', color: '#221a15', opacity: canControl ? 1 : 0.35 }}
+                    style={{ background: 'none', border: 'none', cursor: canControl ? 'pointer' : 'not-allowed', color: '#15803d', opacity: canControl ? 1 : 0.35 }}
                     onClick={() => {
                       if (canControl) {
                         toast.success('Restarting track... ⏮️');
@@ -960,7 +961,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                       }
                     }}
                   >
-                    <SkipBack size={22} fill="#221a15" />
+                    <SkipBack size={22} fill="#15803d" />
                   </motion.button>
 
                   {/* Large Dark Play/Pause Circle */}
@@ -972,14 +973,14 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                       width: 56,
                       height: 56,
                       borderRadius: '50%',
-                      background: '#221a15',
+                      background: '#0f172a',
                       color: '#ffffff',
                       border: 'none',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       cursor: canControl ? 'pointer' : 'not-allowed',
-                      boxShadow: '0 6px 20px rgba(34,26,21,0.2)',
+                      boxShadow: '0 6px 20px rgba(15,23,42,0.2)',
                       opacity: canControl ? 1 : 0.45
                     }}
                   >
@@ -989,12 +990,12 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                   {/* Skip Forward / Next */}
                   <motion.button
                     whileTap={{ scale: 0.95 }}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#221a15' }}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#15803d' }}
                     onClick={() => {
                       toast.success('Skipping to next in queue... ⏭️');
                     }}
                   >
-                    <SkipForward size={22} fill="#221a15" />
+                    <SkipForward size={22} fill="#15803d" />
                   </motion.button>
 
                   {/* Repeat Button */}
@@ -1013,13 +1014,13 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                   disabled={isSyncing}
                   style={{
                     marginTop: 16,
-                    background: 'rgba(34,26,21,0.05)',
-                    border: '1px solid rgba(34,26,21,0.15)',
+                    background: 'rgba(15,23,42,0.05)',
+                    border: '1px solid rgba(15,23,42,0.15)',
                     borderRadius: 16,
                     padding: '5px 12px',
                     fontSize: 10.5,
                     fontWeight: 700,
-                    color: '#221a15',
+                    color: '#15803d',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
@@ -1036,20 +1037,20 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
             <div className="jam-browse-card" style={{
               background: '#ffffff',
               borderRadius: 20,
-              border: '1px solid rgba(176,136,80,0.18)',
+              border: '1px solid rgba(21,128,61,0.18)',
               boxShadow: '0 8px 30px rgba(43,34,26,0.04)',
               marginTop: 20,
               width: '100%',
               minWidth: 0,
               boxSizing: 'border-box'
             }}>
-              <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 16, fontWeight: 900, margin: '0 0 16px', color: '#221a15' }}>
+              <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 16, fontWeight: 900, margin: '0 0 16px', color: '#15803d' }}>
                 Browse & Search Songs
               </h3>
 
               {/* Inside-Room Search Input */}
               <div style={{ position: 'relative', marginBottom: 20 }}>
-                <Search size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#b08850' }} />
+                <Search size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#15803d' }} />
                 <input
                   type="text"
                   placeholder="Search songs to play or queue..."
@@ -1059,10 +1060,10 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                     width: '100%',
                     padding: '10px 14px 10px 36px',
                     borderRadius: 12,
-                    border: '1px solid rgba(176,136,80,0.25)',
+                    border: '1px solid rgba(21,128,61,0.25)',
                     fontSize: 12.5,
                     outline: 'none',
-                    background: '#faf9f6',
+                    background: '#f8fafc',
                     boxSizing: 'border-box'
                   }}
                 />
@@ -1071,7 +1072,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
               {roomSearchQuery.trim() !== '' ? (
                 /* ── Search Results ── */
                 <div>
-                  <h4 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 13, fontWeight: 800, margin: '0 0 12px', color: '#b08850', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  <h4 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 13, fontWeight: 800, margin: '0 0 12px', color: '#15803d', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                     🔍 Search Results
                   </h4>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', boxSizing: 'border-box' }}>
@@ -1081,7 +1082,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                     ).slice(0, 5).map((track) => (
                       <motion.div
                         key={track.id}
-                        whileHover={{ x: 4, background: 'rgba(176,136,80,0.05)' }}
+                        whileHover={{ x: 4, background: 'rgba(21,128,61,0.05)' }}
                         style={{
                           display: 'flex',
                           alignItems: 'center',
@@ -1089,7 +1090,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                           padding: '8px 12px',
                           borderRadius: 12,
                           background: 'rgba(43,34,26,0.02)',
-                          border: '1px solid rgba(176,136,80,0.06)',
+                          border: '1px solid rgba(21,128,61,0.06)',
                           width: '100%',
                           boxSizing: 'border-box'
                         }}
@@ -1099,7 +1100,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                             {track.coverImage && <img src={track.coverImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
                           </div>
                           <div style={{ minWidth: 0 }}>
-                            <p style={{ fontSize: 12.5, fontWeight: 700, margin: 0, color: '#221a15', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.title}</p>
+                            <p style={{ fontSize: 12.5, fontWeight: 700, margin: 0, color: '#15803d', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.title}</p>
                             <p style={{ fontSize: 11, color: '#706155', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.artistName}</p>
                           </div>
                         </div>
@@ -1111,7 +1112,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                               toast.success(`Playing "${track.title}" in the room! 🎵`);
                             }}
                             style={{
-                              background: '#b08850',
+                              background: '#15803d',
                               border: 'none',
                               color: '#000',
                               padding: '5px 10px',
@@ -1129,9 +1130,9 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                               toast.success(`Added "${track.title}" to queue! ➕`);
                             }}
                             style={{
-                              background: 'rgba(176,136,80,0.08)',
-                              border: '1px solid rgba(176,136,80,0.18)',
-                              color: '#b08850',
+                              background: 'rgba(21,128,61,0.08)',
+                              border: '1px solid rgba(21,128,61,0.18)',
+                              color: '#15803d',
                               padding: '5px 10px',
                               borderRadius: 8,
                               fontSize: 10.5,
@@ -1183,7 +1184,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                             alignItems: 'center',
                             gap: 8,
                             background: 'rgba(43,34,26,0.03)',
-                            border: '1px solid rgba(176,136,80,0.08)',
+                            border: '1px solid rgba(21,128,61,0.08)',
                             borderRadius: 12,
                             padding: '6px 10px',
                             cursor: 'pointer',
@@ -1205,7 +1206,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                           }}>
                             <Music size={12} color="#ffffff" />
                           </div>
-                          <span style={{ fontSize: 11, fontWeight: 700, color: '#221a15', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: '#15803d', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
                             {vibe.label}
                           </span>
                         </motion.div>
@@ -1215,7 +1216,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
 
                   {/* Home-style Horizontal Scrolling Recommended Section */}
                   <div style={{ width: '100%', boxSizing: 'border-box', marginTop: 8 }}>
-                    <h4 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 13, fontWeight: 800, margin: '0 0 12px', color: '#b08850', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    <h4 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 13, fontWeight: 800, margin: '0 0 12px', color: '#15803d', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                       Recommended Songs
                     </h4>
                     <div style={{
@@ -1252,7 +1253,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                             overflow: 'hidden',
                             background: '#e5e7eb',
                             boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
-                            border: '1px solid rgba(176,136,80,0.1)',
+                            border: '1px solid rgba(21,128,61,0.1)',
                             marginBottom: 6,
                             position: 'relative'
                           }}>
@@ -1266,7 +1267,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                               width: 24,
                               height: 24,
                               borderRadius: '50%',
-                              background: '#b08850',
+                              background: '#15803d',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
@@ -1279,7 +1280,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                             fontSize: 11.5,
                             fontWeight: 700,
                             margin: 0,
-                            color: '#221a15',
+                            color: '#15803d',
                             whiteSpace: 'nowrap',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis'
@@ -1303,7 +1304,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
 
                   {/* Section 3: Featured Carousels (Horizontal Slider) */}
                   <div style={{ width: '100%', boxSizing: 'border-box', marginTop: 16 }}>
-                    <h4 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 13, fontWeight: 800, margin: '0 0 12px', color: '#b08850', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    <h4 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 13, fontWeight: 800, margin: '0 0 12px', color: '#15803d', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                       🌟 Featured Carousels
                     </h4>
                     <div style={{
@@ -1340,7 +1341,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                             overflow: 'hidden',
                             background: '#e5e7eb',
                             boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
-                            border: '1px solid rgba(176,136,80,0.1)',
+                            border: '1px solid rgba(21,128,61,0.1)',
                             marginBottom: 6,
                             position: 'relative'
                           }}>
@@ -1352,7 +1353,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                               width: 22,
                               height: 22,
                               borderRadius: '50%',
-                              background: '#b08850',
+                              background: '#15803d',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
@@ -1361,7 +1362,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                               <Play size={8} fill="black" stroke="none" />
                             </div>
                           </div>
-                          <p style={{ fontSize: 11, fontWeight: 700, margin: 0, color: '#221a15', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          <p style={{ fontSize: 11, fontWeight: 700, margin: 0, color: '#15803d', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                             {track.title}
                           </p>
                           <p style={{ fontSize: 9.5, color: '#706155', margin: '2px 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -1374,7 +1375,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
 
                   {/* Section 4: All Tracks (Numbered List with Play and Queue options!) */}
                   <div style={{ width: '100%', boxSizing: 'border-box', marginTop: 20 }}>
-                    <h4 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 13, fontWeight: 800, margin: '0 0 12px', color: '#b08850', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    <h4 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 13, fontWeight: 800, margin: '0 0 12px', color: '#15803d', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                       🎵 All Tracks Queue
                     </h4>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', boxSizing: 'border-box' }}>
@@ -1388,21 +1389,21 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                             padding: '8px 12px',
                             borderRadius: 12,
                             background: 'rgba(43,34,26,0.02)',
-                            border: '1px solid rgba(176,136,80,0.06)',
+                            border: '1px solid rgba(21,128,61,0.06)',
                             width: '100%',
                             boxSizing: 'border-box',
                             gap: 12
                           }}
                         >
                           <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: 1 }}>
-                            <span style={{ fontSize: 12, fontWeight: 800, color: '#b08850', width: 16, textAlign: 'center', flexShrink: 0 }}>
+                            <span style={{ fontSize: 12, fontWeight: 800, color: '#15803d', width: 16, textAlign: 'center', flexShrink: 0 }}>
                               {(allTracksPage - 1) * tracksPerPage + i + 1}
                             </span>
                             <div style={{ width: 36, height: 36, borderRadius: 6, overflow: 'hidden', background: '#e5e7eb', flexShrink: 0 }}>
                               {track.coverImage && <img src={track.coverImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
                             </div>
                             <div style={{ minWidth: 0, flex: 1 }}>
-                              <p style={{ fontSize: 12.5, fontWeight: 700, margin: 0, color: '#221a15', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              <p style={{ fontSize: 12.5, fontWeight: 700, margin: 0, color: '#15803d', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                 {track.title}
                               </p>
                               <p style={{ fontSize: 11, color: '#706155', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -1420,7 +1421,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                                 toast.success(`Playing "${track.title}"! 🎵`);
                               }}
                               style={{
-                                background: '#b08850',
+                                background: '#15803d',
                                 border: 'none',
                                 color: '#000',
                                 padding: '5px 12px',
@@ -1438,9 +1439,9 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                                 toast.success(`Added "${track.title}" to queue! ➕`);
                               }}
                               style={{
-                                background: 'rgba(176,136,80,0.08)',
-                                border: '1px solid rgba(176,136,80,0.18)',
-                                color: '#b08850',
+                                background: 'rgba(21,128,61,0.08)',
+                                border: '1px solid rgba(21,128,61,0.18)',
+                                color: '#15803d',
                                 padding: '5px 12px',
                                 borderRadius: 8,
                                 fontSize: 10.5,
@@ -1464,9 +1465,9 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                           style={{
                             padding: '8px 16px',
                             borderRadius: 20,
-                            background: allTracksPage === 1 ? 'transparent' : 'rgba(176,136,80,0.1)',
-                            border: `1px solid ${allTracksPage === 1 ? 'rgba(176,136,80,0.1)' : 'rgba(176,136,80,0.3)'}`,
-                            color: allTracksPage === 1 ? 'rgba(34,26,21,0.3)' : '#b08850',
+                            background: allTracksPage === 1 ? 'transparent' : 'rgba(21,128,61,0.1)',
+                            border: `1px solid ${allTracksPage === 1 ? 'rgba(21,128,61,0.1)' : 'rgba(21,128,61,0.3)'}`,
+                            color: allTracksPage === 1 ? 'rgba(15,23,42,0.3)' : '#15803d',
                             fontWeight: 700,
                             fontSize: 12,
                             cursor: allTracksPage === 1 ? 'default' : 'pointer',
@@ -1484,9 +1485,9 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                           style={{
                             padding: '8px 16px',
                             borderRadius: 20,
-                            background: allTracksPage >= Math.ceil(allTracks.length / tracksPerPage) ? 'transparent' : '#b08850',
-                            border: `1px solid ${allTracksPage >= Math.ceil(allTracks.length / tracksPerPage) ? 'rgba(176,136,80,0.1)' : '#b08850'}`,
-                            color: allTracksPage >= Math.ceil(allTracks.length / tracksPerPage) ? 'rgba(34,26,21,0.3)' : '#fff',
+                            background: allTracksPage >= Math.ceil(allTracks.length / tracksPerPage) ? 'transparent' : '#15803d',
+                            border: `1px solid ${allTracksPage >= Math.ceil(allTracks.length / tracksPerPage) ? 'rgba(21,128,61,0.1)' : '#15803d'}`,
+                            color: allTracksPage >= Math.ceil(allTracks.length / tracksPerPage) ? 'rgba(15,23,42,0.3)' : '#fff',
                             fontWeight: 700,
                             fontSize: 12,
                             cursor: allTracksPage >= Math.ceil(allTracks.length / tracksPerPage) ? 'default' : 'pointer',
@@ -1508,7 +1509,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
             <div className="jam-browse-card" style={{
               background: '#ffffff',
               borderRadius: 20,
-              border: '1px solid rgba(176,136,80,0.18)',
+              border: '1px solid rgba(21,128,61,0.18)',
               boxShadow: '0 8px 30px rgba(43,34,26,0.04)',
               width: '100%',
               minWidth: 0,
@@ -1528,10 +1529,10 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                   width: '100%',
                   padding: '10px 12px 10px 36px',
                   borderRadius: 12,
-                  border: '1px solid rgba(176,136,80,0.25)',
+                  border: '1px solid rgba(21,128,61,0.25)',
                   outline: 'none',
                   fontSize: 12.5,
-                  background: '#faf9f6'
+                  background: '#f8fafc'
                 }}
               />
 
@@ -1544,7 +1545,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                   right: 0,
                   zIndex: 200,
                   background: '#ffffff',
-                  border: '1px solid rgba(176,136,80,0.18)',
+                  border: '1px solid rgba(21,128,61,0.18)',
                   borderRadius: 12,
                   maxHeight: 220,
                   overflowY: 'auto',
@@ -1564,7 +1565,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                         cursor: 'pointer',
                         transition: 'background 0.15s'
                       }}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(176,136,80,0.05)'}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(21,128,61,0.05)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -1572,11 +1573,11 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                           {track.coverImage && <img src={track.coverImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
                         </div>
                         <div>
-                          <p style={{ fontSize: 12, fontWeight: 700, margin: 0, color: '#221a15' }}>{track.title}</p>
+                          <p style={{ fontSize: 12, fontWeight: 700, margin: 0, color: '#15803d' }}>{track.title}</p>
                           <p style={{ fontSize: 10.5, color: '#706155', margin: 0 }}>{track.artist}</p>
                         </div>
                       </div>
-                      <span style={{ fontSize: 11, color: '#b08850', fontWeight: 800 }}>+ Add</span>
+                      <span style={{ fontSize: 11, color: '#ffffff', fontWeight: 800 }}>+ Add</span>
                     </div>
                   ))}
                 </div>
@@ -1601,8 +1602,8 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         padding: '10px 14px',
-                        background: 'rgba(176,136,80,0.02)',
-                        border: '1px solid rgba(176,136,80,0.08)',
+                        background: 'rgba(21,128,61,0.02)',
+                        border: '1px solid rgba(21,128,61,0.08)',
                         borderRadius: 12
                       }}
                     >
@@ -1626,7 +1627,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                             style={{
                               background: 'none',
                               border: 'none',
-                              color: '#b08850',
+                              color: '#15803d',
                               fontSize: 11,
                               fontWeight: 800,
                               cursor: 'pointer'
@@ -1666,14 +1667,14 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
           <div className="jam-browse-card" style={{
             background: '#ffffff',
             borderRadius: 20,
-            border: '1px solid rgba(176,136,80,0.18)',
+            border: '1px solid rgba(21,128,61,0.18)',
             boxShadow: '0 8px 30px rgba(43,34,26,0.04)',
             width: '100%',
             minWidth: 0,
             boxSizing: 'border-box'
           }}>
             <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 15, fontWeight: 800, margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Users size={16} color="#b08850" /> Active Listeners ({room.participants?.length || 0})
+              <Users size={16} color="#15803d" /> Active Listeners ({room.participants?.length || 0})
             </h3>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               {room.participants?.map(p => (
@@ -1685,13 +1686,13 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                     gap: 6,
                     padding: '4px 10px',
                     borderRadius: 16,
-                    background: p.role === 'host' ? 'rgba(176,136,80,0.12)' : 'rgba(43,34,26,0.04)',
-                    border: p.role === 'host' ? '1px solid rgba(176,136,80,0.25)' : '1px solid transparent',
+                    background: p.role === 'host' ? '#15803d' : 'rgba(15,23,42,0.04)',
+                    border: p.role === 'host' ? '1px solid #15803d' : '1px solid transparent',
                     fontSize: 12,
                     fontWeight: 600
                   }}
                 >
-                  {p.role === 'host' && <Crown size={12} color="#b08850" fill="#b08850" />}
+                  {p.role === 'host' && <Crown size={12} color="#ffffff" fill="#ffffff" />}
                   <span>{p.name}</span>
                 </div>
               ))}
@@ -1702,7 +1703,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
           <div className="jam-browse-card" style={{
             background: '#ffffff',
             borderRadius: 20,
-            border: '1px solid rgba(176,136,80,0.18)',
+            border: '1px solid rgba(21,128,61,0.18)',
             boxShadow: '0 8px 30px rgba(43,34,26,0.04)',
             flex: 1,
             display: 'flex',
@@ -1750,7 +1751,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
             </div>
 
             <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 15, fontWeight: 800, margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <MessageSquare size={16} color="#b08850" /> Live Chat
+              <MessageSquare size={16} color="#15803d" /> Live Chat
             </h3>
 
             {/* Chat message logs */}
@@ -1794,8 +1795,8 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                     <div style={{
                       padding: '8px 12px',
                       borderRadius: 12,
-                      background: isOwnMsg ? '#b08850' : 'rgba(43,34,26,0.05)',
-                      color: isOwnMsg ? '#000' : '#221a15',
+                      background: isOwnMsg ? '#15803d' : '#f1f5f9',
+                      color: isOwnMsg ? '#ffffff' : '#0f172a',
                       fontSize: 12.5,
                       fontWeight: 500,
                       maxWidth: '85%',
@@ -1817,8 +1818,8 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
               justifyContent: 'space-between',
               padding: '6px 8px',
               borderRadius: 12,
-              background: 'rgba(176,136,80,0.05)',
-              border: '1px solid rgba(176,136,80,0.12)',
+              background: 'rgba(21,128,61,0.05)',
+              border: '1px solid rgba(21,128,61,0.12)',
               marginBottom: 12
             }}>
               <span style={{ fontSize: 11, fontWeight: 700, color: '#706155' }}>React:</span>
@@ -1826,12 +1827,12 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                 {['❤️', '🔥', '😂', '🎉', '👏', '🚀'].map(emoji => (
                   <motion.button
                     key={emoji}
-                    whileHover={{ scale: 1.25, y: -2, background: 'rgba(176,136,80,0.12)' }}
+                    whileHover={{ scale: 1.25, y: -2, background: 'rgba(21,128,61,0.12)' }}
                     whileTap={{ scale: 0.9 }}
                     onClick={() => sendEmojiReaction(emoji)}
                     style={{
                       background: 'rgba(255,255,255,0.7)',
-                      border: '1px solid rgba(176,136,80,0.15)',
+                      border: '1px solid rgba(21,128,61,0.15)',
                       fontSize: 16,
                       cursor: 'pointer',
                       width: 32,
@@ -1861,10 +1862,10 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                   flex: 1,
                   padding: '10px 14px',
                   borderRadius: 12,
-                  border: '1px solid rgba(176,136,80,0.25)',
+                  border: '1px solid rgba(21,128,61,0.25)',
                   fontSize: 12.5,
                   outline: 'none',
-                  background: '#faf9f6'
+                  background: '#f8fafc'
                 }}
               />
               <button
@@ -1873,8 +1874,8 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                   width: 38,
                   height: 38,
                   borderRadius: 12,
-                  background: '#b08850',
-                  color: '#000',
+                  background: '#15803d',
+                  color: '#ffffff',
                   border: 'none',
                   display: 'flex',
                   alignItems: 'center',
@@ -1918,13 +1919,13 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                     bottom: 0,
                     left: 0,
                     right: 0,
-                    background: 'var(--color-ss-bg, #fbf9f5)',
+                    background: 'var(--color-ss-bg, #ffffff)',
                     borderTopLeftRadius: 24,
                     borderTopRightRadius: 24,
                     padding: '12px 20px 40px',
                     zIndex: 10000,
                     boxShadow: '0 -10px 40px rgba(43, 34, 26, 0.08)',
-                    borderTop: '1px solid rgba(176, 136, 80, 0.22)',
+                    borderTop: '1px solid rgba(21, 128, 61, 0.22)',
                     maxWidth: '100%',
                     boxSizing: 'border-box'
                   }}
@@ -1934,20 +1935,20 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                     width: 36,
                     height: 4,
                     borderRadius: 2,
-                    background: 'rgba(176, 136, 80, 0.15)',
+                    background: 'rgba(21, 128, 61, 0.15)',
                     margin: '0 auto 24px',
                   }} />
 
                   <div style={{ padding: '0 4px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <div style={{ width: 36, height: 36, borderRadius: 9, background: 'rgba(176, 136, 80, 0.12)', border: '1px solid rgba(176, 136, 80, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Share2 size={15} color="#b08850" /></div>
+                        <div style={{ width: 36, height: 36, borderRadius: 9, background: 'rgba(21, 128, 61, 0.12)', border: '1px solid rgba(21, 128, 61, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Share2 size={15} color="#15803d" /></div>
                         <div>
-                          <h3 style={{ fontFamily: 'Outfit, sans-serif', color: '#221a15', fontSize: 16, fontWeight: 800 }}>Invite Friends</h3>
+                          <h3 style={{ fontFamily: 'Outfit, sans-serif', color: '#15803d', fontSize: 16, fontWeight: 800 }}>Invite Friends</h3>
                           <p style={{ color: '#706155', fontSize: 11 }}>Share access to this Jam Room</p>
                         </div>
                       </div>
-                      <button onClick={() => setShowInviteMenu(false)} style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(176, 136, 80, 0.08)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#706155' }}><X size={14} /></button>
+                      <button onClick={() => setShowInviteMenu(false)} style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(21, 128, 61, 0.08)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#706155' }}><X size={14} /></button>
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -1964,7 +1965,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                           padding: '14px 18px',
                           borderRadius: 14,
                           background: '#ffffff',
-                          border: '1px solid rgba(176, 136, 80, 0.18)',
+                          border: '1px solid rgba(21, 128, 61, 0.18)',
                           cursor: 'pointer',
                           textAlign: 'left',
                           width: '100%',
@@ -1972,10 +1973,10 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                         }}
                       >
                         <div>
-                          <p style={{ fontSize: 13.5, fontWeight: 700, margin: 0, color: '#221a15' }}>Copy Invite Link</p>
+                          <p style={{ fontSize: 13.5, fontWeight: 700, margin: 0, color: '#15803d' }}>Copy Invite Link</p>
                           <p style={{ fontSize: 10.5, color: '#706155', margin: '2px 0 0' }}>Bypasses password screen automatically</p>
                         </div>
-                        <Copy size={16} color="#b08850" />
+                        <Copy size={16} color="#15803d" />
                       </button>
 
                       <button
@@ -1991,7 +1992,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                           padding: '14px 18px',
                           borderRadius: 14,
                           background: '#ffffff',
-                          border: '1px solid rgba(176, 136, 80, 0.18)',
+                          border: '1px solid rgba(21, 128, 61, 0.18)',
                           cursor: 'pointer',
                           textAlign: 'left',
                           width: '100%',
@@ -1999,10 +2000,10 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                         }}
                       >
                         <div>
-                          <p style={{ fontSize: 13.5, fontWeight: 700, margin: 0, color: '#221a15' }}>Copy Invite Code</p>
+                          <p style={{ fontSize: 13.5, fontWeight: 700, margin: 0, color: '#15803d' }}>Copy Invite Code</p>
                           <p style={{ fontSize: 10.5, color: '#706155', margin: '2px 0 0' }}>Code with password details embedded</p>
                         </div>
-                        <Copy size={16} color="#b08850" />
+                        <Copy size={16} color="#15803d" />
                       </button>
 
                       <button
@@ -2018,7 +2019,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                           padding: '14px 18px',
                           borderRadius: 14,
                           background: '#ffffff',
-                          border: '1px solid rgba(176, 136, 80, 0.18)',
+                          border: '1px solid rgba(21, 128, 61, 0.18)',
                           cursor: 'pointer',
                           textAlign: 'left',
                           width: '100%',
@@ -2026,10 +2027,10 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
                         }}
                       >
                         <div>
-                          <p style={{ fontSize: 13.5, fontWeight: 700, margin: 0, color: '#221a15' }}>Share Message</p>
+                          <p style={{ fontSize: 13.5, fontWeight: 700, margin: 0, color: '#15803d' }}>Share Message</p>
                           <p style={{ fontSize: 10.5, color: '#706155', margin: '2px 0 0' }}>Copies link and code as a single text message</p>
                         </div>
-                        <Send size={16} color="#b08850" />
+                        <Send size={16} color="#15803d" />
                       </button>
                     </div>
                   </div>

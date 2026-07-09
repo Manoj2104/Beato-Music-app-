@@ -8,6 +8,7 @@ interface DownloadStore {
   downloadedTracks: Track[];
   downloadedTrackIds: string[];
   downloadingIds: string[];
+  downloadProgress: Record<string, number>;
   
   downloadTrack: (track: Track) => Promise<void>;
   removeDownloadedTrack: (trackId: string) => Promise<void>;
@@ -21,6 +22,7 @@ export const useDownloadStore = create<DownloadStore>()(
       downloadedTracks: [],
       downloadedTrackIds: [],
       downloadingIds: [],
+      downloadProgress: {},
 
       downloadTrack: async (track) => {
         const { downloadedTrackIds, downloadingIds } = get();
@@ -28,8 +30,11 @@ export const useDownloadStore = create<DownloadStore>()(
           return;
         }
 
-        // Add to downloading
-        set((state) => ({ downloadingIds: [...state.downloadingIds, track.id] }));
+        // Add to downloading and set initial progress
+        set((state) => ({ 
+          downloadingIds: [...state.downloadingIds, track.id],
+          downloadProgress: { ...state.downloadProgress, [track.id]: 0 }
+        }));
         
         try {
           let url = track.audioUrl;
@@ -45,24 +50,79 @@ export const useDownloadStore = create<DownloadStore>()(
 
           const response = await fetch(url);
           if (!response.ok) throw new Error('Failed to fetch audio stream');
-          const blob = await response.blob();
           
-          // Save audio binary to IndexedDB
-          await saveOfflineAudio(track.id, blob);
+          const contentLength = response.headers.get('content-length');
+          const totalBytes = contentLength ? parseInt(contentLength, 10) : 0;
           
-          // Save metadata
-          set((state) => ({
-            downloadedTracks: [...state.downloadedTracks, track],
-            downloadedTrackIds: [...state.downloadedTrackIds, track.id],
-            downloadingIds: state.downloadingIds.filter((id) => id !== track.id),
-          }));
+          const reader = response.body?.getReader();
+          if (!reader) {
+            // Fallback if reader is not available
+            const blob = await response.blob();
+            await saveOfflineAudio(track.id, blob);
+          } else {
+            let receivedLength = 0;
+            const chunks = [];
+            let lastReportedProgress = 0;
+            
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              chunks.push(value);
+              receivedLength += value.length;
+              
+              if (totalBytes > 0) {
+                const realProgress = Math.round((receivedLength / totalBytes) * 100);
+                if (realProgress > lastReportedProgress) {
+                  lastReportedProgress = realProgress;
+                  set((state) => ({
+                    downloadProgress: { ...state.downloadProgress, [track.id]: Math.min(realProgress, 99) }
+                  }));
+                }
+              } else {
+                // No content-length: simulate progress up to 99% based on chunk sizes
+                const simulated = Math.min(Math.round((receivedLength / (1024 * 1024 * 3.5)) * 100), 99);
+                if (simulated > lastReportedProgress) {
+                  lastReportedProgress = simulated;
+                  set((state) => ({
+                    downloadProgress: { ...state.downloadProgress, [track.id]: simulated }
+                  }));
+                }
+              }
+            }
+            
+            const chunksAll = new Uint8Array(receivedLength);
+            let position = 0;
+            for (let chunk of chunks) {
+              chunksAll.set(chunk, position);
+              position += chunk.length;
+            }
+            const blob = new Blob([chunksAll]);
+            await saveOfflineAudio(track.id, blob);
+          }
+          
+          // Complete! Remove from downloading and progress
+          set((state) => {
+            const nextProgress = { ...state.downloadProgress };
+            delete nextProgress[track.id];
+            return {
+              downloadedTracks: [...state.downloadedTracks, track],
+              downloadedTrackIds: [...state.downloadedTrackIds, track.id],
+              downloadingIds: state.downloadingIds.filter((id) => id !== track.id),
+              downloadProgress: nextProgress,
+            };
+          });
           
           toast.success(`"${track.title}" downloaded offline!`);
         } catch (error) {
           console.error(`Failed to download track ${track.id}:`, error);
-          set((state) => ({
-            downloadingIds: state.downloadingIds.filter((id) => id !== track.id),
-          }));
+          set((state) => {
+            const nextProgress = { ...state.downloadProgress };
+            delete nextProgress[track.id];
+            return {
+              downloadingIds: state.downloadingIds.filter((id) => id !== track.id),
+              downloadProgress: nextProgress,
+            };
+          });
           toast.error(`Failed to download "${track.title}"`);
         }
       },

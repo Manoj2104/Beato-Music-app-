@@ -13,7 +13,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useMusicStore, trackGradient } from '@/store/musicStore';
 import { formatDuration } from '@/lib/mockData';
 
-const GREEN = '#b08850';
+const GREEN = '#0f5132';
 
 interface TrackCardProps {
   track: Track;
@@ -78,9 +78,9 @@ export default function TrackCard({ track, index, queue = [], showAlbum = true, 
     <div
       className={`track-card-row ${compact ? 'compact' : ''}`}
       style={{
-        background: isCurrentTrack ? 'rgba(176, 136, 80, 0.08)' : 'transparent',
+        background: isCurrentTrack ? 'rgba(15, 81, 50, 0.08)' : 'transparent',
       }}
-      onMouseEnter={e => { setIsHovered(true); if (!isCurrentTrack) e.currentTarget.style.background = 'rgba(43, 34, 26, 0.04)'; }}
+      onMouseEnter={e => { setIsHovered(true); if (!isCurrentTrack) e.currentTarget.style.background = 'rgba(15, 81, 50, 0.04)'; }}
       onMouseLeave={e => { setIsHovered(false); if (!isCurrentTrack) e.currentTarget.style.background = 'transparent'; }}
       onClick={handlePlay}>
 
@@ -115,7 +115,7 @@ export default function TrackCard({ track, index, queue = [], showAlbum = true, 
         alignItems: 'center',
         justifyContent: 'center',
         flexShrink: 0,
-        boxShadow: isCurrentTrack ? `0 0 12px rgba(176, 136, 80, 0.3)` : 'none'
+        boxShadow: isCurrentTrack ? `0 0 12px rgba(15, 81, 50, 0.3)` : 'none'
       }}>
         {displayImage ? (
           <img
@@ -212,7 +212,7 @@ export default function TrackCard({ track, index, queue = [], showAlbum = true, 
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 0 6px rgba(176, 136, 80, 0.3)'
+              boxShadow: '0 0 6px rgba(15, 81, 50, 0.3)'
             }}>
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="20 6 9 17 4 12" />

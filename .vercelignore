@@ -1,0 +1,17 @@
+node_modules
+.next
+public/uploads
+yt-dlp.exe
+yt-dlp
+test_audio.m4a
+*.mp3
+*.m4a
+*.tmp
+data/*.tmp
+data/*.bak
+data/soundsphere_db.json
+scratch/
+*.tsbuildinfo
+1783*-player-script.js
+android/
+out/

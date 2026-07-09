@@ -137,12 +137,12 @@ export const useMusicStore = create<MusicStore>()(
         })),
 
       fetchTracks: async () => {
-        // ⚡ Throttle: skip if already loaded & fetched < 20s ago
+        // ⚡ Throttle: skip if already loaded & fetched < 3s ago
         if (typeof window !== 'undefined') {
           const now = Date.now();
           const existing = get().allTracks;
           const lastFetch = (window as any).__beatoLastTracksFetch ?? 0;
-          if (existing.length > 0 && now - lastFetch < 20000) {
+          if (existing.length > 0 && now - lastFetch < 3000) {
             return;
           }
           (window as any).__beatoLastTracksFetch = now;

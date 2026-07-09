@@ -60,16 +60,16 @@ export default function AdBanner({ ad, theme = 'glass', style }: AdBannerProps) 
     descStyle.color = '#706155';
     buttonStyle = {
       ...buttonStyle,
-      background: '#b08850',
+      background: '#0f5132',
       color: '#ffffff',
       borderRadius: 20,
-      boxShadow: '0 4px 10px rgba(176, 136, 80, 0.2)',
+      boxShadow: '0 4px 10px rgba(15, 81, 50, 0.2)',
     };
   } else if (theme === 'cream') {
     cardStyle = {
       ...cardStyle,
       background: 'linear-gradient(135deg, #ffffff 0%, #fcfbf7 100%)',
-      border: '1px solid rgba(176, 136, 80, 0.16)',
+      border: '1px solid rgba(15, 81, 50, 0.16)',
       borderRadius: 12,
       boxShadow: '0 4px 20px rgba(43, 34, 26, 0.03)',
     };
@@ -77,10 +77,10 @@ export default function AdBanner({ ad, theme = 'glass', style }: AdBannerProps) 
     descStyle.color = '#87786c';
     buttonStyle = {
       ...buttonStyle,
-      background: '#b08850',
+      background: '#0f5132',
       color: '#ffffff',
       borderRadius: 20,
-      boxShadow: '0 4px 10px rgba(176, 136, 80, 0.2)',
+      boxShadow: '0 4px 10px rgba(15, 81, 50, 0.2)',
     };
   } else if (theme === 'contrast') {
     cardStyle = {
@@ -102,15 +102,15 @@ export default function AdBanner({ ad, theme = 'glass', style }: AdBannerProps) 
     cardStyle = {
       ...cardStyle,
       background: '#121212',
-      border: '1px solid #b08850',
+      border: '1px solid #0f5132',
       borderRadius: 4,
-      boxShadow: '0 0 15px rgba(176, 136, 80, 0.25)',
+      boxShadow: '0 0 15px rgba(15, 81, 50, 0.25)',
     };
     titleStyle.color = '#fff';
-    descStyle.color = '#b08850';
+    descStyle.color = '#0f5132';
     buttonStyle = {
       ...buttonStyle,
-      background: '#b08850',
+      background: '#0f5132',
       color: '#000',
       borderRadius: 4,
     };
@@ -120,7 +120,7 @@ export default function AdBanner({ ad, theme = 'glass', style }: AdBannerProps) 
     <motion.div 
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -3, boxShadow: theme === 'contrast' ? 'none' : '0 10px 28px rgba(176, 136, 80, 0.15)' }}
+      whileHover={{ y: -3, boxShadow: theme === 'contrast' ? 'none' : '0 10px 28px rgba(15, 81, 50, 0.15)' }}
       onClick={handleClick}
       style={cardStyle}
     >
@@ -132,7 +132,7 @@ export default function AdBanner({ ad, theme = 'glass', style }: AdBannerProps) 
           width: 200,
           height: 200,
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(176, 136, 80, 0.05) 0%, rgba(255, 255, 255, 0) 70%)',
+          background: 'radial-gradient(circle, rgba(15, 81, 50, 0.05) 0%, rgba(255, 255, 255, 0) 70%)',
           pointerEvents: 'none',
         }} />
       )}
@@ -146,7 +146,7 @@ export default function AdBanner({ ad, theme = 'glass', style }: AdBannerProps) 
             overflow: 'hidden',
             flexShrink: 0,
             background: '#ffffff', // Clean white background for logos
-            border: `1px solid ${theme === 'cyberpunk' ? '#b0885044' : 'rgba(176, 136, 80, 0.18)'}`,
+            border: `1px solid ${theme === 'cyberpunk' ? '#0f513244' : 'rgba(15, 81, 50, 0.18)'}`,
             boxShadow: '0 2px 6px rgba(43, 34, 26, 0.06)',
             display: 'flex',
             alignItems: 'center',
@@ -162,7 +162,7 @@ export default function AdBanner({ ad, theme = 'glass', style }: AdBannerProps) 
             height: 46,
             borderRadius: theme === 'contrast' ? 2 : '50%',
             flexShrink: 0,
-            background: 'linear-gradient(135deg, #b08850 0%, #8c6430 100%)',
+            background: 'linear-gradient(135deg, #0f5132 0%, #0b3d26 100%)',
             color: '#ffffff',
             display: 'flex',
             alignItems: 'center',
@@ -170,7 +170,7 @@ export default function AdBanner({ ad, theme = 'glass', style }: AdBannerProps) 
             fontSize: 16,
             fontWeight: 800,
             fontFamily: 'Outfit, sans-serif',
-            boxShadow: '0 3px 8px rgba(176, 136, 80, 0.22)',
+            boxShadow: '0 3px 8px rgba(15, 81, 50, 0.22)',
             border: `1.5px solid rgba(255, 255, 255, 0.8)`
           }}>
             {(ad.name || 'A').charAt(0).toUpperCase()}
@@ -181,8 +181,8 @@ export default function AdBanner({ ad, theme = 'glass', style }: AdBannerProps) 
             <span style={{
               fontSize: 8,
               fontWeight: 800,
-              color: '#b08850',
-              background: 'rgba(176, 136, 80, 0.08)',
+              color: '#0f5132',
+              background: 'rgba(15, 81, 50, 0.08)',
               padding: '2px 6px',
               borderRadius: theme === 'contrast' ? 2 : 100,
               textTransform: 'uppercase',
@@ -191,7 +191,7 @@ export default function AdBanner({ ad, theme = 'glass', style }: AdBannerProps) 
               alignItems: 'center',
               gap: 4
             }}>
-              <span style={{ display: 'inline-block', width: 4, height: 4, borderRadius: '50%', backgroundColor: '#b08850' }}></span>
+              <span style={{ display: 'inline-block', width: 4, height: 4, borderRadius: '50%', backgroundColor: '#0f5132' }}></span>
               Sponsored
             </span>
           </div>

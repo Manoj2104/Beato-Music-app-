@@ -21,14 +21,14 @@ import { usePlaylistStore } from '@/store/playlistStore';
 import { useDownloadStore } from '@/store/downloadStore';
 import { useMusicStore, trackGradient } from '@/store/musicStore';
 
-const G = '#b08850';
+const G = '#0f5132';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const EDIT_GRADIENTS = [
   { id: 'ocean',   css: 'linear-gradient(135deg,#1e3a5f,#0ea5e9)' },
   { id: 'sunset',  css: 'linear-gradient(135deg,#7c1d0a,#f97316)' },
   { id: 'aurora',  css: 'linear-gradient(135deg,#4c1d95,#34d399)' },
-  { id: 'forest',  css: 'linear-gradient(135deg,#064e3b,#b08850)' },
+  { id: 'forest',  css: 'linear-gradient(135deg,#064e3b,#0f5132)' },
   { id: 'galaxy',  css: 'linear-gradient(135deg,#1e1b4b,#6366f1)' },
   { id: 'gold',    css: 'linear-gradient(135deg,#78350f,#fbbf24)' },
   { id: 'rose',    css: 'linear-gradient(135deg,#881337,#fb7185)' },
@@ -116,18 +116,18 @@ function SuggestedTrack({ track, onAdd, isAdded }: { track: any; onAdd: () => vo
     >
       <div onClick={() => playTrack(track, [track])} style={{ width: 44, height: 44, borderRadius: 8, background: trackGradient(track.id), display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 18 }}>🎵</div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ color: '#fff', fontWeight: 600, fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.title}</p>
+        <p style={{ color: '#0f5132', fontWeight: 600, fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.title}</p>
         <p style={{ color: '#737373', fontSize: 12 }}>{track.artistName}</p>
       </div>
       {isAdded ? (
-        <div style={{ color: '#b08850', padding: '5px 12px', display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div style={{ color: '#0f5132', padding: '5px 12px', display: 'flex', alignItems: 'center', gap: 4 }}>
           <Check size={14} strokeWidth={3.5} />
         </div>
       ) : (
         <motion.button
           whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
           onClick={onAdd}
-          style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 12px', borderRadius: 20, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.14)', color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
+          style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 12px', borderRadius: 20, background: 'rgba(15,81,50,0.06)', border: '1px solid rgba(255,255,255,0.14)', color: '#0f5132', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
         >
           <Plus size={11} strokeWidth={3} /> Add
         </motion.button>
@@ -190,7 +190,7 @@ function DesktopRecommendedCard({ track, onAdd, isAdded, onPlay }: { track: any;
       
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{
-          color: hov ? 'var(--color-ss-primary, #b08850)' : 'var(--color-ss-text-primary, #221a15)',
+          color: hov ? 'var(--color-ss-primary, #0f5132)' : 'var(--color-ss-text-primary, #221a15)',
           fontWeight: 600,
           fontSize: 14,
           margin: '0 0 4px 0',
@@ -212,7 +212,7 @@ function DesktopRecommendedCard({ track, onAdd, isAdded, onPlay }: { track: any;
       <div onClick={(e) => e.stopPropagation()}>
         {isAdded ? (
           <div style={{
-            color: 'var(--color-ss-primary, #b08850)',
+            color: 'var(--color-ss-primary, #0f5132)',
             padding: '6px 12px',
             display: 'flex',
             alignItems: 'center',
@@ -296,7 +296,7 @@ function DesktopTrendingCard({ track, onAdd, isAdded, onPlay }: { track: any; on
           borderRadius: 4,
           fontSize: 9,
           fontWeight: 800,
-          color: '#b08850',
+          color: '#0f5132',
           border: '1px solid rgba(176, 136, 80,0.3)',
           zIndex: 5
         }}>
@@ -317,7 +317,7 @@ function DesktopTrendingCard({ track, onAdd, isAdded, onPlay }: { track: any; on
               width: 40,
               height: 40,
               borderRadius: '50%',
-              background: '#b08850',
+              background: '#0f5132',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -341,7 +341,7 @@ function DesktopTrendingCard({ track, onAdd, isAdded, onPlay }: { track: any; on
             width: 28,
             height: 28,
             borderRadius: '50%',
-            background: isAdded ? '#b08850' : 'rgba(0,0,0,0.85)',
+            background: isAdded ? '#0f5132' : 'rgba(0,0,0,0.85)',
             border: isAdded ? 'none' : '1px solid rgba(255,255,255,0.3)',
             display: 'flex',
             alignItems: 'center',
@@ -361,7 +361,7 @@ function DesktopTrendingCard({ track, onAdd, isAdded, onPlay }: { track: any; on
 
       <div style={{ minWidth: 0 }}>
         <p style={{
-          color: hov ? 'var(--color-ss-primary, #b08850)' : 'var(--color-ss-text-primary, #221a15)',
+          color: hov ? 'var(--color-ss-primary, #0f5132)' : 'var(--color-ss-text-primary, #221a15)',
           fontWeight: 600,
           fontSize: 13,
           margin: 0,
@@ -451,7 +451,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
           {!isLiked && (
             <button
               onClick={(ev) => { ev.stopPropagation(); toast.dismiss(t.id); setPickerTrack(track); setShowPlaylistPicker(true); }}
-              style={{ background: 'none', border: 'none', color: '#b08850', fontSize: 13, fontWeight: 700, cursor: 'pointer', flexShrink: 0, padding: '2px 0' }}
+              style={{ background: 'none', border: 'none', color: '#0f5132', fontSize: 13, fontWeight: 700, cursor: 'pointer', flexShrink: 0, padding: '2px 0' }}
             >
               Change
             </button>
@@ -463,7 +463,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
         duration: 2500,
         style: {
           background: '#282828',
-          color: '#fff',
+          color: '#0f5132',
           borderRadius: '8px',
           border: '1px solid rgba(255,255,255,0.08)',
           padding: '10px 14px',
@@ -522,6 +522,46 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
   const [editTitle, setEditTitle] = useState(playlist?.title || '');
   const [editCover, setEditCover] = useState(playlist?.coverImage || '');
   const [editGrad, setEditGrad] = useState((playlist as any)?.gradientCss || EDIT_GRADIENTS[0].css);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const handleCoverClick = () => {
+    if (isCustomPlaylist && isOwner) {
+      fileInputRef.current?.click();
+    }
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2.5 * 1024 * 1024) {
+      toast.error('Image is too large! Please choose an image smaller than 2.5MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = reader.result as string;
+      if (!playlist) return;
+      const normPlaylistId = normalizeId(playlist.id);
+      const updated = customPlaylists.map((p: any) => {
+        if (normalizeId(p.id) === normPlaylistId) {
+          return {
+            ...p,
+            coverImage: base64,
+          };
+        }
+        return p;
+      });
+      setCustomPlaylists(updated);
+      toast.success('Playlist cover image uploaded successfully! 🖼️');
+    };
+    reader.onerror = () => {
+      toast.error('Failed to read image file.');
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleSaveEdit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -707,14 +747,14 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
   const themeColor = playlist.id === 'playlist-1' ? '#3b1f8c' : playlist.id === 'playlist-2' ? '#115332' : '#143e26';
 
   return (
-    <div className="playlist-themed-container" style={{ minHeight: '100%', background: 'var(--color-ss-bg, #fbf9f5)', position: 'relative' }}>
+    <div className="playlist-themed-container" style={{ minHeight: '100%', background: 'var(--color-ss-bg, #ffffff)', position: 'relative' }}>
       <style>{`
         /* Dynamic styles to override global elements for this page only */
         @media (max-width: 768px) {
           .app-main {
             padding-bottom: 120px !important;
             border-radius: 0px !important;
-            background: var(--color-ss-bg, #fbf9f5) !important;
+            background: var(--color-ss-bg, #ffffff) !important;
           }
           .playlist-desktop-container {
             display: none !important;
@@ -750,7 +790,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
         }
         
         .playlist-mobile-container {
-          background-color: var(--color-ss-bg, #fbf9f5);
+          background-color: var(--color-ss-bg, #ffffff);
           font-family: 'Spotify Circular', 'Circular', -apple-system, BlinkMacSystemFont, sans-serif;
           min-height: 100vh;
         }
@@ -938,14 +978,14 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
           padding: 8px 22px !important;
           border-radius: 20px !important;
           border: none !important;
-          background: var(--color-ss-primary, #b08850) !important;
+          background: var(--color-ss-primary, #0f5132) !important;
           color: #ffffff !important;
           font-size: 13px !important;
           font-weight: 800 !important;
           cursor: pointer !important;
           font-family: var(--font-inter), sans-serif !important;
           transition: all 0.2s ease !important;
-          box-shadow: 0 4px 12px rgba(176, 136, 80, 0.25) !important;
+          box-shadow: 0 4px 12px rgba(15, 81, 50, 0.2) !important;
         }
         .premium-modal-card button.btn-save:hover {
           background: #9d7641 !important;
@@ -979,7 +1019,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
           transition: all 0.15s ease !important;
         }
         .all-songs-drawer-content button.active-chip {
-          background: var(--color-ss-primary, #b08850) !important;
+          background: var(--color-ss-primary, #0f5132) !important;
           color: #ffffff !important;
         }
         .all-songs-drawer-content .drawer-track-row {
@@ -1002,7 +1042,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
         .all-songs-drawer-content .drawer-track-row button.btn-add.added {
           background: transparent !important;
           border: none !important;
-          color: var(--color-ss-primary, #b08850) !important;
+          color: var(--color-ss-primary, #0f5132) !important;
         }
 
         /* Playlist Picker Bottom Sheet overrides */
@@ -1037,7 +1077,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
       `}</style>
 
       {/* ── DESKTOP PLAYLIST VIEW ── */}
-      <div className="playlist-desktop-container" style={{ minHeight: '100%', background: 'var(--color-ss-bg, #fbf9f5)', position: 'relative' }}>
+      <div className="playlist-desktop-container" style={{ minHeight: '100%', background: 'var(--color-ss-bg, #ffffff)', position: 'relative' }}>
         {/* ── Sticky mini-header ─────────────────────────────────────────── */}
         <AnimatePresence>
           {miniHeader && (
@@ -1093,7 +1133,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
             ) : customGrad ? (
               <div style={{ width: '100%', height: '100%', background: customGrad, opacity: 0.75 }} />
             ) : (
-              <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #2b221a, #b08850)', opacity: 0.75 }} />
+              <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #2b221a, #0f5132)', opacity: 0.75 }} />
             )}
             
             {/* Linear Gradient Overlay for deep contrast */}
@@ -1127,7 +1167,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                 width: 16,
                 height: 16,
                 borderRadius: '50%',
-                background: '#b08850',
+                background: '#0f5132',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -1139,7 +1179,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
               <span className="hero-text" style={{ 
                 fontSize: 12, 
                 fontWeight: 700, 
-                color: '#fff',
+                color: '#0f5132',
                 fontFamily: 'var(--font-inter), sans-serif',
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em'
@@ -1157,7 +1197,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                 fontWeight: 900, 
                 letterSpacing: '-0.02em', 
                 margin: 0,
-                color: '#fff',
+                color: '#0f5132',
                 lineHeight: 1.1,
                 textShadow: '0 2px 12px rgba(0,0,0,0.8)'
               }}>
@@ -1173,9 +1213,9 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                   }}
                   className="text-white-force"
                   style={{
-                    background: 'rgba(255,255,255,0.08)',
+                    background: 'rgba(15,81,50,0.06)',
                     border: '1px solid rgba(255,255,255,0.2)',
-                    color: '#fff',
+                    color: '#0f5132',
                     fontSize: 12,
                     fontWeight: 700,
                     padding: '6px 16px',
@@ -1290,7 +1330,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                 borderRadius: '50%',
                 background: 'transparent',
                 border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
-                color: shuffle ? 'var(--color-ss-primary, #b08850)' : 'var(--color-ss-text-primary, #221a15)',
+                color: shuffle ? 'var(--color-ss-primary, #0f5132)' : 'var(--color-ss-text-primary, #221a15)',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -1307,7 +1347,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                 e.currentTarget.style.borderColor = 'var(--color-ss-border, rgba(43, 34, 26, 0.08))';
               }}
             >
-              <Shuffle size={14} color={shuffle ? 'var(--color-ss-primary, #b08850)' : 'var(--color-ss-text-primary, #221a15)'} />
+              <Shuffle size={14} color={shuffle ? 'var(--color-ss-primary, #0f5132)' : 'var(--color-ss-text-primary, #221a15)'} />
             </motion.button>
 
             {/* Save / Follow (+) or Add to your playlist capsule button if not owner */}
@@ -1318,7 +1358,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                   toggleSavePlaylist(playlist.id);
                   toast(isSaved ? 'Removed from your playlists' : 'Added to your playlists', {
                     icon: isSaved ? '🗑️' : '✨',
-                    style: { background: '#1a1a1a', color: '#fff', border: `1px solid ${isSaved ? '#f87171' : G}30` }
+                    style: { background: '#1a1a1a', color: '#0f5132', border: `1px solid ${isSaved ? '#f87171' : G}30` }
                   });
                 }}
                 style={{
@@ -1327,7 +1367,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                   gap: 8,
                   padding: '8px 20px',
                   borderRadius: 20,
-                  background: isSaved ? 'var(--color-ss-primary, #b08850)' : 'var(--color-ss-surface, #f4eede)',
+                  background: isSaved ? 'var(--color-ss-primary, #0f5132)' : 'var(--color-ss-surface, #f4eede)',
                   border: isSaved ? 'none' : '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
                   color: isSaved ? '#fff' : 'var(--color-ss-text-primary, #221a15)',
                   fontSize: 13,
@@ -1349,14 +1389,14 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                   toggleSavePlaylist(playlist.id);
                   toast(isSaved ? 'Removed from library' : 'Added to your library', {
                     icon: isSaved ? '🗑️' : '✨',
-                    style: { background: '#1a1a1a', color: '#fff', border: `1px solid ${isSaved ? '#f87171' : G}30` }
+                    style: { background: '#1a1a1a', color: '#0f5132', border: `1px solid ${isSaved ? '#f87171' : G}30` }
                   });
                 }}
                 style={{
                   width: 32,
                   height: 32,
                   borderRadius: '50%',
-                  background: isSaved ? 'var(--color-ss-primary, #b08850)' : 'transparent',
+                  background: isSaved ? 'var(--color-ss-primary, #0f5132)' : 'transparent',
                   border: isSaved ? 'none' : '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
                   color: isSaved ? '#fff' : 'var(--color-ss-text-primary, #221a15)',
                   cursor: 'pointer',
@@ -1526,7 +1566,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                     <div style={{ padding: '6px 4px' }}>
                       {SORT_OPTS.map(opt => (
                         <button key={opt.v} onClick={() => { setActiveSort(opt.v); setShowSortMenu(false); }}
-                          style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 14px', background: 'none', border: 'none', color: activeSort === opt.v ? '#fff' : '#a3a3a3', fontSize: 13, fontWeight: 500, cursor: 'pointer', borderRadius: 8, transition: 'background 0.1s' }}
+                          style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 14px', background: 'none', border: 'none', color: activeSort === opt.v ? '#0f5132' : '#64748b', fontSize: 13, fontWeight: 500, cursor: 'pointer', borderRadius: 8, transition: 'background 0.1s' }}
                           onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
                           onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                         >
@@ -1763,12 +1803,20 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
       {/* ── MOBILE PLAYLIST VIEW ── */}
       <div className="playlist-mobile-container" style={{
         display: 'none',
-        background: `linear-gradient(180deg, ${themeColor} 0%, var(--color-ss-bg, #fbf9f5) 50%, var(--color-ss-bg, #fbf9f5) 100%)`,
+        background: 'linear-gradient(180deg, #d5edd2 0%, #f4faf2 45%, #ffffff 80%)',
         paddingTop: 'calc(var(--sat, 0px) + 72px)',
         paddingBottom: 128,
         minHeight: '100vh',
         boxSizing: 'border-box'
       }}>
+
+        <input 
+          type="file" 
+          ref={fileInputRef} 
+          onChange={handleImageUpload} 
+          accept="image/*" 
+          style={{ display: 'none' }} 
+        />
 
         {/* 2. TOP SECTION (Back arrow, search, sort) */}
         <div style={{
@@ -1784,10 +1832,10 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
           left: 0,
           right: 0,
           zIndex: 100,
-          backgroundColor: `rgba(251, 249, 245, ${headerBgOpacity})`,
+          backgroundColor: `rgba(255, 255, 255, ${headerBgOpacity})`,
           borderBottom: headerBorder,
         }}>
-          <button onClick={() => router.back()} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}>
+          <button onClick={() => router.back()} style={{ background: 'none', border: 'none', color: '#0f172a', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}>
             <ArrowLeft size={24} />
           </button>
 
@@ -1795,14 +1843,15 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              background: 'rgba(255, 255, 255, 0.12)',
+              background: '#f1f5f9',
+              border: '1.5px solid #cbd5e1',
               borderRadius: 24,
               padding: '6px 14px',
               gap: 8,
               height: 36,
               boxSizing: 'border-box'
             }}>
-              <Search size={16} color="#b3b3b3" />
+              <Search size={16} color="#94a3b8" />
               <input
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
@@ -1811,14 +1860,14 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                   background: 'transparent',
                   border: 'none',
                   outline: 'none',
-                  color: '#fff',
+                  color: '#0f172a',
                   fontSize: 13,
                   fontWeight: '500',
                   width: '100%'
                 }}
               />
               {searchQuery && (
-                <button onClick={() => setSearchQuery('')} style={{ background: 'none', border: 'none', color: '#b3b3b3', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}>
+                <button onClick={() => setSearchQuery('')} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}>
                   <X size={14} />
                 </button>
               )}
@@ -1829,10 +1878,10 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
             <button
               onClick={() => setShowSortMenu(!showSortMenu)}
               style={{
-                background: 'rgba(255, 255, 255, 0.12)',
+                background: 'rgba(15, 81, 50, 0.06)',
                 border: 'none',
                 borderRadius: 24,
-                color: '#fff',
+                color: '#0f5132',
                 fontSize: 13,
                 fontWeight: '600',
                 cursor: 'pointer',
@@ -1851,12 +1900,12 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
               {showSortMenu && (
                 <motion.div
                   initial={{ opacity: 0, y: -6, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -6, scale: 0.96 }}
-                  style={{ position: 'absolute', top: 'calc(100% + 6px)', right: 0, zIndex: 300, background: '#1e1e1e', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, overflow: 'hidden', minWidth: 160, boxShadow: '0 16px 48px rgba(0,0,0,0.6)' }}
+                  style={{ position: 'absolute', top: 'calc(100% + 6px)', right: 0, zIndex: 300, background: '#ffffff', border: '1px solid rgba(15, 81, 50, 0.1)', borderRadius: 12, overflow: 'hidden', minWidth: 160, boxShadow: '0 16px 48px rgba(15, 81, 50, 0.08)' }}
                 >
                   <div style={{ padding: '6px 4px' }}>
                     {SORT_OPTS.map(opt => (
                       <button key={opt.v} onClick={() => { setActiveSort(opt.v); setShowSortMenu(false); }}
-                        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 14px', background: 'none', border: 'none', color: activeSort === opt.v ? '#fff' : '#a3a3a3', fontSize: 13, fontWeight: 500, cursor: 'pointer', borderRadius: 8 }}
+                        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 14px', background: 'none', border: 'none', color: activeSort === opt.v ? '#0f5132' : '#64748b', fontSize: 13, fontWeight: 500, cursor: 'pointer', borderRadius: 8 }}
                       >
                         {opt.l}
                         {activeSort === opt.v && <Check size={13} color={G} />}
@@ -1878,18 +1927,11 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
           overflow: 'hidden'
         }}>
           <div 
-            onClick={() => {
-              if (isCustomPlaylist && isOwner) {
-                setEditTitle(playlist.title);
-                setEditCover(playlist.coverImage || '');
-                setEditGrad((playlist as any).gradientCss || '');
-                setShowEditModal(true);
-              }
-            }}
+            onClick={handleCoverClick}
             style={{
               width: 240,
               height: 240,
-              boxShadow: '0 12px 36px rgba(0,0,0,0.5)',
+              boxShadow: 'none',
               transform: `scale(${coverScale}) translateY(${coverTranslateY}px)`,
               opacity: coverOpacity,
               flexShrink: 0,
@@ -1932,7 +1974,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
         </div>
 
         {/* 4. PLAYLIST INFO */}
-        <div style={{ padding: '0 16px 12px', color: '#fff' }}>
+        <div style={{ padding: '0 16px 12px', color: '#0f172a' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '12px 0 2px' }}>
             <h1 style={{
               fontSize: 28,
@@ -1951,8 +1993,8 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                 }}
                 style={{
                   background: 'transparent',
-                  border: '1px solid rgba(255,255,255,0.4)',
-                  color: '#fff',
+                  border: '1px solid rgba(15, 81, 50, 0.2)',
+                  color: '#0f5132',
                   fontSize: 12,
                   fontWeight: 600,
                   padding: '4px 12px',
@@ -1969,7 +2011,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
           {playlist.description && (
             <p style={{
               fontSize: 13.5,
-              color: '#b3b3b3',
+              color: '#94a3b8',
               margin: '0 0 6px',
               lineHeight: 1.4,
               fontWeight: 400
@@ -1988,8 +2030,8 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
             <span style={{ fontSize: 13, fontWeight: '700' }}>{playlist.ownerName || 'You'}</span>
           </div>
 
-          <div style={{ fontSize: 13, color: '#b3b3b3', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Globe size={13} color="#b3b3b3" />
+          <div style={{ fontSize: 13, color: '#94a3b8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Globe size={13} color="#94a3b8" />
             <span>
               {playlist.followers > 0 ? `${playlist.followers.toLocaleString()} saves` : '0 saves'}
               <span style={{ margin: '0 6px' }}>•</span>
@@ -2004,7 +2046,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '0 16px 20px',
-          borderBottom: '1px solid rgba(255,255,255,0.05)'
+          borderBottom: '1px solid rgba(15,81,50,0.08)'
         }}>
           {/* Left Controls */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
@@ -2013,7 +2055,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
               {displayCoverImage ? (
                 <img src={displayCoverImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               ) : (
-                <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #b08850, #10b981)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10 }}>🎵</div>
+                <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #0f5132, #10b981)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10 }}>🎵</div>
               )}
             </div>
 
@@ -2028,19 +2070,19 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
               }}
               style={{
                 background: isSaved ? G : 'transparent',
-                border: isSaved ? `1px solid ${G}` : '1.5px solid #a3a3a3',
+                border: isSaved ? `1px solid ${G}` : '1.5px solid #cbd5e1',
                 borderRadius: '50%',
                 width: 28,
                 height: 28,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: isSaved ? '#000' : '#a3a3a3',
+                color: isSaved ? '#ffffff' : '#94a3b8',
                 cursor: 'pointer',
                 padding: 0
               }}
             >
-              {isSaved ? <Check size={14} color="#000" strokeWidth={3} /> : <Plus size={14} color="#a3a3a3" />}
+              {isSaved ? <Check size={14} color="#ffffff" strokeWidth={3} /> : <Plus size={14} color="#94a3b8" />}
             </button>
 
             {/* Download Icon */}
@@ -2060,7 +2102,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                 padding: 0
               }}
             >
-              <Download size={14} color="#a3a3a3" />
+              <Download size={14} color="#94a3b8" />
             </button>
 
             {/* More options (three-dots) */}
@@ -2076,7 +2118,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                 alignItems: 'center'
               }}
             >
-              <MoreVertical size={22} color="#a3a3a3" />
+              <MoreVertical size={22} color="#94a3b8" />
             </button>
           </div>
 
@@ -2087,7 +2129,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
               onClick={handleShuffle}
               style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}
             >
-              <Shuffle size={22} color={shuffle ? G : '#a3a3a3'} />
+              <Shuffle size={22} color={shuffle ? G : '#94a3b8'} />
             </button>
 
             {/* Play Button */}
@@ -2108,9 +2150,9 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
               }}
             >
               {isCurrentPlaylist && isPlaying ? (
-                <Pause size={22} fill="black" color="black" />
+                <Pause size={22} fill="white" color="white" />
               ) : (
-                <Play size={22} fill="black" color="black" style={{ marginLeft: 2 }} />
+                <Play size={22} fill="white" color="white" style={{ marginLeft: 2 }} />
               )}
             </button>
           </div>
@@ -2139,11 +2181,11 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                 display: 'flex',
                 alignItems: 'center',
                 gap: 6,
-                background: isSaved ? G : 'rgba(255,255,255,0.08)',
+                background: isSaved ? G : 'rgba(15,81,50,0.06)',
                 border: 'none',
                 borderRadius: 16,
                 padding: '6px 16px',
-                color: isSaved ? '#000' : '#fff',
+                color: isSaved ? '#ffffff' : '#0f5132',
                 fontSize: 12,
                 fontWeight: 700,
                 cursor: 'pointer',
@@ -2166,11 +2208,11 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                 display: 'flex',
                 alignItems: 'center',
                 gap: 6,
-                background: 'rgba(255,255,255,0.08)',
+                background: 'rgba(15,81,50,0.06)',
                 border: 'none',
                 borderRadius: 16,
                 padding: '6px 16px',
-                color: '#fff',
+                color: '#0f5132',
                 fontSize: 12,
                 fontWeight: 700,
                 cursor: 'pointer',
@@ -2194,11 +2236,11 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                 display: 'flex',
                 alignItems: 'center',
                 gap: 6,
-                background: 'rgba(255,255,255,0.08)',
+                background: 'rgba(15,81,50,0.06)',
                 border: 'none',
                 borderRadius: 16,
                 padding: '6px 16px',
-                color: '#fff',
+                color: '#0f5132',
                 fontSize: 12,
                 fontWeight: 700,
                 cursor: 'pointer',
@@ -2216,11 +2258,11 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
               display: 'flex',
               alignItems: 'center',
               gap: 6,
-              background: 'rgba(255,255,255,0.08)',
+              background: 'rgba(15,81,50,0.06)',
               border: 'none',
               borderRadius: 16,
               padding: '6px 16px',
-              color: '#fff',
+              color: '#0f5132',
               fontSize: 12,
               fontWeight: 700,
               cursor: 'pointer',
@@ -2243,11 +2285,11 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                 display: 'flex',
                 alignItems: 'center',
                 gap: 6,
-                background: 'rgba(255,255,255,0.08)',
+                background: 'rgba(15,81,50,0.06)',
                 border: 'none',
                 borderRadius: 16,
                 padding: '6px 16px',
-                color: '#fff',
+                color: '#0f5132',
                 fontSize: 12,
                 fontWeight: 700,
                 cursor: 'pointer',
@@ -2276,7 +2318,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                   border: '1px solid rgba(255,255,255,0.4)',
                   borderRadius: 24,
                   padding: '8px 24px',
-                  color: '#fff',
+                  color: '#0f172a',
                   fontSize: 13,
                   fontWeight: 700,
                   cursor: 'pointer'
@@ -2359,7 +2401,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                         }}>E</span>
                       )}
                       <span style={{
-                        color: '#b3b3b3',
+                        color: '#94a3b8',
                         fontSize: 13,
                         fontWeight: 400,
                         overflow: 'hidden',
@@ -2382,7 +2424,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        color: user?.likedSongs.includes(track.id) ? '#b08850' : 'rgba(255,255,255,0.6)',
+                        color: user?.likedSongs.includes(track.id) ? '#0f5132' : 'rgba(255,255,255,0.6)',
                       }}
                     >
                       {user?.likedSongs.includes(track.id) ? (
@@ -2390,7 +2432,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                           width: 20,
                           height: 20,
                           borderRadius: '50%',
-                          background: '#b08850',
+                          background: '#0f5132',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -2417,10 +2459,10 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                     >
                       {downloadingIds.includes(track.id) ? (
                         <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} style={{ display: 'flex' }}>
-                          <div style={{ width: 18, height: 18, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.2)', borderTopColor: '#b08850' }} />
+                          <div style={{ width: 18, height: 18, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.2)', borderTopColor: '#0f5132' }} />
                         </motion.div>
                       ) : downloadedTrackIds.includes(track.id) ? (
-                        <Download size={20} color="#b08850" />
+                        <Download size={20} color="#0f5132" />
                       ) : (
                         <Download size={20} color="rgba(255,255,255,0.6)" />
                       )}
@@ -2436,12 +2478,12 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                     style={{
                       background: 'transparent',
                       border: 'none',
-                      color: '#b3b3b3',
+                      color: '#94a3b8',
                       cursor: 'pointer',
                       padding: 4
                     }}
                   >
-                    <MoreVertical size={20} color="#b3b3b3" />
+                    <MoreVertical size={20} color="#94a3b8" />
                   </button>
                 </div>
               );
@@ -2453,7 +2495,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
             <>
               <div style={{ marginTop: 32, padding: '0 16px' }}>
             <h3 style={{
-              color: '#fff',
+              color: '#0f5132',
               fontSize: 18,
               fontWeight: '800',
               marginBottom: 4,
@@ -2461,7 +2503,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
             }}>Recommended Songs</h3>
             
             <p style={{
-              color: '#b3b3b3',
+              color: '#94a3b8',
               fontSize: 12,
               fontWeight: 500,
               marginBottom: 16,
@@ -2507,7 +2549,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                     {/* Track Info */}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <p style={{
-                        color: '#fff',
+                        color: '#0f5132',
                         fontWeight: 600,
                         fontSize: 14,
                         margin: '0 0 3px',
@@ -2516,7 +2558,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                         whiteSpace: 'nowrap'
                       }}>{track.title}</p>
                       <p style={{
-                        color: '#b3b3b3',
+                        color: '#94a3b8',
                         fontSize: 12,
                         fontWeight: 500,
                         overflow: 'hidden',
@@ -2539,7 +2581,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                       style={{
                         background: 'transparent',
                         border: 'none',
-                        color: isAdded ? '#b08850' : '#b3b3b3',
+                        color: isAdded ? '#0f5132' : '#b3b3b3',
                         cursor: 'pointer',
                         padding: 8,
                         display: 'flex',
@@ -2563,7 +2605,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
           {/* 6.6 TRENDING SONGS (Issue 2 Carousel) */}
           <div style={{ marginTop: 32, padding: '0 16px' }}>
             <h3 style={{
-              color: '#fff',
+              color: '#0f5132',
               fontSize: 18,
               fontWeight: '800',
               marginBottom: 4,
@@ -2571,7 +2613,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
             }}>Trending Songs</h3>
             
             <p style={{
-              color: '#b3b3b3',
+              color: '#94a3b8',
               fontSize: 12,
               fontWeight: 500,
               marginBottom: 16,
@@ -2622,7 +2664,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                         borderRadius: 4,
                         fontSize: 9,
                         fontWeight: 800,
-                        color: '#b08850',
+                        color: '#0f5132',
                         border: '1px solid rgba(176, 136, 80,0.3)'
                       }}>
                         🔥 {numFmt(track.plays || 0)}
@@ -2645,7 +2687,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                           width: 28,
                           height: 28,
                           borderRadius: '50%',
-                          background: isAdded ? '#b08850' : 'rgba(0,0,0,0.8)',
+                          background: isAdded ? '#0f5132' : 'rgba(0,0,0,0.8)',
                           border: isAdded ? 'none' : '1px solid rgba(255,255,255,0.3)',
                           display: 'flex',
                           alignItems: 'center',
@@ -2662,8 +2704,8 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
 
                     {/* Metadata */}
                     <div style={{ minWidth: 0 }}>
-                      <p style={{ color: '#fff', fontWeight: 600, fontSize: 13, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.title}</p>
-                      <p style={{ color: '#b3b3b3', fontSize: 11, margin: '2px 0 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.artistName}</p>
+                      <p style={{ color: '#0f5132', fontWeight: 600, fontSize: 13, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.title}</p>
+                      <p style={{ color: '#94a3b8', fontSize: 11, margin: '2px 0 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.artistName}</p>
                     </div>
                   </div>
                 );
@@ -2715,20 +2757,20 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
               transition={{ type: 'spring', stiffness: 380, damping: 30 }}
               className="premium-modal-card"
             >
-              <h3 style={{ color: '#fff', fontSize: 18, fontWeight: 800, marginBottom: 16, textAlign: 'center', fontFamily: 'var(--font-inter), sans-serif' }}>Edit Playlist Details</h3>
+              <h3 style={{ color: '#0f5132', fontSize: 18, fontWeight: 800, marginBottom: 16, textAlign: 'center', fontFamily: 'var(--font-inter), sans-serif' }}>Edit Playlist Details</h3>
               
               <form onSubmit={handleSaveEdit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 <div>
                   <label style={{ display: 'block', color: '#a3a3a3', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', marginBottom: 6, fontFamily: 'var(--font-inter), sans-serif' }}>Playlist Name</label>
                   <input type="text" required value={editTitle} onChange={e => setEditTitle(e.target.value)}
-                    style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '10px 14px', color: '#fff', fontSize: 14, outline: 'none', boxSizing: 'border-box' }}
+                    style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '10px 14px', color: '#0f5132', fontSize: 14, outline: 'none', boxSizing: 'border-box' }}
                   />
                 </div>
 
                 <div>
                   <label style={{ display: 'block', color: '#a3a3a3', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', marginBottom: 6, fontFamily: 'var(--font-inter), sans-serif' }}>Cover Image URL (optional)</label>
                   <input type="text" value={editCover} onChange={e => setEditCover(e.target.value)} placeholder="https://example.com/cover.jpg"
-                    style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '10px 14px', color: '#fff', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
+                    style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '10px 14px', color: '#0f5132', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
                   />
                 </div>
 
@@ -2809,8 +2851,8 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                 justifyContent: 'space-between'
               }}>
                 <div>
-                  <h3 style={{ color: '#fff', fontSize: 16, fontWeight: 800, margin: 0, fontFamily: 'var(--font-inter), sans-serif' }}>Add to Playlist</h3>
-                  <p style={{ color: '#b3b3b3', fontSize: 12, margin: '2px 0 0 0', fontFamily: 'var(--font-inter), sans-serif' }}>Search and filter all available songs</p>
+                  <h3 style={{ color: '#0f5132', fontSize: 16, fontWeight: 800, margin: 0, fontFamily: 'var(--font-inter), sans-serif' }}>Add to Playlist</h3>
+                  <p style={{ color: '#94a3b8', fontSize: 12, margin: '2px 0 0 0', fontFamily: 'var(--font-inter), sans-serif' }}>Search and filter all available songs</p>
                 </div>
                 <button
                   onClick={() => setShowAllSongsDrawer(false)}
@@ -2823,7 +2865,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: '#fff',
+                    color: '#0f5132',
                     cursor: 'pointer'
                   }}
                 >
@@ -2845,7 +2887,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                       border: 'none',
                       borderRadius: 12,
                       padding: '10px 16px 10px 38px',
-                      color: '#fff',
+                      color: '#0f5132',
                       fontSize: 14,
                       outline: 'none',
                       boxSizing: 'border-box',
@@ -3026,7 +3068,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
 
               {/* Header */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px 16px', flexShrink: 0 }}>
-                <span style={{ fontSize: 18, fontWeight: 800, color: '#fff', fontFamily: 'Outfit, sans-serif' }}>Saved in</span>
+                <span style={{ fontSize: 18, fontWeight: 800, color: '#0f5132', fontFamily: 'Outfit, sans-serif' }}>Saved in</span>
                 <button
                   onClick={() => {
                     const title = prompt("Enter playlist title:");
@@ -3051,7 +3093,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                     addPlaylist(newPlaylist);
                     toast.success(`Created playlist "${title}" and added song`, { id: 'playlist-create' });
                   }}
-                  style={{ background: 'none', border: 'none', color: '#b08850', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
+                  style={{ background: 'none', border: 'none', color: '#0f5132', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
                 >
                   New playlist
                 </button>
@@ -3081,14 +3123,14 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                     <Heart size={20} fill="#fff" color="#fff" />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <p style={{ color: '#fff', fontSize: 14, fontWeight: 600, margin: 0 }}>Liked Songs</p>
+                    <p style={{ color: '#0f5132', fontSize: 14, fontWeight: 600, margin: 0 }}>Liked Songs</p>
                   </div>
                   {user?.likedSongs.includes(pickerTrack.id) ? (
                     <div style={{
-                      width: 22, height: 22, borderRadius: '50%', background: '#b08850',
+                      width: 22, height: 22, borderRadius: '50%', background: '#0f5132',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
                         <polyline points="20 6 9 17 4 12" />
                       </svg>
                     </div>
@@ -3114,7 +3156,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                     style={{
                       width: '100%', background: '#282828', border: 'none',
                       borderRadius: '8px', padding: '10px 12px 10px 38px',
-                      color: '#fff', fontSize: '14px', outline: 'none',
+                      color: '#0f5132', fontSize: '14px', outline: 'none',
                     }}
                   />
                 </div>
@@ -3164,15 +3206,15 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                             )}
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <p style={{ color: alreadyAdded ? '#b08850' : '#fff', fontSize: 14, fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pl.title}</p>
+                            <p style={{ color: alreadyAdded ? '#0f5132' : '#fff', fontSize: 14, fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pl.title}</p>
                             <p style={{ color: '#737373', fontSize: 12, margin: '2px 0 0', }}>{pl.tracks.length === 0 ? 'Empty' : `${pl.tracks.length} song${pl.tracks.length === 1 ? '' : 's'}`}</p>
                           </div>
                           {alreadyAdded ? (
                             <div style={{
-                              width: 22, height: 22, borderRadius: '50%', background: '#b08850',
+                              width: 22, height: 22, borderRadius: '50%', background: '#0f5132',
                               display: 'flex', alignItems: 'center', justifyContent: 'center',
                             }}>
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
                                 <polyline points="20 6 9 17 4 12" />
                               </svg>
                             </div>
@@ -3233,7 +3275,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                     </svg>
                   </div>
                   <div style={{ flex: 1 }}>
-                    <p style={{ color: '#fff', fontSize: 14, fontWeight: 600, margin: 0 }}>New playlist</p>
+                    <p style={{ color: '#0f5132', fontSize: 14, fontWeight: 600, margin: 0 }}>New playlist</p>
                   </div>
                 </button>
               </div>

@@ -65,14 +65,14 @@ async function run() {
       }
       
       const filename = path.basename(localFilePath);
-      console.log(`Uploading file ${filename} to Supabase Storage bucket "audio"...`);
+      console.log(`Uploading file ${filename} to Supabase Storage bucket "audio-uploads"...`);
       
       try {
         const fileBuffer = fs.readFileSync(localFilePath);
         const contentType = filename.endsWith('.mp3') ? 'audio/mpeg' : 'audio/x-m4a';
         
         const { error: uploadError } = await supabase.storage
-          .from('audio')
+          .from('audio-uploads')
           .upload(filename, fileBuffer, {
             contentType,
             cacheControl: '3600',
@@ -82,7 +82,7 @@ async function run() {
         if (uploadError) throw uploadError;
         
         const { data: publicUrlData } = supabase.storage
-          .from('audio')
+          .from('audio-uploads')
           .getPublicUrl(filename);
           
         const publicUrl = publicUrlData.publicUrl;

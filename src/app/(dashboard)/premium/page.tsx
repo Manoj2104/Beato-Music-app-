@@ -27,7 +27,7 @@ const planConfigs: Record<string, {
     color: '#94a3b8',
   },
   premium: {
-    color: '#b08850',
+    color: '#0f5132',
     badgeText: 'Most Popular',
   },
   family: {
@@ -123,7 +123,7 @@ export default function PremiumPage() {
           border-color: var(--color-ss-border, rgba(43,34,26,0.08)) !important;
         }
         /* Style billing yearly discount tag */
-        .premium-themed-container button span[style*="background-color: #b08850"] {
+        .premium-themed-container button span[style*="background-color: #0f5132"] {
           color: #000 !important;
         }
         /* Plan card features list items */
@@ -136,12 +136,12 @@ export default function PremiumPage() {
           color: #10b981 !important;
         }
         .premium-themed-container svg[style*="color: rgb(176, 136, 80)"],
-        .premium-themed-container svg[style*="color: #b08850"] {
-          color: #b08850 !important;
+        .premium-themed-container svg[style*="color: #0f5132"] {
+          color: #0f5132 !important;
         }
         /* Plan card headers features */
-        .premium-themed-container div[style*="background-color: rgba(176, 136, 80"] {
-          background-color: rgba(176, 136, 80, 0.1) !important;
+        .premium-themed-container div[style*="background-color: rgba(15, 81, 50"] {
+          background-color: rgba(15, 81, 50, 0.1) !important;
         }
         /* Style standard plan button */
         .premium-themed-container button[style*="background-color: rgba(255, 255, 255, 0.08)"],
@@ -161,6 +161,9 @@ export default function PremiumPage() {
           position: sticky !important;
           top: 0 !important;
           z-index: 100 !important;
+        }
+        .text-white-force {
+          color: #ffffff !important;
         }
       `}</style>
       <TopBar transparent={true} />
@@ -225,9 +228,9 @@ export default function PremiumPage() {
 
           {/* Banner Contents */}
           <div style={{ zIndex: 2, position: 'relative', maxWidth: '640px' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', borderRadius: '100px', backgroundColor: 'rgba(176, 136, 80, 0.15)', border: '1px solid rgba(176, 136, 80, 0.3)', marginBottom: '20px' }}>
-              <Crown size={15} style={{ color: '#b08850' }} />
-              <span style={{ color: '#b08850', fontWeight: 800, fontSize: '11.5px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Beato Premium</span>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', borderRadius: '100px', backgroundColor: 'rgba(15, 81, 50, 0.15)', border: '1px solid rgba(15, 81, 50, 0.3)', marginBottom: '20px' }}>
+              <Crown size={15} style={{ color: '#0f5132' }} />
+              <span style={{ color: '#0f5132', fontWeight: 800, fontSize: '11.5px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Beato Premium</span>
             </div>
 
             <h1 style={{
@@ -311,11 +314,11 @@ export default function PremiumPage() {
                   width: 20,
                   height: 20,
                   borderRadius: '50%',
-                  background: 'rgba(176, 136, 80, 0.12)',
+                  background: 'rgba(15, 81, 50, 0.12)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#b08850',
+                  color: '#0f5132',
                   flexShrink: 0,
                   marginTop: 2
                 }}>
@@ -372,7 +375,7 @@ export default function PremiumPage() {
                         transform: 'translateX(-50%)',
                         padding: '4px 14px',
                         backgroundColor: config.color,
-                        color: plan.id === 'premium' ? '#000' : '#fff',
+                        color: '#fff',
                         borderRadius: '100px',
                         fontSize: '10.5px',
                         fontWeight: 800,
@@ -438,6 +441,7 @@ export default function PremiumPage() {
                   </ul>
 
                   <button
+                    className={(!isCurrentPlan && plan.highlighted) ? 'text-white-force' : ''}
                     disabled={isCurrentPlan}
                     onClick={() => {
                       if (plan.price === 0) {
@@ -468,9 +472,7 @@ export default function PremiumPage() {
                           : 'rgba(255,255,255,0.08)',
                       color: isCurrentPlan 
                         ? 'rgba(255,255,255,0.35)' 
-                        : plan.highlighted && plan.id === 'premium'
-                          ? '#000' 
-                          : '#fff',
+                        : '#fff',
                       boxShadow: (!isCurrentPlan && plan.highlighted) 
                         ? `0 4px 15px ${config.color}35` 
                         : 'none',

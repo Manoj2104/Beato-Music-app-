@@ -27,10 +27,10 @@ import { Track } from '@/types';
 import toast from 'react-hot-toast';
 import TopBar from '@/components/layout/TopBar';
 
-const G = '#b08850';
+const G = '#0f5132';
 const V = '#10b981'; // Violet
 const P = '#34d399'; // Pink
-const COLORS = ['#b08850', '#10b981', '#34d399', '#f59e0b', '#06b6d4', '#ef4444'];
+const COLORS = ['#0f5132', '#10b981', '#34d399', '#f59e0b', '#06b6d4', '#ef4444'];
 const GENRES = ['Pop', 'Hip-Hop', 'Electronic', 'Indie', 'R&B', 'Rock', 'Jazz', 'Classical', 'Dance', 'Ambient', 'Synth Wave', 'Dream Pop'];
 const FONT = { fontFamily: "Inter, 'Outfit', sans-serif" };
 
@@ -313,7 +313,7 @@ function UploadModal({ onClose }: { onClose: () => void }) {
                     style={{
                       border: `2px dashed ${audioFile ? G : 'rgba(255,255,255,0.2)'}`,
                       borderRadius: 12, padding: '20px', textAlign: 'center', cursor: 'pointer',
-                      background: audioFile ? 'rgba(176, 136, 80,0.05)' : 'rgba(255,255,255,0.03)',
+                      background: audioFile ? 'rgba(15, 81, 50,0.05)' : 'rgba(255,255,255,0.03)',
                       transition: 'all 0.2s',
                     }}
                     onMouseEnter={e => (e.currentTarget.style.borderColor = G)}
@@ -340,7 +340,7 @@ function UploadModal({ onClose }: { onClose: () => void }) {
               <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
                 <button onClick={onClose} style={{ flex: 1, padding: '13px', borderRadius: 12, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontWeight: 600, cursor: 'pointer', fontSize: 14 }}>Cancel</button>
                 <button onClick={handleUpload} disabled={!title || !audioFile} style={{
-                  flex: 2, padding: '13px', borderRadius: 12, background: (!title || !audioFile) ? 'rgba(176, 136, 80,0.3)' : G,
+                  flex: 2, padding: '13px', borderRadius: 12, background: (!title || !audioFile) ? 'rgba(15, 81, 50,0.3)' : G,
                   border: 'none', color: '#000', fontWeight: 800, cursor: (!title || !audioFile) ? 'not-allowed' : 'pointer',
                   fontSize: 14, fontFamily: 'Outfit, sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                 }}>
@@ -352,10 +352,10 @@ function UploadModal({ onClose }: { onClose: () => void }) {
 
           {step === 'uploading' && (
             <motion.div key="uploading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ textAlign: 'center', padding: '20px 0' }}>
-              <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'rgba(176, 136, 80,0.1)', border: `3px solid ${G}`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', position: 'relative' }}>
+              <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'rgba(15, 81, 50,0.1)', border: `3px solid ${G}`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', position: 'relative' }}>
                 <Upload size={30} color={G} />
                 <svg style={{ position: 'absolute', inset: -3, width: 86, height: 86 }} viewBox="0 0 86 86">
-                  <circle cx="43" cy="43" r="40" fill="none" stroke="rgba(176, 136, 80,0.2)" strokeWidth="3" />
+                  <circle cx="43" cy="43" r="40" fill="none" stroke="rgba(15, 81, 50,0.2)" strokeWidth="3" />
                   <circle cx="43" cy="43" r="40" fill="none" stroke={G} strokeWidth="3"
                     strokeDasharray={`${2 * Math.PI * 40}`} strokeDashoffset={`${2 * Math.PI * 40 * (1 - progress / 100)}`}
                     strokeLinecap="round" transform="rotate(-90 43 43)" style={{ transition: 'stroke-dashoffset 0.1s' }} />
@@ -373,7 +373,7 @@ function UploadModal({ onClose }: { onClose: () => void }) {
           {step === 'done' && (
             <motion.div key="done" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} style={{ textAlign: 'center', padding: '20px 0' }}>
               <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
-                style={{ width: 80, height: 80, borderRadius: '50%', background: 'rgba(176, 136, 80,0.15)', border: `2px solid ${G}`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', boxShadow: '0 0 30px rgba(176, 136, 80,0.3)' }}>
+                style={{ width: 80, height: 80, borderRadius: '50%', background: 'rgba(15, 81, 50,0.15)', border: `2px solid ${G}`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', boxShadow: '0 0 30px rgba(15, 81, 50,0.3)' }}>
                 <Check size={36} color={G} />
               </motion.div>
               <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 24, fontWeight: 900, color: '#fff', marginBottom: 8 }}>🎉 Track Published!</h3>
@@ -1390,7 +1390,7 @@ function ArtistDashboardContent() {
           style={{ 
             padding: '14px 16px', 
             borderRadius: 12, 
-            background: totalConcurrent > 0 ? 'rgba(176, 136, 80, 0.12)' : 'var(--color-ss-elevated, #ffffff)',
+            background: totalConcurrent > 0 ? 'rgba(15, 81, 50, 0.12)' : 'var(--color-ss-elevated, #ffffff)',
             border: '1.5px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
             position: 'relative',
             overflow: 'hidden',
@@ -1411,7 +1411,7 @@ function ArtistDashboardContent() {
             {totalConcurrent > 0 ? (
               <span style={{
                 fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 100,
-                background: 'rgba(176, 136, 80, 0.2)', color: G, display: 'inline-flex', alignItems: 'center', gap: 4
+                background: 'rgba(15, 81, 50, 0.2)', color: G, display: 'inline-flex', alignItems: 'center', gap: 4
               }}>
                 <motion.span animate={{ scale: [1, 1.3, 1] }} transition={{ repeat: Infinity, duration: 1.5 }} style={{ width: 6, height: 6, borderRadius: '50%', background: G, display: 'inline-block' }} />
                 LIVE
@@ -1861,7 +1861,7 @@ function ArtistDashboardContent() {
             background: 'rgba(255,255,255,0.02)',
             borderRadius: 24,
             padding: 24,
-            border: '1px solid rgba(176, 136, 80, 0.15)',
+            border: '1px solid rgba(15, 81, 50, 0.15)',
             boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
@@ -1959,7 +1959,7 @@ function ArtistDashboardContent() {
               Your Tracks <span style={{ color: G, fontSize: 13 }}>({filteredTracks.length} of {myTracks.length})</span>
             </h3>
             <Link href="/artist/upload" style={{ textDecoration: 'none' }}>
-              <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 9, background: 'rgba(176, 136, 80,0.15)', border: '1px solid rgba(176, 136, 80,0.3)', color: G, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+              <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 9, background: 'rgba(15, 81, 50,0.15)', border: '1px solid rgba(15, 81, 50,0.3)', color: G, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
                 <Plus size={14} /> Add Track
               </button>
             </Link>
@@ -1988,7 +1988,7 @@ function ArtistDashboardContent() {
                 }}
                 onFocus={e => {
                   e.target.style.borderColor = G;
-                  e.target.style.boxShadow = '0 0 8px rgba(176, 136, 80, 0.2)';
+                  e.target.style.boxShadow = '0 0 8px rgba(15, 81, 50, 0.2)';
                 }}
                 onBlur={e => {
                   e.target.style.borderColor = 'rgba(255,255,255,0.08)';
@@ -2102,9 +2102,9 @@ function ArtistDashboardContent() {
                           {isUploaded && (
                             <span style={{
                               fontSize: 8,
-                              background: 'rgba(176, 136, 80,0.15)',
+                              background: 'rgba(15, 81, 50,0.15)',
                               color: G,
-                              border: '1px solid rgba(176, 136, 80,0.25)',
+                              border: '1px solid rgba(15, 81, 50,0.25)',
                               padding: '1px 5px',
                               borderRadius: 100,
                               fontWeight: 800,
@@ -2138,8 +2138,8 @@ function ArtistDashboardContent() {
                         gap: 5,
                         padding: '4px 8px',
                         borderRadius: '100px',
-                        background: trackStatus === 'approved' ? 'rgba(176, 136, 80,0.08)' : trackStatus === 'rejected' ? 'rgba(239,68,68,0.08)' : 'rgba(245,158,11,0.08)',
-                        border: `1px solid ${trackStatus === 'approved' ? 'rgba(176, 136, 80,0.15)' : trackStatus === 'rejected' ? 'rgba(239,68,68,0.15)' : 'rgba(245,158,11,0.15)'}`,
+                        background: trackStatus === 'approved' ? 'rgba(15, 81, 50,0.08)' : trackStatus === 'rejected' ? 'rgba(239,68,68,0.08)' : 'rgba(245,158,11,0.08)',
+                        border: `1px solid ${trackStatus === 'approved' ? 'rgba(15, 81, 50,0.15)' : trackStatus === 'rejected' ? 'rgba(239,68,68,0.15)' : 'rgba(245,158,11,0.15)'}`,
                         color: trackStatus === 'approved' ? '#b08850' : trackStatus === 'rejected' ? '#ef4444' : '#f59e0b',
                         fontSize: '10px',
                         fontWeight: 700,
@@ -2243,7 +2243,7 @@ function ArtistDashboardContent() {
                             <div>
                               <p style={{ color: '#fff', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, margin: 0 }}>
                                 {track.title}
-                                {isUploaded && <span style={{ fontSize: 10, background: 'rgba(176, 136, 80,0.2)', color: G, padding: '2px 7px', borderRadius: 100, fontWeight: 700 }}>NEW</span>}
+                                {isUploaded && <span style={{ fontSize: 10, background: 'rgba(15, 81, 50,0.2)', color: G, padding: '2px 7px', borderRadius: 100, fontWeight: 700 }}>NEW</span>}
                               </p>
                               <p style={{ color: '#737373', fontSize: 11, marginTop: 2, margin: 0 }}>{track.albumName}</p>
                             </div>
@@ -2258,7 +2258,7 @@ function ArtistDashboardContent() {
                             fontWeight: 700,
                             textTransform: 'uppercase',
                             letterSpacing: '0.05em',
-                            background: trackStatus === 'approved' ? 'rgba(176, 136, 80,0.12)' : trackStatus === 'rejected' ? 'rgba(239,68,68,0.12)' : 'rgba(245,158,11,0.12)',
+                            background: trackStatus === 'approved' ? 'rgba(15, 81, 50,0.12)' : trackStatus === 'rejected' ? 'rgba(239,68,68,0.12)' : 'rgba(245,158,11,0.12)',
                             color: trackStatus === 'approved' ? '#b08850' : trackStatus === 'rejected' ? '#ef4444' : '#f59e0b',
                           }}>
                             {trackStatus}
@@ -2458,7 +2458,7 @@ function ArtistDashboardContent() {
                     </p>
                     <span style={{
                       display: 'inline-block', marginTop: 8, padding: '2px 8px', borderRadius: 10, fontSize: 9, fontWeight: 700, textTransform: 'uppercase',
-                      background: (selectedTrackForDetail.status || 'approved') === 'approved' ? 'rgba(176, 136, 80,0.12)' : (selectedTrackForDetail.status === 'rejected' ? 'rgba(239,68,68,0.12)' : 'rgba(245,158,11,0.12)'),
+                      background: (selectedTrackForDetail.status || 'approved') === 'approved' ? 'rgba(15, 81, 50,0.12)' : (selectedTrackForDetail.status === 'rejected' ? 'rgba(239,68,68,0.12)' : 'rgba(245,158,11,0.12)'),
                       color: (selectedTrackForDetail.status || 'approved') === 'approved' ? G : (selectedTrackForDetail.status === 'rejected' ? '#ef4444' : '#f59e0b')
                     }}>
                       {selectedTrackForDetail.status || 'approved'}
@@ -3261,7 +3261,7 @@ function ArtistDashboardContent() {
   const renderAudience = () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       {/* Real-time Listeners Map & Ping Registry */}
-      <div className="responsive-card" style={{ ...CARD, border: activeSessionsList.length > 0 ? '1px solid rgba(176, 136, 80, 0.2)' : '1px solid rgba(255, 255, 255, 0.05)' }}>
+      <div className="responsive-card" style={{ ...CARD, border: activeSessionsList.length > 0 ? '1px solid rgba(15, 81, 50, 0.2)' : '1px solid rgba(255, 255, 255, 0.05)' }}>
         <div className="responsive-header-row" style={{ marginBottom: 16 }}>
           <div>
             <h3 style={{ color: '#fff', fontWeight: 700, fontSize: 16, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -3274,7 +3274,7 @@ function ArtistDashboardContent() {
             </h3>
             <p style={{ color: '#737373', fontSize: 12.5, margin: '4px 0 0 0' }}>Real-time listener pings originating from active playbacks</p>
           </div>
-          <span style={{ fontSize: 11, fontWeight: 800, padding: '4px 10px', borderRadius: 12, background: activeSessionsList.length > 0 ? 'rgba(176, 136, 80,0.1)' : 'rgba(255,255,255,0.05)', color: activeSessionsList.length > 0 ? '#b08850' : '#737373', textTransform: 'uppercase', textAlign: 'center' }}>
+          <span style={{ fontSize: 11, fontWeight: 800, padding: '4px 10px', borderRadius: 12, background: activeSessionsList.length > 0 ? 'rgba(15, 81, 50,0.1)' : 'rgba(255,255,255,0.05)', color: activeSessionsList.length > 0 ? '#b08850' : '#737373', textTransform: 'uppercase', textAlign: 'center' }}>
             {activeSessionsList.length} Active Now
           </span>
         </div>
@@ -3289,7 +3289,7 @@ function ArtistDashboardContent() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
             {activeSessionsList.map((session, index) => (
               <div key={session.sessionId} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 14, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 12 }}>
-                <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(176, 136, 80,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>
+                <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(15, 81, 50,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>
                   🎧
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -3297,7 +3297,7 @@ function ArtistDashboardContent() {
                     <span style={{ color: '#fff', fontWeight: 700, fontSize: 13, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
                       Listener #{index + 1}
                     </span>
-                    <span style={{ fontSize: 10, color: '#b08850', background: 'rgba(176, 136, 80,0.1)', padding: '2px 6px', borderRadius: 4 }}>
+                    <span style={{ fontSize: 10, color: '#b08850', background: 'rgba(15, 81, 50,0.1)', padding: '2px 6px', borderRadius: 4 }}>
                       {session.city}, {session.country}
                     </span>
                   </div>
@@ -3645,7 +3645,7 @@ function ArtistDashboardContent() {
                       <td style={{ padding: '12px 4px', textAlign: 'right' }}>
                         <span style={{
                           padding: '2px 8px', borderRadius: 10, fontSize: 10, fontWeight: 700,
-                          background: c.status === 'Active' ? 'rgba(176, 136, 80,0.12)' : 'rgba(255,255,255,0.08)',
+                          background: c.status === 'Active' ? 'rgba(15, 81, 50,0.12)' : 'rgba(255,255,255,0.08)',
                           color: c.status === 'Active' ? G : '#737373'
                         }}>{c.status}</span>
                       </td>
@@ -3822,7 +3822,7 @@ function ArtistDashboardContent() {
                   {profileIdentity.stageName || artistName}
                 </span>
                 {isVerified && (
-                  <span style={{ fontSize: 11, fontWeight: 800, color: G, background: 'rgba(176, 136, 80,0.15)', padding: '2px 10px', borderRadius: 20 }}>✅ Verified</span>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: G, background: 'rgba(15, 81, 50,0.15)', padding: '2px 10px', borderRadius: 20 }}>✅ Verified</span>
                 )}
                 {!isVerified && (
                   <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-ss-text-muted, #87786c)', background: 'var(--color-ss-surface, #f4eede)', padding: '2px 10px', borderRadius: 20 }}>Unverified</span>
@@ -3940,12 +3940,12 @@ function ArtistDashboardContent() {
             </div>
 
             {/* Verification */}
-            <div style={{ ...S, border: isVerified ? '1px solid rgba(176, 136, 80,0.25)' : '1px solid rgba(255,255,255,0.08)' }}>
+            <div style={{ ...S, border: isVerified ? '1px solid rgba(15, 81, 50,0.25)' : '1px solid rgba(255,255,255,0.08)' }}>
               <h3 style={{ color: '#fff', fontWeight: 800, fontSize: 14, margin: '0 0 14px' }}>✅ Verification</h3>
 
               {/* Current status */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-                <div style={{ width: 42, height: 42, borderRadius: 12, background: isVerified ? 'rgba(176, 136, 80,0.12)' : artistProfile?.verificationSubmission?.status === 'under_review' ? 'rgba(245,158,11,0.12)' : 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>
+                <div style={{ width: 42, height: 42, borderRadius: 12, background: isVerified ? 'rgba(15, 81, 50,0.12)' : artistProfile?.verificationSubmission?.status === 'under_review' ? 'rgba(245,158,11,0.12)' : 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>
                   {isVerified ? '✅' : artistProfile?.verificationSubmission?.status === 'under_review' ? '⏳' : '⬜'}
                 </div>
                 <div>
@@ -4332,7 +4332,7 @@ function ArtistDashboardContent() {
                         type="button"
                         onClick={() => setSelectedEventForBookings(e)}
                         style={{
-                          background: 'rgba(176, 136, 80,0.12)',
+                          background: 'rgba(15, 81, 50,0.12)',
                           color: G,
                           border: `1px solid ${G}30`,
                           borderRadius: 8,
@@ -4343,11 +4343,11 @@ function ArtistDashboardContent() {
                           transition: 'all 0.15s'
                         }}
                         onMouseEnter={e => {
-                          e.currentTarget.style.background = 'rgba(176, 136, 80,0.2)';
+                          e.currentTarget.style.background = 'rgba(15, 81, 50,0.2)';
                           e.currentTarget.style.borderColor = G;
                         }}
                         onMouseLeave={e => {
-                          e.currentTarget.style.background = 'rgba(176, 136, 80,0.12)';
+                          e.currentTarget.style.background = 'rgba(15, 81, 50,0.12)';
                           e.currentTarget.style.borderColor = `${G}30`;
                         }}
                       >
@@ -4397,7 +4397,7 @@ function ArtistDashboardContent() {
               </button>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
-                <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(176, 136, 80,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>
+                <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(15, 81, 50,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>
                   🎫
                 </div>
                 <div>
@@ -4458,7 +4458,7 @@ function ArtistDashboardContent() {
               </button>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-                <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(176, 136, 80,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>
+                <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(15, 81, 50,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>
                   📍
                 </div>
                 <div>
@@ -4536,7 +4536,7 @@ function ArtistDashboardContent() {
                       transition: 'all 0.15s'
                     }}
                     onMouseEnter={e => {
-                      e.currentTarget.style.background = 'rgba(176, 136, 80,0.12)';
+                      e.currentTarget.style.background = 'rgba(15, 81, 50,0.12)';
                       e.currentTarget.style.borderColor = G;
                       e.currentTarget.style.color = '#fff';
                     }}
@@ -4809,7 +4809,7 @@ function ArtistDashboardContent() {
         {/* Mobile Premium Header */}
         <div
           style={{
-            background: 'linear-gradient(180deg, rgba(176, 136, 80,0.15) 0%, var(--color-ss-bg, #fbf9f5) 100%)',
+            background: 'linear-gradient(180deg, rgba(15, 81, 50,0.15) 0%, var(--color-ss-bg, #fbf9f5) 100%)',
             paddingTop: 'calc(var(--sat, 0px) + 12px)',
             paddingRight: '16px',
             paddingBottom: '10px',
@@ -4864,8 +4864,8 @@ function ArtistDashboardContent() {
                   fontWeight: 800,
                   padding: '3px 8px',
                   borderRadius: 100,
-                  background: 'rgba(176, 136, 80,0.12)',
-                  border: '1px solid rgba(176, 136, 80,0.2)',
+                  background: 'rgba(15, 81, 50,0.12)',
+                  border: '1px solid rgba(15, 81, 50,0.2)',
                   color: G,
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -4939,6 +4939,14 @@ function ArtistDashboardContent() {
             }}
             className="hide-scrollbar"
           >
+            <style>{`
+              .artist-tab-btn {
+                color: var(--color-ss-text-secondary, #334155) !important;
+              }
+              .artist-tab-btn.active {
+                color: #ffffff !important;
+              }
+            `}</style>
             {allowedTabs.map(tab => {
               const active = activeTab === tab;
               return (
@@ -4956,10 +4964,11 @@ function ArtistDashboardContent() {
                       router.push(`/artist/dashboard?tab=${tab}`);
                       scrollToTab(tab);
                     }}
+                    className={`artist-tab-btn ${active ? 'active' : ''}`}
                     whileTap={{ scale: 0.96 }}
                     animate={{
                       scale: active ? 1.05 : 1,
-                      color: active ? '#000' : '#ffffffc0'
+                      color: active ? '#fff' : 'var(--color-ss-text-secondary, #334155)'
                     }}
                     transition={{
                       type: 'spring',
@@ -4970,6 +4979,7 @@ function ArtistDashboardContent() {
                       padding: '7px 16px',
                       borderRadius: 20,
                       background: 'transparent',
+                      color: active ? '#fff' : 'var(--color-ss-text-secondary, #334155)',
                       fontSize: 12.5,
                       fontWeight: 800,
                       border: 'none',
@@ -5001,7 +5011,7 @@ function ArtistDashboardContent() {
                         background: G, // Spotify Green #b08850
                         borderRadius: 20,
                         zIndex: 1,
-                        boxShadow: '0 0 14px rgba(176, 136, 80, 0.45)'
+                        boxShadow: '0 0 14px rgba(15, 81, 50, 0.45)'
                       }}
                     />
                   )}
@@ -5031,7 +5041,7 @@ function ArtistDashboardContent() {
         {/* Desktop Header */}
         <div
           style={{
-            background: 'linear-gradient(180deg, rgba(176, 136, 80,0.15) 0%, var(--color-ss-bg, #fbf9f5) 100%)',
+            background: 'linear-gradient(180deg, rgba(15, 81, 50,0.15) 0%, var(--color-ss-bg, #fbf9f5) 100%)',
             borderBottom: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))'
           }}
         >

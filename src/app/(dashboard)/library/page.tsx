@@ -22,7 +22,7 @@ import { useAuthStore } from '@/store/authStore';
 import { usePlayerStore } from '@/store/playerStore';
 import { usePlaylistStore } from '@/store/playlistStore';
 
-const G = '#b08850';
+const G = 'var(--color-ss-primary, #0f5132)';
 
 // ─── Gradient Presets ──────────────────────────────────────────────────────────
 const GRADIENTS = [
@@ -295,17 +295,17 @@ function RoomCard({ room }: { room: any }) {
           </div>
         )}
         <div style={{ position: 'absolute', top: 10, right: 10, display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px', borderRadius: 20, background: 'rgba(255,255,255,0.05)' }}>
-          <Users size={10} color="#b08850" />
+          <Users size={10} color="var(--color-ss-primary, #0f5132)" />
           <span style={{ fontSize: 9, color: '#fff', fontWeight: 700 }}>{room.participants?.length || 0}</span>
         </div>
-        <Headphones size={36} color="#b08850" style={{ opacity: 0.8 }} />
+        <Headphones size={36} color="var(--color-ss-primary, #0f5132)" style={{ opacity: 0.8 }} />
       </div>
       <div>
         <h4 style={{ color: '#fff', fontSize: 14, fontWeight: 700, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{room.name}</h4>
         <p style={{ color: '#737373', fontSize: 11, margin: '4px 0 0 0' }}>Hosted by {room.hostName}</p>
         <p style={{ color: '#525252', fontSize: 11, margin: '8px 0 0 0', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', minHeight: 30 }}>{room.description || 'No description provided.'}</p>
       </div>
-      <button style={{ width: '100%', padding: '8px', borderRadius: 8, background: '#b08850', border: 'none', color: '#000', fontWeight: 800, fontSize: 11, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
+      <button style={{ width: '100%', padding: '8px', borderRadius: 8, background: 'var(--color-ss-primary, #0f5132)', border: 'none', color: '#fff', fontWeight: 800, fontSize: 11, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
         Join Session ➔
       </button>
     </motion.div>
@@ -334,7 +334,7 @@ function ArtistRow({ artist, index }: { artist: any; index: number }) {
           <p style={{ color: '#737373', fontSize: 12 }}>Artist · {artist.genres?.slice(0, 2).join(', ')}</p>
         </div>
         <div style={{ textAlign: 'right', flexShrink: 0 }}>
-          <p style={{ color: '#a3a3a3', fontSize: 12, fontWeight: 600 }}>{(artist.monthlyListeners / 1_000_000).toFixed(1)}M</p>
+          <p style={{ color: '#94a3b8', fontSize: 12, fontWeight: 600 }}>{(artist.monthlyListeners / 1_000_000).toFixed(1)}M</p>
           <p style={{ color: '#525252', fontSize: 11 }}>listeners</p>
         </div>
         <motion.button
@@ -368,7 +368,7 @@ function AlbumRow({ album, index }: { album: any; index: number }) {
           <p style={{ color: '#737373', fontSize: 12 }}>Album · {album.artistName} · {album.year}</p>
         </div>
         <div style={{ textAlign: 'right', flexShrink: 0 }}>
-          <p style={{ color: '#a3a3a3', fontSize: 12, fontWeight: 600 }}>{tracks.length} tracks</p>
+          <p style={{ color: '#94a3b8', fontSize: 12, fontWeight: 600 }}>{tracks.length} tracks</p>
         </div>
         <motion.button
           onClick={e => { e.preventDefault(); e.stopPropagation(); tracks.length > 0 && playTrack(tracks[0], tracks); }}
@@ -468,7 +468,7 @@ function MobileLibraryView({
   const { setMobileDrawerOpen, setCreateBottomSheetOpen } = useAuthStore();
   const { currentTrack, isPlaying, togglePlay } = usePlayerStore();
   const router = useRouter();
-  const G = '#b08850';
+  const G = 'var(--color-ss-primary, #0f5132)';
   const SORT_OPTS = [
     { v: 'recents', l: 'Recently Added' },
     { v: 'az',      l: 'A → Z' },
@@ -494,7 +494,7 @@ function MobileLibraryView({
               width: 32,
               height: 32,
               borderRadius: '50%',
-              background: '#b08850', // Green circle
+              background: 'var(--color-ss-primary, #0f5132)', // Green circle
               color: '#fff',
               display: 'flex',
               alignItems: 'center',
@@ -507,12 +507,12 @@ function MobileLibraryView({
           >
             {user?.name ? user.name[0].toUpperCase() : 'M'}
           </div>
-          <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 24, fontWeight: 900, color: '#fff' }}>Your Library</h1>
+          <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 24, fontWeight: 900, color: 'var(--color-ss-text-primary, #0f172a)' }}>Your Library</h1>
           <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginLeft: 'auto' }}>
-            <Search size={22} color="#fff" style={{ cursor: 'pointer' }} onClick={() => {
+            <Search size={22} color="var(--color-ss-text-secondary, #334155)" style={{ cursor: 'pointer' }} onClick={() => {
               toast('Search library…', { icon: '🔍' });
             }} />
-            <Plus size={24} color="#fff" style={{ cursor: 'pointer' }} onClick={() => setCreateBottomSheetOpen(true)} />
+            <Plus size={24} color="var(--color-ss-text-secondary, #334155)" style={{ cursor: 'pointer' }} onClick={() => setCreateBottomSheetOpen(true)} />
           </div>
         </div>
       )}
@@ -528,12 +528,7 @@ function MobileLibraryView({
           paddingBottom: 4,
           marginBottom: 16,
           WebkitOverflowScrolling: 'touch'
-        }} className="hide-scrollbar">
-          <style>{`
-            .hide-scrollbar::-webkit-scrollbar {
-              display: none;
-            }
-          `}</style>
+        }} className="no-scrollbar">
           {[
             { id: 'Playlists', label: 'Playlists' },
             { id: 'Artists', label: 'Artists' },
@@ -553,8 +548,8 @@ function MobileLibraryView({
                 style={{
                   padding: '6px 16px',
                   borderRadius: 20,
-                  background: active ? G : 'rgba(255,255,255,0.08)',
-                  color: active ? '#000' : '#fff',
+                  background: active ? G : 'var(--color-ss-hover, #e8ece9)',
+                  color: active ? '#fff' : 'var(--color-ss-text-primary, #0f172a)',
                   fontSize: 12.5,
                   fontWeight: 600,
                   border: 'none',
@@ -575,8 +570,8 @@ function MobileLibraryView({
         <div 
           onClick={() => setActiveTab('Liked')}
           style={{
-            background: 'rgba(255, 255, 255, 0.05)',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
+            background: 'var(--color-ss-elevated, #ffffff)',
+            border: '1px solid var(--color-ss-border, rgba(15, 81, 50, 0.08))',
             borderRadius: 16,
             padding: '16px',
             display: 'flex',
@@ -585,27 +580,28 @@ function MobileLibraryView({
             marginBottom: 20,
             cursor: 'pointer',
             transition: 'background 0.2s',
+            boxShadow: '0 4px 12px rgba(15, 81, 50, 0.04)'
           }}
-          onMouseEnter={e => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'}
-          onMouseLeave={e => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'}
+          onMouseEnter={e => e.currentTarget.style.background = 'var(--color-ss-hover, #e8ece9)'}
+          onMouseLeave={e => e.currentTarget.style.background = 'var(--color-ss-elevated, #ffffff)'}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             <div style={{
               width: 52,
               height: 52,
               borderRadius: 12,
-              background: 'linear-gradient(135deg, #064e3b, #10b981)',
+              background: 'linear-gradient(135deg, var(--color-ss-primary, #0f5132), var(--color-ss-secondary, #198754))',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               flexShrink: 0,
-              boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+              boxShadow: 'none'
             }}>
               <Heart size={24} color="#fff" fill="#fff" />
             </div>
             <div>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: '#fff', margin: 0, fontFamily: 'Outfit, sans-serif' }}>Liked Songs</h3>
-              <p style={{ fontSize: 12.5, color: '#a3a3a3', margin: '4px 0 0', fontWeight: 500 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-ss-text-primary, #0f172a)', margin: 0, fontFamily: 'Outfit, sans-serif' }}>Liked Songs</h3>
+              <p style={{ fontSize: 12.5, color: 'var(--color-ss-text-muted, #64748b)', margin: '4px 0 0', fontWeight: 500 }}>
                 {likedTracks.length} song{likedTracks.length !== 1 ? 's' : ''} you love
               </p>
             </div>
@@ -631,13 +627,13 @@ function MobileLibraryView({
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
-                  boxShadow: `0 4px 12px ${G}35`
+                  boxShadow: '0 4px 12px rgba(15, 81, 50, 0.35)'
                 }}
               >
                 {isLikedPlaying ? (
-                  <Pause size={18} fill="#000" color="#000" />
+                  <Pause size={18} fill="#fff" color="#fff" />
                 ) : (
-                  <Play size={18} fill="#000" color="#000" style={{ marginLeft: 2 }} />
+                  <Play size={18} fill="#fff" color="#fff" style={{ marginLeft: 2 }} />
                 )}
               </button>
             )}
@@ -706,7 +702,7 @@ function MobileLibraryView({
               </h1>
               
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center' }}>
-                <div style={{ width: 20, height: 20, borderRadius: '50%', background: '#b08850', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 800 }}>
+                <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'var(--color-ss-primary, #0f5132)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 800 }}>
                   {user?.name ? user.name[0].toUpperCase() : 'M'}
                 </div>
                 <span style={{ color: '#fff', fontSize: 13, fontWeight: 700 }}>
@@ -814,7 +810,7 @@ function MobileLibraryView({
                     }}
                   />
                   {searchQuery && (
-                    <button onClick={() => setSearchQuery('')} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#a3a3a3', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                    <button onClick={() => setSearchQuery('')} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
                       <X size={14} />
                     </button>
                   )}
@@ -854,7 +850,7 @@ function MobileLibraryView({
             <div style={{ position: 'relative' }}>
               <button 
                 onClick={() => setShowSortMenu(!showSortMenu)}
-                style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', color: '#0f172a', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
               >
                 <ArrowUpDown size={14} color={G} />
                 <span>{SORT_OPTS.find(s => s.v === sort)?.l || 'Recents'}</span>
@@ -865,12 +861,12 @@ function MobileLibraryView({
                     <div style={{ position: 'fixed', inset: 0, zIndex: 299 }} onClick={() => setShowSortMenu(false)} />
                     <motion.div
                       initial={{ opacity: 0, y: -6, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -6, scale: 0.96 }}
-                      style={{ position: 'absolute', top: 'calc(100% + 6px)', left: 0, zIndex: 300, background: '#1e1e1e', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, overflow: 'hidden', minWidth: 160, boxShadow: '0 12px 36px rgba(0,0,0,0.5)' }}
+                      style={{ position: 'absolute', top: 'calc(100% + 6px)', left: 0, zIndex: 300, background: '#ffffff', border: '1px solid rgba(15,81,50,0.1)', borderRadius: 12, overflow: 'hidden', minWidth: 160, boxShadow: '0 12px 36px rgba(15,81,50,0.08)' }}
                     >
                       <div style={{ padding: '4px' }}>
                         {SORT_OPTS.map(opt => (
                           <button key={opt.v} onClick={() => { setSort(opt.v); setShowSortMenu(false); }}
-                            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 12px', background: 'none', border: 'none', color: sort === opt.v ? '#fff' : '#a3a3a3', fontSize: 12, fontWeight: 500, cursor: 'pointer', borderRadius: 8 }}
+                            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 12px', background: 'none', border: 'none', color: sort === opt.v ? '#0f5132' : '#64748b', fontSize: 12, fontWeight: 500, cursor: 'pointer', borderRadius: 8 }}
                           >
                             {opt.l}
                             {sort === opt.v && <Check size={12} color={G} />}
@@ -884,7 +880,7 @@ function MobileLibraryView({
             </div>
             <button 
               onClick={() => setView(view === 'grid' ? 'list' : 'grid')}
-              style={{ background: 'none', border: 'none', color: '#a3a3a3', cursor: 'pointer' }}
+              style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
             >
               {view === 'grid' ? <List size={18} /> : <Grid size={18} />}
             </button>
@@ -899,11 +895,11 @@ function MobileLibraryView({
               {/* Create Playlist option */}
               {activeTab === 'Playlists' && (
                 <div onClick={() => setCreateBottomSheetOpen(true)} style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <div style={{ aspectRatio: '1', width: '100%', borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ aspectRatio: '1', width: '100%', borderRadius: 8, background: 'rgba(15,81,50,0.04)', border: '1px dashed rgba(15,81,50,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Plus size={28} color="#737373" />
                   </div>
                   <div>
-                    <p style={{ color: '#fff', fontSize: 13, fontWeight: 600 }}>Create playlist</p>
+                    <p style={{ color: '#0f172a', fontSize: 13, fontWeight: 600 }}>Create playlist</p>
                     <p style={{ color: '#737373', fontSize: 11 }}>Build collection</p>
                   </div>
                 </div>
@@ -934,11 +930,12 @@ function MobileLibraryView({
                       width: '100%',
                       borderRadius: isArtist ? '50%' : 8,
                       overflow: 'hidden',
-                      background: isLiked ? 'linear-gradient(135deg,#064e3b,#10b981)' : trackGradient(item.id),
+                      background: isLiked ? 'linear-gradient(135deg,#064e3b,#10b981)' : (item.image ? 'transparent' : '#f1f5f9'),
+                      border: item.image ? 'none' : '1px solid #cbd5e1',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                      boxShadow: 'none',
                       position: 'relative'
                     }}>
                       {isLiked ? (
@@ -948,12 +945,12 @@ function MobileLibraryView({
                       ) : item.image ? (
                         <img src={item.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       ) : (
-                        <Music2 size={36} color="rgba(255,255,255,0.4)" />
+                        <Music2 size={36} color="#94a3b8" />
                       )}
                     </div>
                     <div>
                       <p style={{
-                        color: isLiked ? G : '#fff',
+                        color: isLiked ? G : '#0f172a',
                         fontSize: 13,
                         fontWeight: 600,
                         overflow: 'hidden',
@@ -985,11 +982,11 @@ function MobileLibraryView({
               {/* Create Playlist option */}
               {activeTab === 'Playlists' && (
                 <div onClick={() => setCreateBottomSheetOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', padding: '4px 0' }}>
-                  <div style={{ width: 52, height: 52, borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ width: 52, height: 52, borderRadius: 8, background: 'rgba(15,81,50,0.04)', border: '1px dashed rgba(15,81,50,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Plus size={20} color="#737373" />
                   </div>
                   <div>
-                    <p style={{ color: '#fff', fontSize: 14, fontWeight: 600 }}>Create playlist</p>
+                    <p style={{ color: '#0f172a', fontSize: 14, fontWeight: 600 }}>Create playlist</p>
                     <p style={{ color: '#737373', fontSize: 12 }}>Build a custom collection</p>
                   </div>
                 </div>
@@ -1020,12 +1017,13 @@ function MobileLibraryView({
                       height: 52,
                       borderRadius: isArtist ? '50%' : 8,
                       overflow: 'hidden',
-                      background: isLiked ? 'linear-gradient(135deg,#064e3b,#10b981)' : trackGradient(item.id),
+                      background: isLiked ? 'linear-gradient(135deg,#064e3b,#10b981)' : (item.image ? 'transparent' : '#f1f5f9'),
+                      border: item.image ? 'none' : '1px solid #cbd5e1',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       flexShrink: 0,
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+                      boxShadow: 'none'
                     }}>
                       {isLiked ? (
                         <Heart size={20} color="#fff" fill="#fff" />
@@ -1034,12 +1032,12 @@ function MobileLibraryView({
                       ) : item.image ? (
                         <img src={item.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       ) : (
-                        <Music2 size={20} color="rgba(255,255,255,0.4)" />
+                        <Music2 size={20} color="#94a3b8" />
                       )}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <p style={{
-                        color: isLiked ? G : '#fff',
+                        color: isLiked ? G : '#0f172a',
                         fontSize: 14,
                         fontWeight: 600,
                         overflow: 'hidden',
@@ -1171,7 +1169,7 @@ function LibraryPageContent() {
     const likedSongsCount = user?.likedSongs?.length ?? 0;
 
     // 1. Liked Songs
-    if (activeTab === 'overview' || activeTab === 'Playlists' || activeTab === 'Liked') {
+    if (false) {
       list.push({
         id: 'liked-songs-playlist',
         type: 'liked',
@@ -1406,6 +1404,7 @@ function LibraryPageContent() {
       const res = await fetch('/api/rooms', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ 
           name: newRoomName.trim(), 
           description: newRoomDesc.trim(), 
@@ -1484,7 +1483,7 @@ function LibraryPageContent() {
                     width: 48, 
                     height: 48, 
                     borderRadius: '50%', 
-                    background: 'linear-gradient(135deg, #b08850, #10b981)', 
+                    background: 'linear-gradient(135deg, #0f5132, #10b981)', 
                     display: 'flex', 
                     alignItems: 'center', 
                     justifyContent: 'center', 
@@ -1509,7 +1508,7 @@ function LibraryPageContent() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 {/* Search Input */}
                 <div style={{ position: 'relative', width: 260 }}>
-                  <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#a3a3a3', pointerEvents: 'none' }} />
+                  <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', pointerEvents: 'none' }} />
                   <input
                     suppressHydrationWarning
                     value={searchQuery}
@@ -1532,7 +1531,7 @@ function LibraryPageContent() {
                     }}
                   />
                   {searchQuery && (
-                    <button onClick={() => setSearchQuery('')} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#a3a3a3', cursor: 'pointer', display: 'flex', alignItems: 'center' }}><X size={14} /></button>
+                    <button onClick={() => setSearchQuery('')} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', display: 'flex', alignItems: 'center' }}><X size={14} /></button>
                   )}
                 </div>
 
@@ -1617,7 +1616,7 @@ function LibraryPageContent() {
             {/* Sort */}
             <div ref={sortRef} style={{ position: 'relative' }}>
               <button onClick={() => setShowSortMenu(!showSortMenu)}
-                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 13px', borderRadius: 8, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#a3a3a3', fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s' }}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 13px', borderRadius: 8, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#94a3b8', fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s' }}
                 onMouseEnter={e => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}
                 onMouseLeave={e => { e.currentTarget.style.color = '#a3a3a3'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
               >
@@ -1634,7 +1633,7 @@ function LibraryPageContent() {
                     <div style={{ padding: '6px 4px' }}>
                       {SORT_OPTS.map(opt => (
                         <button key={opt.v} onClick={() => { setSort(opt.v); setShowSortMenu(false); }}
-                          style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 14px', background: 'none', border: 'none', color: sort === opt.v ? '#fff' : '#a3a3a3', fontSize: 13, fontWeight: 500, cursor: 'pointer', borderRadius: 8, transition: 'background 0.1s' }}
+                          style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 14px', background: 'none', border: 'none', color: sort === opt.v ? '#0f5132' : '#64748b', fontSize: 13, fontWeight: 500, cursor: 'pointer', borderRadius: 8, transition: 'background 0.1s' }}
                           onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
                           onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                         >
@@ -1985,7 +1984,7 @@ function LibraryPageContent() {
                     <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
                         <div style={{ width: 64, height: 64, borderRadius: 16, background: 'rgba(176, 136, 80,0.25)', border: '1px solid rgba(176, 136, 80,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 24px rgba(176, 136, 80,0.3)' }}>
-                          <Heart size={28} color="#b08850" fill="#b08850" />
+                          <Heart size={28} color="#0f5132" fill="#0f5132" />
                         </div>
                         <div>
                           <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>Your Collection</p>
@@ -2064,7 +2063,7 @@ function LibraryPageContent() {
                   {['Lossless FLAC', '320kbps MP3', 'Offline Mode', 'No Ads', 'Background Play', 'Unlimited Storage'].map(f => (
                     <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 20, background: `${G}0d`, border: `1px solid ${G}30` }}>
                       <Check size={11} color={G} />
-                      <span style={{ color: '#a3a3a3', fontSize: 12 }}>{f}</span>
+                      <span style={{ color: '#94a3b8', fontSize: 12 }}>{f}</span>
                     </div>
                   ))}
                 </div>
@@ -2165,7 +2164,7 @@ function LibraryPageContent() {
                     padding: '10px 28px',
                     borderRadius: 24,
                     border: 'none',
-                    background: newTitle.trim() ? G : 'rgba(176, 136, 80, 0.25)',
+                    background: newTitle.trim() ? G : 'rgba(15, 81, 50, 0.15)',
                     color: '#fff',
                     fontSize: 14,
                     fontWeight: 700,
@@ -2192,7 +2191,7 @@ function LibraryPageContent() {
               transition={{ type: 'spring', stiffness: 380, damping: 30 }}
               style={{ width: '100%', maxWidth: 460, background: '#141414', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 22, overflow: 'hidden', boxShadow: '0 40px 100px rgba(0,0,0,0.8)' }}
             >
-              <div style={{ height: 3, background: 'linear-gradient(90deg, #b08850, #10b981)' }} />
+              <div style={{ height: 3, background: 'linear-gradient(90deg, #0f5132, #10b981)' }} />
               <div style={{ padding: '22px 24px 24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -2202,13 +2201,13 @@ function LibraryPageContent() {
                       <p style={{ color: '#737373', fontSize: 11 }}>Paste a Spotify, Apple Music, or YouTube URL</p>
                     </div>
                   </div>
-                  <button onClick={() => setShowImportModal(false)} style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#a3a3a3' }}><X size={14} /></button>
+                  <button onClick={() => setShowImportModal(false)} style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}><X size={14} /></button>
                 </div>
 
                 <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
                   {['Spotify', 'Apple Music', 'YouTube'].map(src => (
                     <div key={src} style={{ flex: 1, padding: '10px 8px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center', cursor: 'pointer' }}>
-                      <p style={{ color: '#a3a3a3', fontSize: 11, fontWeight: 600 }}>{src}</p>
+                      <p style={{ color: '#94a3b8', fontSize: 11, fontWeight: 600 }}>{src}</p>
                     </div>
                   ))}
                 </div>
@@ -2219,7 +2218,7 @@ function LibraryPageContent() {
                   onBlur={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'} />
 
                 <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-                  <button onClick={() => setShowImportModal(false)} style={{ padding: '10px 18px', borderRadius: 10, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#a3a3a3', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+                  <button onClick={() => setShowImportModal(false)} style={{ padding: '10px 18px', borderRadius: 10, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#94a3b8', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
                   <button onClick={() => { toast.success('Import started! Playlist will appear shortly.', { icon: '⬇️' }); setShowImportModal(false); setImportUrl(''); }}
                     style={{ padding: '10px 22px', borderRadius: 10, background: '#0ea5e9', border: 'none', color: '#fff', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
                     Import
@@ -2290,11 +2289,11 @@ function LibraryPageContent() {
                       <p style={{ color: '#706155', fontSize: 11 }}>You must exit your current room first</p>
                     </div>
                   </div>
-                  <button onClick={() => setShowActiveRoomWarning(false)} style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(176,136,80,0.08)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#706155' }}><X size={14} /></button>
+                  <button onClick={() => setShowActiveRoomWarning(false)} style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(15,81,50,0.06)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#706155' }}><X size={14} /></button>
                 </div>
 
                 <p style={{ color: '#221a15', fontSize: 14, lineHeight: 1.5, margin: '0 0 24px' }}>
-                  You are currently in an active Jam Room: <strong style={{ color: '#b08850' }}>{existingRoomName}</strong>. You cannot host a new room until you exit this active session.
+                  You are currently in an active Jam Room: <strong style={{ color: '#0f5132' }}>{existingRoomName}</strong>. You cannot host a new room until you exit this active session.
                 </p>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -2306,7 +2305,7 @@ function LibraryPageContent() {
                     style={{
                       padding: '12px', 
                       borderRadius: 12, 
-                      background: '#b08850', 
+                      background: '#0f5132', 
                       border: 'none', 
                       color: '#fff', 
                       fontSize: 14, 
@@ -2342,7 +2341,7 @@ function LibraryPageContent() {
                     style={{
                       padding: '12px', 
                       borderRadius: 12, 
-                      background: 'rgba(176,136,80,0.08)', 
+                      background: 'rgba(15,81,50,0.06)', 
                       border: '1px solid rgba(176,136,80,0.15)', 
                       color: '#706155', 
                       fontSize: 14, 
@@ -2415,48 +2414,48 @@ function LibraryPageContent() {
               <div style={{ padding: '0 4px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 9, background: 'rgba(176,136,80,0.12)', border: '1px solid rgba(176,136,80,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Users size={15} color="#b08850" /></div>
+                    <div style={{ width: 36, height: 36, borderRadius: 9, background: 'rgba(15,81,50,0.08)', border: '1px solid rgba(15,81,50,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Users size={15} color="#0f5132" /></div>
                     <div>
                       <h3 style={{ fontFamily: 'Outfit, sans-serif', color: '#221a15', fontSize: 16, fontWeight: 800 }}>Create Jam Room</h3>
                       <p style={{ color: '#706155', fontSize: 11 }}>Listen together with friends in real-time</p>
                     </div>
                   </div>
-                  <button type="button" onClick={() => setShowCreateRoomModal(false)} style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(176,136,80,0.08)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#706155' }}><X size={14} /></button>
+                  <button type="button" onClick={() => setShowCreateRoomModal(false)} style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(15,81,50,0.06)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#706155' }}><X size={14} /></button>
                 </div>
 
                 <div style={{ marginBottom: 12 }}>
                   <label style={{ display: 'block', color: '#706155', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Room Name</label>
                   <input suppressHydrationWarning value={newRoomName} onChange={e => setNewRoomName(e.target.value)} placeholder="My Awesome Party" required
-                    style={{ width: '100%', background: '#ffffff', border: '1px solid rgba(176, 136, 80, 0.25)', borderRadius: 10, padding: '11px 14px', color: '#221a15', fontSize: 14, outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s' }}
-                    onFocus={e => { e.currentTarget.style.borderColor = '#b08850'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(176,136,80,0.1)'; }}
+                    style={{ width: '100%', background: '#ffffff', border: '1px solid rgba(15, 81, 50, 0.15)', borderRadius: 10, padding: '11px 14px', color: '#221a15', fontSize: 14, outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s' }}
+                    onFocus={e => { e.currentTarget.style.borderColor = '#0f5132'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(15,81,50,0.06)'; }}
                     onBlur={e => { e.currentTarget.style.borderColor = 'rgba(176,136,80,0.25)'; e.currentTarget.style.boxShadow = 'none'; }} />
                 </div>
 
                 <div style={{ marginBottom: 12 }}>
                   <label style={{ display: 'block', color: '#706155', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Description (Optional)</label>
                   <input suppressHydrationWarning value={newRoomDesc} onChange={e => setNewRoomDesc(e.target.value)} placeholder="Come listen to awesome music!"
-                    style={{ width: '100%', background: '#ffffff', border: '1px solid rgba(176, 136, 80, 0.25)', borderRadius: 10, padding: '11px 14px', color: '#221a15', fontSize: 14, outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s' }}
-                    onFocus={e => { e.currentTarget.style.borderColor = '#b08850'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(176,136,80,0.1)'; }}
+                    style={{ width: '100%', background: '#ffffff', border: '1px solid rgba(15, 81, 50, 0.15)', borderRadius: 10, padding: '11px 14px', color: '#221a15', fontSize: 14, outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s' }}
+                    onFocus={e => { e.currentTarget.style.borderColor = '#0f5132'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(15,81,50,0.06)'; }}
                     onBlur={e => { e.currentTarget.style.borderColor = 'rgba(176,136,80,0.25)'; e.currentTarget.style.boxShadow = 'none'; }} />
                 </div>
 
                 <div style={{ marginBottom: 16 }}>
                   <label style={{ display: 'block', color: '#706155', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Password (Optional - leave empty for public)</label>
                   <input suppressHydrationWarning type="password" value={newRoomPassword} onChange={e => setNewRoomPassword(e.target.value)} placeholder="Enter password to make it private"
-                    style={{ width: '100%', background: '#ffffff', border: '1px solid rgba(176, 136, 80, 0.25)', borderRadius: 10, padding: '11px 14px', color: '#221a15', fontSize: 14, outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s' }}
-                    onFocus={e => { e.currentTarget.style.borderColor = '#b08850'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(176,136,80,0.1)'; }}
+                    style={{ width: '100%', background: '#ffffff', border: '1px solid rgba(15, 81, 50, 0.15)', borderRadius: 10, padding: '11px 14px', color: '#221a15', fontSize: 14, outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s' }}
+                    onFocus={e => { e.currentTarget.style.borderColor = '#0f5132'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(15,81,50,0.06)'; }}
                     onBlur={e => { e.currentTarget.style.borderColor = 'rgba(176,136,80,0.25)'; e.currentTarget.style.boxShadow = 'none'; }} />
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-                  <input type="checkbox" id="roomCollab" checked={newRoomCollab} onChange={e => setNewRoomCollab(e.target.checked)} style={{ cursor: 'pointer', accentColor: '#b08850' }} />
+                  <input type="checkbox" id="roomCollab" checked={newRoomCollab} onChange={e => setNewRoomCollab(e.target.checked)} style={{ cursor: 'pointer', accentColor: '#0f5132' }} />
                   <label htmlFor="roomCollab" style={{ color: '#221a15', fontSize: 13, cursor: 'pointer', fontWeight: 600 }}>Allow anyone in the room to control playback</label>
                 </div>
 
                 <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-                  <button type="button" onClick={() => setShowCreateRoomModal(false)} style={{ padding: '10px 18px', borderRadius: 10, background: 'rgba(176,136,80,0.08)', border: '1px solid rgba(176,136,80,0.15)', color: '#706155', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
+                  <button type="button" onClick={() => setShowCreateRoomModal(false)} style={{ padding: '10px 18px', borderRadius: 10, background: 'rgba(15,81,50,0.06)', border: '1px solid rgba(176,136,80,0.15)', color: '#706155', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
                   <button type="submit" disabled={!newRoomName.trim()}
-                    style={{ padding: '10px 22px', borderRadius: 10, background: newRoomName.trim() ? '#b08850' : 'rgba(176, 136, 80, 0.25)', border: 'none', color: '#fff', fontSize: 13, fontWeight: 800, cursor: newRoomName.trim() ? 'pointer' : 'not-allowed', fontFamily: 'Outfit, sans-serif', boxShadow: newRoomName.trim() ? '0 4px 12px rgba(176,136,80,0.25)' : 'none' }}>
+                    style={{ padding: '10px 22px', borderRadius: 10, background: newRoomName.trim() ? '#0f5132' : 'rgba(15, 81, 50, 0.15)', border: 'none', color: '#fff', fontSize: 13, fontWeight: 800, cursor: newRoomName.trim() ? 'pointer' : 'not-allowed', fontFamily: 'Outfit, sans-serif', boxShadow: newRoomName.trim() ? '0 4px 12px rgba(176,136,80,0.25)' : 'none' }}>
                     Create Room
                   </button>
                 </div>
@@ -2521,22 +2520,22 @@ function LibraryPageContent() {
               <div style={{ padding: '0 4px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 9, background: 'rgba(176,136,80,0.12)', border: '1px solid rgba(176,136,80,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Users size={15} color="#b08850" /></div>
+                    <div style={{ width: 36, height: 36, borderRadius: 9, background: 'rgba(15,81,50,0.08)', border: '1px solid rgba(15,81,50,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Users size={15} color="#0f5132" /></div>
                     <div>
                       <h3 style={{ fontFamily: 'Outfit, sans-serif', color: '#221a15', fontSize: 16, fontWeight: 800 }}>Join Jam Room</h3>
                       <p style={{ color: '#706155', fontSize: 11 }}>Enter room code or invite code</p>
                     </div>
                   </div>
-                  <button onClick={() => setShowJoinRoomModal(false)} style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(176,136,80,0.08)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#706155' }}><X size={14} /></button>
+                  <button onClick={() => setShowJoinRoomModal(false)} style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(15,81,50,0.06)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#706155' }}><X size={14} /></button>
                 </div>
 
                 <input suppressHydrationWarning value={joinRoomCode} onChange={e => setJoinRoomCode(e.target.value)} placeholder="e.g. room 12345 or code with |"
-                  style={{ width: '100%', background: '#ffffff', border: '1px solid rgba(176, 136, 80, 0.25)', borderRadius: 10, padding: '11px 14px', color: '#221a15', fontSize: 14, outline: 'none', boxSizing: 'border-box', marginBottom: 16, transition: 'all 0.2s', textAlign: 'center', fontWeight: 'bold' }}
-                  onFocus={e => { e.currentTarget.style.borderColor = '#b08850'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(176,136,80,0.1)'; }}
+                  style={{ width: '100%', background: '#ffffff', border: '1px solid rgba(15, 81, 50, 0.15)', borderRadius: 10, padding: '11px 14px', color: '#221a15', fontSize: 14, outline: 'none', boxSizing: 'border-box', marginBottom: 16, transition: 'all 0.2s', textAlign: 'center', fontWeight: 'bold' }}
+                  onFocus={e => { e.currentTarget.style.borderColor = '#0f5132'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(15,81,50,0.06)'; }}
                   onBlur={e => { e.currentTarget.style.borderColor = 'rgba(176,136,80,0.25)'; e.currentTarget.style.boxShadow = 'none'; }} />
 
                 <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-                  <button onClick={() => setShowJoinRoomModal(false)} style={{ padding: '10px 18px', borderRadius: 10, background: 'rgba(176,136,80,0.08)', border: '1px solid rgba(176,136,80,0.15)', color: '#706155', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+                  <button onClick={() => setShowJoinRoomModal(false)} style={{ padding: '10px 18px', borderRadius: 10, background: 'rgba(15,81,50,0.06)', border: '1px solid rgba(176,136,80,0.15)', color: '#706155', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
                   <button 
                     onClick={() => { 
                       if(joinRoomCode.trim()) {
@@ -2550,7 +2549,7 @@ function LibraryPageContent() {
                       }
                     }}
                     disabled={!joinRoomCode.trim()}
-                    style={{ padding: '10px 22px', borderRadius: 10, background: joinRoomCode.trim() ? '#b08850' : 'rgba(176, 136, 80, 0.25)', border: 'none', color: '#fff', fontSize: 13, fontWeight: 800, cursor: joinRoomCode.trim() ? 'pointer' : 'not-allowed', fontFamily: 'Outfit, sans-serif', boxShadow: joinRoomCode.trim() ? '0 4px 12px rgba(176,136,80,0.25)' : 'none' }}>
+                    style={{ padding: '10px 22px', borderRadius: 10, background: joinRoomCode.trim() ? '#0f5132' : 'rgba(15, 81, 50, 0.15)', border: 'none', color: '#fff', fontSize: 13, fontWeight: 800, cursor: joinRoomCode.trim() ? 'pointer' : 'not-allowed', fontFamily: 'Outfit, sans-serif', boxShadow: joinRoomCode.trim() ? '0 4px 12px rgba(176,136,80,0.25)' : 'none' }}>
                     Join Room
                   </button>
                 </div>
@@ -2691,7 +2690,7 @@ function LibraryPageContent() {
                         justifyContent: 'center',
                         flexShrink: 0
                       }}>
-                        <Icon size={20} color="var(--color-ss-primary, #b08850)" />
+                        <Icon size={20} color="var(--color-ss-primary, #0f5132)" />
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <p style={{ color: 'var(--color-ss-text-primary, #221a15)', fontSize: 16, fontWeight: 700, margin: 0 }}>{item.title}</p>

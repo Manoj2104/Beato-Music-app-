@@ -19,7 +19,7 @@ import toast from 'react-hot-toast';
 
 
 
-const G = '#b08850'; // Spotify Green
+const G = '#0f5132'; // Spotify Green
 const V = '#10b981'; // Violet
 const P = '#34d399'; // Pink
 
@@ -62,7 +62,7 @@ const inputS = (focused: boolean): React.CSSProperties => ({
   borderRadius: 12, padding: '14px 16px', color: 'var(--color-ss-text-primary, #221a15)', fontSize: 14,
   outline: 'none', fontFamily: 'Inter, sans-serif', boxSizing: 'border-box',
   transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-  boxShadow: focused ? `0 0 16px rgba(176, 136, 80, 0.12)` : 'none',
+  boxShadow: focused ? `0 0 16px rgba(15, 81, 50, 0.12)` : 'none',
 });
 
 // DropZone component for file uploads
@@ -86,7 +86,7 @@ function DropZone({ accept, onFile, file, label, icon: Icon, color = G }: {
       style={{
         border: `2px dashed ${file ? G : dragging ? color : 'var(--color-ss-border, rgba(43, 34, 26, 0.08))'}`,
         borderRadius: 16, textAlign: 'center', cursor: 'pointer',
-        background: file ? 'rgba(176, 136, 80,0.03)' : dragging ? `rgba(16,185,129,0.04)` : 'var(--color-ss-surface, #f4eede)',
+        background: file ? 'rgba(15, 81, 50,0.03)' : dragging ? `rgba(16,185,129,0.04)` : 'var(--color-ss-surface, #f4eede)',
         backdropFilter: 'blur(8px)',
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         boxShadow: dragging ? `0 0 24px rgba(16,185,129,0.1)` : 'none',
@@ -95,7 +95,7 @@ function DropZone({ accept, onFile, file, label, icon: Icon, color = G }: {
         onChange={e => e.target.files?.[0] && onFile(e.target.files[0])} />
       {file ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <div style={{ width: 54, height: 54, borderRadius: '50%', background: 'rgba(176, 136, 80,0.12)', border: `2px solid ${G}`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>
+          <div style={{ width: 54, height: 54, borderRadius: '50%', background: 'rgba(15, 81, 50,0.12)', border: `2px solid ${G}`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>
             <Check size={24} color={G} />
           </div>
           <p style={{ color: G, fontWeight: 700, fontSize: 14, marginBottom: 4, maxWidth: '90%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{file.name}</p>
@@ -126,13 +126,13 @@ function PipelineRow({ stage, currentStage, index }: { stage: UploadStage; curre
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}
       style={{
         display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', borderRadius: 12,
-        background: isActive ? 'rgba(176, 136, 80,0.05)' : isDone ? 'var(--color-ss-elevated, #ffffff)' : 'var(--color-ss-surface, #f4eede)',
-        border: `1px solid ${isActive ? 'rgba(176, 136, 80,0.2)' : 'var(--color-ss-border, rgba(43, 34, 26, 0.08))'}`,
+        background: isActive ? 'rgba(15, 81, 50,0.05)' : isDone ? 'var(--color-ss-elevated, #ffffff)' : 'var(--color-ss-surface, #f4eede)',
+        border: `1px solid ${isActive ? 'rgba(15, 81, 50,0.2)' : 'var(--color-ss-border, rgba(43, 34, 26, 0.08))'}`,
         marginBottom: 8, transition: 'all 0.3s',
       }}>
       <div style={{
         width: 32, height: 32, borderRadius: '50%',
-        background: isDone ? 'rgba(176, 136, 80,0.1)' : isActive ? `rgba(176, 136, 80,0.05)` : 'var(--color-ss-bg, #fbf9f5)',
+        background: isDone ? 'rgba(15, 81, 50,0.1)' : isActive ? `rgba(15, 81, 50,0.05)` : 'var(--color-ss-bg, #fbf9f5)',
         border: `1.5px solid ${isDone ? G : isActive ? G : 'var(--color-ss-border, rgba(43, 34, 26, 0.08))'}`,
         display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
       }}>
@@ -497,7 +497,15 @@ export default function UploadPage() {
           setSpSingleMetadata({ ...data.track, genre: 'Pop' });
         } else if ((data.type === 'playlist' || data.type === 'album') && data.tracks) {
           const initialSel: Record<string, boolean> = {};
-          data.tracks.forEach((t: any) => { initialSel[t.spotifyId] = true; });
+          data.tracks.forEach((t: any) => {
+            const isDup = allTracks.some((ext: any) => {
+              if (ext.spotifyTrackId && ext.spotifyTrackId === t.spotifyId) return true;
+              const cleanExtTitle = ext.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+              const cleanSpTitle = t.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+              return cleanExtTitle === cleanSpTitle;
+            });
+            initialSel[t.spotifyId] = !isDup;
+          });
           setSpPlaylistSelection(initialSel);
         }
         toast.success(`Successfully parsed Spotify ${data.type}!`);
@@ -1065,9 +1073,9 @@ export default function UploadPage() {
           padding: 10px 14px; font-size: 13px; color: var(--color-ss-text-secondary, #4d3f35);
           cursor: pointer; transition: background 0.15s;
         }
-        .combobox-item:hover, .combobox-item.active { background: rgba(176, 136, 80,0.12); color: var(--color-ss-text-primary, #221a15); }
+        .combobox-item:hover, .combobox-item.active { background: rgba(15, 81, 50,0.12); color: var(--color-ss-text-primary, #221a15); }
         .combobox-item.create { color: #b08850; font-weight: 700; }
-        .combobox-item.create:hover { background: rgba(176, 136, 80,0.18); }
+        .combobox-item.create:hover { background: rgba(15, 81, 50,0.18); }
         .step-editor-card {
           background: var(--color-ss-elevated, #ffffff);
           backdrop-filter: blur(16px);
@@ -1244,6 +1252,12 @@ export default function UploadPage() {
             width: 100% !important;
           }
         }
+        .upload-selector-btn-override {
+          color: var(--color-ss-text-muted, #87786c) !important;
+        }
+        .upload-selector-btn-override.active {
+          color: #ffffff !important;
+        }
       ` }} />
       {playbackUrl && (
         <audio
@@ -1298,7 +1312,7 @@ export default function UploadPage() {
                   </h2>
                   <span style={{
                     fontSize: 10, fontWeight: 800, padding: '2px 7px', borderRadius: 100,
-                    background: 'rgba(176, 136, 80,0.12)', border: '1px solid rgba(176, 136, 80,0.22)',
+                    background: 'rgba(15, 81, 50,0.12)', border: '1px solid rgba(15, 81, 50,0.22)',
                     color: G, display: 'inline-flex', alignItems: 'center', gap: 4
                   }}>
                     <span style={{ width: 5, height: 5, borderRadius: '50%', background: G, display: 'inline-block', animation: 'pulse 1.5s infinite' }} />
@@ -1341,7 +1355,7 @@ export default function UploadPage() {
                   <div style={{
                     width: 22, height: 22, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 10, fontWeight: 800, border: `2px solid ${step > i + 1 ? G : step === i + 1 ? G : 'var(--color-ss-border, rgba(43, 34, 26, 0.08))'}`,
-                    background: step > i + 1 ? G : step === i + 1 ? 'rgba(176, 136, 80,0.12)' : 'transparent',
+                    background: step > i + 1 ? G : step === i + 1 ? 'rgba(15, 81, 50,0.12)' : 'transparent',
                     color: step > i + 1 ? '#000' : step === i + 1 ? G : 'var(--color-ss-text-muted, #87786c)',
                     transition: 'all 0.3s'
                   }}>
@@ -1367,10 +1381,10 @@ export default function UploadPage() {
             <div style={{ display: 'inline-flex', background: 'var(--color-ss-elevated, #ffffff)', border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))', borderRadius: 24, padding: 4, gap: 2 }}>
               <button
                 onClick={() => setUploadMode('file')}
+                className={uploadMode === 'file' ? 'upload-selector-btn-override active' : 'upload-selector-btn-override'}
                 style={{
                   padding: '8px 20px', borderRadius: 20, border: 'none',
                   background: uploadMode === 'file' ? G : 'transparent',
-                  color: uploadMode === 'file' ? '#000' : 'var(--color-ss-text-muted, #87786c)',
                   fontSize: 12.5, fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s'
                 }}
               >
@@ -1378,10 +1392,10 @@ export default function UploadPage() {
               </button>
               <button
                 onClick={() => setUploadMode('youtube')}
+                className={uploadMode === 'youtube' ? 'upload-selector-btn-override active' : 'upload-selector-btn-override'}
                 style={{
                   padding: '8px 20px', borderRadius: 20, border: 'none',
                   background: uploadMode === 'youtube' ? G : 'transparent',
-                  color: uploadMode === 'youtube' ? '#000' : 'var(--color-ss-text-muted, #87786c)',
                   fontSize: 12.5, fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s'
                 }}
               >
@@ -1389,15 +1403,15 @@ export default function UploadPage() {
               </button>
               <button
                 onClick={() => setUploadMode('spotify')}
+                className={uploadMode === 'spotify' ? 'upload-selector-btn-override active' : 'upload-selector-btn-override'}
                 style={{
                   padding: '8px 20px', borderRadius: 20, border: 'none',
                   background: uploadMode === 'spotify' ? '#1DB954' : 'transparent',
-                  color: uploadMode === 'spotify' ? '#000' : 'var(--color-ss-text-muted, #87786c)',
                   fontSize: 12.5, fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s',
                   display: 'flex', alignItems: 'center', gap: 5
                 }}
               >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill={uploadMode === 'spotify' ? '#000' : '#1DB954'}><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill={uploadMode === 'spotify' ? '#fff' : '#1DB954'}><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
                 Extract from Spotify
               </button>
             </div>
@@ -1871,7 +1885,7 @@ export default function UploadPage() {
                         </h4>
                         <span style={{
                           fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 12,
-                          background: copyrightStatus === 'scanning' ? 'rgba(245,158,11,0.1)' : copyrightStatus === 'warning' ? 'rgba(239,68,68,0.1)' : 'rgba(176, 136, 80,0.1)',
+                          background: copyrightStatus === 'scanning' ? 'rgba(245,158,11,0.1)' : copyrightStatus === 'warning' ? 'rgba(239,68,68,0.1)' : 'rgba(15, 81, 50,0.1)',
                           color: copyrightStatus === 'scanning' ? '#f59e0b' : copyrightStatus === 'warning' ? '#ef4444' : G,
                           border: `1px solid ${copyrightStatus === 'scanning' ? '#f59e0b' : copyrightStatus === 'warning' ? '#ef4444' : G}`
                         }}>
@@ -1882,7 +1896,7 @@ export default function UploadPage() {
                       {/* Safety index gauge */}
                       {copyrightScore !== null && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10, paddingBottom: 10, borderBottom: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))' }}>
-                          <div style={{ width: 40, height: 40, borderRadius: '50%', background: copyrightScore > 50 ? 'rgba(176, 136, 80,0.08)' : 'rgba(239,68,68,0.08)', border: `2px solid ${copyrightScore > 50 ? G : '#ef4444'}`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <div style={{ width: 40, height: 40, borderRadius: '50%', background: copyrightScore > 50 ? 'rgba(15, 81, 50,0.08)' : 'rgba(239,68,68,0.08)', border: `2px solid ${copyrightScore > 50 ? G : '#ef4444'}`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             <span style={{ fontSize: 12, fontWeight: 900, color: copyrightScore > 50 ? G : '#ef4444' }}>{copyrightScore}%</span>
                           </div>
                           <div>
@@ -1947,8 +1961,8 @@ export default function UploadPage() {
                       }} 
                       disabled={!canProceed() || isApplyingCrop || (step === 1 && duplicateTrack !== null)} 
                       style={{
-                        flex: 2, padding: '10px', borderRadius: 10, background: (canProceed() && !isApplyingCrop && (step !== 1 || !duplicateTrack)) ? G : 'rgba(176, 136, 80,0.15)',
-                        border: 'none', color: 'black', fontWeight: 800, cursor: (canProceed() && !isApplyingCrop && (step !== 1 || !duplicateTrack)) ? 'pointer' : 'not-allowed',
+                        flex: 2, padding: '10px', borderRadius: 10, background: (canProceed() && !isApplyingCrop && (step !== 1 || !duplicateTrack)) ? G : 'rgba(15, 81, 50,0.15)',
+                        border: 'none', color: (canProceed() && !isApplyingCrop && (step !== 1 || !duplicateTrack)) ? '#fff' : 'rgba(15, 81, 50, 0.45)', fontWeight: 800, cursor: (canProceed() && !isApplyingCrop && (step !== 1 || !duplicateTrack)) ? 'pointer' : 'not-allowed',
                         fontFamily: 'Outfit, sans-serif', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, transition: 'all 0.2s'
                       }}
                     >
@@ -1956,8 +1970,8 @@ export default function UploadPage() {
                     </button>
                   ) : (
                     <button onClick={handleSubmit} disabled={!canProceed() || copyrightStatus === 'scanning'} style={{
-                      flex: 2, padding: '10px', borderRadius: 10, background: (canProceed() && copyrightStatus !== 'scanning') ? G : 'rgba(176, 136, 80,0.15)',
-                      border: 'none', color: 'black', fontWeight: 800, cursor: (canProceed() && copyrightStatus !== 'scanning') ? 'pointer' : 'not-allowed',
+                      flex: 2, padding: '10px', borderRadius: 10, background: (canProceed() && copyrightStatus !== 'scanning') ? G : 'rgba(15, 81, 50,0.15)',
+                      border: 'none', color: (canProceed() && copyrightStatus !== 'scanning') ? '#fff' : 'rgba(15, 81, 50, 0.45)', fontWeight: 800, cursor: (canProceed() && copyrightStatus !== 'scanning') ? 'pointer' : 'not-allowed',
                       fontFamily: 'Outfit, sans-serif', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, transition: 'all 0.2s'
                     }}>
                       <Upload size={14} /> Publish Master to Storefront
@@ -2082,7 +2096,7 @@ export default function UploadPage() {
                         <span style={{ ...labelS, fontSize: 9, marginBottom: 4 }}>Smart Auto Tags</span>
                         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 4 }}>
                           {aiCoPilot.tags.map(tag => (
-                            <span key={tag} style={{ fontSize: 10, color: G, background: 'rgba(176, 136, 80,0.08)', padding: '1px 6px', borderRadius: 12, fontWeight: 600 }}>
+                            <span key={tag} style={{ fontSize: 10, color: G, background: 'rgba(15, 81, 50,0.08)', padding: '1px 6px', borderRadius: 12, fontWeight: 600 }}>
                               {tag}
                             </span>
                           ))}
@@ -2132,8 +2146,8 @@ export default function UploadPage() {
                           style={{
                             display: 'flex', alignItems: 'center', gap: 10,
                             padding: '10px 12px', borderRadius: 12, cursor: 'pointer',
-                            background: platforms[platform.id] ? `rgba(176, 136, 80,0.06)` : 'var(--color-ss-surface, #f4eede)',
-                            border: `1px solid ${platforms[platform.id] ? 'rgba(176, 136, 80,0.2)' : 'var(--color-ss-border, rgba(43, 34, 26, 0.08))'}`,
+                            background: platforms[platform.id] ? `rgba(15, 81, 50,0.06)` : 'var(--color-ss-surface, #f4eede)',
+                            border: `1px solid ${platforms[platform.id] ? 'rgba(15, 81, 50,0.2)' : 'var(--color-ss-border, rgba(43, 34, 26, 0.08))'}`,
                             transition: 'all 0.2s'
                           }}
                         >
@@ -2160,7 +2174,7 @@ export default function UploadPage() {
                       ))}
 
                       {/* Summary footer */}
-                      <div style={{ marginTop: 4, padding: '8px 10px', borderRadius: 10, background: 'rgba(176, 136, 80,0.04)', border: '1px solid rgba(176, 136, 80,0.1)' }}>
+                      <div style={{ marginTop: 4, padding: '8px 10px', borderRadius: 10, background: 'rgba(15, 81, 50,0.04)', border: '1px solid rgba(15, 81, 50,0.1)' }}>
                         <p style={{ color: 'var(--color-ss-text-muted, #87786c)', fontSize: 10, margin: 0, lineHeight: 1.4 }}>
                           🌍 Your track will reach <strong style={{ color: 'var(--color-ss-text-primary, #221a15)' }}>{Object.values(platforms).filter(Boolean).length} platform{Object.values(platforms).filter(Boolean).length !== 1 ? 's' : ''}</strong> upon publishing.
                         </p>
@@ -2213,8 +2227,8 @@ export default function UploadPage() {
                   {(['320kbps', '160kbps', '96kbps'] as const).map(br => (
                     <div key={br} style={{
                       flex: 1, padding: '12px', borderRadius: 12, textAlign: 'center',
-                      background: currentJob.bitrates[br] ? 'rgba(176, 136, 80,0.06)' : 'var(--color-ss-surface, #f4eede)',
-                      border: `1px solid ${currentJob.bitrates[br] ? 'rgba(176, 136, 80,0.25)' : 'var(--color-ss-border, rgba(43, 34, 26, 0.08))'}`,
+                      background: currentJob.bitrates[br] ? 'rgba(15, 81, 50,0.06)' : 'var(--color-ss-surface, #f4eede)',
+                      border: `1px solid ${currentJob.bitrates[br] ? 'rgba(15, 81, 50,0.25)' : 'var(--color-ss-border, rgba(43, 34, 26, 0.08))'}`,
                     }}>
                       <p style={{ color: currentJob.bitrates[br] ? G : 'var(--color-ss-text-muted, #87786c)', fontSize: 13, fontWeight: 800, margin: 0 }}>{br}</p>
                       <p style={{ color: 'var(--color-ss-text-muted, #87786c)', fontSize: 11, marginTop: 4, margin: 0 }}>{currentJob.bitrates[br] ? 'Deployed ✓' : 'Pending'}</p>
@@ -2231,7 +2245,7 @@ export default function UploadPage() {
               className="upload-success-card"
               style={{ maxWidth: 540, textAlign: 'center', background: 'var(--color-ss-elevated, #ffffff)', border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))', borderRadius: 24, padding: 30, margin: '0 auto' }}>
               <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.15, type: 'spring', stiffness: 180 }}
-                style={{ width: 90, height: 90, borderRadius: '50%', background: 'rgba(176, 136, 80,0.1)', border: `2.5px solid ${G}`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', boxShadow: `0 0 40px rgba(176, 136, 80,0.25)` }}>
+                style={{ width: 90, height: 90, borderRadius: '50%', background: 'rgba(15, 81, 50,0.1)', border: `2.5px solid ${G}`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', boxShadow: `0 0 40px rgba(15, 81, 50,0.25)` }}>
                 <Check size={42} color={G} strokeWidth={2.5} />
               </motion.div>
 
@@ -2342,7 +2356,7 @@ export default function UploadPage() {
                       background: G,
                       border: 'none',
                       borderRadius: 12,
-                      color: '#000',
+                      color: '#fff',
                       fontWeight: 700,
                       fontSize: 13,
                       cursor: ytLoading ? 'not-allowed' : 'pointer',
@@ -2400,7 +2414,7 @@ export default function UploadPage() {
                         {ytParsedData.type === 'video' ? 'Parsed YouTube Video' : 'Parsed YouTube Playlist'}
                       </h4>
                       <span style={{
-                        fontSize: 9, fontWeight: 800, color: '#000', background: G,
+                        fontSize: 9, fontWeight: 800, color: '#fff', background: G,
                         padding: '2px 8px', borderRadius: 100, textTransform: 'uppercase', letterSpacing: '0.04em'
                       }}>
                         {ytParsedData.type}
@@ -2887,14 +2901,21 @@ export default function UploadPage() {
                         )}
                         <div>
                           <h4 style={{ fontSize: 13.5, fontWeight: 800, color: 'var(--color-ss-text-primary, #221a15)', margin: 0 }}>{spParsedData.playlistTitle}</h4>
-                          <div style={{ fontSize: 11, color: 'var(--color-ss-text-muted, #87786c)', marginTop: 2 }}>{spParsedData.tracks?.length} tracks found</div>
+                          <div style={{ fontSize: 11, color: 'var(--color-ss-text-muted, #87786c)', marginTop: 2 }}>
+                            {spParsedData.tracks?.length} tracks found 
+                            {spParsedData.tracks?.length === 30 && (
+                              <span style={{ color: '#b45309', marginLeft: 6, fontWeight: 700 }}>
+                                (Limited to first 30 tracks by Spotify guest mode)
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <span style={{ fontSize: 9, fontWeight: 800, color: '#000', background: '#1DB954', padding: '2px 8px', borderRadius: 100, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{spParsedData.type}</span>
                     </div>
 
-                    {/* Select All / Deselect All */}
-                    <div style={{ display: 'flex', gap: 8 }}>
+                    {/* Select All / Deselect All / Deselect Duplicates */}
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                       <button
                         onClick={() => {
                           const all: Record<string, boolean> = {};
@@ -2907,6 +2928,24 @@ export default function UploadPage() {
                         onClick={() => setSpPlaylistSelection({})}
                         style={{ fontSize: 11, padding: '4px 12px', borderRadius: 100, border: '1px solid var(--color-ss-border, rgba(43,34,26,0.08))', background: 'transparent', color: 'var(--color-ss-text-muted, #87786c)', cursor: 'pointer', fontWeight: 700 }}
                       >Deselect All</button>
+                      <button
+                        onClick={() => {
+                          const updated = { ...spPlaylistSelection };
+                          spParsedData.tracks.forEach((t: any) => {
+                            const isDup = allTracks.some((ext: any) => {
+                              if (ext.spotifyTrackId && ext.spotifyTrackId === t.spotifyId) return true;
+                              const cleanExtTitle = ext.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+                              const cleanSpTitle = t.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+                              return cleanExtTitle === cleanSpTitle;
+                            });
+                            if (isDup) {
+                              updated[t.spotifyId] = false;
+                            }
+                          });
+                          setSpPlaylistSelection(updated);
+                        }}
+                        style={{ fontSize: 11, padding: '4px 12px', borderRadius: 100, border: '1px solid rgba(220,38,38,0.3)', background: 'transparent', color: '#dc2626', cursor: 'pointer', fontWeight: 700 }}
+                      >Deselect Duplicates</button>
                     </div>
 
                     {/* Tracks checklist */}
@@ -2914,6 +2953,13 @@ export default function UploadPage() {
                       {spParsedData.tracks?.map((t: any, index: number) => {
                         const isChecked = spPlaylistSelection[t.spotifyId] ?? false;
                         const hasYt = !!t.youtubeVideoId;
+                        const isDup = allTracks.some((ext: any) => {
+                          if (ext.spotifyTrackId && ext.spotifyTrackId === t.spotifyId) return true;
+                          const cleanExtTitle = ext.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+                          const cleanSpTitle = t.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+                          return cleanExtTitle === cleanSpTitle;
+                        });
+
                         return (
                           <div key={`${t.spotifyId}-${index}`} style={{
                             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -2939,9 +2985,16 @@ export default function UploadPage() {
                                 </span>
                               </div>
                             </div>
-                            <span style={{ fontSize: 9, fontWeight: 700, color: hasYt ? '#166534' : '#92400e', background: hasYt ? 'rgba(29,185,84,0.12)' : 'rgba(245,158,11,0.15)', padding: '2px 7px', borderRadius: 100, flexShrink: 0, marginLeft: 8 }}>
-                              {hasYt ? '▶ YT' : '⚠ No YT'}
-                            </span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                              {isDup && (
+                                <span style={{ fontSize: 9, fontWeight: 700, color: '#b91c1c', background: 'rgba(239,68,68,0.12)', padding: '2px 7px', borderRadius: 100 }}>
+                                  📋 DUPLICATE
+                                </span>
+                              )}
+                              <span style={{ fontSize: 9, fontWeight: 700, color: hasYt ? '#166534' : '#92400e', background: hasYt ? 'rgba(29,185,84,0.12)' : 'rgba(245,158,11,0.15)', padding: '2px 7px', borderRadius: 100 }}>
+                                {hasYt ? '▶ YT' : '⚠ No YT'}
+                              </span>
+                            </div>
                           </div>
                         );
                       })}

@@ -72,8 +72,8 @@ export async function GET(request: NextRequest) {
     // Find all active artists in the database (must exist and have isActive === true)
     const activeArtistIds = new Set(
       allUsers
-        .filter(u => u.role === 'ARTIST' && u.isActive === true)
-        .map(u => u.id)
+        .filter((u: any) => u.role === 'ARTIST' && u.isActive === true)
+        .map((u: any) => u.id)
     );
 
     const activeArtistsCount = activeArtistIds.size;
@@ -136,7 +136,7 @@ export async function GET(request: NextRequest) {
       const mStart = new Date(); mStart.setMonth(mStart.getMonth() - i); mStart.setDate(1); mStart.setHours(0, 0, 0, 0);
       const mEnd = new Date(mStart); mEnd.setMonth(mEnd.getMonth() + 1);
       
-      const monthUsers = allUsers.filter(u => {
+      const monthUsers = allUsers.filter((u: any) => {
         const t = new Date(u.createdAt).getTime();
         return t >= mStart.getTime() && t < mEnd.getTime();
       }).length;
@@ -185,19 +185,19 @@ export async function GET(request: NextRequest) {
     }
 
     // 6. Top Performing Artists
-    const artistList = allUsers.filter(u => u.role === 'ARTIST' && u.isActive);
+    const artistList = allUsers.filter((u: any) => u.role === 'ARTIST' && u.isActive);
     const artistPlays: Record<string, number> = {};
     allDbTracks.forEach(t => {
       artistPlays[t.artistId] = (artistPlays[t.artistId] || 0) + (t.plays || 0);
     });
 
-    const topArtists = artistList.map(a => ({
+    const topArtists = artistList.map((a: any) => ({
       id: a.id,
       name: a.name,
       image: a.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop',
       monthlyListeners: artistPlays[a.id] || 0,
       followers: a.followers || 0
-    })).sort((a, b) => b.monthlyListeners - a.monthlyListeners).slice(0, 5);
+    })).sort((a: any, b: any) => b.monthlyListeners - a.monthlyListeners).slice(0, 5);
 
     return NextResponse.json({
       success: true,

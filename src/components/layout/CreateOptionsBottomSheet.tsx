@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 import { useAuthStore } from '@/store/authStore';
 import { usePlaylistStore } from '@/store/playlistStore';
 
-const G = '#b08850';
+const G = '#0f5132';
 const GRADIENTS = [
   { id: 'ocean',   label: 'Ocean',    css: 'linear-gradient(135deg,#1e3a5f,#0ea5e9)' },
   { id: 'sunset',  label: 'Sunset',   css: 'linear-gradient(135deg,#7c1d0a,#f97316)' },
@@ -41,9 +41,9 @@ export default function CreateOptionsBottomSheet() {
   const [existingRoomId, setExistingRoomId] = useState<string | null>(null);
   const [existingRoomName, setExistingRoomName] = useState('');
 
-  // Close all modals when bottom sheet is closed
+  // Reset modals when the bottom sheet is opened
   useEffect(() => {
-    if (!isCreateBottomSheetOpen) {
+    if (isCreateBottomSheetOpen) {
       setShowCreateModal(false);
       setShowCreateRoomModal(false);
       setShowJoinRoomModal(false);
@@ -133,6 +133,7 @@ export default function CreateOptionsBottomSheet() {
       const res = await fetch('/api/rooms', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ 
           name: newRoomName.trim(), 
           description: newRoomDesc.trim(), 
@@ -200,7 +201,7 @@ export default function CreateOptionsBottomSheet() {
                 bottom: 0,
                 left: 0,
                 right: 0,
-                background: 'var(--color-ss-elevated, #ffffff)',
+                background: '#ffffff',
                 borderTopLeftRadius: 24,
                 borderTopRightRadius: 24,
                 padding: '12px 20px 40px',
@@ -318,7 +319,7 @@ export default function CreateOptionsBottomSheet() {
       <AnimatePresence>
         {showCreateModal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            style={{ position: 'fixed', inset: 0, background: 'rgba(251, 249, 245, 0.96)', backdropFilter: 'blur(16px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(255, 255, 255, 0.98)', backdropFilter: 'blur(16px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}
           >
             <form onSubmit={handleCreatePlaylist} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: 400 }}>
               <h2 style={{ color: 'var(--color-ss-text-primary, #221a15)', fontSize: 20, fontWeight: 700, marginBottom: 32, textAlign: 'center', fontFamily: 'var(--font-inter), sans-serif' }}>
@@ -357,7 +358,7 @@ export default function CreateOptionsBottomSheet() {
                   style={{
                     padding: '10px 24px',
                     borderRadius: 24,
-                    border: '1.5px solid rgba(43, 34, 26, 0.25)',
+                    border: '1.5px solid rgba(15, 81, 50, 0.2)',
                     background: 'transparent',
                     color: 'var(--color-ss-text-primary, #221a15)',
                     fontSize: 14,
@@ -375,7 +376,7 @@ export default function CreateOptionsBottomSheet() {
                     padding: '10px 28px',
                     borderRadius: 24,
                     border: 'none',
-                    background: newTitle.trim() ? G : 'rgba(176, 136, 80, 0.25)',
+                    background: newTitle.trim() ? G : 'rgba(15, 81, 50, 0.15)',
                     color: '#fff',
                     fontSize: 14,
                     fontWeight: 700,
@@ -420,7 +421,7 @@ export default function CreateOptionsBottomSheet() {
                 bottom: 0,
                 left: 0,
                 right: 0,
-                background: 'var(--color-ss-bg, #fbf9f5)',
+                background: '#ffffff',
                 borderTopLeftRadius: 24,
                 borderTopRightRadius: 24,
                 padding: '12px 20px 40px',
@@ -445,48 +446,48 @@ export default function CreateOptionsBottomSheet() {
               <div style={{ padding: '0 4px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 9, background: 'rgba(176,136,80,0.12)', border: '1px solid rgba(176,136,80,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Users size={15} color="#b08850" /></div>
+                    <div style={{ width: 36, height: 36, borderRadius: 9, background: 'rgba(15,81,50,0.08)', border: '1px solid rgba(15,81,50,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Users size={15} color="#0f5132" /></div>
                     <div>
-                      <h3 style={{ fontFamily: 'Outfit, sans-serif', color: '#221a15', fontSize: 16, fontWeight: 800 }}>Create Jam Room</h3>
-                      <p style={{ color: '#706155', fontSize: 11 }}>Listen together with friends in real-time</p>
+                      <h3 style={{ fontFamily: 'Outfit, sans-serif', color: '#0f172a', fontSize: 16, fontWeight: 800 }}>Create Jam Room</h3>
+                      <p style={{ color: '#64748b', fontSize: 11 }}>Listen together with friends in real-time</p>
                     </div>
                   </div>
-                  <button type="button" onClick={() => setShowCreateRoomModal(false)} style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(176,136,80,0.08)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#706155' }}><X size={14} /></button>
+                  <button type="button" onClick={() => setShowCreateRoomModal(false)} style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(15,81,50,0.06)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}><X size={14} /></button>
                 </div>
 
                 <div style={{ marginBottom: 12 }}>
-                  <label style={{ display: 'block', color: '#706155', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Room Name</label>
+                  <label style={{ display: 'block', color: '#64748b', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Room Name</label>
                   <input suppressHydrationWarning value={newRoomName} onChange={e => setNewRoomName(e.target.value)} placeholder="My Awesome Party" required
-                    style={{ width: '100%', background: '#ffffff', border: '1px solid rgba(176, 136, 80, 0.25)', borderRadius: 10, padding: '11px 14px', color: '#221a15', fontSize: 14, outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s' }}
-                    onFocus={e => { e.currentTarget.style.borderColor = '#b08850'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(176,136,80,0.1)'; }}
-                    onBlur={e => { e.currentTarget.style.borderColor = 'rgba(176,136,80,0.25)'; e.currentTarget.style.boxShadow = 'none'; }} />
+                    style={{ width: '100%', background: '#ffffff', border: '1px solid rgba(15, 81, 50, 0.15)', borderRadius: 10, padding: '11px 14px', color: '#0f172a', fontSize: 14, outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s' }}
+                    onFocus={e => { e.currentTarget.style.borderColor = '#0f5132'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(15,81,50,0.06)'; }}
+                    onBlur={e => { e.currentTarget.style.borderColor = 'rgba(15,81,50,0.15)'; e.currentTarget.style.boxShadow = 'none'; }} />
                 </div>
 
                 <div style={{ marginBottom: 12 }}>
-                  <label style={{ display: 'block', color: '#706155', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Description (Optional)</label>
+                  <label style={{ display: 'block', color: '#64748b', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Description (Optional)</label>
                   <input suppressHydrationWarning value={newRoomDesc} onChange={e => setNewRoomDesc(e.target.value)} placeholder="Come listen to awesome music!"
-                    style={{ width: '100%', background: '#ffffff', border: '1px solid rgba(176, 136, 80, 0.25)', borderRadius: 10, padding: '11px 14px', color: '#221a15', fontSize: 14, outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s' }}
-                    onFocus={e => { e.currentTarget.style.borderColor = '#b08850'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(176,136,80,0.1)'; }}
-                    onBlur={e => { e.currentTarget.style.borderColor = 'rgba(176,136,80,0.25)'; e.currentTarget.style.boxShadow = 'none'; }} />
+                    style={{ width: '100%', background: '#ffffff', border: '1px solid rgba(15, 81, 50, 0.15)', borderRadius: 10, padding: '11px 14px', color: '#0f172a', fontSize: 14, outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s' }}
+                    onFocus={e => { e.currentTarget.style.borderColor = '#0f5132'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(15,81,50,0.06)'; }}
+                    onBlur={e => { e.currentTarget.style.borderColor = 'rgba(15,81,50,0.15)'; e.currentTarget.style.boxShadow = 'none'; }} />
                 </div>
 
                 <div style={{ marginBottom: 16 }}>
-                  <label style={{ display: 'block', color: '#706155', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Password (Optional - leave empty for public)</label>
+                  <label style={{ display: 'block', color: '#64748b', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Password (Optional - leave empty for public)</label>
                   <input suppressHydrationWarning type="password" value={newRoomPassword} onChange={e => setNewRoomPassword(e.target.value)} placeholder="Enter password to make it private"
-                    style={{ width: '100%', background: '#ffffff', border: '1px solid rgba(176, 136, 80, 0.25)', borderRadius: 10, padding: '11px 14px', color: '#221a15', fontSize: 14, outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s' }}
-                    onFocus={e => { e.currentTarget.style.borderColor = '#b08850'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(176,136,80,0.1)'; }}
-                    onBlur={e => { e.currentTarget.style.borderColor = 'rgba(176,136,80,0.25)'; e.currentTarget.style.boxShadow = 'none'; }} />
+                    style={{ width: '100%', background: '#ffffff', border: '1px solid rgba(15, 81, 50, 0.15)', borderRadius: 10, padding: '11px 14px', color: '#0f172a', fontSize: 14, outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s' }}
+                    onFocus={e => { e.currentTarget.style.borderColor = '#0f5132'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(15,81,50,0.06)'; }}
+                    onBlur={e => { e.currentTarget.style.borderColor = 'rgba(15,81,50,0.15)'; e.currentTarget.style.boxShadow = 'none'; }} />
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-                  <input type="checkbox" id="roomCollab" checked={newRoomCollab} onChange={e => setNewRoomCollab(e.target.checked)} style={{ cursor: 'pointer', accentColor: '#b08850' }} />
-                  <label htmlFor="roomCollab" style={{ color: '#221a15', fontSize: 13, cursor: 'pointer', fontWeight: 600 }}>Allow anyone in the room to control playback</label>
+                  <input type="checkbox" id="roomCollab" checked={newRoomCollab} onChange={e => setNewRoomCollab(e.target.checked)} style={{ cursor: 'pointer', accentColor: '#0f5132' }} />
+                  <label htmlFor="roomCollab" style={{ color: '#0f172a', fontSize: 13, cursor: 'pointer', fontWeight: 600 }}>Allow anyone in the room to control playback</label>
                 </div>
 
                 <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-                  <button type="button" onClick={() => setShowCreateRoomModal(false)} style={{ padding: '10px 18px', borderRadius: 10, background: 'rgba(176,136,80,0.08)', border: '1px solid rgba(176,136,80,0.15)', color: '#706155', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
+                  <button type="button" onClick={() => setShowCreateRoomModal(false)} style={{ padding: '10px 18px', borderRadius: 10, background: 'rgba(15,81,50,0.06)', border: '1px solid rgba(176,136,80,0.15)', color: '#64748b', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
                   <button type="submit" disabled={!newRoomName.trim()}
-                    style={{ padding: '10px 22px', borderRadius: 10, background: newRoomName.trim() ? '#b08850' : 'rgba(176, 136, 80, 0.25)', border: 'none', color: '#fff', fontSize: 13, fontWeight: 800, cursor: newRoomName.trim() ? 'pointer' : 'not-allowed', fontFamily: 'Outfit, sans-serif', boxShadow: newRoomName.trim() ? '0 4px 12px rgba(176,136,80,0.25)' : 'none' }}>
+                    style={{ padding: '10px 22px', borderRadius: 10, background: newRoomName.trim() ? '#0f5132' : 'rgba(15, 81, 50, 0.15)', border: 'none', color: '#fff', fontSize: 13, fontWeight: 800, cursor: newRoomName.trim() ? 'pointer' : 'not-allowed', fontFamily: 'Outfit, sans-serif', boxShadow: newRoomName.trim() ? '0 4px 12px rgba(15,81,50,0.15)' : 'none' }}>
                     Create Room
                   </button>
                 </div>
@@ -524,7 +525,7 @@ export default function CreateOptionsBottomSheet() {
                 bottom: 0,
                 left: 0,
                 right: 0,
-                background: 'var(--color-ss-bg, #fbf9f5)',
+                background: '#ffffff',
                 borderTopLeftRadius: 24,
                 borderTopRightRadius: 24,
                 padding: '12px 20px 40px',
@@ -549,26 +550,26 @@ export default function CreateOptionsBottomSheet() {
               <div style={{ padding: '0 4px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 9, background: 'rgba(176,136,80,0.12)', border: '1px solid rgba(176,136,80,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Users size={15} color="#b08850" /></div>
+                    <div style={{ width: 36, height: 36, borderRadius: 9, background: 'rgba(15,81,50,0.08)', border: '1px solid rgba(15,81,50,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Users size={15} color="#0f5132" /></div>
                     <div>
-                      <h3 style={{ fontFamily: 'Outfit, sans-serif', color: '#221a15', fontSize: 16, fontWeight: 800 }}>Join Jam Room</h3>
-                      <p style={{ color: '#706155', fontSize: 11 }}>Enter room code or invite code</p>
+                      <h3 style={{ fontFamily: 'Outfit, sans-serif', color: '#0f172a', fontSize: 16, fontWeight: 800 }}>Join Jam Room</h3>
+                      <p style={{ color: '#64748b', fontSize: 11 }}>Enter room code or invite code</p>
                     </div>
                   </div>
-                  <button onClick={() => setShowJoinRoomModal(false)} style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(176,136,80,0.08)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#706155' }}><X size={14} /></button>
+                  <button onClick={() => setShowJoinRoomModal(false)} style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(15,81,50,0.06)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}><X size={14} /></button>
                 </div>
 
                 <input suppressHydrationWarning value={joinRoomCode} onChange={e => setJoinRoomCode(e.target.value)} placeholder="e.g. room 12345 or code with |"
-                  style={{ width: '100%', background: '#ffffff', border: '1px solid rgba(176, 136, 80, 0.25)', borderRadius: 10, padding: '11px 14px', color: '#221a15', fontSize: 14, outline: 'none', boxSizing: 'border-box', marginBottom: 16, transition: 'all 0.2s', textAlign: 'center', fontWeight: 'bold' }}
-                  onFocus={e => { e.currentTarget.style.borderColor = '#b08850'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(176,136,80,0.1)'; }}
-                  onBlur={e => { e.currentTarget.style.borderColor = 'rgba(176,136,80,0.25)'; e.currentTarget.style.boxShadow = 'none'; }} />
+                  style={{ width: '100%', background: '#ffffff', border: '1px solid rgba(15, 81, 50, 0.15)', borderRadius: 10, padding: '11px 14px', color: '#0f172a', fontSize: 14, outline: 'none', boxSizing: 'border-box', marginBottom: 16, transition: 'all 0.2s', textAlign: 'center', fontWeight: 'bold' }}
+                  onFocus={e => { e.currentTarget.style.borderColor = '#0f5132'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(15,81,50,0.06)'; }}
+                  onBlur={e => { e.currentTarget.style.borderColor = 'rgba(15,81,50,0.15)'; e.currentTarget.style.boxShadow = 'none'; }} />
 
                 <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-                  <button onClick={() => setShowJoinRoomModal(false)} style={{ padding: '10px 18px', borderRadius: 10, background: 'rgba(176,136,80,0.08)', border: '1px solid rgba(176,136,80,0.15)', color: '#706155', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+                  <button onClick={() => setShowJoinRoomModal(false)} style={{ padding: '10px 18px', borderRadius: 10, background: 'rgba(15,81,50,0.06)', border: '1px solid rgba(176,136,80,0.15)', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
                   <button 
                     onClick={handleJoinRoomSubmit}
                     disabled={!joinRoomCode.trim()}
-                    style={{ padding: '10px 22px', borderRadius: 10, background: joinRoomCode.trim() ? '#b08850' : 'rgba(176, 136, 80, 0.25)', border: 'none', color: '#fff', fontSize: 13, fontWeight: 800, cursor: joinRoomCode.trim() ? 'pointer' : 'not-allowed', fontFamily: 'Outfit, sans-serif', boxShadow: joinRoomCode.trim() ? '0 4px 12px rgba(176,136,80,0.25)' : 'none' }}>
+                    style={{ padding: '10px 22px', borderRadius: 10, background: joinRoomCode.trim() ? '#0f5132' : 'rgba(15, 81, 50, 0.15)', border: 'none', color: '#fff', fontSize: 13, fontWeight: 800, cursor: joinRoomCode.trim() ? 'pointer' : 'not-allowed', fontFamily: 'Outfit, sans-serif', boxShadow: joinRoomCode.trim() ? '0 4px 12px rgba(15,81,50,0.15)' : 'none' }}>
                     Join Room
                   </button>
                 </div>
@@ -586,17 +587,17 @@ export default function CreateOptionsBottomSheet() {
             onClick={e => { if (e.target === e.currentTarget) setShowActiveRoomWarning(false); }}
           >
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-              style={{ width: '100%', maxWidth: 400, background: 'var(--color-ss-bg, #fbf9f5)', borderRadius: 20, padding: 24, boxShadow: '0 20px 50px rgba(43,34,26,0.15)', border: '1px solid var(--color-ss-border, rgba(43,34,26,0.08))', color: '#221a15', fontFamily: 'Outfit, sans-serif' }}
+              style={{ width: '100%', maxWidth: 400, background: '#ffffff', borderRadius: 20, padding: 24, boxShadow: '0 20px 50px rgba(43,34,26,0.15)', border: '1px solid var(--color-ss-border, rgba(43,34,26,0.08))', color: '#0f172a', fontFamily: 'Outfit, sans-serif' }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-                <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(239,68,68,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444' }}><AlertTriangle size={20} /></div>
+                <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(239,68,68,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444' }}><AlertTriangle size={20} /></div>
                 <h3 style={{ fontSize: 18, fontWeight: 800, margin: 0 }}>Leave Current Room?</h3>
               </div>
-              <p style={{ fontSize: 14, color: '#706155', lineHeight: 1.5, margin: '0 0 24px' }}>
+              <p style={{ fontSize: 14, color: '#64748b', lineHeight: 1.5, margin: '0 0 24px' }}>
                 You are currently in the Jam Room <strong>{existingRoomName}</strong>. You must leave this room before you can host a new one.
               </p>
               <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
-                <button onClick={() => setShowActiveRoomWarning(false)} style={{ padding: '10px 18px', borderRadius: 10, background: 'rgba(176,136,80,0.08)', border: '1px solid rgba(176,136,80,0.15)', color: '#706155', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+                <button onClick={() => setShowActiveRoomWarning(false)} style={{ padding: '10px 18px', borderRadius: 10, background: 'rgba(15,81,50,0.06)', border: '1px solid rgba(176,136,80,0.15)', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
                 <button onClick={handleExitAndCreate} style={{ padding: '10px 20px', borderRadius: 10, background: '#ef4444', border: 'none', color: '#fff', fontSize: 13, fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 12px rgba(239,68,68,0.2)' }}>Leave & Create</button>
               </div>
             </motion.div>

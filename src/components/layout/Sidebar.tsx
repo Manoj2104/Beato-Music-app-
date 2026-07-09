@@ -540,6 +540,7 @@ function SidebarContent() {
       const res = await fetch('/api/rooms', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ name, description, isCollaborative: isCollab, password })
       });
       const data = await res.json();

@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
 
     // If userId is provided, filter playlists owned by that user or public/collaborative ones
     const filtered = userId 
-      ? formatted.filter(p => p.ownerId === userId || p.isPublic || p.isCollaborative)
+      ? formatted.filter((p: any) => p.ownerId === userId || p.isPublic || p.isCollaborative)
       : formatted;
 
     return NextResponse.json({ success: true, playlists: filtered });

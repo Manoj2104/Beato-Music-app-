@@ -23,14 +23,47 @@ export const supabase = createClient(supabaseUrl, supabaseServiceKey, {
   },
 });
 
+// --- In-Memory Cache for Supabase Cloud Database calls ---
+interface CacheEntry {
+  data: any;
+  timestamp: number;
+}
+
+const getCache = (): Record<string, CacheEntry> => {
+  const g = global as any;
+  if (!g.__beatoSupabaseCache) {
+    g.__beatoSupabaseCache = {};
+  }
+  return g.__beatoSupabaseCache;
+};
+
+const fetchCached = async (key: string, ttlMs: number, fetchFn: () => Promise<any>) => {
+  const cache = getCache();
+  const entry = cache[key];
+  const now = Date.now();
+  if (entry && now - entry.timestamp < ttlMs) {
+    return entry.data;
+  }
+  const freshData = await fetchFn();
+  cache[key] = { data: freshData, timestamp: now };
+  return freshData;
+};
+
+const invalidateCache = (key: string) => {
+  const cache = getCache();
+  delete cache[key];
+};
+
 export const dbSupabase = {
   // --- Users ---
   getUsers: async () => {
-    const { data, error } = await supabase
-      .from('users')
-      .select('*');
-    if (error) throw error;
-    return data || [];
+    return fetchCached('users', 10000, async () => {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*');
+      if (error) throw error;
+      return data || [];
+    });
   },
 
   getUserById: async (id: string) => {
@@ -79,6 +112,7 @@ export const dbSupabase = {
       .select()
       .single();
     if (error) throw error;
+    invalidateCache('users');
     return data;
   },
 
@@ -90,6 +124,7 @@ export const dbSupabase = {
       .select()
       .single();
     if (error) throw error;
+    invalidateCache('users');
     return !!data;
   },
 
@@ -101,6 +136,7 @@ export const dbSupabase = {
       .select()
       .single();
     if (error) throw error;
+    invalidateCache('users');
     return !!data;
   },
 
@@ -110,17 +146,20 @@ export const dbSupabase = {
       .delete()
       .eq('id', userId);
     if (error) throw error;
+    invalidateCache('users');
     return true;
   },
 
   // --- Tracks ---
   getTracks: async () => {
-    const { data, error } = await supabase
-      .from('tracks')
-      .select('*')
-      .order('uploaded_at', { ascending: false });
-    if (error) throw error;
-    return data || [];
+    return fetchCached('tracks', 10000, async () => {
+      const { data, error } = await supabase
+        .from('tracks')
+        .select('*')
+        .order('uploaded_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    });
   },
 
   addTrack: async (track: any) => {
@@ -130,6 +169,7 @@ export const dbSupabase = {
       .select()
       .single();
     if (error) throw error;
+    invalidateCache('tracks');
     return data;
   },
 
@@ -141,6 +181,7 @@ export const dbSupabase = {
       .select()
       .single();
     if (error) throw error;
+    invalidateCache('tracks');
     return !!data;
   },
 
@@ -150,17 +191,20 @@ export const dbSupabase = {
       .delete()
       .eq('id', trackId);
     if (error) throw error;
+    invalidateCache('tracks');
     return true;
   },
 
   // --- Playlists ---
   getPlaylists: async () => {
-    const { data, error } = await supabase
-      .from('playlists')
-      .select('*')
-      .order('updated_at', { ascending: false });
-    if (error) throw error;
-    return data || [];
+    return fetchCached('playlists', 10000, async () => {
+      const { data, error } = await supabase
+        .from('playlists')
+        .select('*')
+        .order('updated_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    });
   },
 
   savePlaylist: async (playlist: any) => {
@@ -170,6 +214,7 @@ export const dbSupabase = {
       .select()
       .single();
     if (error) throw error;
+    invalidateCache('playlists');
     return data;
   },
 
@@ -179,6 +224,7 @@ export const dbSupabase = {
       .delete()
       .eq('id', playlistId);
     if (error) throw error;
+    invalidateCache('playlists');
     return true;
   },
 
@@ -289,26 +335,14 @@ export const dbSupabase = {
 
   // --- Comments ---
   getComments: async () => {
-    const { data, error } = await supabase
-      .from('comments')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (error) throw error;
-    if (data) {
-      return data.map(c => ({
-        id: c.id,
-        trackId: c.track_id,
-        userId: c.user_id,
-        userName: c.user_name,
-        userAvatar: c.user_avatar,
-        text: c.text,
-        createdAt: c.created_at,
-        artistId: c.artist_id || '',
-        reply: c.reply || '',
-        trackTitle: c.track_title || ''
-      }));
-    }
-    return [];
+    return fetchCached('comments', 10000, async () => {
+      const { data, error } = await supabase
+        .from('comments')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    });
   },
 
   saveComment: async (comment: any) => {
@@ -329,6 +363,7 @@ export const dbSupabase = {
       .select()
       .single();
     if (error) throw error;
+    invalidateCache('comments');
     return data;
   },
 

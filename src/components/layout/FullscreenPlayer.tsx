@@ -35,9 +35,10 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
   const isFree = user?.subscription === 'free';
   const isLiked = currentTrack ? user?.likedSongs.includes(currentTrack.id) : false;
 
-  const { downloadTrack, removeDownloadedTrack, downloadedTrackIds, downloadingIds } = useDownloadStore();
+  const { downloadTrack, removeDownloadedTrack, downloadedTrackIds, downloadingIds, downloadProgress } = useDownloadStore();
   const downloaded = currentTrack ? downloadedTrackIds.includes(currentTrack.id) : false;
   const downloading = currentTrack ? downloadingIds.includes(currentTrack.id) : false;
+  const currentTrackProgress = currentTrack ? (downloadProgress[currentTrack.id] || 0) : 0;
   const { customPlaylists, addTrackToPlaylist, removeTrackFromPlaylist, addPlaylist } = usePlaylistStore();
   const router = useRouter();
 
@@ -72,13 +73,13 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
             }}>
               {currentTrack.coverImage && <img src={currentTrack.coverImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
             </div>
-            <span style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>
               {isLiked ? 'Already in Liked Songs' : 'Added to Liked Songs'}
             </span>
           </div>
           <button
             onClick={(ev) => { ev.stopPropagation(); toast.dismiss(t.id); setShowPlaylistPicker(true); }}
-            style={{ background: 'none', border: 'none', color: '#b08850', fontSize: 13, fontWeight: 700, cursor: 'pointer', flexShrink: 0, padding: '2px 0' }}
+            style={{ background: 'none', border: 'none', color: '#10b981', fontSize: 13, fontWeight: 700, cursor: 'pointer', flexShrink: 0, padding: '2px 0' }}
           >
             Change
           </button>
@@ -88,10 +89,10 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
         id: 'liked-toast',
         duration: 2500,
         style: {
-          background: '#282828',
-          color: '#fff',
+          background: '#ffffff',
+          color: '#0f172a',
           borderRadius: '8px',
-          border: '1px solid rgba(255,255,255,0.08)',
+          border: '1px solid rgba(15,81,50,0.12)',
           padding: '10px 14px',
           maxWidth: 340,
           fontSize: 13,
@@ -227,7 +228,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
 
   // Generate dynamic gradient base on current track color - warm light pastel beige theme
   const trackColorHue = currentTrack ? (currentTrack.id.charCodeAt(0) * 37) % 360 : 120;
-  const bgGradient = `linear-gradient(180deg, hsl(${trackColorHue}, 35%, 96%) 0%, var(--color-ss-bg, #fbf9f5) 100%)`;
+  const bgGradient = `linear-gradient(180deg, #ffffff 0%, #f0f7f4 100%)`;
 
   const artist = useMemo(() => {
     if (!currentTrack) return null;
@@ -343,17 +344,17 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
           marginBottom: 20
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <Disc size={20} color="#b08850" className={isPlaying ? 'float-animation' : ''} />
-            <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+            <Disc size={20} color="#0f5132" className={isPlaying ? 'float-animation' : ''} />
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#64748b', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
               Now Playing
             </span>
           </div>
           <button
             onClick={onClose}
             style={{
-              background: 'rgba(255,255,255,0.06)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              color: '#fff',
+              background: 'rgba(15,81,50,0.06)',
+              border: '1px solid rgba(15,81,50,0.15)',
+              color: '#0f172a',
               cursor: 'pointer',
               padding: 10,
               borderRadius: '50%',
@@ -363,11 +364,11 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
               transition: 'background 0.2s, transform 0.2s'
             }}
             onMouseEnter={e => {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
+              e.currentTarget.style.background = 'rgba(15,81,50,0.1)';
               e.currentTarget.style.transform = 'scale(1.05)';
             }}
             onMouseLeave={e => {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+              e.currentTarget.style.background = 'rgba(15,81,50,0.06)';
               e.currentTarget.style.transform = 'scale(1)';
             }}
           >
@@ -464,7 +465,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                       style={{
                         width: 3,
                         height: 15 + Math.random() * 25,
-                        background: '#b08850',
+                        background: '#0f5132',
                         animationDelay: `${i * 0.08}s`
                       }}
                     />
@@ -475,10 +476,10 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
 
             {/* Track Metadata */}
             <div className="fullscreen-metadata">
-              <h2 style={{ fontSize: 26, fontWeight: 800, color: '#fff', margin: 0, textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
+              <h2 style={{ fontSize: 26, fontWeight: 800, color: '#0f172a', margin: 0, textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
                 {currentTrack?.title}
               </h2>
-              <p style={{ fontSize: 16, fontWeight: 500, color: '#a3a3a3', marginTop: 8, marginLeft: 0, marginRight: 0 }}>
+              <p style={{ fontSize: 16, fontWeight: 500, color: '#64748b', marginTop: 8, marginLeft: 0, marginRight: 0 }}>
                 {currentTrack?.artistName}
               </p>
             </div>
@@ -486,7 +487,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
 
           {/* Right Side: Sync Lyrics */}
           <div className="fullscreen-lyrics-container">
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#b08850', marginBottom: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#10b981', marginBottom: 16 }}>
               <Mic size={18} />
               <span style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Synced Lyrics</span>
             </div>
@@ -509,7 +510,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
               className="lyrics-scroll"
             >
               {lyrics.length === 0 ? (
-                <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 18, fontWeight: 600 }}>
+                <div style={{ color: '#e2e8f0', fontSize: 18, fontWeight: 600 }}>
                   No lyrics available for this track.
                 </div>
               ) : (
@@ -551,7 +552,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
         <div className="fullscreen-footer">
           {/* Progress Slider */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ fontSize: 12, color: '#a3a3a3', fontVariantNumeric: 'tabular-nums', width: 35 }}>
+            <span style={{ fontSize: 12, color: '#64748b', fontVariantNumeric: 'tabular-nums', width: 35 }}>
               {formatDuration(localProgress)}
             </span>
             <div style={{ flex: 1, position: 'relative', height: 24, display: 'flex', alignItems: 'center' }}>
@@ -575,7 +576,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                 } as React.CSSProperties}
               />
             </div>
-            <span style={{ fontSize: 12, color: '#a3a3a3', fontVariantNumeric: 'tabular-nums', width: 35 }}>
+            <span style={{ fontSize: 12, color: '#64748b', fontVariantNumeric: 'tabular-nums', width: 35 }}>
               {formatDuration(duration || (currentTrack ? currentTrack.duration : 180))}
             </span>
           </div>
@@ -590,9 +591,9 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
             <div className="fullscreen-utils-section">
               <button
                 onClick={() => currentTrack && toggleLikeSong(currentTrack.id)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: isLiked ? '#b08850' : '#a3a3a3' }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: isLiked ? '#10b981' : '#a3a3a3' }}
               >
-                <Heart size={22} fill={isLiked ? '#b08850' : 'none'} />
+                <Heart size={22} fill={isLiked ? '#0f5132' : 'none'} />
               </button>
 
               {/* Speed Controller Trigger */}
@@ -603,7 +604,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                     background: 'none',
                     border: 'none',
                     cursor: 'pointer',
-                    color: playbackSpeed !== 1 ? '#b08850' : '#a3a3a3',
+                    color: playbackSpeed !== 1 ? '#10b981' : '#a3a3a3',
                     display: 'flex',
                     alignItems: 'center',
                     gap: 4
@@ -624,7 +625,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                         position: 'absolute',
                         bottom: 'calc(100% + 10px)',
                         left: 0,
-                        background: '#1a1a1a',
+                        background: '#ffffff',
                         border: '1px solid #282828',
                         borderRadius: 8,
                         overflow: 'hidden',
@@ -641,13 +642,13 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                           style={{
                             background: 'none',
                             border: 'none',
-                            color: playbackSpeed === s ? '#b08850' : '#fff',
+                            color: playbackSpeed === s ? '#10b981' : '#fff',
                             padding: '8px 12px',
                             fontSize: 12,
                             fontWeight: 600,
                             cursor: 'pointer',
                             textAlign: 'center',
-                            backgroundColor: playbackSpeed === s ? 'rgba(176, 136, 80,0.1)' : 'transparent',
+                            backgroundColor: playbackSpeed === s ? 'rgba(16, 185, 129, 0.2)' : 'transparent',
                             transition: 'background 0.2s'
                           }}
                           onMouseEnter={e => {
@@ -673,7 +674,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                     background: 'none',
                     border: 'none',
                     cursor: 'pointer',
-                    color: sleepTimer ? '#b08850' : '#a3a3a3',
+                    color: sleepTimer ? '#10b981' : '#a3a3a3',
                     display: 'flex',
                     alignItems: 'center',
                     gap: 4
@@ -694,7 +695,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                         position: 'absolute',
                         bottom: 'calc(100% + 10px)',
                         left: 0,
-                        background: '#1a1a1a',
+                        background: '#ffffff',
                         border: '1px solid #282828',
                         borderRadius: 8,
                         overflow: 'hidden',
@@ -704,7 +705,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                         width: 140
                       }}
                     >
-                      <span style={{ fontSize: 10, color: '#525252', padding: '6px 12px', fontWeight: 600, borderBottom: '1px solid #282828', textTransform: 'uppercase' }}>
+                      <span style={{ fontSize: 10, color: '#64748b', padding: '6px 12px', fontWeight: 600, borderBottom: '1px solid #282828', textTransform: 'uppercase' }}>
                         Sleep Timer
                       </span>
                       {[
@@ -724,13 +725,13 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                           style={{
                             background: 'none',
                             border: 'none',
-                            color: sleepTimer === t.val ? '#b08850' : '#fff',
+                            color: sleepTimer === t.val ? '#0f5132' : '#0f172a',
                             padding: '8px 12px',
                             fontSize: 12,
                             fontWeight: 600,
                             cursor: 'pointer',
                             textAlign: 'left',
-                            backgroundColor: sleepTimer === t.val ? 'rgba(176, 136, 80,0.1)' : 'transparent',
+                            backgroundColor: sleepTimer === t.val ? 'rgba(16, 185, 129, 0.2)' : 'transparent',
                             transition: 'background 0.2s'
                           }}
                           onMouseEnter={e => {
@@ -753,7 +754,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
             <div className="fullscreen-controls-section">
               <button
                 onClick={toggleShuffle}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: shuffle ? '#b08850' : '#a3a3a3' }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: shuffle ? '#10b981' : '#a3a3a3' }}
                 title="Shuffle"
               >
                 <Shuffle size={20} />
@@ -762,7 +763,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
               <button
                 onClick={playPrevious}
                 disabled={isFree}
-                style={{ background: 'none', border: 'none', cursor: isFree ? 'not-allowed' : 'pointer', color: '#fff', opacity: isFree ? 0.35 : 1 }}
+                style={{ background: 'none', border: 'none', cursor: isFree ? 'not-allowed' : 'pointer', color: '#0f172a', opacity: isFree ? 0.35 : 1 }}
                 title={isFree ? "Previous (Premium Only)" : "Previous"}
               >
                 <SkipBack size={26} fill="currentColor" />
@@ -799,7 +800,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
               <button
                 onClick={() => playNext(true)}
                 disabled={currentTrack?.isAd === true}
-                style={{ background: 'none', border: 'none', cursor: currentTrack?.isAd ? 'not-allowed' : 'pointer', color: '#fff', opacity: currentTrack?.isAd ? 0.35 : 1 }}
+                style={{ background: 'none', border: 'none', cursor: currentTrack?.isAd ? 'not-allowed' : 'pointer', color: '#0f172a', opacity: currentTrack?.isAd ? 0.35 : 1 }}
                 title={currentTrack?.isAd ? "Next (Ad Playing)" : "Next"}
               >
                 <SkipForward size={26} fill="currentColor" />
@@ -807,7 +808,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
 
               <button
                 onClick={cycleRepeat}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: repeat !== 'none' ? '#b08850' : '#a3a3a3' }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: repeat !== 'none' ? '#10b981' : '#a3a3a3' }}
                 title="Repeat"
               >
                 {repeat === 'one' ? <Repeat1 size={20} /> : <Repeat size={20} />}
@@ -820,7 +821,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
               <div style={{ position: 'relative' }}>
                 <button
                   onClick={() => { setShowSettings(!showSettings); setShowSpeedMenu(false); setShowSleepMenu(false); }}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#a3a3a3' }}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}
                   title="Playback Settings"
                 >
                   <Sliders size={20} />
@@ -836,7 +837,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                         position: 'absolute',
                         bottom: 'calc(100% + 10px)',
                         right: 0,
-                        background: '#1a1a1a',
+                        background: '#ffffff',
                         border: '1px solid #282828',
                         borderRadius: 10,
                         padding: 16,
@@ -847,7 +848,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                         gap: 12
                       }}
                     >
-                      <span style={{ fontSize: 11, fontWeight: 700, color: '#a3a3a3', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                         Crossfade: {crossfade} seconds
                       </span>
                       <input
@@ -858,7 +859,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                         onChange={e => setCrossfade(Number(e.target.value))}
                         style={{
                           width: '100%',
-                          accentColor: '#b08850'
+                          accentColor: '#0f5132'
                         }}
                       />
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#737373', marginTop: -4 }}>
@@ -873,7 +874,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
               {/* Volume controls */}
               <button
                 onClick={toggleMute}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#a3a3a3' }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}
               >
                 <VolumeIcon size={20} />
               </button>
@@ -913,68 +914,30 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
           width: '100%',
           height: '100%',
           overflowY: 'auto',
-          padding: '24px 20px',
+          padding: '12px 20px 24px',
           display: 'flex',
           flexDirection: 'column',
           scrollbarWidth: 'none',
         }}
         className="lyrics-scroll"
+        onTouchStart={(e) => { e.currentTarget.dataset.touchY = String(e.touches[0].clientY); }}
+        onTouchEnd={(e) => {
+          const startY = Number(e.currentTarget.dataset.touchY || 0);
+          const endY = e.changedTouches[0].clientY;
+          const scrollEl = e.currentTarget;
+          if (endY - startY > 90 && scrollEl.scrollTop <= 2) {
+            onClose();
+          }
+        }}
       >
-        {/* 1. STICKY MINI-HEADER */}
+
+        {/* ── Drag Handle Pill ── */}
         <div style={{
-          position: 'sticky',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: 60,
-          marginTop: -24,
-          marginLeft: -20,
-          marginRight: -20,
-          padding: '0 20px',
-          background: `hsl(${trackColorHue}, 50%, 10%)`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          zIndex: 50,
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
-          opacity: scrollTop > 250 ? 1 : 0,
-          transform: scrollTop > 250 ? 'translateY(0)' : 'translateY(-10px)',
-          pointerEvents: scrollTop > 250 ? 'auto' : 'none',
-          transition: 'opacity 0.2s ease, transform 0.2s ease, background-color 0.2s ease'
-        }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: '65%' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {currentTrack.title} • {currentTrack.artistName}
-            </div>
-            <div 
-              onClick={() => setShowDeviceSelector(true)}
-              style={{ fontSize: 11, fontWeight: 600, color: '#b08850', display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}
-            >
-              <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#b08850' }} />
-              {activeDevice}
-            </div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <button
-              onClick={() => toggleLikeSong(currentTrack.id)}
-              style={{ background: 'none', border: 'none', padding: 0, color: isLiked ? '#b08850' : '#fff', display: 'flex', alignItems: 'center' }}
-            >
-              {isLiked ? (
-                <div style={{ width: 20, height: 20, borderRadius: '50%', background: '#b08850', display: 'flex', alignItems: 'center', color: '#121212', justifyContent: 'center' }}>
-                  <Check size={12} color="#000" strokeWidth={4} />
-                </div>
-              ) : (
-                <Heart size={20} />
-              )}
-            </button>
-            <button
-              onClick={togglePlay}
-              style={{ background: 'none', border: 'none', padding: 0, color: '#fff', display: 'flex', alignItems: 'center' }}
-            >
-              {isPlaying ? <Pause size={20} fill="#fff" /> : <Play size={20} fill="#fff" />}
-            </button>
-          </div>
-        </div>
+          width: 40, height: 4, borderRadius: 2,
+          background: 'rgba(15,81,50,0.2)',
+          margin: '0 auto 16px',
+          flexShrink: 0,
+        }} />
 
         {/* 2. STANDARD HEADER */}
         <div style={{
@@ -985,21 +948,21 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
         }}>
           <button
             onClick={onClose}
-            style={{ background: 'none', border: 'none', color: '#fff', padding: 4, display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+            style={{ background: 'none', border: 'none', color: '#0f172a', padding: 4, display: 'flex', alignItems: 'center', cursor: 'pointer' }}
           >
             <ChevronDown size={28} />
           </button>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
               Playing from your library
             </span>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginTop: 2 }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', marginTop: 2 }}>
               Liked Songs
             </span>
           </div>
           <button
             onClick={() => { setFeaturesDrawerTab('options'); setShowFeaturesDrawer(true); }}
-            style={{ background: 'none', border: 'none', color: '#fff', padding: 4, display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+            style={{ background: 'none', border: 'none', color: '#0f172a', padding: 4, display: 'flex', alignItems: 'center', cursor: 'pointer' }}
           >
             <MoreVertical size={22} />
           </button>
@@ -1028,7 +991,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
             <div style={{
               fontSize: 14,
               fontWeight: 600,
-              color: 'var(--color-ss-text-muted, #87786c)',
+              color: '#64748b',
               marginBottom: 8,
               height: 20,
               overflow: 'hidden',
@@ -1041,10 +1004,10 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
           
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: 16 }}>
             <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
-              <h1 style={{ fontSize: 22, fontWeight: 800, color: 'var(--color-ss-text-primary, #221a15)', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <h1 style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {currentTrack.title}
               </h1>
-              <p style={{ fontSize: 15, fontWeight: 500, color: 'var(--color-ss-text-muted, #87786c)', margin: '4px 0 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <p style={{ fontSize: 15, fontWeight: 500, color: '#64748b', margin: '4px 0 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {currentTrack.artistName}
               </p>
             </div>
@@ -1061,10 +1024,10 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: isLiked ? '#b08850' : 'rgba(43,34,26,0.6)',
+                  color: isLiked ? '#0f5132' : '#64748b',
                 }}
               >
-                <Heart size={24} fill={isLiked ? '#b08850' : 'none'} color={isLiked ? '#b08850' : 'rgba(43,34,26,0.6)'} />
+                <Heart size={24} fill={isLiked ? '#0f5132' : 'none'} color={isLiked ? '#0f5132' : '#64748b'} />
               </button>
  
               {/* Download for offline */}
@@ -1078,16 +1041,68 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  minWidth: 28,
+                  minHeight: 28
                 }}
               >
                 {downloading ? (
-                  <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} style={{ display: 'flex' }}>
-                    <div style={{ width: 20, height: 20, borderRadius: '50%', border: '2px solid var(--color-ss-border, rgba(43,34,26,0.15))', borderTopColor: '#b08850' }} />
-                  </motion.div>
+                  <div style={{ position: 'relative', width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {/* Progress track circle */}
+                    <svg width="28" height="28" viewBox="0 0 36 36" style={{ position: 'absolute', transform: 'rotate(-90deg)' }}>
+                      <circle
+                        cx="18"
+                        cy="18"
+                        r="15"
+                        fill="transparent"
+                        stroke="rgba(15, 81, 50, 0.1)"
+                        strokeWidth="3"
+                      />
+                      <motion.circle
+                        cx="18"
+                        cy="18"
+                        r="15"
+                        fill="transparent"
+                        stroke="#0f5132"
+                        strokeWidth="3"
+                        strokeDasharray="94.2"
+                        initial={{ strokeDashoffset: 94.2 }}
+                        animate={{ strokeDashoffset: 94.2 - (94.2 * currentTrackProgress) / 100 }}
+                        transition={{ duration: 0.1, ease: "easeOut" }}
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    
+                    {/* Centered details */}
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 2 }}>
+                      <motion.div
+                        animate={{ y: [-1.5, 1.5, -1.5] }}
+                        transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut' }}
+                        style={{ display: 'flex' }}
+                      >
+                        <Download size={11} color="#0f5132" strokeWidth={3} />
+                      </motion.div>
+                      <span style={{ fontSize: 7, fontWeight: 900, color: '#0f5132', marginTop: 0.5, fontVariantNumeric: 'tabular-nums' }}>
+                        {currentTrackProgress}%
+                      </span>
+                    </div>
+                  </div>
                 ) : downloaded ? (
-                  <Download size={22} color="#b08850" />
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 12 }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: 24,
+                      height: 24,
+                    }}
+                  >
+                    <Check size={22} color="#0f5132" strokeWidth={3} />
+                  </motion.div>
                 ) : (
-                  <Download size={22} color="rgba(43,34,26,0.6)" />
+                  <Download size={22} color="#64748b" />
                 )}
               </button>
             </div>
@@ -1125,10 +1140,10 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
             />
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
-            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', fontVariantNumeric: 'tabular-nums' }}>
+            <span style={{ fontSize: 11, color: '#94a3b8', fontVariantNumeric: 'tabular-nums' }}>
               {formatDuration(localProgress)}
             </span>
-            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', fontVariantNumeric: 'tabular-nums' }}>
+            <span style={{ fontSize: 11, color: '#94a3b8', fontVariantNumeric: 'tabular-nums' }}>
               {formatDuration(duration || (currentTrack ? currentTrack.duration : 180))}
             </span>
           </div>
@@ -1144,7 +1159,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
         }}>
           <button
             onClick={toggleShuffle}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: shuffle ? '#b08850' : 'rgba(255,255,255,0.6)', padding: 8 }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: shuffle ? '#0f5132' : '#94a3b8', padding: 8 }}
           >
             <Shuffle size={20} />
           </button>
@@ -1152,7 +1167,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
           <button
             onClick={playPrevious}
             disabled={isFree}
-            style={{ background: 'none', border: 'none', cursor: isFree ? 'not-allowed' : 'pointer', color: '#fff', padding: 8, opacity: isFree ? 0.35 : 1 }}
+            style={{ background: 'none', border: 'none', cursor: isFree ? 'not-allowed' : 'pointer', color: '#0f172a', padding: 8, opacity: isFree ? 0.35 : 1 }}
             title={isFree ? "Previous (Premium Only)" : "Previous"}
           >
             <SkipBack size={26} fill="currentColor" />
@@ -1174,16 +1189,16 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
             }}
           >
             {isPlaying ? (
-              <Pause size={28} fill="#000" color="#000" />
+              <Pause size={28} fill="#ffffff" color="#ffffff" />
             ) : (
-              <Play size={28} fill="#000" color="#000" style={{ marginLeft: 3 }} />
+              <Play size={28} fill="#ffffff" color="#ffffff" style={{ marginLeft: 3 }} />
             )}
           </button>
 
           <button
             onClick={() => playNext(true)}
             disabled={currentTrack?.isAd === true}
-            style={{ background: 'none', border: 'none', cursor: currentTrack?.isAd ? 'not-allowed' : 'pointer', color: '#fff', padding: 8, opacity: currentTrack?.isAd ? 0.35 : 1 }}
+            style={{ background: 'none', border: 'none', cursor: currentTrack?.isAd ? 'not-allowed' : 'pointer', color: '#0f172a', padding: 8, opacity: currentTrack?.isAd ? 0.35 : 1 }}
             title={currentTrack?.isAd ? "Next (Ad Playing)" : "Next"}
           >
             <SkipForward size={26} fill="currentColor" />
@@ -1191,7 +1206,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
 
           <button
             onClick={cycleRepeat}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: repeat !== 'none' ? '#b08850' : 'rgba(255,255,255,0.6)', padding: 8 }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: repeat !== 'none' ? '#0f5132' : '#94a3b8', padding: 8 }}
             title="Repeat"
           >
             {repeat === 'one' ? <Repeat1 size={20} /> : <Repeat size={20} />}
@@ -1208,13 +1223,13 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
         }}>
           <div 
             onClick={() => setShowDeviceSelector(true)}
-            style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#b08850', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
+            style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#0f5132', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
           >
-            <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#b08850' }} />
+            <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#0f5132' }} />
             {activeDevice}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <button style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', display: 'flex' }}>
+            <button style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', display: 'flex' }}>
               <Share2 size={20} />
             </button>
             
@@ -1222,7 +1237,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
               <button
                 onClick={() => { setShowSleepMenu(!showSleepMenu); }}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: sleepTimer ? '#b08850' : 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: 2, padding: 4 }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: sleepTimer ? '#0f5132' : '#94a3b8', display: 'flex', alignItems: 'center', gap: 2, padding: 4 }}
               >
                 <Clock size={20} />
                 {sleepTimer && <span style={{ fontSize: 9, fontWeight: 700 }}>{sleepTimer}m</span>}
@@ -1238,7 +1253,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                       position: 'absolute',
                       bottom: 'calc(100% + 8px)',
                       right: -36,
-                      background: '#1a1a1a',
+                      background: '#ffffff',
                       border: '1px solid #282828',
                       borderRadius: 8,
                       overflow: 'hidden',
@@ -1248,7 +1263,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                       width: 120
                     }}
                   >
-                    <span style={{ fontSize: 9, color: '#a3a3a3', padding: '6px 12px', fontWeight: 700, borderBottom: '1px solid #282828', textTransform: 'uppercase', textAlign: 'left' }}>
+                    <span style={{ fontSize: 9, color: '#64748b', padding: '6px 12px', fontWeight: 700, borderBottom: '1px solid #282828', textTransform: 'uppercase', textAlign: 'left' }}>
                       Sleep Timer
                     </span>
                     {[
@@ -1267,13 +1282,13 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                         style={{
                           background: 'none',
                           border: 'none',
-                          color: sleepTimer === t.val ? '#b08850' : '#fff',
+                          color: sleepTimer === t.val ? '#0f5132' : '#0f172a',
                           padding: '8px 12px',
                           fontSize: 12,
                           fontWeight: 600,
                           cursor: 'pointer',
                           textAlign: 'left',
-                          backgroundColor: sleepTimer === t.val ? 'rgba(176, 136, 80,0.1)' : 'transparent',
+                          backgroundColor: sleepTimer === t.val ? 'rgba(16, 185, 129, 0.2)' : 'transparent',
                         }}
                       >
                         {t.label}
@@ -1286,7 +1301,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
 
             <button 
               onClick={() => setShowQueueDrawer(true)}
-              style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', display: 'flex' }}
+              style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', display: 'flex' }}
             >
               <ListMusic size={20} />
             </button>
@@ -1296,15 +1311,17 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
         {/* 8. LYRICS PREVIEW CARD */}
         {lyrics.length > 0 && (
           <div id="lyrics-preview-section" style={{
-            background: 'rgba(255,255,255,0.08)',
+            background: '#ffffff',
             borderRadius: 16,
             padding: 20,
             margin: '12px 0',
             display: 'flex',
             flexDirection: 'column',
-            gap: 16
+            gap: 16,
+            border: '1px solid rgba(15,81,50,0.1)',
+            boxShadow: '0 2px 12px rgba(15,81,50,0.06)'
           }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>
               Lyrics preview
             </div>
             
@@ -1319,7 +1336,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                         fontSize: 16,
                         fontWeight: 700,
                         lineHeight: 1.4,
-                        color: isLineActive ? '#fff' : 'rgba(255,255,255,0.4)',
+                        color: isLineActive ? '#0f5132' : '#94a3b8',
                         transition: 'color 0.2s'
                       }}
                     >
@@ -1349,7 +1366,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                         fontSize: 16,
                         fontWeight: 700,
                         lineHeight: 1.4,
-                        color: isLineActive ? '#fff' : 'rgba(255,255,255,0.4)'
+                        color: isLineActive ? '#0f5132' : '#94a3b8'
                       }}
                     >
                       {line.text}
@@ -1362,9 +1379,9 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
             <button
               onClick={() => setShowAllLyrics(!showAllLyrics)}
               style={{
-                background: '#fff',
-                color: '#000',
-                border: 'none',
+                background: 'rgba(15,81,50,0.08)',
+                color: '#0f5132',
+                border: '1px solid rgba(15,81,50,0.2)',
                 borderRadius: 20,
                 padding: '8px 16px',
                 fontSize: 12,
@@ -1381,10 +1398,13 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
 
         {/* 9. ABOUT THE ARTIST CARD */}
         <div style={{
-          background: 'rgba(255,255,255,0.06)',
+          background: '#ffffff',
           borderRadius: 16,
           overflow: 'hidden',
           margin: '16px 0',
+          border: '1px solid rgba(15,81,50,0.08)',
+          boxShadow: '0 2px 12px rgba(15,81,50,0.04)',
+
           position: 'relative'
         }}>
           <div style={{ position: 'relative', width: '100%', height: 180 }}>
@@ -1399,7 +1419,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
               left: 16,
               fontSize: 12,
               fontWeight: 800,
-              color: '#fff',
+              color: '#0f172a',
               textShadow: '0 2px 4px rgba(0,0,0,0.8)',
               textTransform: 'uppercase',
               letterSpacing: '0.05em'
@@ -1411,7 +1431,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
           <div style={{ padding: 20 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontSize: 18, fontWeight: 800, color: '#fff' }}>
+                <span style={{ fontSize: 18, fontWeight: 800, color: '#0f172a' }}>
                   {activeArtist.name}
                 </span>
                 {activeArtist.verified && (
@@ -1419,21 +1439,21 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                     width: 16,
                     height: 16,
                     borderRadius: '50%',
-                    background: '#b08850',
+                    background: '#0f5132',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}>
-                    <Check size={10} color="#000" strokeWidth={4} />
+                    <Check size={10} color="#fff" strokeWidth={4} />
                   </div>
                 )}
               </div>
               <button
                 onClick={() => setIsFollowingArtist(!isFollowingArtist)}
                 style={{
-                  border: isFollowingArtist ? '1px solid #fff' : '1px solid rgba(255,255,255,0.5)',
-                  background: isFollowingArtist ? '#fff' : 'transparent',
-                  color: isFollowingArtist ? '#000' : '#fff',
+                  border: isFollowingArtist ? '1px solid #0f5132' : '1px solid rgba(15,81,50,0.3)',
+                  background: isFollowingArtist ? '#0f5132' : 'transparent',
+                  color: isFollowingArtist ? '#ffffff' : '#0f5132',
                   borderRadius: 16,
                   padding: '6px 16px',
                   fontSize: 11,
@@ -1445,15 +1465,15 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
               </button>
             </div>
             
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', margin: '8px 0' }}>
+            <div style={{ fontSize: 13, color: '#64748b', margin: '8px 0' }}>
               {activeArtist.monthlyListeners.toLocaleString()} monthly listeners
             </div>
             
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', lineHeight: 1.5, margin: 0 }}>
+            <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.5, margin: 0 }}>
               {showBio ? activeArtist.bio : `${activeArtist.bio.slice(0, 100)}...`}
               <span
                 onClick={() => setShowBio(!showBio)}
-                style={{ color: '#fff', fontWeight: 700, cursor: 'pointer', marginLeft: 4 }}
+                style={{ color: '#0f172a', fontWeight: 700, cursor: 'pointer', marginLeft: 4 }}
               >
                 {showBio ? 'see less' : 'see more'}
               </span>
@@ -1463,7 +1483,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
 
         {/* 10. EXPLORE CAROUSEL */}
         <div style={{ margin: '24px 0 16px 0' }}>
-          <h2 style={{ fontSize: 16, fontWeight: 800, color: '#fff', marginBottom: 12, marginTop: 0 }}>
+          <h2 style={{ fontSize: 16, fontWeight: 800, color: '#0f172a', marginBottom: 12, marginTop: 0 }}>
             Explore {activeArtist.name}
           </h2>
           
@@ -1495,7 +1515,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                 top: 0, left: 0, right: 0, bottom: 0,
                 background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%)'
               }} />
-              <div style={{ position: 'absolute', bottom: 12, left: 12, right: 12, color: '#fff', fontSize: 12, fontWeight: 700, lineHeight: 1.2 }}>
+              <div style={{ position: 'absolute', bottom: 12, left: 12, right: 12, color: '#ffffff', fontSize: 12, fontWeight: 700, lineHeight: 1.2 }}>
                 Songs by {activeArtist.name}
               </div>
             </div>
@@ -1521,7 +1541,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                 top: 0, left: 0, right: 0, bottom: 0,
                 background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%)'
               }} />
-              <div style={{ position: 'absolute', bottom: 12, left: 12, right: 12, color: '#fff', fontSize: 12, fontWeight: 700, lineHeight: 1.2 }}>
+              <div style={{ position: 'absolute', bottom: 12, left: 12, right: 12, color: '#ffffff', fontSize: 12, fontWeight: 700, lineHeight: 1.2 }}>
                 Similar to {activeArtist.name}
               </div>
             </div>
@@ -1547,7 +1567,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                 top: 0, left: 0, right: 0, bottom: 0,
                 background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%)'
               }} />
-              <div style={{ position: 'absolute', bottom: 12, left: 12, right: 12, color: '#fff', fontSize: 12, fontWeight: 700, lineHeight: 1.2 }}>
+              <div style={{ position: 'absolute', bottom: 12, left: 12, right: 12, color: '#ffffff', fontSize: 12, fontWeight: 700, lineHeight: 1.2 }}>
                 Similar to {currentTrack.title}
               </div>
             </div>
@@ -1556,14 +1576,14 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
 
         {/* 11. CREDITS CARD */}
         <div id="credits-section" style={{
-          background: 'rgba(255,255,255,0.06)',
+          background: 'rgba(15,81,50,0.06)',
           borderRadius: 16,
           padding: 20,
           margin: '16px 0 32px 0'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <span style={{ fontSize: 15, fontWeight: 800, color: '#fff' }}>Credits</span>
-            <span style={{ fontSize: 12, fontWeight: 700, color: '#b08850', cursor: 'pointer' }}>Show all</span>
+            <span style={{ fontSize: 15, fontWeight: 800, color: '#0f172a' }}>Credits</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#0f5132', cursor: 'pointer' }}>Show all</span>
           </div>
           
           <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -1579,15 +1599,15 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                 }}
               >
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{credit.name}</span>
-                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{credit.role}</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{credit.name}</span>
+                  <span style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>{credit.role}</span>
                 </div>
                 <button
                   onClick={() => toggleFollowCredit(credit.name)}
                   style={{
-                    border: followedCredits[credit.name] ? '1px solid #fff' : '1px solid rgba(255,255,255,0.5)',
-                    background: followedCredits[credit.name] ? '#fff' : 'transparent',
-                    color: followedCredits[credit.name] ? '#000' : '#fff',
+                    border: followedCredits[credit.name] ? '1px solid #0f5132' : '1px solid rgba(15,81,50,0.3)',
+                    background: followedCredits[credit.name] ? '#0f5132' : 'transparent',
+                    color: followedCredits[credit.name] ? '#ffffff' : '#0f5132',
                     borderRadius: 16,
                     padding: '4px 12px',
                     fontSize: 10,
@@ -1626,7 +1646,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                   bottom: 0,
                   left: 0,
                   right: 0,
-                  background: '#1a1a1a',
+                  background: '#ffffff',
                   borderTopLeftRadius: 20,
                   borderTopRightRadius: 20,
                   padding: '24px 20px 40px 20px',
@@ -1634,8 +1654,8 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                   boxShadow: '0 -10px 30px rgba(0,0,0,0.5)'
                 }}
               >
-                <div style={{ width: 40, height: 4, background: 'rgba(255,255,255,0.2)', borderRadius: 2, margin: '0 auto 20px auto' }} />
-                <h3 style={{ fontSize: 16, fontWeight: 800, color: '#fff', margin: '0 0 16px 0', textAlign: 'center' }}>
+                <div style={{ width: 40, height: 4, background: 'rgba(15,81,50,0.15)', borderRadius: 2, margin: '0 auto 20px auto' }} />
+                <h3 style={{ fontSize: 16, fontWeight: 800, color: '#0f172a', margin: '0 0 16px 0', textAlign: 'center' }}>
                   Connect to a device
                 </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -1650,7 +1670,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                       style={{
                         background: activeDeviceId === dev.id ? 'rgba(176, 136, 80,0.1)' : 'transparent',
                         border: 'none',
-                        color: activeDeviceId === dev.id ? '#b08850' : '#fff',
+                        color: activeDeviceId === dev.id ? '#0f5132' : '#0f172a',
                         padding: '14px 16px',
                         fontSize: 14,
                         fontWeight: 600,
@@ -1665,7 +1685,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                     >
                       <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '85%' }}>{dev.label}</span>
                       {activeDeviceId === dev.id && (
-                        <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: '#b08850' }} />
+                        <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: '#0f5132' }} />
                       )}
                     </button>
                   ))}
@@ -1677,18 +1697,18 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                         stream.getTracks().forEach(t => t.stop());
                         window.dispatchEvent(new CustomEvent('trigger-device-scan'));
                         toast.success('Audio devices scanned successfully.', {
-                          style: { background: '#1a1a1a', color: '#fff', fontSize: '12px' }
+                          style: { background: '#ffffff', color: '#0f172a', fontSize: '12px' }
                         });
                       } catch (err) {
                         toast.error('Permission denied to scan audio devices.', {
-                          style: { background: '#1a1a1a', color: '#fff', fontSize: '12px' }
+                          style: { background: '#ffffff', color: '#0f172a', fontSize: '12px' }
                         });
                       }
                     }}
                     style={{
-                      background: 'rgba(255,255,255,0.06)',
+                      background: 'rgba(15,81,50,0.06)',
                       border: '1px dashed rgba(255,255,255,0.2)',
-                      color: '#a3a3a3',
+                      color: '#64748b',
                       padding: '12px 16px',
                       fontSize: 12,
                       fontWeight: 700,
@@ -1735,25 +1755,25 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                   left: 0,
                   right: 0,
                   height: '82vh',
-                  background: '#121212',
+                  background: '#ffffff',
                   borderTopLeftRadius: 20,
                   borderTopRightRadius: 20,
                   zIndex: 999999,
                   boxShadow: '0 -10px 30px rgba(0,0,0,0.5)',
                   display: 'flex',
                   flexDirection: 'column',
-                  color: '#fff',
+                  color: '#0f172a',
                   overflow: 'hidden'
                 }}
               >
                 {/* Drag Handle */}
-                <div style={{ width: 40, height: 4, background: 'rgba(255,255,255,0.2)', borderRadius: 2, margin: '12px auto 8px auto', flexShrink: 0 }} />
+                <div style={{ width: 40, height: 4, background: 'rgba(15,81,50,0.15)', borderRadius: 2, margin: '12px auto 8px auto', flexShrink: 0 }} />
 
                 {/* Header */}
                 <div style={{ padding: '8px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
                   <div>
-                    <h3 style={{ fontSize: 20, fontWeight: 800, color: '#fff', margin: 0 }}>Queue</h3>
-                    <p style={{ fontSize: 12, color: '#a3a3a3', margin: '2px 0 0 0' }}>
+                    <h3 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', margin: 0 }}>Queue</h3>
+                    <p style={{ fontSize: 12, color: '#64748b', margin: '2px 0 0 0' }}>
                       Playing {currentTrack?.albumName ? `from ${currentTrack.albumName}` : 'Liked Songs'}
                     </p>
                   </div>
@@ -1763,7 +1783,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                       style={{
                         background: 'none',
                         border: 'none',
-                        color: '#a3a3a3',
+                        color: '#64748b',
                         fontSize: 12,
                         fontWeight: 600,
                         cursor: 'pointer',
@@ -1780,7 +1800,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                 {/* Now Playing section */}
                 {currentTrack && (
                   <div style={{ padding: '0 20px', marginTop: 12, flexShrink: 0 }}>
-                    <h4 style={{ fontSize: 11, fontWeight: 700, color: '#a3a3a3', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 8px 0' }}>
+                    <h4 style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 8px 0' }}>
                       Now Playing
                     </h4>
                     <div style={{
@@ -1788,11 +1808,11 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                       alignItems: 'center',
                       gap: 12,
                       padding: 12,
-                      background: 'rgba(255,255,255,0.03)',
+                      background: 'rgba(15,81,50,0.04)',
                       borderRadius: 8,
-                      border: '1px solid rgba(255,255,255,0.05)'
+                      border: '1px solid rgba(15,81,50,0.08)'
                     }}>
-                      <div style={{ width: 44, height: 44, borderRadius: 4, overflow: 'hidden', flexShrink: 0, background: '#282828' }}>
+                      <div style={{ width: 44, height: 44, borderRadius: 4, overflow: 'hidden', flexShrink: 0, background: '#ffffff' }}>
                         <img 
                           src={currentTrack.coverImage} 
                           alt={currentTrack.title} 
@@ -1803,10 +1823,10 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                         />
                       </div>
                       <div style={{ minWidth: 0, flex: 1 }}>
-                        <p style={{ color: '#b08850', fontSize: 13, fontWeight: 700, margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <p style={{ color: '#0f5132', fontSize: 13, fontWeight: 700, margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {currentTrack.title}
                         </p>
-                        <p style={{ color: '#a3a3a3', fontSize: 11, fontWeight: 500, margin: '2px 0 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <p style={{ color: '#64748b', fontSize: 11, fontWeight: 500, margin: '2px 0 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {currentTrack.artistName}
                         </p>
                       </div>
@@ -1815,11 +1835,11 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                         style={{
                           background: 'none',
                           border: 'none',
-                          color: '#fff',
+                          color: '#0f172a',
                           width: 32,
                           height: 32,
                           borderRadius: '50%',
-                          backgroundColor: '#282828',
+                          backgroundColor: '#0f5132',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -1834,7 +1854,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
 
                 {/* Next Up section title */}
                 <div style={{ padding: '0 20px', marginTop: 16, flexShrink: 0 }}>
-                  <h4 style={{ fontSize: 11, fontWeight: 700, color: '#a3a3a3', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>
+                  <h4 style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>
                     {shuffle ? 'Shuffling from:' : 'Next in queue:'}
                   </h4>
                 </div>
@@ -1849,7 +1869,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                       justifyContent: 'center',
                       padding: '40px 20px',
                       textAlign: 'center',
-                      color: '#525252'
+                      color: '#94a3b8'
                     }}>
                       <Music size={28} style={{ marginBottom: 8 }} />
                       <p style={{ fontSize: 13, margin: 0 }}>Queue is empty</p>
@@ -1865,24 +1885,24 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                             alignItems: 'center',
                             gap: 12,
                             padding: '6px 0',
-                            borderBottom: '1px solid rgba(255,255,255,0.02)',
-                            background: '#121212',
+                            borderBottom: '1px solid rgba(15,81,50,0.06)',
+                            background: '#ffffff',
                             cursor: 'grab',
                             userSelect: 'none'
                           }}
                           whileDrag={{
                             scale: 1.02,
-                            background: '#1c1c1c',
+                            background: 'rgba(15,81,50,0.05)',
                             cursor: 'grabbing'
                           }}
                         >
                           {/* Drag handle */}
-                          <div style={{ color: '#525252', display: 'flex', alignItems: 'center' }}>
+                          <div style={{ color: '#94a3b8', display: 'flex', alignItems: 'center' }}>
                             <Menu size={16} />
                           </div>
 
                           {/* Album cover */}
-                          <div style={{ width: 36, height: 36, borderRadius: 4, overflow: 'hidden', flexShrink: 0, background: '#282828' }}>
+                          <div style={{ width: 36, height: 36, borderRadius: 4, overflow: 'hidden', flexShrink: 0, background: '#ffffff' }}>
                             <img 
                               src={track.coverImage || undefined} 
                               alt={track.title} 
@@ -1893,7 +1913,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                           {/* Meta */}
                           <div style={{ minWidth: 0, flex: 1 }} onClick={() => playTrack(track, queue)}>
                             <p style={{
-                              color: '#fff',
+                              color: '#0f172a',
                               fontSize: 13,
                               fontWeight: 600,
                               margin: 0,
@@ -1904,13 +1924,13 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                             }}>
                               {track.title}
                             </p>
-                            <p style={{ color: '#a3a3a3', fontSize: 11, margin: '2px 0 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            <p style={{ color: '#64748b', fontSize: 11, margin: '2px 0 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                               {track.artistName}
                             </p>
                           </div>
 
                           {/* Duration */}
-                          <span style={{ fontSize: 11, color: '#525252', fontVariantNumeric: 'tabular-nums', marginRight: 4 }}>
+                          <span style={{ fontSize: 11, color: '#94a3b8', fontVariantNumeric: 'tabular-nums', marginRight: 4 }}>
                             {formatDuration(track.duration)}
                           </span>
 
@@ -1923,7 +1943,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                             style={{
                               background: 'none',
                               border: 'none',
-                              color: '#525252',
+                              color: '#94a3b8',
                               cursor: 'pointer',
                               display: 'flex',
                               alignItems: 'center',
@@ -1945,8 +1965,8 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                   bottom: 0,
                   left: 0,
                   right: 0,
-                  background: '#181818',
-                  borderTop: '1px solid #282828',
+                  background: '#ffffff',
+                  borderTop: '1px solid rgba(15,81,50,0.1)',
                   padding: '16px 20px',
                   display: 'flex',
                   gap: 16,
@@ -1959,20 +1979,20 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                     style={{
                       flex: 1,
                       height: 44,
-                      background: 'rgba(255,255,255,0.03)',
-                      border: '1px solid #282828',
+                      background: shuffle ? 'rgba(15,81,50,0.08)' : '#f8fafc',
+                      border: shuffle ? '1px solid rgba(15,81,50,0.2)' : '1px solid rgba(15,81,50,0.1)',
                       borderRadius: 22,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: 8,
-                      color: shuffle ? '#b08850' : '#fff',
+                      color: shuffle ? '#0f5132' : '#475569',
                       fontSize: 13,
                       fontWeight: 700,
                       cursor: 'pointer'
                     }}
                   >
-                    <Shuffle size={16} color={shuffle ? '#b08850' : '#fff'} />
+                    <Shuffle size={16} color={shuffle ? '#0f5132' : '#475569'} />
                     Shuffle
                   </button>
 
@@ -1982,20 +2002,20 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                     style={{
                       flex: 1,
                       height: 44,
-                      background: 'rgba(255,255,255,0.03)',
-                      border: '1px solid #282828',
+                      background: sleepTimer ? 'rgba(15,81,50,0.08)' : '#f8fafc',
+                      border: sleepTimer ? '1px solid rgba(15,81,50,0.2)' : '1px solid rgba(15,81,50,0.1)',
                       borderRadius: 22,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: 8,
-                      color: sleepTimer ? '#b08850' : '#fff',
+                      color: sleepTimer ? '#0f5132' : '#475569',
                       fontSize: 13,
                       fontWeight: 700,
                       cursor: 'pointer'
                     }}
                   >
-                    <Clock size={16} color={sleepTimer ? '#b08850' : '#fff'} />
+                    <Clock size={16} color={sleepTimer ? '#0f5132' : '#94a3b8'} />
                     {sleepTimer ? `${sleepTimer}m` : 'Timer'}
                   </button>
                 </div>
@@ -2014,11 +2034,11 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: '100%' }}
         transition={{ type: 'spring', damping: 25, stiffness: 120 }}
-        drag={isMobile && scrollTop <= 5 ? "y" : false}
+        drag={isMobile ? "y" : false}
         dragConstraints={{ top: 0, bottom: 0 }}
         dragElastic={{ top: 0, bottom: 0.7 }}
         onDragEnd={(event, info) => {
-          if (info.offset.y > 100) {
+          if (info.offset.y > 80) {
             onClose();
           }
         }}
@@ -2041,7 +2061,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
             exit={{ opacity: 0 }}
             onClick={() => { setShowPlaylistPicker(false); setSearchQuery(''); }}
             style={{
-              position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)',
+              position: 'fixed', inset: 0, background: 'rgba(15,81,50,0.5)',
               zIndex: 20005, display: 'flex', alignItems: 'flex-end',
             }}
           >
@@ -2052,7 +2072,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
               transition={{ type: 'spring', damping: 30, stiffness: 250 }}
               onClick={e => e.stopPropagation()}
               style={{
-                width: '100%', background: '#121212',
+                width: '100%', background: '#ffffff',
                 borderRadius: '24px 24px 0 0', padding: '8px 0 32px',
                 display: 'flex', flexDirection: 'column', gap: 0,
                 boxShadow: '0 -10px 40px rgba(0,0,0,0.8)',
@@ -2060,11 +2080,11 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
               }}
             >
               {/* Drag Handle Indicator */}
-              <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.2)', margin: '8px auto 16px', flexShrink: 0 }} />
+              <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(15,81,50,0.15)', margin: '8px auto 16px', flexShrink: 0 }} />
 
               {/* Header */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px 16px', flexShrink: 0 }}>
-                <span style={{ fontSize: 18, fontWeight: 800, color: '#fff', fontFamily: 'Outfit, sans-serif' }}>Saved in</span>
+                <span style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', fontFamily: 'Outfit, sans-serif' }}>Saved in</span>
                 <button
                   onClick={() => {
                     const title = prompt("Enter playlist title:");
@@ -2089,14 +2109,14 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                     addPlaylist(newPlaylist);
                     toast.success(`Created playlist "${title}" and added song`, { id: 'playlist-create' });
                   }}
-                  style={{ background: 'none', border: 'none', color: '#b08850', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
+                  style={{ background: 'none', border: 'none', color: '#0f5132', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
                 >
                   New playlist
                 </button>
               </div>
 
               {/* Liked Songs Row (Current saved state indicator) */}
-              <div style={{ padding: '0 24px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
+              <div style={{ padding: '0 24px 16px', borderBottom: '1px solid rgba(15,81,50,0.1)', flexShrink: 0 }}>
                 <button
                   onClick={() => {
                     toggleLikeSong(currentTrack.id);
@@ -2107,7 +2127,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                     background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left',
                     padding: '12px 16px', borderRadius: 8, transition: 'background 0.15s',
                   }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,81,50,0.05)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'none'}
                 >
                   <div style={{
@@ -2118,19 +2138,19 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                     <Heart size={20} fill="#fff" color="#fff" />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <p style={{ color: '#fff', fontSize: 14, fontWeight: 600, margin: 0 }}>Liked Songs</p>
+                    <p style={{ color: '#0f172a', fontSize: 14, fontWeight: 600, margin: 0 }}>Liked Songs</p>
                   </div>
                   {isLiked ? (
                     <div style={{
-                      width: 22, height: 22, borderRadius: '50%', background: '#b08850',
+                      width: 22, height: 22, borderRadius: '50%', background: '#0f5132',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
                         <polyline points="20 6 9 17 4 12" />
                       </svg>
                     </div>
                   ) : (
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2">
                       <circle cx="12" cy="12" r="10" />
                       <line x1="12" y1="8" x2="12" y2="16" />
                       <line x1="8" y1="12" x2="16" y2="12" />
@@ -2142,20 +2162,20 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
               {/* Search Bar */}
               <div style={{ display: 'flex', gap: 10, padding: '16px 24px', flexShrink: 0 }}>
                 <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center' }}>
-                  <svg style={{ position: 'absolute', left: 12, color: 'rgba(255,255,255,0.4)' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <svg style={{ position: 'absolute', left: 12, color: '#94a3b8' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                   <input
                     type="text"
                     placeholder="Find playlist"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     style={{
-                      width: '100%', background: '#282828', border: 'none',
+                      width: '100%', background: '#f8fafc', border: '1px solid rgba(15,81,50,0.1)',
                       borderRadius: '8px', padding: '10px 12px 10px 38px',
-                      color: '#fff', fontSize: '14px', outline: 'none',
+                      color: '#0f172a', fontSize: '14px', outline: 'none',
                     }}
                   />
                 </div>
-                <button style={{ background: '#282828', border: 'none', borderRadius: '8px', padding: '0 16px', color: '#fff', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+                <button style={{ background: 'rgba(15,81,50,0.08)', border: 'none', borderRadius: '8px', padding: '0 16px', color: '#0f5132', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
                   Sort
                 </button>
               </div>
@@ -2189,7 +2209,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                             background: 'none', border: 'none', cursor: 'pointer',
                             textAlign: 'left', transition: 'background 0.15s',
                           }}
-                          onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                          onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,81,50,0.05)'}
                           onMouseLeave={e => e.currentTarget.style.background = 'none'}
                         >
                           <div style={{
@@ -2200,24 +2220,24 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                             {pl.coverImage ? (
                               <img src={pl.coverImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             ) : (
-                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>
+                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>
                             )}
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <p style={{ color: alreadyAdded ? '#b08850' : '#fff', fontSize: 14, fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pl.title}</p>
+                            <p style={{ color: alreadyAdded ? '#0f5132' : '#0f172a', fontSize: 14, fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pl.title}</p>
                             <p style={{ color: '#737373', fontSize: 12, margin: '2px 0 0', }}>{pl.tracks.length === 0 ? 'Empty' : `${pl.tracks.length} song${pl.tracks.length === 1 ? '' : 's'}`}</p>
                           </div>
                           {alreadyAdded ? (
                             <div style={{
-                              width: 22, height: 22, borderRadius: '50%', background: '#b08850',
+                              width: 22, height: 22, borderRadius: '50%', background: '#0f5132',
                               display: 'flex', alignItems: 'center', justifyContent: 'center',
                             }}>
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
                                 <polyline points="20 6 9 17 4 12" />
                               </svg>
                             </div>
                           ) : (
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2">
                               <circle cx="12" cy="12" r="10" />
                               <line x1="12" y1="8" x2="12" y2="16" />
                               <line x1="8" y1="12" x2="16" y2="12" />
@@ -2260,20 +2280,20 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                     textAlign: 'left', transition: 'background 0.15s',
                     marginTop: 4,
                   }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,81,50,0.05)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'none'}
                 >
                   <div style={{
                     width: 44, height: 44, borderRadius: 6, flexShrink: 0,
-                    background: '#282828', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: 'rgba(15,81,50,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2.5">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f5132" strokeWidth="2.5">
                       <line x1="12" y1="5" x2="12" y2="19" />
                       <line x1="5" y1="12" x2="19" y2="12" />
                     </svg>
                   </div>
                   <div style={{ flex: 1 }}>
-                    <p style={{ color: '#fff', fontSize: 14, fontWeight: 600, margin: 0 }}>New playlist</p>
+                    <p style={{ color: '#0f172a', fontSize: 14, fontWeight: 600, margin: 0 }}>New playlist</p>
                   </div>
                 </button>
               </div>
@@ -2310,7 +2330,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                 bottom: 0,
                 left: 0,
                 right: 0,
-                background: '#121212',
+                background: '#ffffff',
                 borderTopLeftRadius: 20,
                 borderTopRightRadius: 20,
                 padding: '8px 0 32px 0',
@@ -2323,7 +2343,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
               }}
             >
               {/* Drag Handle */}
-              <div style={{ width: 40, height: 4, background: 'rgba(255,255,255,0.2)', borderRadius: 2, margin: '8px auto 16px auto', flexShrink: 0 }} />
+              <div style={{ width: 40, height: 4, background: 'rgba(15,81,50,0.15)', borderRadius: 2, margin: '8px auto 16px auto', flexShrink: 0 }} />
 
               {featuresDrawerTab === 'options' ? (
                 <>
@@ -2335,11 +2355,11 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                       style={{ width: 48, height: 48, borderRadius: 6, objectFit: 'cover', flexShrink: 0 }}
                     />
                     <div style={{ minWidth: 0, flex: 1 }}>
-                      <p style={{ color: '#fff', fontSize: 16, fontWeight: 700, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{currentTrack.title}</p>
-                      <p style={{ color: '#a3a3a3', fontSize: 12, margin: '2px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{currentTrack.artistName} • {currentTrack.albumName || 'Beato'}</p>
+                      <p style={{ color: '#0f172a', fontSize: 16, fontWeight: 700, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{currentTrack.title}</p>
+                      <p style={{ color: '#64748b', fontSize: 12, margin: '2px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{currentTrack.artistName} • {currentTrack.albumName || 'Beato'}</p>
                     </div>
                   </div>
-                  <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '0 20px 8px 20px', flexShrink: 0 }} />
+                  <div style={{ height: 1, background: 'rgba(15,81,50,0.08)', margin: '0 20px 8px 20px', flexShrink: 0 }} />
 
                   {/* Scrollable list of features */}
                   <div style={{ flex: 1, overflowY: 'auto', padding: '0 12px 20px 12px' }} className="hide-scrollbar">
@@ -2359,10 +2379,10 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                         setShowFeaturesDrawer(false);
                       }}
                       style={itemStyle}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,81,50,0.05)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'none'}
                     >
-                      <Share2 size={20} color="rgba(255,255,255,0.6)" />
+                      <Share2 size={20} color="#64748b" />
                       <span>Share</span>
                     </button>
 
@@ -2379,10 +2399,10 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                         }, 150);
                       }}
                       style={itemStyle}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,81,50,0.05)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'none'}
                     >
-                      <Mic size={20} color="rgba(255,255,255,0.6)" />
+                      <Mic size={20} color="#64748b" />
                       <span>Lyrics • {showAllLyrics ? 'On' : 'Off'}</span>
                     </button>
 
@@ -2395,10 +2415,10 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                         }, 100);
                       }}
                       style={itemStyle}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,81,50,0.05)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'none'}
                     >
-                      <PlusCircle size={20} color="rgba(255,255,255,0.6)" />
+                      <PlusCircle size={20} color="#64748b" />
                       <span>Add to playlist</span>
                     </button>
 
@@ -2410,10 +2430,10 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                         setShowFeaturesDrawer(false);
                       }}
                       style={itemStyle}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,81,50,0.05)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'none'}
                     >
-                      <Heart size={20} fill={isLiked ? '#b08850' : 'none'} color={isLiked ? '#b08850' : 'rgba(255,255,255,0.6)'} />
+                      <Heart size={20} fill={isLiked ? '#0f5132' : 'none'} color={isLiked ? '#0f5132' : '#64748b'} />
                       <span>{isLiked ? 'Remove from Liked Songs' : 'Add to Liked Songs'}</span>
                     </button>
 
@@ -2426,10 +2446,10 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                         }, 100);
                       }}
                       style={itemStyle}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,81,50,0.05)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'none'}
                     >
-                      <ListMusic size={20} color="rgba(255,255,255,0.6)" />
+                      <ListMusic size={20} color="#64748b" />
                       <span>Go to Queue</span>
                     </button>
 
@@ -2441,10 +2461,10 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                         router.push(`/album/${currentTrack.albumId || 'unknown'}`);
                       }}
                       style={itemStyle}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,81,50,0.05)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'none'}
                     >
-                      <Disc size={20} color="rgba(255,255,255,0.6)" />
+                      <Disc size={20} color="#64748b" />
                       <span>Go to album</span>
                     </button>
 
@@ -2456,10 +2476,10 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                         router.push(`/artist/${currentTrack.artistId || 'unknown'}`);
                       }}
                       style={itemStyle}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,81,50,0.05)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'none'}
                     >
-                      <User size={20} color="rgba(255,255,255,0.6)" />
+                      <User size={20} color="#64748b" />
                       <span>Go to artist</span>
                     </button>
 
@@ -2470,13 +2490,13 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                         setShowFeaturesDrawer(false);
                       }}
                       style={itemStyle}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,81,50,0.05)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'none'}
                     >
-                      <Users size={20} color="rgba(255,255,255,0.6)" />
+                      <Users size={20} color="#64748b" />
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
                         <span>Start a Jam</span>
-                        <span style={{ background: 'rgba(176, 136, 80, 0.15)', color: '#b08850', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 4, textTransform: 'uppercase' }}>Premium</span>
+                        <span style={{ background: 'rgba(15, 81, 50, 0.08)', color: '#0f5132', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 4, textTransform: 'uppercase' }}>Premium</span>
                       </div>
                     </button>
 
@@ -2487,10 +2507,10 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                         setShowFeaturesDrawer(false);
                       }}
                       style={itemStyle}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,81,50,0.05)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'none'}
                     >
-                      <XCircle size={20} color="rgba(255,255,255,0.6)" />
+                      <XCircle size={20} color="#64748b" />
                       <span>Exclude track from your taste profile</span>
                     </button>
 
@@ -2500,10 +2520,10 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                         setFeaturesDrawerTab('sleep');
                       }}
                       style={itemStyle}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,81,50,0.05)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'none'}
                     >
-                      <Clock size={20} color="rgba(255,255,255,0.6)" />
+                      <Clock size={20} color="#64748b" />
                       <span>Sleep timer</span>
                     </button>
 
@@ -2514,10 +2534,10 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                         setShowFeaturesDrawer(false);
                       }}
                       style={itemStyle}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,81,50,0.05)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'none'}
                     >
-                      <Radio size={20} color="rgba(255,255,255,0.6)" />
+                      <Radio size={20} color="#64748b" />
                       <span>Go to song radio</span>
                     </button>
 
@@ -2533,10 +2553,10 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                         }, 150);
                       }}
                       style={itemStyle}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,81,50,0.05)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'none'}
                     >
-                      <Info size={20} color="rgba(255,255,255,0.6)" />
+                      <Info size={20} color="#64748b" />
                       <span>View song credits</span>
                     </button>
 
@@ -2549,10 +2569,10 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                         }, 100);
                       }}
                       style={itemStyle}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,81,50,0.05)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'none'}
                     >
-                      <Barcode size={20} color="rgba(255,255,255,0.6)" />
+                      <Barcode size={20} color="#64748b" />
                       <span>Show Beato Code</span>
                     </button>
                   </div>
@@ -2560,14 +2580,14 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
               ) : (
                 <>
                   {/* Sleep Timer Sub-Menu */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '0 20px 16px 20px', borderBottom: '1px solid rgba(255,255,255,0.08)', flexShrink: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '0 20px 16px 20px', borderBottom: '1px solid rgba(15,81,50,0.12)', flexShrink: 0 }}>
                     <button
                       onClick={() => setFeaturesDrawerTab('options')}
-                      style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 4 }}
+                      style={{ background: 'none', border: 'none', color: '#0f172a', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 4 }}
                     >
                       <ChevronLeft size={24} />
                     </button>
-                    <span style={{ fontSize: 18, fontWeight: 800, color: '#fff' }}>Sleep Timer</span>
+                    <span style={{ fontSize: 18, fontWeight: 800, color: '#0f172a' }}>Sleep Timer</span>
                   </div>
                   <div style={{ flex: 1, overflowY: 'auto', padding: '8px 12px 20px 12px' }}>
                     {[
@@ -2590,11 +2610,11 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                           }
                         }}
                         style={itemStyle}
-                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,81,50,0.05)'}
                         onMouseLeave={e => e.currentTarget.style.background = 'none'}
                       >
-                        <span style={{ color: sleepTimer === t.val ? '#b08850' : '#fff', flex: 1 }}>{t.label}</span>
-                        {sleepTimer === t.val && <Check size={18} color="#b08850" />}
+                        <span style={{ color: sleepTimer === t.val ? '#0f5132' : '#0f172a', flex: 1 }}>{t.label}</span>
+                        {sleepTimer === t.val && <Check size={18} color="#0f5132" />}
                       </button>
                     ))}
                   </div>
@@ -2637,7 +2657,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                   maxWidth: 320,
                   background: '#181818',
                   borderRadius: 16,
-                  border: '1px solid rgba(255,255,255,0.08)',
+                  border: '1px solid rgba(15,81,50,0.12)',
                   padding: 24,
                   display: 'flex',
                   flexDirection: 'column',
@@ -2647,8 +2667,8 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                 }}
               >
                 <div style={{ textAlign: 'center' }}>
-                  <h3 style={{ fontSize: 18, fontWeight: 800, color: '#fff', margin: 0 }}>Beato Code</h3>
-                  <p style={{ fontSize: 11, color: '#a3a3a3', margin: '4px 0 0 0' }}>Scan to play this song instantly</p>
+                  <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0 }}>Beato Code</h3>
+                  <p style={{ fontSize: 11, color: '#64748b', margin: '4px 0 0 0' }}>Scan to play this song instantly</p>
                 </div>
 
                 {/* Song Image */}
@@ -2657,8 +2677,8 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                 </div>
 
                 <div style={{ textAlign: 'center', minWidth: 0, width: '100%' }}>
-                  <p style={{ color: '#fff', fontSize: 14, fontWeight: 700, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{currentTrack.title}</p>
-                  <p style={{ color: '#a3a3a3', fontSize: 11, margin: '2px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{currentTrack.artistName}</p>
+                  <p style={{ color: '#0f172a', fontSize: 14, fontWeight: 700, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{currentTrack.title}</p>
+                  <p style={{ color: '#64748b', fontSize: 11, margin: '2px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{currentTrack.artistName}</p>
                 </div>
 
                 {/* Dynamic sound wave code graphic */}
@@ -2669,13 +2689,13 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                   gap: 3,
                   width: '100%',
                   height: 48,
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.05)',
+                  background: 'rgba(15,81,50,0.04)',
+                  border: '1px solid rgba(15,81,50,0.08)',
                   borderRadius: 24,
                   padding: '0 16px',
                 }}>
                   {/* Spotify/Beato code style logo */}
-                  <span style={{ fontSize: 16, color: '#b08850', fontWeight: 800, marginRight: 6 }}>B</span>
+                  <span style={{ fontSize: 16, color: '#10b981', fontWeight: 800, marginRight: 6 }}>B</span>
                   {Array.from({ length: 18 }).map((_, idx) => {
                     const heights = [10, 24, 14, 32, 18, 28, 12, 35, 15, 30, 12, 26, 16, 32, 14, 24, 10, 18];
                     const h = heights[idx % heights.length];
@@ -2692,7 +2712,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                         style={{
                           width: 3,
                           borderRadius: 1.5,
-                          background: '#b08850',
+                          background: '#0f5132',
                         }}
                       />
                     );
@@ -2732,7 +2752,7 @@ const itemStyle: React.CSSProperties = {
   background: 'none',
   border: 'none',
   padding: '14px 20px',
-  color: '#fff',
+  color: '#0f172a',
   fontSize: 14,
   fontWeight: 600,
   cursor: 'pointer',

@@ -14,7 +14,7 @@ import TopBar from '@/components/layout/TopBar';
 import { usePlaylistStore } from '@/store/playlistStore';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
-const G = '#b08850';
+const G = '#0f5132';
 
 const BROWSE_GENRES = [
   { name: 'Pop', color: '#34d399', emoji: '🎤', image: 'https://images.unsplash.com/photo-1529518969858-8baa65152fc8?w=120&auto=format&fit=crop&q=80' },
@@ -120,70 +120,80 @@ function PlaylistSearchCard({ playlist }: { playlist: any }) {
 function TopResult({ topResult, onPlay }: { topResult: SearchResult['topResult']; onPlay: () => void }) {
   if (!topResult) return null;
   const item = topResult.item as any;
+  const displayImg = item.coverImage && item.coverImage !== 'undefined' && item.coverImage !== 'null'
+    ? item.coverImage
+    : (item.imageUrl && item.imageUrl !== 'undefined' && item.imageUrl !== 'null' ? item.imageUrl : null);
 
   return (
     <div style={{ background: 'var(--color-ss-elevated, #ffffff)', borderRadius: 14, padding: 20, border: '1px solid var(--color-ss-border, rgba(43,34,26,0.08))', boxShadow: '0 4px 15px rgba(43, 34, 26, 0.02)' }}>
       <p style={{ color: 'var(--color-ss-text-muted, #87786c)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 14 }}>Top Result</p>
-      <div style={{ display: 'flex', gap: 16, alignItems: 'flex-end' }}>
-        <Link href={topResult.type === 'artist' ? `/artist/${item.id}` : topResult.type === 'album' ? `/album/${item.id}` : '#'}
-          onClick={e => { if (topResult.type === 'track') e.preventDefault(); }}
-          style={{ display: 'block', textDecoration: 'none' }}>
-          <div style={{
-            width: 90, height: 90, borderRadius: topResult.type === 'artist' ? '50%' : 12,
-            background: trackGradient(item.id), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36,
-            flexShrink: 0, boxShadow: '0 8px 24px rgba(43,34,26,0.06)', cursor: topResult.type === 'track' ? 'default' : 'pointer'
-          }}>
-            {topResult.type === 'artist' ? '🎤' : '🎵'}
+      <div style={{ display: 'flex', gap: 16, alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', gap: 16, alignItems: 'center', minWidth: 0, flex: 1 }}>
+          <Link href={topResult.type === 'artist' ? `/artist/${item.id}` : topResult.type === 'album' ? `/album/${item.id}` : '#'}
+            onClick={e => { if (topResult.type === 'track') e.preventDefault(); }}
+            style={{ display: 'block', textDecoration: 'none', flexShrink: 0 }}>
+            <div style={{
+              width: 80, height: 80, borderRadius: topResult.type === 'artist' ? '50%' : 12,
+              background: displayImg ? 'none' : trackGradient(item.id), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32,
+              flexShrink: 0, boxShadow: '0 8px 24px rgba(43,34,26,0.06)', cursor: topResult.type === 'track' ? 'default' : 'pointer',
+              overflow: 'hidden', position: 'relative'
+            }}>
+              {displayImg ? (
+                <img src={displayImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                topResult.type === 'artist' ? '🎤' : '🎵'
+              )}
+            </div>
+          </Link>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            {topResult.type === 'artist' || topResult.type === 'album' ? (
+              <Link href={topResult.type === 'artist' ? `/artist/${item.id}` : `/album/${item.id}`} style={{ textDecoration: 'none' }}>
+                <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 18, fontWeight: 800, color: 'var(--color-ss-text-primary, #221a15)', marginBottom: 4, cursor: 'pointer', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                  onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'}
+                  onMouseLeave={e => e.currentTarget.style.textDecoration = 'none'}>
+                  {item.name || item.title}
+                </p>
+              </Link>
+            ) : (
+              <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 18, fontWeight: 800, color: 'var(--color-ss-text-primary, #221a15)', marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name || item.title}</p>
+            )}
+            <p style={{ color: 'var(--color-ss-text-muted, #87786c)', fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {topResult.type === 'track' ? (
+                <span>
+                  Song ·{' '}
+                  <Link href={`/artist/${item.artistId}`} style={{ color: 'var(--color-ss-text-muted, #87786c)', textDecoration: 'none' }}
+                    onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-ss-text-primary, #221a15)'; e.currentTarget.style.textDecoration = 'underline'; }}
+                    onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-ss-text-muted, #87786c)'; e.currentTarget.style.textDecoration = 'none'; }}>
+                    {item.artistName}
+                  </Link>
+                </span>
+              ) :
+               topResult.type === 'artist' ? (
+                 <span>
+                   Artist ·{' '}
+                   <Link href={`/artist/${item.id}`} style={{ color: 'var(--color-ss-text-muted, #87786c)', textDecoration: 'none' }}
+                     onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-ss-text-primary, #221a15)'; e.currentTarget.style.textDecoration = 'underline'; }}
+                     onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-ss-text-muted, #87786c)'; e.currentTarget.style.textDecoration = 'none'; }}>
+                     {(item.monthlyListeners / 1_000_000).toFixed(1)}M listeners
+                   </Link>
+                 </span>
+               ) :
+               topResult.type === 'album' ? (
+                 <span>
+                   Album ·{' '}
+                   <Link href={`/artist/${item.artistId}`} style={{ color: 'var(--color-ss-text-muted, #87786c)', textDecoration: 'none' }}
+                     onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-ss-text-primary, #221a15)'; e.currentTarget.style.textDecoration = 'underline'; }}
+                     onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-ss-text-muted, #87786c)'; e.currentTarget.style.textDecoration = 'none'; }}>
+                     {item.artistName}
+                   </Link>
+                 </span>
+               ) : 'Playlist'}
+            </p>
           </div>
-        </Link>
-        <div>
-          {topResult.type === 'artist' || topResult.type === 'album' ? (
-            <Link href={topResult.type === 'artist' ? `/artist/${item.id}` : `/album/${item.id}`} style={{ textDecoration: 'none' }}>
-              <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 24, fontWeight: 900, color: 'var(--color-ss-text-primary, #221a15)', marginBottom: 4, cursor: 'pointer' }}
-                onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'}
-                onMouseLeave={e => e.currentTarget.style.textDecoration = 'none'}>
-                {item.name || item.title}
-              </p>
-            </Link>
-          ) : (
-            <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 24, fontWeight: 900, color: 'var(--color-ss-text-primary, #221a15)', marginBottom: 4 }}>{item.name || item.title}</p>
-          )}
-          <p style={{ color: 'var(--color-ss-text-muted, #87786c)', fontSize: 13 }}>
-            {topResult.type === 'track' ? (
-              <span>
-                Song ·{' '}
-                <Link href={`/artist/${item.artistId}`} style={{ color: 'var(--color-ss-text-muted, #87786c)', textDecoration: 'none' }}
-                  onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-ss-text-primary, #221a15)'; e.currentTarget.style.textDecoration = 'underline'; }}
-                  onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-ss-text-muted, #87786c)'; e.currentTarget.style.textDecoration = 'none'; }}>
-                  {item.artistName}
-                </Link>
-              </span>
-            ) :
-             topResult.type === 'artist' ? (
-               <span>
-                 Artist ·{' '}
-                 <Link href={`/artist/${item.id}`} style={{ color: 'var(--color-ss-text-muted, #87786c)', textDecoration: 'none' }}
-                   onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-ss-text-primary, #221a15)'; e.currentTarget.style.textDecoration = 'underline'; }}
-                   onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-ss-text-muted, #87786c)'; e.currentTarget.style.textDecoration = 'none'; }}>
-                   {(item.monthlyListeners / 1_000_000).toFixed(1)}M listeners
-                 </Link>
-               </span>
-             ) :
-             topResult.type === 'album' ? (
-               <span>
-                 Album ·{' '}
-                 <Link href={`/artist/${item.artistId}`} style={{ color: 'var(--color-ss-text-muted, #87786c)', textDecoration: 'none' }}
-                   onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-ss-text-primary, #221a15)'; e.currentTarget.style.textDecoration = 'underline'; }}
-                   onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-ss-text-muted, #87786c)'; e.currentTarget.style.textDecoration = 'none'; }}>
-                   {item.artistName}
-                 </Link>
-               </span>
-             ) : 'Playlist'}
-          </p>
-          <button onClick={onPlay} style={{ marginTop: 14, width: 44, height: 44, borderRadius: '50%', background: G, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 4px 14px rgba(176,136,80,0.4)` }}>
-            <Play size={18} fill="black" color="black" />
-          </button>
         </div>
+        <button onClick={onPlay} style={{ width: 44, height: 44, borderRadius: '50%', background: G, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 4px 14px rgba(15, 81, 50, 0.4)`, flexShrink: 0 }}>
+          <Play size={18} fill="white" color="white" style={{ marginLeft: 2 }} />
+        </button>
       </div>
     </div>
   );
@@ -290,7 +300,7 @@ export default function SearchPage() {
                 width: 32,
                 height: 32,
                 borderRadius: '50%',
-                background: 'var(--color-ss-primary, #b08850)',
+                background: 'var(--color-ss-primary, #0f5132)',
                 color: '#fff',
                 display: 'flex',
                 alignItems: 'center',
@@ -320,9 +330,9 @@ export default function SearchPage() {
                 autoFocus
                 style={{
                   width: '100%',
-                  background: '#fff',
+                  background: '#f1f5f9',
                   border: 'none',
-                  borderRadius: 8,
+                  borderRadius: 24,
                   padding: '12px 40px 12px 44px',
                   color: '#000',
                   fontSize: 14.5,
@@ -384,8 +394,8 @@ export default function SearchPage() {
                 autoFocus
                 style={{
                   width: '100%',
-                  background: 'var(--color-ss-elevated, #ffffff)',
-                  border: `1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))`,
+                  background: '#f1f5f9',
+                  border: '1px solid rgba(0, 0, 0, 0.04)',
                   borderRadius: 30,
                   padding: '14px 48px 14px 48px',
                   color: 'var(--color-ss-text-primary, #221a15)',
@@ -436,7 +446,7 @@ export default function SearchPage() {
 
       {/* Filter tabs */}
       {results && (
-        <div style={{ display: 'flex', gap: 8, marginBottom: 24, overflowX: 'auto' }}>
+        <div className="no-scrollbar" style={{ display: 'flex', gap: 8, marginBottom: 24, overflowX: 'auto' }}>
           {FILTERS.map(f => (
             <button key={f} onClick={() => setActiveFilter(f)} style={{
               padding: '7px 16px', borderRadius: 100, fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap',
@@ -466,7 +476,7 @@ export default function SearchPage() {
                     }
                   }} />
                 )}
-                <div style={{ background: 'var(--color-ss-elevated, #ffffff)', borderRadius: 14, padding: '16px 4px', border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))', boxShadow: '0 4px 15px rgba(43, 34, 26, 0.02)' }}>
+                <div style={{ background: '#f8fafc', borderRadius: 14, padding: '16px 4px', border: '1px solid rgba(0, 0, 0, 0.04)', boxShadow: '0 4px 15px rgba(43, 34, 26, 0.02)' }}>
                   <p style={{ color: 'var(--color-ss-text-muted, #87786c)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10, paddingLeft: 14 }}>Songs</p>
                   {results.tracks.slice(0, 5).map((track, i) => (
                     <TrackCard key={track.id} track={track} index={i} queue={results.tracks} compact />
@@ -508,7 +518,7 @@ export default function SearchPage() {
             {/* More songs */}
             {activeFilter === 'songs' && results.tracks.length > 5 && (
               <section>
-                <div style={{ background: 'var(--color-ss-elevated, #ffffff)', borderRadius: 14, overflow: 'hidden', border: '1px solid var(--color-ss-border, rgba(43,34,26,0.08))' }}>
+                <div style={{ background: '#f8fafc', borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(0, 0, 0, 0.04)' }}>
                   {results.tracks.slice(5).map((track, i) => (
                     <TrackCard key={track.id} track={track} index={i + 5} queue={results.tracks} />
                   ))}

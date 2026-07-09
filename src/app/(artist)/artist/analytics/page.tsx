@@ -8,7 +8,7 @@ import {
 } from 'recharts';
 import { TrendingUp, Users, DollarSign, Play, SkipForward, Heart, ListMusic, Globe, Calendar } from 'lucide-react';
 
-const G = '#b08850';
+const G = '#0f5132';
 const COLORS = [G, '#10b981', '#34d399', '#f59e0b', '#06b6d4', '#f97316'];
 const RANGES = ['7D', '30D', '90D', '1Y'];
 
@@ -49,7 +49,7 @@ function KpiCard({ icon: Icon, label, value, change, positive, color }: any) {
         <div style={{ width: 40, height: 40, borderRadius: 11, background: `${color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Icon size={18} color={color} />
         </div>
-        <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 9px', borderRadius: 100, background: positive ? 'rgba(176, 136, 80,0.12)' : 'rgba(239,68,68,0.12)', color: positive ? G : '#ef4444' }}>
+        <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 9px', borderRadius: 100, background: positive ? 'rgba(15, 81, 50, 0.12)' : 'rgba(239,68,68,0.12)', color: positive ? G : '#ef4444' }}>
           {change}
         </span>
       </div>

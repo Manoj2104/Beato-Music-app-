@@ -132,6 +132,17 @@ export async function GET(request: NextRequest) {
       }
     };
 
+    const visualAd = adsData.visualAd ? {
+      id: 'premium-promo-ad',
+      name: adsData.visualAd.title || 'Upgrade to Beato Premium',
+      type: 'banner',
+      headline: adsData.visualAd.title,
+      bodyText: adsData.visualAd.description,
+      imageUrl: adsData.visualAd.imageUrl,
+      destinationUrl: adsData.visualAd.destinationUrl || '/premium',
+      ctaText: 'Get Premium'
+    } : null;
+
     // Return safe data for display
     return NextResponse.json({
       success: true,
@@ -140,6 +151,7 @@ export async function GET(request: NextRequest) {
       adMappings: adsData.adMappings || {},
       sectionAds: adsData.sectionAds || {},
       adsConfig,
+      visualAd,
       settings: {
         defaultFrequency: adsData.settings?.defaultFrequency ?? 3,
         adTheme: adsData.settings?.adTheme ?? 'glass',
