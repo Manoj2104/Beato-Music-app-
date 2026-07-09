@@ -619,7 +619,7 @@
         ],
         "streaksCount": 0,
         "discoverScore": 0,
-        "totalListeningTime": 2496
+        "totalListeningTime": 2735
       },
       "bio": null,
       "verified": false,
@@ -9420,6 +9420,25 @@
       "risk": "low",
       "billingCycle": "Current",
       "planLabel": "Free"
+    },
+    {
+      "id": "TXN-607071",
+      "userId": "user-1783587898518",
+      "user": "Surya",
+      "email": "manoj2105s@gmail.com",
+      "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop",
+      "amount": 978.42,
+      "plan": "premium",
+      "method": "UPI",
+      "date": "Jul 9, 2026",
+      "dateTs": 1783602049313,
+      "status": "completed",
+      "currency": "INR",
+      "invoiceId": "INV-BDBFB61D",
+      "country": "IN",
+      "risk": "low",
+      "billingCycle": "Monthly",
+      "planLabel": "Premium"
     }
   ],
   "planPrices": {
@@ -11790,6 +11809,30 @@
       "timestamp": "2026-07-09T12:07:52.967Z",
       "isFlagged": false,
       "adRevenue": 0.0021,
+      "device": "Mobile App"
+    },
+    {
+      "id": "STR-C5DEE8D3",
+      "trackId": "track-sp-1783584335371-9jpk3",
+      "artistId": "artist-1783505262754",
+      "userId": "user-1783587898518",
+      "country": "IN",
+      "city": "Chennai",
+      "isPremium": true,
+      "timestamp": "2026-07-09T13:18:46.807Z",
+      "isFlagged": false,
+      "device": "Mobile App"
+    },
+    {
+      "id": "STR-8F7E6C32",
+      "trackId": "track-sp-1783584063209-ocwn7",
+      "artistId": "artist-1783505262754",
+      "userId": "user-1783587898518",
+      "country": "IN",
+      "city": "Chennai",
+      "isPremium": true,
+      "timestamp": "2026-07-09T13:19:29.207Z",
+      "isFlagged": false,
       "device": "Mobile App"
     }
   ],
@@ -20703,7 +20746,7 @@
           "frequency": 3,
           "priority": "medium",
           "type": "banner",
-          "impressions": 18,
+          "impressions": 30,
           "clicks": 0,
           "createdAt": "2026-07-03T11:02:22.549Z"
         },
