@@ -947,7 +947,9 @@
       ],
       "savedAlbums": [],
       "followedArtists": [],
-      "playlists": [],
+      "playlists": [
+        "playlist-custom-1783769208320"
+      ],
       "preferences": {
         "theme": "dark",
         "quality": "very_high",
@@ -24738,7 +24740,7 @@
           "frequency": 3,
           "priority": "medium",
           "type": "banner",
-          "impressions": 184,
+          "impressions": 186,
           "clicks": 1,
           "createdAt": "2026-07-03T11:02:22.549Z"
         },
