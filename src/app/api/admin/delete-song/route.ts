@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/rbac';
+import { requireUser } from '@/lib/rbac';
 import { logSecurityEvent } from '@/lib/audit';
 import { dbSupabase } from '@/lib/dbSupabase';
 import { db } from '@/lib/db';
 
 export async function DELETE(request: NextRequest) {
-  const rbacCheck = await requireAdmin(request);
+  // Allow all authenticated users to delete their own uploads
+  const rbacCheck = await requireUser(request);
   if (!rbacCheck.authorized) {
     return NextResponse.json(
       { error: rbacCheck.message || 'Forbidden' },
@@ -28,11 +29,20 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Verify ownership if not an admin
+    if (adminUser.role !== 'ADMIN' && adminUser.role !== 'SUPER_ADMIN') {
+      const allTracks = await db.getTracksFromSupabase();
+      const track = allTracks.find(t => t.id === songId);
+      if (track && track.artistId !== adminUser.userId && track.uploadedBy !== adminUser.name) {
+        return NextResponse.json({ error: 'Unauthorized to delete this item' }, { status: 403 });
+      }
+    }
+
     logSecurityEvent(
       adminUser.token,
-      `Admin (${adminUser.role})`,
+      `User (${adminUser.role})`,
       'DELETION',
-      `Track "${title || songId}" (${songId}) permanently deleted by admin`
+      `Track "${title || songId}" (${songId}) permanently deleted`
     );
 
     // ── Delete from Supabase (primary source of truth) ──────────────────────

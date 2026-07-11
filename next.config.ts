@@ -9,7 +9,6 @@ const getLocalIPs = () => {
       for (const net of interfaces[name] || []) {
         if (net.family === 'IPv4') {
           ips.push(net.address);
-          // Also allow with port just in case
           ips.push(`${net.address}:3000`);
         }
       }
@@ -21,27 +20,23 @@ const getLocalIPs = () => {
 };
 
 const nextConfig: NextConfig = {
+  compress: true,
   allowedDevOrigins: getLocalIPs(),
   devIndicators: false,
   images: {
-    unoptimized: true,
+    unoptimized: false,
+    minimumCacheTTL: 3600,
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'misc.scdn.co',
-      },
-      {
-        protocol: 'https',
-        hostname: 'i.scdn.co',
-      },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'misc.scdn.co' },
+      { protocol: 'https', hostname: 'i.scdn.co' },
+      { protocol: 'https', hostname: '**.supabase.co' },
+      { protocol: 'https', hostname: '**.supabase.in' },
     ],
+    formats: ['image/webp', 'image/avif'],
   },
   experimental: {
-    // ⚡ Tree-shake heavy icon/animation libraries → smaller JS bundles = faster loads
+    // ⚡ Tree-shake heavy icon/animation libraries → smaller JS bundles
     optimizePackageImports: ['lucide-react', 'framer-motion', 'recharts'],
   },
   outputFileTracingIncludes: {
@@ -50,4 +45,3 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
-

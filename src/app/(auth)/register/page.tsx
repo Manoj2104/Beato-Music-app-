@@ -49,8 +49,86 @@ const LANGUAGES = [
   { id: 'kannada', label: 'Kannada', bg: '#B71C1C', artist: 'Vijay Prakash', img: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=150&h=150&fit=crop' }
 ];
 
+const getLevenshteinDistance = (a: string, b: string): number => {
+  const tmp = [];
+  for (let i = 0; i <= a.length; i++) {
+    tmp[i] = [i];
+  }
+  for (let j = 0; j <= b.length; j++) {
+    tmp[0][j] = j;
+  }
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      tmp[i][j] = Math.min(
+        tmp[i - 1][j] + 1, // deletion
+        tmp[i][j - 1] + 1, // insertion
+        tmp[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1) // substitution
+      );
+    }
+  }
+  return tmp[a.length][b.length];
+};
+
+const getTypoSuggestion = (email: string): string | null => {
+  const parts = email.split('@');
+  if (parts.length !== 2) return null;
+  const username = parts[0];
+  const domain = parts[1].toLowerCase();
+
+  const COMMON_DOMAINS = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'icloud.com', 'beato.com'];
+  let bestMatch = null;
+  let minDistance = 999;
+
+  for (const common of COMMON_DOMAINS) {
+    if (domain === common) return null; // Exact match, no typo
+    const dist = getLevenshteinDistance(domain, common);
+    if (dist < minDistance) {
+      minDistance = dist;
+      bestMatch = common;
+    }
+  }
+
+  if (bestMatch && minDistance <= 4) {
+    return `${username}@${bestMatch}`;
+  }
+
+  return null;
+};
+
+const validateEmail = (email: string) => {
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  if (!email || !emailRegex.test(email) || email.includes('..')) {
+    return { isValid: false, suggestion: null as string | null };
+  }
+
+  const suggestion = getTypoSuggestion(email);
+  if (suggestion) {
+    return { isValid: false, suggestion };
+  }
+
+  const parts = email.split('@');
+  if (parts.length === 2) {
+    const domain = parts[1].toLowerCase();
+    if (domain.endsWith('.vom') || domain.endsWith('.con') || domain.endsWith('.cmo') || domain.endsWith('.col')) {
+      const correctedDomain = domain
+        .replace(/\.vom$/, '.com')
+        .replace(/\.con$/, '.com')
+        .replace(/\.cmo$/, '.com')
+        .replace(/\.col$/, '.com');
+      return {
+        isValid: false,
+        suggestion: `${parts[0]}@${correctedDomain}`
+      };
+    }
+  }
+
+  return { isValid: true, suggestion: null };
+};
+
 export default function RegisterPage() {
   const [step, setStep] = useState(0);
+  const [emailSuggestion, setEmailSuggestion] = useState<string | null>(null);
+  const [isEmailValid, setIsEmailValid] = useState(false);
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [dob, setDob] = useState('');
@@ -205,11 +283,20 @@ export default function RegisterPage() {
   useEffect(() => {
     let isMounted = true;
     const checkEmail = async () => {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!email || !emailRegex.test(email)) {
-        if (isMounted) { setEmailExists(false); setCheckingEmail(false); }
+      const validation = validateEmail(email);
+      if (isMounted) {
+        setEmailSuggestion(validation.suggestion);
+        setIsEmailValid(validation.isValid);
+      }
+
+      if (!validation.isValid) {
+        if (isMounted) {
+          setEmailExists(false);
+          setCheckingEmail(false);
+        }
         return;
       }
+
       if (isMounted) setCheckingEmail(true);
       try {
         const response = await fetch('/api/auth/check-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
@@ -227,13 +314,36 @@ export default function RegisterPage() {
   }, [email]);
 
   const handleOtpChange = (i: number, val: string) => {
-    const cleanVal = val.slice(-1);
+    const cleanVal = val.trim();
     const n = [...otpCode];
+
+    if (cleanVal.length > 1) {
+      const digits = cleanVal.replace(/\D/g, '').slice(0, 6).split('');
+      const updatedOtp = [...otpCode];
+      for (let j = 0; j < digits.length; j++) {
+        if (i + j < 6) {
+          updatedOtp[i + j] = digits[j];
+        }
+      }
+      setOtpCode(updatedOtp);
+      setOtpError('');
+      const focusIndex = Math.min(i + digits.length - 1, 5);
+      document.getElementById(`otp-${focusIndex}`)?.focus();
+      return;
+    }
+
     n[i] = cleanVal;
     setOtpCode(n);
     setOtpError('');
-    if (cleanVal && i < 5) {
-      document.getElementById(`otp-${i + 1}`)?.focus();
+
+    if (cleanVal) {
+      if (i < 5) {
+        document.getElementById(`otp-${i + 1}`)?.focus();
+      }
+    } else {
+      if (i > 0) {
+        document.getElementById(`otp-${i - 1}`)?.focus();
+      }
     }
   };
 
@@ -244,19 +354,15 @@ export default function RegisterPage() {
         n[i - 1] = '';
         setOtpCode(n);
         document.getElementById(`otp-${i - 1}`)?.focus();
-      } else {
-        const n = [...otpCode];
-        n[i] = '';
-        setOtpCode(n);
       }
     }
   };
 
   const handleOtpPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData('text').trim();
-    if (/^\d{6}$/.test(pastedData)) {
-      const digits = pastedData.split('');
+    const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').trim();
+    if (pastedData.length >= 6) {
+      const digits = pastedData.slice(0, 6).split('');
       setOtpCode(digits);
       setOtpError('');
       document.getElementById('otp-5')?.focus();
@@ -490,7 +596,7 @@ export default function RegisterPage() {
       return;
     }
     if (step === 2) {
-      if (password.length < 8) { toast.error('Password must be at least 8 characters'); return; }
+      if (!password || password.trim().length === 0) { toast.error('Please enter a password'); return; }
       setConfirmPassword(password);
       setStep(3);
       return;
@@ -507,7 +613,6 @@ export default function RegisterPage() {
     }
     if (step === 5) {
       if (!name) { toast.error('Please enter your name'); return; }
-      if (!agreed) { toast.error('You must agree to the Terms of Service and Privacy Policy'); return; }
       setIsLoading(true);
       try {
         await signup(name, email, password, password);
@@ -1158,8 +1263,38 @@ export default function RegisterPage() {
                           Checking availability...
                         </p>
                       )}
+                      {emailSuggestion && (
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          background: 'rgba(217, 119, 6, 0.05)',
+                          border: '1px solid rgba(217, 119, 6, 0.15)',
+                          borderRadius: '10px',
+                          padding: '10px 14px',
+                          marginTop: '12px',
+                          boxSizing: 'border-box'
+                        }}>
+                          <span style={{ fontSize: '15px', lineHeight: '1' }}>💡</span>
+                          <p style={{ margin: 0, color: '#b45309', fontSize: '13px', fontWeight: 600, lineHeight: '1.4', fontFamily: 'Inter, sans-serif' }}>
+                            Did you mean{' '}
+                            <span
+                              onClick={() => setEmail(emailSuggestion)}
+                              style={{
+                                textDecoration: 'underline',
+                                cursor: 'pointer',
+                                color: '#b45309',
+                                fontWeight: 700
+                              }}
+                            >
+                              {emailSuggestion}
+                            </span>
+                            ?
+                          </p>
+                        </div>
+                      )}
                     </div>
-                    <button type="submit" disabled={emailExists || checkingEmail} className="auth-btn-primary">
+                    <button type="submit" disabled={emailExists || checkingEmail || !isEmailValid} className="auth-btn-primary">
                       Continue
                     </button>
                   </form>
@@ -1358,7 +1493,7 @@ export default function RegisterPage() {
                     </div>
                   </div>
 
-                  <button type="submit" disabled={password.length < 8} className="auth-btn-primary" style={{ marginTop: '32px', opacity: password.length < 8 ? 0.55 : 1 }}>
+                  <button type="submit" disabled={!password} className="auth-btn-primary" style={{ marginTop: '32px', opacity: !password ? 0.55 : 1 }}>
                     Next
                   </button>
                 </motion.form>
@@ -1644,7 +1779,7 @@ export default function RegisterPage() {
                     </div>
                   </div>
 
-                  <button type="submit" disabled={isLoading || !agreed || !name} className="auth-btn-primary" style={{ marginTop: '32px', opacity: (isLoading || !agreed || !name) ? 0.55 : 1 }}>
+                  <button type="submit" disabled={isLoading || !name} className="auth-btn-primary" style={{ marginTop: '32px', opacity: (isLoading || !name) ? 0.55 : 1 }}>
                     {isLoading ? 'Creating Account...' : 'Create account'}
                   </button>
                 </motion.form>

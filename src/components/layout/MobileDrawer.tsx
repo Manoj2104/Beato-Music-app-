@@ -26,6 +26,7 @@ export default function MobileDrawer() {
     { label: 'Recents', icon: History, href: '/library' },
     { label: 'Your Updates', icon: Megaphone, action: () => alert('No new updates') },
     { label: 'Settings', icon: Settings, href: '/settings' },
+    { label: 'Podcast Creator', icon: Mic2, href: '/podcast/creator' },
   ];
 
   const artistSubItems = [

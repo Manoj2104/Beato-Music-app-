@@ -49,7 +49,7 @@ const fetchCached = async (key: string, ttlMs: number, fetchFn: () => Promise<an
   return freshData;
 };
 
-const invalidateCache = (key: string) => {
+export const invalidateCache = (key: string) => {
   const cache = getCache();
   delete cache[key];
 };
@@ -57,7 +57,7 @@ const invalidateCache = (key: string) => {
 export const dbSupabase = {
   // --- Users ---
   getUsers: async () => {
-    return fetchCached('users', 10000, async () => {
+    return fetchCached('users', 300000, async () => {
       const { data, error } = await supabase
         .from('users')
         .select('*');
@@ -152,7 +152,7 @@ export const dbSupabase = {
 
   // --- Tracks ---
   getTracks: async () => {
-    return fetchCached('tracks', 10000, async () => {
+    return fetchCached('tracks', 300000, async () => {
       const { data, error } = await supabase
         .from('tracks')
         .select('*')
@@ -197,7 +197,7 @@ export const dbSupabase = {
 
   // --- Playlists ---
   getPlaylists: async () => {
-    return fetchCached('playlists', 10000, async () => {
+    return fetchCached('playlists', 300000, async () => {
       const { data, error } = await supabase
         .from('playlists')
         .select('*')
@@ -335,7 +335,7 @@ export const dbSupabase = {
 
   // --- Comments ---
   getComments: async () => {
-    return fetchCached('comments', 10000, async () => {
+    return fetchCached('comments', 300000, async () => {
       const { data, error } = await supabase
         .from('comments')
         .select('*')

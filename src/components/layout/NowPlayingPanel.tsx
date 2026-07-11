@@ -15,6 +15,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 import AdBanner from '@/components/layout/AdBanner';
+import toast from 'react-hot-toast';
 
 interface NowPlayingPanelProps {
   onClose: () => void;
@@ -543,9 +544,23 @@ export default function NowPlayingPanel({ onClose }: NowPlayingPanelProps) {
 
         {/* Playback Controls */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20, width: '100%', marginTop: 8 }}>
-          <button onClick={toggleShuffle} style={btnStyle(shuffle)} title="Shuffle"
-            onMouseEnter={e => (e.currentTarget.style.color = shuffle ? GREEN : '#fff')}
-            onMouseLeave={e => (e.currentTarget.style.color = shuffle ? GREEN : '#a3a3a3')}>
+          <button 
+            onClick={() => {
+              if (isFree) {
+                toast.error("Shuffle mode is disabled for Free users. Upgrade to Premium to toggle Shuffle! 💎");
+                return;
+              }
+              toggleShuffle();
+            }} 
+            style={{
+              ...btnStyle(shuffle && !isFree),
+              opacity: isFree ? 0.35 : 1,
+              cursor: isFree ? 'not-allowed' : 'pointer'
+            }} 
+            title={isFree ? "Shuffle (Premium Only)" : "Shuffle"}
+            onMouseEnter={e => { if (!isFree) e.currentTarget.style.color = shuffle ? GREEN : '#fff'; }}
+            onMouseLeave={e => { if (!isFree) e.currentTarget.style.color = shuffle ? GREEN : '#a3a3a3'; }}
+          >
             <Shuffle size={16} />
           </button>
 

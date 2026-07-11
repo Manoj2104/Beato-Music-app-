@@ -32,7 +32,9 @@ export async function POST(
       return NextResponse.json({ error: 'Room not found or inactive' }, { status: 404 });
     }
 
-    if (room.password && room.password !== password) {
+    // Host can always enter their own room without password
+    const isHost = room.hostId === decoded.userId;
+    if (!isHost && room.password && room.password !== password) {
       return NextResponse.json({ error: 'Incorrect password. Access denied.', passwordRequired: true }, { status: 403 });
     }
 

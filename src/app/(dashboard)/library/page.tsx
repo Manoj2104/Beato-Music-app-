@@ -18,6 +18,7 @@ import TopBar from '@/components/layout/TopBar';
 import TrackCard from '@/components/music/TrackCard';
 import { mockPlaylists, mockAlbums, mockArtists, mockTracks, formatDuration } from '@/lib/mockData';
 import { useMusicStore, trackGradient, GENRE_COLORS } from '@/store/musicStore';
+import { fetchWithAuth, getRoomUrl } from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import { usePlayerStore } from '@/store/playerStore';
 import { usePlaylistStore } from '@/store/playlistStore';
@@ -256,12 +257,23 @@ function LibraryPlaylistCard({ playlist, pinned, onPin, onDelete, isCustom }: {
 function RoomCard({ room }: { room: any }) {
   const router = useRouter();
   const [hov, setHov] = useState(false);
+  const { user } = useAuthStore();
+  const isFree = user?.subscription === 'free';
+
+  const handleJoin = () => {
+    if (isFree) {
+      toast.error("Jam Rooms is a Premium-only feature! Upgrade to Premium to join. 💎");
+      return;
+    }
+    router.push(getRoomUrl(room.id));
+  };
+
   return (
     <motion.div
       whileHover={{ y: -6 }}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
-      onClick={() => router.push(`/room/${room.id}`)}
+      onClick={handleJoin}
       style={{
         borderRadius: 16,
         padding: 16,
@@ -987,7 +999,7 @@ function MobileLibraryView({
                       } else if (item.type === 'album') {
                         router.push(`/album/${item.id}`);
                       } else if (item.type === 'room') {
-                        router.push(`/room/${item.id}`);
+                        router.push(getRoomUrl(item.id));
                       }
                     }}
                     onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(15, 81, 50, 0.04)'}
@@ -1115,7 +1127,7 @@ function MobileLibraryView({
                         } else if (item.type === 'album') {
                           router.push(`/album/${item.id}`);
                         } else if (item.type === 'room') {
-                          router.push(`/room/${item.id}`);
+                          router.push(getRoomUrl(item.id));
                         }
                       }}
                       onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(15, 81, 50, 0.04)'}
@@ -1314,7 +1326,7 @@ function LibraryPageContent() {
   useEffect(() => {
     const fetchRooms = async () => {
       try {
-        const res = await fetch('/api/rooms');
+        const res = await fetchWithAuth('/api/rooms');
         const data = await res.json();
         if (data.success && data.rooms) {
           setRooms(data.rooms);
@@ -1570,6 +1582,10 @@ function LibraryPageContent() {
   };
 
   const handleCreateRoom = () => {
+    if (user?.subscription === 'free') {
+      toast.error("Jam Rooms is a Premium-only feature! Upgrade to Premium to host a Jam. 💎");
+      return;
+    }
     const activeRoomId = typeof window !== 'undefined' ? localStorage.getItem('soundsphere-active-room-id') : null;
     const activeRoomName = typeof window !== 'undefined' ? localStorage.getItem('soundsphere-active-room-name') : null;
     
@@ -1589,7 +1605,7 @@ function LibraryPageContent() {
   const handleExitAndCreate = async () => {
     if (!existingRoomId) return;
     try {
-      await fetch(`/api/rooms/${existingRoomId}/leave`, { method: 'POST' });
+      await fetchWithAuth(`/api/rooms/${existingRoomId}/leave`, { method: 'POST' });
     } catch (e) {
       console.error('Failed to leave room:', e);
     }
@@ -1612,10 +1628,8 @@ function LibraryPageContent() {
     if (e) e.preventDefault();
     if (!newRoomName.trim()) return;
     try {
-      const res = await fetch('/api/rooms', {
+      const res = await fetchWithAuth('/api/rooms', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ 
           name: newRoomName.trim(), 
           description: newRoomDesc.trim(), 
@@ -1630,7 +1644,7 @@ function LibraryPageContent() {
           localStorage.setItem(`soundsphere-room-password-${data.room.id}`, newRoomPassword);
         }
         setShowCreateRoomModal(false);
-        router.push(`/room/${data.room.id}`);
+        router.push(getRoomUrl(data.room.id));
       } else {
         toast.error(data.error || 'Failed to create room');
       }
@@ -2511,7 +2525,9 @@ function LibraryPageContent() {
                   <button
                     onClick={() => {
                       setShowActiveRoomWarning(false);
-                      router.push(`/room/${existingRoomId}`);
+                      if (existingRoomId) {
+                        router.push(getRoomUrl(existingRoomId));
+                      }
                     }}
                     style={{
                       padding: '12px', 
@@ -2749,6 +2765,10 @@ function LibraryPageContent() {
                   <button onClick={() => setShowJoinRoomModal(false)} style={{ padding: '10px 18px', borderRadius: 10, background: 'rgba(15,81,50,0.06)', border: '1px solid rgba(176,136,80,0.15)', color: '#706155', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
                   <button 
                     onClick={() => { 
+                      if (user?.subscription === 'free') {
+                        toast.error("Jam Rooms is a Premium-only feature! Upgrade to Premium to join. 💎");
+                        return;
+                      }
                       if(joinRoomCode.trim()) {
                         let targetId = joinRoomCode.trim();
                         if (targetId.includes('|')) {
@@ -2756,7 +2776,7 @@ function LibraryPageContent() {
                           localStorage.setItem(`soundsphere-room-password-${rId}`, rPw);
                           targetId = rId;
                         }
-                        router.push(`/room/${targetId}`); 
+                        router.push(getRoomUrl(targetId)); 
                       }
                     }}
                     disabled={!joinRoomCode.trim()}

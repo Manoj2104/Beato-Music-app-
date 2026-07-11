@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { dbSupabase } from '@/lib/dbSupabase';
+import { dbSupabase, invalidateCache } from '@/lib/dbSupabase';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    if (searchParams.has('bust') || searchParams.has('t')) {
+      invalidateCache('tracks');
+      invalidateCache('users');
+    }
+
     // Always fetch directly from Supabase — no DATABASE_MODE check needed.
     // This ensures Vercel and localhost both show the same live data.
     const [cloudTracks, cloudUsers] = await Promise.all([

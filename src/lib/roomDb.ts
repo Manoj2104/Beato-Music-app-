@@ -279,7 +279,9 @@ export const roomDb = {
         timestamp: nowStr
       });
 
-      if (room.hostId === userId || room.participants.length === 0) {
+      // Only deactivate if ALL participants have left (not just when host leaves)
+      // Host re-entering the room should still work
+      if (room.participants.length === 0) {
         room.isActive = false;
       }
 
@@ -374,7 +376,19 @@ export const roomDb = {
         db.rooms = rooms;
         writeDbRaw(db);
       }
-    }
+    },
+
+    closeRoom(roomId: string): void {
+      const db = readDbRaw();
+      const rooms: RoomEntity[] = db.rooms || [];
+      const idx = rooms.findIndex(r => r.id === roomId);
+      if (idx !== -1) {
+        rooms[idx].isActive = false;
+        rooms[idx].updatedAt = new Date().toISOString();
+        db.rooms = rooms;
+        writeDbRaw(db);
+      }
+    },
   },
 
   // --- DUAL MODE PUBLIC APIS ---
@@ -582,7 +596,6 @@ export const roomDb = {
         timestamp: now,
       }];
 
-      const isHostLeaving = room.hostId === userId;
       const isRoomEmpty = updatedParticipants.length === 0;
 
       const { data, error } = await supabase
@@ -590,7 +603,7 @@ export const roomDb = {
         .update({
           participants: updatedParticipants,
           chat_history: updatedChat,
-          is_active: !(isHostLeaving || isRoomEmpty),
+          is_active: !isRoomEmpty,  // keep active unless ALL participants left
           updated_at: now,
         })
         .eq('id', roomId)
@@ -772,6 +785,30 @@ export const roomDb = {
     } catch (e) {
       console.error('cleanupStaleRooms error:', e);
       this.local.cleanupStaleRooms();
+    }
+  },
+
+  async closeRoom(roomId: string): Promise<void> {
+    if (shouldUseLocal()) {
+      this.local.closeRoom(roomId);
+      return;
+    }
+    try {
+      const { error } = await supabase
+        .from(TABLE)
+        .update({ is_active: false, updated_at: new Date().toISOString() })
+        .eq('id', roomId);
+      if (error) {
+        if (error.code === 'PGRST205' || error.code === '42P01') {
+          supabaseTableExists = false;
+          this.local.closeRoom(roomId);
+          return;
+        }
+        throw error;
+      }
+    } catch (e) {
+      console.error('closeRoom error:', e);
+      this.local.closeRoom(roomId);
     }
   },
 };

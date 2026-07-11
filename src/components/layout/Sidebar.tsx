@@ -19,6 +19,7 @@ import { usePlaylistStore } from '@/store/playlistStore';
 import { useMusicStore } from '@/store/musicStore';
 import { useDownloadStore } from '@/store/downloadStore';
 import { mockPlaylists, mockAlbums } from '@/lib/mockData';
+import { fetchWithAuth, getRoomUrl } from '@/lib/api';
 
 const navItems = [
   { href: '/home', icon: Home, label: 'Home' },
@@ -538,16 +539,14 @@ function SidebarContent() {
     const password = prompt("Enter password to make it private (or leave empty for a public room):") || undefined;
     
     try {
-      const res = await fetch('/api/rooms', {
+      const res = await fetchWithAuth('/api/rooms', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ name, description, isCollaborative: isCollab, password })
       });
       const data = await res.json();
       if (data.success && data.room) {
         toast.success(`Jam Room "${name}" created! 🎧`);
-        router.push(`/room/${data.room.id}`);
+        router.push(getRoomUrl(data.room.id));
       } else {
         toast.error(data.error || 'Failed to create room');
       }

@@ -22,12 +22,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Passwords do not match' }, { status: 400 });
     }
 
-    if (!PASSWORD_REGEX.test(password)) {
-      return NextResponse.json(
-        { error: 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character' },
-        { status: 400 }
-      );
-    }
+
 
     // 2. Uniqueness check
     const existingUser = db.getUserByEmail(email);

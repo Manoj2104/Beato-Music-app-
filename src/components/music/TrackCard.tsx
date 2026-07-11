@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { motion } from 'framer-motion';
 import { Play, Pause, Heart, MoreHorizontal, MoreVertical, Download, Check, Loader2 } from 'lucide-react';
 import Link from 'next/link';
@@ -23,7 +23,7 @@ interface TrackCardProps {
   compact?: boolean;
 }
 
-export default function TrackCard({ track, index, queue = [], showAlbum = true, compact = false }: TrackCardProps) {
+const TrackCard = memo(function TrackCard({ track, index, queue = [], showAlbum = true, compact = false }: TrackCardProps) {
   const router = useRouter();
   const [isHovered, setIsHovered] = useState(false);
   const [imgError, setImgError] = useState(false);
@@ -255,4 +255,5 @@ export default function TrackCard({ track, index, queue = [], showAlbum = true, 
       </div>
     </div>
   );
-}
+});
+export default TrackCard;

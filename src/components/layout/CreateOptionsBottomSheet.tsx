@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '@/store/authStore';
 import { usePlaylistStore } from '@/store/playlistStore';
+import { fetchWithAuth, getRoomUrl } from '@/lib/api';
 
 const G = '#0f5132';
 const GRADIENTS = [
@@ -108,7 +109,7 @@ export default function CreateOptionsBottomSheet() {
   const handleExitAndCreate = async () => {
     if (!existingRoomId) return;
     try {
-      await fetch(`/api/rooms/${existingRoomId}/leave`, { method: 'POST' });
+      await fetchWithAuth(`/api/rooms/${existingRoomId}/leave`, { method: 'POST' });
     } catch (e) {
       console.error('Failed to leave room:', e);
     }
@@ -131,10 +132,8 @@ export default function CreateOptionsBottomSheet() {
     if (e) e.preventDefault();
     if (!newRoomName.trim()) return;
     try {
-      const res = await fetch('/api/rooms', {
+      const res = await fetchWithAuth('/api/rooms', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ 
           name: newRoomName.trim(), 
           description: newRoomDesc.trim(), 
@@ -149,7 +148,7 @@ export default function CreateOptionsBottomSheet() {
           localStorage.setItem(`soundsphere-room-password-${data.room.id}`, newRoomPassword);
         }
         setShowCreateRoomModal(false);
-        router.push(`/room/${data.room.id}`);
+        router.push(getRoomUrl(data.room.id));
       } else {
         toast.error(data.error || 'Failed to create room');
       }
@@ -168,7 +167,7 @@ export default function CreateOptionsBottomSheet() {
         targetId = rId;
       }
       setShowJoinRoomModal(false);
-      router.push(`/room/${targetId}`);
+      router.push(getRoomUrl(targetId));
     }
   };
 

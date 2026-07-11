@@ -28,11 +28,15 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
     shuffle, repeat, crossfade, sleepTimer, activeDevice, activeDeviceId, availableDevices,
     queue, setQueue, playTrack, clearQueue, removeFromQueue, setIsPlaying,
     togglePlay, setVolume, toggleMute, toggleShuffle, cycleRepeat,
-    setCrossfade, setSleepTimer, playNext, playPrevious, setActiveDevice, setActiveDeviceId
+    setCrossfade, setSleepTimer, playNext, playPrevious, setActiveDevice, setActiveDeviceId,
+    prevSongTimestamps
   } = usePlayerStore();
 
   const { user, toggleLikeSong } = useAuthStore();
   const isFree = user?.subscription === 'free';
+  const now = Date.now();
+  const oneHourAgo = now - 3600000;
+  const isPrevLocked = isFree && (prevSongTimestamps || []).filter((t: number) => t > oneHourAgo).length >= 10;
   const isLiked = currentTrack ? user?.likedSongs.includes(currentTrack.id) : false;
 
   const { downloadTrack, removeDownloadedTrack, downloadedTrackIds, downloadingIds, downloadProgress } = useDownloadStore();
@@ -753,18 +757,30 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
             {/* Center Playback Controls */}
             <div className="fullscreen-controls-section">
               <button
-                onClick={toggleShuffle}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: shuffle ? '#10b981' : '#a3a3a3' }}
-                title="Shuffle"
+                onClick={() => {
+                  if (isFree) {
+                    toast.error("Shuffle mode is disabled for Free users. Upgrade to Premium to toggle Shuffle! 💎");
+                    return;
+                  }
+                  toggleShuffle();
+                }}
+                style={{ 
+                  background: 'none', 
+                  border: 'none', 
+                  cursor: isFree ? 'not-allowed' : 'pointer', 
+                  color: isFree ? '#a3a3a3' : (shuffle ? '#10b981' : '#a3a3a3'),
+                  opacity: isFree ? 0.35 : 1
+                }}
+                title={isFree ? "Shuffle (Premium Only)" : "Shuffle"}
               >
                 <Shuffle size={20} />
               </button>
 
               <button
                 onClick={playPrevious}
-                disabled={isFree}
-                style={{ background: 'none', border: 'none', cursor: isFree ? 'not-allowed' : 'pointer', color: '#0f172a', opacity: isFree ? 0.35 : 1 }}
-                title={isFree ? "Previous (Premium Only)" : "Previous"}
+                disabled={isPrevLocked}
+                style={{ background: 'none', border: 'none', cursor: isPrevLocked ? 'not-allowed' : 'pointer', color: '#0f172a', opacity: isPrevLocked ? 0.35 : 1 }}
+                title={isPrevLocked ? "Previous (Premium Only or wait 1 hour)" : "Previous"}
               >
                 <SkipBack size={26} fill="currentColor" />
               </button>
@@ -1156,17 +1172,31 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
           position: 'relative'
         }}>
           <button
-            onClick={toggleShuffle}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: shuffle ? '#0f5132' : '#94a3b8', padding: 8 }}
+            onClick={() => {
+              if (isFree) {
+                toast.error("Shuffle mode is disabled for Free users. Upgrade to Premium to toggle Shuffle! 💎");
+                return;
+              }
+              toggleShuffle();
+            }}
+            style={{ 
+              background: 'none', 
+              border: 'none', 
+              cursor: isFree ? 'not-allowed' : 'pointer', 
+              color: isFree ? '#94a3b8' : (shuffle ? '#0f5132' : '#94a3b8'), 
+              padding: 8,
+              opacity: isFree ? 0.35 : 1
+            }}
+            title={isFree ? "Shuffle (Premium Only)" : "Shuffle"}
           >
             <Shuffle size={20} />
           </button>
 
           <button
             onClick={playPrevious}
-            disabled={isFree}
-            style={{ background: 'none', border: 'none', cursor: isFree ? 'not-allowed' : 'pointer', color: '#0f172a', padding: 8, opacity: isFree ? 0.35 : 1 }}
-            title={isFree ? "Previous (Premium Only)" : "Previous"}
+            disabled={isPrevLocked}
+            style={{ background: 'none', border: 'none', cursor: isPrevLocked ? 'not-allowed' : 'pointer', color: '#0f172a', padding: 8, opacity: isPrevLocked ? 0.35 : 1 }}
+            title={isPrevLocked ? "Previous (Premium Only or wait 1 hour)" : "Previous"}
           >
             <SkipBack size={26} fill="currentColor" />
           </button>
@@ -1973,24 +2003,32 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                 }}>
                   {/* Shuffle Button */}
                   <button
-                    onClick={toggleShuffle}
+                    onClick={() => {
+                      if (isFree) {
+                        toast.error("Shuffle mode is disabled for Free users. Upgrade to Premium to toggle Shuffle! 💎");
+                        return;
+                      }
+                      toggleShuffle();
+                    }}
                     style={{
                       flex: 1,
                       height: 44,
-                      background: shuffle ? 'rgba(15,81,50,0.08)' : '#f8fafc',
-                      border: shuffle ? '1px solid rgba(15,81,50,0.2)' : '1px solid rgba(15,81,50,0.1)',
+                      background: isFree ? '#f8fafc' : (shuffle ? 'rgba(15,81,50,0.08)' : '#f8fafc'),
+                      border: isFree ? '1px solid rgba(15,81,50,0.1)' : (shuffle ? '1px solid rgba(15,81,50,0.2)' : '1px solid rgba(15,81,50,0.1)'),
                       borderRadius: 22,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: 8,
-                      color: shuffle ? '#0f5132' : '#475569',
+                      color: isFree ? '#475569' : (shuffle ? '#0f5132' : '#475569'),
                       fontSize: 13,
                       fontWeight: 700,
-                      cursor: 'pointer'
+                      cursor: isFree ? 'not-allowed' : 'pointer',
+                      opacity: isFree ? 0.45 : 1
                     }}
+                    title={isFree ? "Shuffle (Premium Only)" : "Shuffle"}
                   >
-                    <Shuffle size={16} color={shuffle ? '#0f5132' : '#475569'} />
+                    <Shuffle size={16} color={isFree ? '#475569' : (shuffle ? '#0f5132' : '#475569')} />
                     Shuffle
                   </button>
 

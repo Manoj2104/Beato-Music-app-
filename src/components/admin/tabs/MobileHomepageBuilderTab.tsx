@@ -1131,7 +1131,7 @@ export default function MobileHomepageBuilderTab() {
                 
                 {/* Category Chips */}
                 <div style={{ display: 'flex', gap: 6, alignItems: 'center', flex: 1 }}>
-                  {['All', 'Music', 'Podcasts'].map((chip) => {
+                  {['All', 'Podcasts'].map((chip) => {
                     const active = chip === 'All';
                     return (
                       <button

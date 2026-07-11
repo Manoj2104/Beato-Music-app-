@@ -81,11 +81,15 @@ export default function PlayerBar() {
     togglePlay, setIsPlaying, setVolume, toggleMute,
     setProgress, setDuration, toggleShuffle, cycleRepeat,
     toggleQueue, toggleLyrics, playNext, setSleepTimer, setCrossfade,
-    setActiveDevice, setActiveDeviceId, setAvailableDevices
+    setActiveDevice, setActiveDeviceId, setAvailableDevices,
+    prevSongTimestamps
   } = usePlayerStore();
 
   const { user, toggleLikeSong } = useAuthStore();
   const isFree = user?.subscription === 'free';
+  const now = Date.now();
+  const oneHourAgo = now - 3600000;
+  const isPrevLocked = isFree && (prevSongTimestamps || []).filter((t: number) => t > oneHourAgo).length >= 10;
 
   const { downloadTrack, removeDownloadedTrack, downloadedTrackIds, downloadingIds } = useDownloadStore();
   const { customPlaylists, addTrackToPlaylist, removeTrackFromPlaylist, addPlaylist } = usePlaylistStore();
@@ -978,18 +982,33 @@ export default function PlayerBar() {
         <div style={{ flex: '1 1 0%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, maxWidth: 650, width: '100%', justifyContent: 'center' }}>
           {/* Buttons */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-            <button onClick={toggleShuffle} style={btnStyle(shuffle)} title="Shuffle"
-              onMouseEnter={e => (e.currentTarget.style.color = shuffle ? GREEN : '#221a15')}
-              onMouseLeave={e => (e.currentTarget.style.color = shuffle ? GREEN : '#87786c')}>
+            <button 
+              onClick={() => {
+                if (isFree) {
+                  toast.error("Shuffle mode is disabled for Free users. Upgrade to Premium to toggle Shuffle! 💎");
+                  return;
+                }
+                toggleShuffle();
+              }} 
+              style={{
+                ...btnStyle(shuffle && !isFree),
+                opacity: isFree ? 0.35 : 1,
+                cursor: isFree ? 'not-allowed' : 'pointer'
+              }} 
+              title={isFree ? "Shuffle (Premium Only)" : "Shuffle"}
+              onMouseEnter={e => { if (!isFree) e.currentTarget.style.color = shuffle ? GREEN : '#221a15'; }}
+              onMouseLeave={e => { if (!isFree) e.currentTarget.style.color = shuffle ? GREEN : '#87786c'; }}
+            >
               <Shuffle size={16} />
             </button>
 
             <button 
               onClick={() => usePlayerStore.getState().playPrevious()} 
-              style={{ ...btnStyle(), opacity: isFree ? 0.35 : 1, cursor: isFree ? 'not-allowed' : 'pointer' }}
-              title={isFree ? "Previous (Premium Only)" : "Previous"}
-              onMouseEnter={e => { if (!isFree) e.currentTarget.style.color = '#221a15'; }}
-              onMouseLeave={e => { if (!isFree) e.currentTarget.style.color = '#87786c'; }}>
+              disabled={isPrevLocked}
+              style={{ ...btnStyle(), opacity: isPrevLocked ? 0.35 : 1, cursor: isPrevLocked ? 'not-allowed' : 'pointer' }}
+              title={isPrevLocked ? "Previous (Premium Only or wait 1 hour)" : "Previous"}
+              onMouseEnter={e => { if (!isPrevLocked) e.currentTarget.style.color = '#221a15'; }}
+              onMouseLeave={e => { if (!isPrevLocked) e.currentTarget.style.color = '#87786c'; }}>
               <SkipBack size={20} fill="currentColor" />
             </button>
 
@@ -1415,7 +1434,7 @@ export default function PlayerBar() {
           <div style={{ position: 'relative', width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <svg height={48} width={48} style={{ position: 'absolute', transform: 'rotate(-90deg)', zIndex: 1, pointerEvents: 'none' }}>
               <circle
-                stroke="rgba(176, 136, 80, 0.15)"
+                stroke="rgba(15, 81, 50, 0.08)"
                 fill="transparent"
                 strokeWidth={2}
                 r={normalizedRadius}
@@ -1423,7 +1442,7 @@ export default function PlayerBar() {
                 cy={24}
               />
               <circle
-                stroke="var(--color-ss-secondary, #8c6c44)"
+                stroke="var(--color-ss-primary, #0f5132)"
                 fill="transparent"
                 strokeWidth={strokeWidth}
                 strokeDasharray={circumference + ' ' + circumference}
@@ -1434,7 +1453,7 @@ export default function PlayerBar() {
                 cy={24}
               />
             </svg>
-            <div style={{ width: 38, height: 38, borderRadius: '50%', overflow: 'hidden', position: 'relative', zIndex: 2, border: '1px solid rgba(176, 136, 80, 0.15)' }}>
+            <div style={{ width: 38, height: 38, borderRadius: '50%', overflow: 'hidden', position: 'relative', zIndex: 2, border: '1px solid rgba(15, 81, 50, 0.08)' }}>
               <PlayerTrackImage coverImage={currentTrack.coverImage} title={currentTrack.title} />
             </div>
           </div>
@@ -1510,21 +1529,21 @@ export default function PlayerBar() {
           {/* Previous Button */}
           <button
             onClick={e => { e.stopPropagation(); usePlayerStore.getState().playPrevious(); }}
-            disabled={isFree}
+            disabled={isPrevLocked}
             style={{ 
               background: 'transparent', 
               border: 'none', 
               padding: 4, 
-              cursor: isFree ? 'not-allowed' : 'pointer', 
+              cursor: isPrevLocked ? 'not-allowed' : 'pointer', 
               display: 'flex', 
               alignItems: 'center', 
               color: '#221a15', 
               transition: 'color 0.15s',
-              opacity: isFree ? 0.35 : 1
+              opacity: isPrevLocked ? 0.35 : 1
             }}
-            title={isFree ? "Previous (Premium Only)" : "Previous"}
-            onMouseEnter={e => { if (!isFree) e.currentTarget.style.color = 'var(--color-ss-secondary, #8c6c44)'; }}
-            onMouseLeave={e => { if (!isFree) e.currentTarget.style.color = '#221a15'; }}
+            title={isPrevLocked ? "Previous (Premium Only or wait 1 hour)" : "Previous"}
+            onMouseEnter={e => { if (!isPrevLocked) e.currentTarget.style.color = 'var(--color-ss-secondary, #8c6c44)'; }}
+            onMouseLeave={e => { if (!isPrevLocked) e.currentTarget.style.color = '#221a15'; }}
           >
             <SkipBack size={18} strokeWidth={1.8} fill="none" />
           </button>
@@ -1534,24 +1553,28 @@ export default function PlayerBar() {
             onClick={e => { e.stopPropagation(); togglePlay(); }}
             disabled={currentTrack?.isAd === true}
             style={{ 
-              background: 'transparent', 
+              background: 'var(--color-ss-primary, #0f5132)', 
               border: 'none', 
-              padding: 4, 
+              borderRadius: '50%',
+              width: 34,
+              height: 34,
               cursor: currentTrack?.isAd ? 'not-allowed' : 'pointer', 
               display: 'flex', 
               alignItems: 'center', 
-              color: '#221a15', 
-              transition: 'color 0.15s',
-              opacity: currentTrack?.isAd ? 0.5 : 1
+              justifyContent: 'center',
+              color: '#ffffff', 
+              transition: 'transform 0.15s, background-color 0.15s',
+              opacity: currentTrack?.isAd ? 0.5 : 1,
+              boxShadow: '0 4px 10px rgba(15, 81, 50, 0.25)'
             }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.05)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
             title={isPlaying ? "Pause" : "Play"}
-            onMouseEnter={e => { if (currentTrack?.isAd !== true) e.currentTarget.style.color = 'var(--color-ss-secondary, #8c6c44)'; }}
-            onMouseLeave={e => { if (currentTrack?.isAd !== true) e.currentTarget.style.color = '#221a15'; }}
           >
             {isPlaying ? (
-              <Pause size={20} strokeWidth={1.8} fill="none" />
+              <Pause size={14} strokeWidth={2.2} fill="currentColor" />
             ) : (
-              <Play size={20} strokeWidth={1.8} fill="none" />
+              <Play size={14} strokeWidth={2.2} fill="currentColor" style={{ marginLeft: 2 }} />
             )}
           </button>
 

@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --color-ss-bg: #ffffff;
-  --color-ss-surface: #f8faf8;
+  --color-ss-bg: #f2f7f4;
+  --color-ss-surface: #ffffff;
   --color-ss-elevated: #ffffff;
   --color-ss-hover: #e8ece9;
   --color-ss-border: rgba(15, 81, 50, 0.08);
@@ -342,12 +342,14 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-outfit), system-ui, sans-serif;
   .app-player {
     grid-row: 2 / 3 !important;
     grid-column: 1 / 2 !important;
-    border-radius: 9999px !important;
+    border-radius: 18px !important;
     height: 64px !important;
     margin: 8px 12px 6px 12px !important;
-    background: var(--color-ss-bg, #fbf9f5) !important;
-    border: 1px solid rgba(176, 136, 80, 0.22) !important;
-    box-shadow: 0 6px 20px rgba(43, 34, 26, 0.08) !important;
+    background: rgba(220, 245, 230, 0.96) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(15, 81, 50, 0.08) !important;
+    box-shadow: 0 8px 24px rgba(15, 81, 50, 0.08) !important;
     overflow: hidden !important;
     display: flex !important;
     align-items: center !important;
@@ -359,7 +361,7 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-outfit), system-ui, sans-serif;
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
-    padding: 0 10px !important;
+    padding: 0 12px !important;
     height: 100% !important;
     width: 100% !important;
   }

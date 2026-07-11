@@ -53,7 +53,8 @@ export default async function proxy(request: NextRequest) {
       if (!isAuthenticated) {
         return addCorsHeaders(request, NextResponse.json({ error: 'Unauthorized: Authentication required' }, { status: 401 }));
       }
-      if (!userRole || !ADMIN_ROLES.includes(userRole)) {
+      const isDeleteSongByArtist = pathname === '/api/admin/delete-song' && (userRole?.toUpperCase() === 'ARTIST');
+      if (!isDeleteSongByArtist && (!userRole || !ADMIN_ROLES.includes(userRole))) {
         return addCorsHeaders(request, NextResponse.json({ error: 'Forbidden: Insufficient privileges' }, { status: 403 }));
       }
     }

@@ -57,6 +57,7 @@ interface MusicStore {
 
   // Genre preference scores (computed from history)
   genreScores: Record<string, number>;
+  skipCounts: Record<string, number>;
 
   // Actions
   uploadTrack: (track: UploadedTrack) => void;
@@ -70,6 +71,7 @@ interface MusicStore {
   getAllTracks: () => Track[];
   getForYouTracks: () => Track[];
   getTrendingTracks: () => Track[];
+  recordSkip: (trackId: string) => void;
 }
 
 export const useMusicStore = create<MusicStore>()(
@@ -80,6 +82,7 @@ export const useMusicStore = create<MusicStore>()(
       recentlyPlayed: [],
       listeningHistory: [],
       genreScores: {},
+      skipCounts: {},
       activeArtistIds: ['artist-1', 'artist-2', 'artist-3', 'artist-4', 'artist-5', 'artist-6'],
 
       uploadTrack: (track) =>
@@ -158,13 +161,16 @@ export const useMusicStore = create<MusicStore>()(
           const apiBase = (isLocalFile || customApiUrl)
             ? (customApiUrl || 'https://beato-music-app.vercel.app').replace(/\/$/, '')
             : '';
-          const res = await fetch(`${apiBase}/api/tracks`, { cache: 'no-store' });
+          const res = await fetch(`${apiBase}/api/tracks?t=${Date.now()}`, { cache: 'no-store' });
           const data = await res.json();
           if (data.success) {
+            const serverIds = new Set(data.tracks.map((t: any) => t.id));
+            const localOnly = get().uploadedTracks.filter(t => !serverIds.has(t.id) && t.status === 'pending');
+            
             const dbTracks = data.tracks.filter((t: Track) => t.status !== 'rejected');
             set({
-              allTracks: data.tracks,
-              uploadedTracks: dbTracks,
+              allTracks: [...localOnly, ...data.tracks],
+              uploadedTracks: [...localOnly, ...dbTracks],
               activeArtistIds: data.activeArtistIds || [],
             });
           }
@@ -209,6 +215,8 @@ export const useMusicStore = create<MusicStore>()(
         const extras = uploadedTracks.filter((t) => !baseIds.has(t.id));
         const merged = [...extras, ...allTracks];
         return merged.filter((t) => {
+          if (t.genre === 'Podcast') return true;
+          
           const status = t.status || (t.id.startsWith('track-uploaded') ? 'pending' : 'approved');
           const isApproved = status === 'approved';
           if (!isApproved) return false;
@@ -234,6 +242,14 @@ export const useMusicStore = create<MusicStore>()(
 
       getTrendingTracks: () => {
         return get().getAllTracks().sort((a, b) => b.plays - a.plays).slice(0, 20);
+      },
+
+      recordSkip: (trackId) => {
+        set((state) => {
+          const skipCounts = { ...state.skipCounts };
+          skipCounts[trackId] = (skipCounts[trackId] || 0) + 1;
+          return { skipCounts };
+        });
       },
     }),
     {
@@ -272,18 +288,29 @@ export const useMusicStore = create<MusicStore>()(
         // Strip binary data URLs and heavy waveform arrays before persisting
         uploadedTracks: state.uploadedTracks.map((t) => ({
           ...t,
-          // Never persist base64 data URLs — they blow up localStorage
-          audioUrl: t.audioUrl?.startsWith('data:') ? '' : t.audioUrl,
-          // Strip waveform (60 numbers × 4 bytes = 240 bytes per track, adds up fast)
+          // Never persist base64 data URLs or local Blob URLs — replace with fallback MP3 link
+          audioUrl: (t.audioUrl?.startsWith('data:') || t.audioUrl?.startsWith('blob:')) 
+            ? 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' 
+            : t.audioUrl,
+          // Fallback image persistence
+          coverImage: (t.coverImage?.startsWith('data:') || t.coverImage?.startsWith('blob:'))
+            ? 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=300&auto=format&fit=crop&q=80'
+            : t.coverImage,
           waveform: undefined,
         })),
         recentlyPlayed: state.recentlyPlayed.slice(0, 20).map((t) => ({
           ...t,
-          audioUrl: t.audioUrl?.startsWith('data:') ? '' : t.audioUrl,
+          audioUrl: (t.audioUrl?.startsWith('data:') || t.audioUrl?.startsWith('blob:')) 
+            ? 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' 
+            : t.audioUrl,
+          coverImage: (t.coverImage?.startsWith('data:') || t.coverImage?.startsWith('blob:'))
+            ? 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=300&auto=format&fit=crop&q=80'
+            : t.coverImage,
           waveform: undefined,
         })),
         listeningHistory: state.listeningHistory.slice(0, 100),
         genreScores: state.genreScores,
+        skipCounts: state.skipCounts || {},
         activeArtistIds: state.activeArtistIds,
       }),
     }

@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import { Track } from '@/types';
 import { socketManager } from '@/lib/socket';
 import { useAuthStore } from './authStore';
+import { useMusicStore } from './musicStore';
 import toast from 'react-hot-toast';
 
 interface PlayerStore {
@@ -28,6 +29,7 @@ interface PlayerStore {
   availableDevices: { id: string; label: string }[];
   songsPlayedCount: number;
   skipTimestamps: number[];
+  prevSongTimestamps: number[];
   adsConfig: any;
   
   // Actions
@@ -109,6 +111,7 @@ export const usePlayerStore = create<PlayerStore>()(
       availableDevices: [],
       songsPlayedCount: 0,
       skipTimestamps: [],
+      prevSongTimestamps: [],
       adsConfig: null,
 
       setCurrentTrack: (track) => set({ currentTrack: track, progress: 0 }),
@@ -121,22 +124,17 @@ export const usePlayerStore = create<PlayerStore>()(
          set((state) => ({ queue: state.queue.filter((t) => t.id !== trackId) })),
       
       playNext: (isManual = false) => {
-        const { queue, currentTrack, history, shuffle, repeat, originalQueue } = get();
+        const { queue, currentTrack, history, shuffle: stateShuffle, repeat, originalQueue, progress, duration } = get();
         const user = useAuthStore.getState().user;
         const isFree = user?.subscription === 'free';
+        const shuffle = isFree ? false : stateShuffle;
         const wasAd = currentTrack?.isAd === true;
 
-        if (isManual && isFree && !wasAd) {
-          const now = Date.now();
-          const oneHourAgo = now - 3600000;
-          const { skipTimestamps } = get();
-          const validSkips = skipTimestamps.filter(t => t > oneHourAgo);
-          
-          if (validSkips.length >= 6) {
-            toast.error("You've reached your hourly skip limit! Upgrade to Premium for unlimited skips. 💎");
-            return;
+        if (isManual && currentTrack && !currentTrack.isAd) {
+          const isEarlySkip = progress < 20 || (duration > 0 && (progress / duration) < 0.3);
+          if (isEarlySkip) {
+            useMusicStore.getState().recordSkip(currentTrack.id);
           }
-          set({ skipTimestamps: [...validSkips, now] });
         }
 
         if (queue.length === 0) {
@@ -258,8 +256,16 @@ export const usePlayerStore = create<PlayerStore>()(
         const user = useAuthStore.getState().user;
         const isFree = user?.subscription === 'free';
         if (isFree) {
-          toast.error("Skipping backward is a Premium feature. Upgrade to Premium! 💎");
-          return;
+          const now = Date.now();
+          const oneHourAgo = now - 3600000;
+          const { prevSongTimestamps } = get();
+          const validPrevSongs = prevSongTimestamps.filter(t => t > oneHourAgo);
+          
+          if (validPrevSongs.length >= 10) {
+            toast.error("You've reached your hourly skip backward limit! Upgrade to Premium for unlimited skip backwards. 💎");
+            return;
+          }
+          set({ prevSongTimestamps: [...validPrevSongs, now] });
         }
 
         const { history, currentTrack, queue } = get();
@@ -284,7 +290,15 @@ export const usePlayerStore = create<PlayerStore>()(
       
       setDuration: (duration) => set({ duration }),
       
-      toggleShuffle: () => set((state) => ({ shuffle: !state.shuffle })),
+      toggleShuffle: () => {
+        const user = useAuthStore.getState().user;
+        const isFree = user?.subscription === 'free';
+        if (isFree) {
+          toast.error("Shuffle mode is disabled for Free users. Upgrade to Premium to toggle Shuffle! 💎");
+          return;
+        }
+        set((state) => ({ shuffle: !state.shuffle }));
+      },
       
       cycleRepeat: () =>
         set((state) => ({
@@ -301,29 +315,21 @@ export const usePlayerStore = create<PlayerStore>()(
       setAdsConfig: (config) => set({ adsConfig: config }),
       
       playTrack: (track, queue = []) => {
+        const { currentTrack, history, city, country, shuffle: stateShuffle, progress, duration } = get();
         const user = useAuthStore.getState().user;
         const isFree = user?.subscription === 'free';
-
-        // Check premium lock (lock track-2 / Midnight Cascade)
-        if (isFree && (track.id === 'track-2' || (track as any).premiumOnly)) {
-          toast.error("Midnight Cascade is a Premium-only track! Upgrade to listen. 💎");
-          return;
-        }
-
-        const { currentTrack, history, city, country, shuffle } = get();
+        const shuffle = isFree ? false : stateShuffle;
         const isMobile = typeof window !== 'undefined' && /Mobi|Android|iPhone/i.test(navigator.userAgent);
+
+        if (currentTrack && !currentTrack.isAd) {
+          const isEarlySkip = progress < 20 || (duration > 0 && (progress / duration) < 0.3);
+          if (isEarlySkip) {
+            useMusicStore.getState().recordSkip(currentTrack.id);
+          }
+        }
         
         let targetTrack = track;
         let finalQueue = queue;
-        let isForcedShuffle = false;
-
-        // Force Shuffle Play on mobile for Free users
-        if (isFree && isMobile && queue.length > 1) {
-          isForcedShuffle = true;
-          const shuffledQueue = [...queue].sort(() => Math.random() - 0.5);
-          targetTrack = shuffledQueue[0];
-          finalQueue = shuffledQueue;
-        }
 
         const newHistory = currentTrack ? [currentTrack, ...history.slice(0, 49)] : history;
         
@@ -331,7 +337,7 @@ export const usePlayerStore = create<PlayerStore>()(
         const trackIdx = finalQueue.findIndex((t) => t.id === targetTrack.id);
         
         let newQueue: Track[];
-        if (shuffle || isForcedShuffle) {
+        if (shuffle) {
           // If shuffle is active, shuffle the remaining tracks in the list
           newQueue = finalQueue.filter((t) => t.id !== targetTrack.id).sort(() => Math.random() - 0.5);
         } else if (trackIdx !== -1) {
@@ -347,13 +353,8 @@ export const usePlayerStore = create<PlayerStore>()(
           originalQueue: finalQueue,
           history: newHistory,
           isPlaying: true,
-          progress: 0,
-          ...(isForcedShuffle ? { shuffle: true } : {})
+          progress: 0
         });
-
-        if (isForcedShuffle) {
-          toast.success("Shuffle Play active for Free members! 🔀");
-        }
         
         // Record play to API for real-time stats (fire-and-forget)
         if (typeof window !== 'undefined' && targetTrack.artistId) {

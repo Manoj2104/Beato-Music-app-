@@ -44,15 +44,13 @@ export default function AppSplashScreen() {
 
   if (!mounted) return null;
 
-  const G = '#b08850'; // Beato Signature Gold
-
   return (
     <div
       style={{
         position: 'fixed',
         inset: 0,
         zIndex: 999999, // Render on top of everything, including modals
-        backgroundColor: '#fbf9f5', // Warm light beige matching the Home page
+        backgroundColor: '#ffffff', // Clean white background
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -61,6 +59,7 @@ export default function AppSplashScreen() {
         visibility: show ? 'visible' : 'hidden',
         transition: 'opacity 0.5s ease, visibility 0.5s ease',
         fontFamily: 'Outfit, sans-serif',
+        overflow: 'hidden',
       }}
     >
       <style dangerouslySetInnerHTML={{ __html: `
@@ -82,9 +81,32 @@ export default function AppSplashScreen() {
           0% { opacity: 0; transform: translateY(15px); }
           100% { opacity: 1; transform: translateY(0); }
         }
-        @keyframes barGrow {
-          0% { width: 0%; }
-          100% { width: 100%; }
+        @keyframes wave-move {
+          0% { transform: translateX(0) translateZ(0) scaleY(1); }
+          50% { transform: translateX(-25%) translateZ(0) scaleY(0.85); }
+          100% { transform: translateX(-50%) translateZ(0) scaleY(1); }
+        }
+        @keyframes wave-rise {
+          0% { transform: translateY(100%); }
+          100% { transform: translateY(0); }
+        }
+        @keyframes bobbing {
+          0%, 100% { transform: translate(-50%, 0); }
+          50% { transform: translate(-50%, -15px); }
+        }
+        @keyframes breath {
+          0%, 100% { scale: 1; }
+          50% { scale: 1.15; }
+        }
+        @keyframes text-breathe-in {
+          0%, 100% { opacity: 1; }
+          45%, 55% { opacity: 0; }
+          50% { opacity: 0; }
+        }
+        @keyframes text-breathe-out {
+          0%, 100% { opacity: 0; }
+          45%, 55% { opacity: 0; }
+          50% { opacity: 1; }
         }
       ` }} />
 
@@ -93,8 +115,10 @@ export default function AppSplashScreen() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        gap: 28,
+        gap: 24,
+        marginTop: '-15vh',
         animation: 'float 4s ease-in-out infinite',
+        zIndex: 2,
       }}>
         {/* Animated App Logo Image */}
         <div style={{
@@ -146,22 +170,127 @@ export default function AppSplashScreen() {
         </div>
       </div>
 
-      {/* Clean Bottom Progress Bar */}
+      {/* Liquid Wave Background at Bottom */}
       <div style={{
         position: 'absolute',
-        bottom: 80,
-        width: 140,
-        height: 3.5,
-        borderRadius: 10,
-        background: 'rgba(15, 81, 50, 0.08)',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: '42vh',
         overflow: 'hidden',
+        animation: 'wave-rise 1.5s cubic-bezier(0.19, 1, 0.22, 1) forwards',
+        zIndex: 1,
       }}>
-        <div style={{
+        {/* Wave 1 (Back) */}
+        <svg style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          width: '200%',
           height: '100%',
-          background: 'linear-gradient(90deg, #0f5132, #10b981)', // matching theme green
-          borderRadius: 10,
-          animation: 'barGrow 2.3s ease-out forwards',
-        }} />
+          fill: '#064e3b', // Deep green
+          opacity: 0.35,
+          animation: 'wave-move 9s linear infinite',
+        }} viewBox="0 0 1200 120" preserveAspectRatio="none">
+          <path d="M0,60 C150,100 350,20 500,60 C650,100 850,20 1000,60 C1150,100 1350,20 1500,60 L1500,120 L0,120 Z" />
+        </svg>
+
+        {/* Wave 2 (Front) */}
+        <svg style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          width: '200%',
+          height: '92%',
+          fill: '#0f5132', // Main green
+          animation: 'wave-move 6s linear infinite reverse',
+        }} viewBox="0 0 1200 120" preserveAspectRatio="none">
+          <path d="M0,50 C150,10 300,90 450,50 C600,10 750,90 900,50 C1050,10 1200,90 1350,50 L1350,120 L0,120 Z" />
+        </svg>
+        
+        {/* Wave 3 (Accent) */}
+        <svg style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          width: '200%',
+          height: '85%',
+          fill: '#10b981', // Emerald green accent
+          opacity: 0.25,
+          animation: 'wave-move 12s linear infinite',
+        }} viewBox="0 0 1200 120" preserveAspectRatio="none">
+          <path d="M0,70 C200,30 400,110 600,70 C800,30 1000,110 1200,70 L1200,120 L0,120 Z" />
+        </svg>
+
+        {/* Floating breathing music emoji */}
+        <div style={{
+          position: 'absolute',
+          bottom: '18vh',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          zIndex: 10,
+          animation: 'bobbing 3s ease-in-out infinite',
+        }}>
+          {/* Cute Music Smiley Bubble */}
+          <div style={{
+            width: 75,
+            height: 75,
+            borderRadius: '50%',
+            backgroundColor: '#ffffff',
+            boxShadow: '0 8px 24px rgba(6, 78, 59, 0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'relative',
+            animation: 'breath 6s ease-in-out infinite',
+          }}>
+            {/* Music note background icon */}
+            <Music size={32} color="#10b981" style={{ opacity: 0.25, position: 'absolute' }} />
+            
+            {/* Cute Closed Eyes & Smile */}
+            <svg width="45" height="25" viewBox="0 0 45 25" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ zIndex: 2 }}>
+              {/* Left Eye (closed curve) */}
+              <path d="M10,8 Q15,13 20,8" stroke="#0f5132" strokeWidth="3" strokeLinecap="round" fill="none" />
+              {/* Right Eye (closed curve) */}
+              <path d="M25,8 Q30,13 35,8" stroke="#0f5132" strokeWidth="3" strokeLinecap="round" fill="none" />
+              {/* Cute Smile */}
+              <path d="M19,16 Q22.5,20 26,16" stroke="#0f5132" strokeWidth="3" strokeLinecap="round" fill="none" />
+            </svg>
+          </div>
+
+          {/* Floating Text Indicator Container */}
+          <div style={{ position: 'relative', height: 20, marginTop: 14, width: 150, textAlign: 'center' }}>
+            <span style={{
+              position: 'absolute',
+              inset: 0,
+              fontSize: 12,
+              fontWeight: 800,
+              color: '#ffffff',
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase',
+              textShadow: '0 2px 4px rgba(0,0,0,0.2)',
+              animation: 'text-breathe-in 6s infinite',
+            }}>
+              Breathe in...
+            </span>
+            <span style={{
+              position: 'absolute',
+              inset: 0,
+              fontSize: 12,
+              fontWeight: 800,
+              color: '#ffffff',
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase',
+              textShadow: '0 2px 4px rgba(0,0,0,0.2)',
+              animation: 'text-breathe-out 6s infinite',
+            }}>
+              Breathe out...
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   );

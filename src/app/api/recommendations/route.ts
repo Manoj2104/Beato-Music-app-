@@ -78,6 +78,11 @@ export async function GET(request: NextRequest) {
   // Followed artist IDs
   const followedArtists = dbUser ? dbUser.followedArtists || [] : mockUser.followedArtists;
 
+  // Preferred languages
+  const preferredLanguages = dbUser?.preferences?.language
+    ? dbUser.preferences.language.split(',').map((s: string) => s.trim().toLowerCase())
+    : [];
+
   let tracks: typeof mockTracks = [];
   let meta: Record<string, unknown> = {};
 
@@ -85,7 +90,7 @@ export async function GET(request: NextRequest) {
     case 'daily': {
       const mixIndex = parseInt(searchParams.get('mix') ?? '0', 10);
       const safeIdx = Math.max(0, Math.min(mixIndex, 3));
-      const mixes = getDailyMixes(likedTrackIds, genreScores, allActiveTracks);
+      const mixes = getDailyMixes(likedTrackIds, genreScores, allActiveTracks, userId, followedArtists, preferredLanguages);
       const activeMix = mixes[safeIdx] ?? mixes[0];
       tracks = activeMix?.tracks ?? [];
       meta = {
@@ -100,13 +105,13 @@ export async function GET(request: NextRequest) {
     }
 
     case 'discover': {
-      tracks = getDiscoverWeekly(likedTrackIds, [], allActiveTracks);
+      tracks = getDiscoverWeekly(likedTrackIds, [], allActiveTracks, 30, userId, followedArtists, preferredLanguages);
       meta = { description: 'Your weekly mixtape of fresh music, updated every Monday.' };
       break;
     }
 
     case 'radar': {
-      tracks = getReleaseRadar(followedArtists, allActiveTracks);
+      tracks = getReleaseRadar(followedArtists, allActiveTracks, 20, userId, preferredLanguages);
       meta = {
         followedArtists,
         description: 'New music from artists you follow.',
@@ -115,19 +120,19 @@ export async function GET(request: NextRequest) {
     }
 
     case 'mood': {
-      tracks = getMoodRecommendations(mood, allActiveTracks);
+      tracks = getMoodRecommendations(mood, allActiveTracks, 25, userId, followedArtists);
       meta = { mood, description: `Tracks matched to your ${mood} mood.` };
       break;
     }
 
     case 'charts': {
-      tracks = getTopCharts(allActiveTracks);
+      tracks = getTopCharts(allActiveTracks, 50, userId);
       meta = { country: country ?? 'global', description: 'The hottest tracks right now.' };
       break;
     }
 
     case 'genre': {
-      tracks = getGenreRecommendations(genre, allActiveTracks);
+      tracks = getGenreRecommendations(genre, allActiveTracks, 20, userId);
       meta = { genre, description: `Top ${genre} tracks for you.` };
       break;
     }

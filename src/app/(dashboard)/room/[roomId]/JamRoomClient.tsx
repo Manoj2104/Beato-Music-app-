@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, use } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { usePlayerStore } from '@/store/playerStore';
 import { useAuthStore } from '@/store/authStore';
 import { useMusicStore } from '@/store/musicStore';
@@ -13,6 +13,7 @@ import {
   Search, Share2, Crown, LogOut, Music, ChevronRight, VolumeX, SkipForward, HelpCircle,
   Shuffle, SkipBack, Repeat, Heart, Download, Copy, X
 } from 'lucide-react';
+import { fetchWithAuth } from '@/lib/api';
 
 interface Participant {
   userId: string;
@@ -57,10 +58,31 @@ interface FloatingEmojiInstance {
   x: number;
 }
 
-export default function JamRoomPage({ params }: { params: Promise<{ roomId: string }> }) {
-  const { roomId: rawRoomId } = use(params);
-  const roomId = decodeURIComponent(rawRoomId).toUpperCase();
+export default function JamRoomPage({ params }: { params?: Promise<{ roomId: string }> }) {
+  const searchParams = useSearchParams();
   const router = useRouter();
+
+  // Extract roomId from params or searchParams
+  let rawRoomId = '';
+  if (params) {
+    try {
+      const resolvedParams = use(params);
+      rawRoomId = resolvedParams?.roomId || '';
+    } catch (e) {
+      console.warn('Failed to resolve params:', e);
+    }
+  }
+
+  // Fallback to query param 'id'
+  if (!rawRoomId) {
+    rawRoomId = searchParams?.get('id') || '';
+  }
+
+  const roomId = decodeURIComponent(rawRoomId).toUpperCase();
+
+  // ─── Zustand stores ───
+  const { user } = useAuthStore();
+  const { getAllTracks } = useMusicStore();
 
   // State definitions
   const [room, setRoom] = useState<Room | null>(null);
@@ -87,10 +109,15 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // ─── Zustand stores ───
-  const { user } = useAuthStore();
-  const { getAllTracks } = useMusicStore();
-  const allTracks = getAllTracks();
+  useEffect(() => {
+    if (user && user.subscription === 'free') {
+      toast.error("Jam Rooms is a Premium-only feature! Upgrade to Premium to access. 💎");
+      router.push('/library');
+    }
+  }, [user, router]);
+  const allTracks = getAllTracks().filter(
+    t => t.genre !== 'Podcast' && !t.genre?.startsWith('PodcastChannel:') && t.audioUrl !== 'channel-marker'
+  );
   const {
     currentTrack: localTrack,
     isPlaying: localIsPlaying,
@@ -202,7 +229,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
 
 
   // 1. Fetch Room State
-  const fetchRoomInfo = async (joinRoom = false, enteredPassword?: string) => {
+  const fetchRoomInfo = async (joinRoom = false, enteredPassword?: string, retryCount = 0) => {
     try {
       const endpoint = joinRoom 
         ? `/api/rooms/${roomId}/join` 
@@ -213,9 +240,8 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
         finalPassword = localStorage.getItem(`soundsphere-room-password-${roomId}`) || undefined;
       }
 
-      const res = await fetch(endpoint, {
+      const res = await fetchWithAuth(endpoint, {
         method: joinRoom ? 'POST' : 'GET',
-        headers: { 'Content-Type': 'application/json' },
         body: joinRoom ? JSON.stringify({ password: finalPassword }) : undefined
       });
       const data = await res.json();
@@ -242,6 +268,9 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
         } else {
           router.push('/library');
         }
+      } else if ((res.status === 404 || !data.success) && retryCount < 3) {
+        // Retry up to 3 times with 1-second delay (handles race condition after room creation)
+        setTimeout(() => fetchRoomInfo(joinRoom, enteredPassword, retryCount + 1), 1000);
       } else {
         setIsPlaying(false);
         if (typeof window !== 'undefined') {
@@ -253,9 +282,18 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
       }
     } catch (err) {
       console.error('Fetch room error:', err);
-      toast.error('Connection error');
+      if (retryCount < 3) {
+        // Retry on network errors too
+        setTimeout(() => fetchRoomInfo(joinRoom, enteredPassword, retryCount + 1), 1000);
+      } else {
+        toast.error('Connection error');
+        setLoading(false);
+      }
+      return; // Don't set loading=false here on retry
     } finally {
-      setLoading(false);
+      // Only stop loading if not retrying
+      if (retryCount >= 3) setLoading(false);
+      else setLoading(false); // Always stop loading so UI isn't stuck
     }
   };
 
@@ -301,16 +339,29 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
         spawnEmoji(data.payload.emoji);
       } else if (data.action === 'queue') {
         setRoomQueue(data.queue);
+      } else if (data.action === 'close') {
+        // Host explicitly closed the room
+        setIsPlaying(false);
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('soundsphere-active-room-id');
+          localStorage.removeItem('soundsphere-active-room-name');
+        }
+        toast('This room has been closed by the host.');
+        router.push('/library');
       }
     };
 
     const unsub = socketManager.on('PLAYLIST_UPDATED', handleRoomUpdate);
 
     // ⚡ Poll DB every 2s — the ONLY cross-browser sync mechanism (no Supabase needed)
+    let consecutive404s = 0; // require multiple 404s before treating as closed
     const interval = setInterval(async () => {
       try {
-        const res = await fetch(`/api/rooms/${roomId}`, { method: 'GET' });
+        const res = await fetchWithAuth(`/api/rooms/${roomId}`, { method: 'GET' });
         if (res.status === 404) {
+          consecutive404s++;
+          // Only treat as closed after 3 consecutive 404s (avoids false positives from network blips)
+          if (consecutive404s < 3) return;
           // Room was closed / deactivated by host!
           setIsPlaying(false);
           if (typeof window !== 'undefined') {
@@ -321,6 +372,7 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
           router.push('/library');
           return;
         }
+        consecutive404s = 0; // reset on any successful response
         const data = await res.json();
         if (!data.success || !data.room) return;
 
@@ -363,9 +415,8 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
     // Record that THIS tab is the initiator of this sync write
     lastSyncWriteRef.current = Date.now();
     try {
-      await fetch(`/api/rooms/${roomId}/sync`, {
+      await fetchWithAuth(`/api/rooms/${roomId}/sync`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           currentTrackId: trackId,
           currentTrackPosition: pos,
@@ -430,9 +481,8 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
     const newLock = !isRoomLocked;
     setIsRoomLocked(newLock); // optimistic update
     try {
-      await fetch(`/api/rooms/${roomId}/lock`, {
+      await fetchWithAuth(`/api/rooms/${roomId}/lock`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isLocked: newLock })
       });
       toast.success(newLock ? '🔒 Room locked — only you can control' : '🔓 Room unlocked — everyone can control');
@@ -460,9 +510,8 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
     setMessageText('');
 
     try {
-      const res = await fetch(`/api/rooms/${roomId}/chat`, {
+      const res = await fetchWithAuth(`/api/rooms/${roomId}/chat`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: currentMsg })
       });
       const data = await res.json();
@@ -479,9 +528,8 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
   const sendEmojiReaction = async (emoji: string) => {
     spawnEmoji(emoji);
     try {
-      await fetch(`/api/rooms/${roomId}/react`, {
+      await fetchWithAuth(`/api/rooms/${roomId}/react`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ emoji })
       });
     } catch (e) {
@@ -506,8 +554,9 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
       return;
     }
     const filtered = allTracks.filter(
-      t => t.title.toLowerCase().includes(query.toLowerCase()) || 
-           t.artistName.toLowerCase().includes(query.toLowerCase())
+      t => (t.title.toLowerCase().includes(query.toLowerCase()) || 
+            t.artistName.toLowerCase().includes(query.toLowerCase())) &&
+            t.genre !== 'Podcast' && !t.genre?.startsWith('PodcastChannel:') && t.audioUrl !== 'channel-marker'
     );
     setSearchResults(filtered);
   };
@@ -519,9 +568,8 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
     setRoomQueue(updatedQueue);
 
     try {
-      const res = await fetch(`/api/rooms/${roomId}/queue`, {
+      const res = await fetchWithAuth(`/api/rooms/${roomId}/queue`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ queue: updatedQueue })
       });
       const data = await res.json();
@@ -542,9 +590,8 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
     setRoomQueue(updatedQueue);
 
     try {
-      const res = await fetch(`/api/rooms/${roomId}/queue`, {
+      const res = await fetchWithAuth(`/api/rooms/${roomId}/queue`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ queue: updatedQueue })
       });
       const data = await res.json();
@@ -591,9 +638,26 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
       localStorage.removeItem('soundsphere-active-room-name');
     }
     try {
-      await fetch(`/api/rooms/${roomId}/leave`, { method: 'POST' });
+      await fetchWithAuth(`/api/rooms/${roomId}/leave`, { method: 'POST' });
     } catch (e) {
       console.error('Failed to leave room:', e);
+    }
+    router.push('/library');
+  };
+
+  // Only the host can explicitly close/delete the room
+  const handleCloseRoom = async () => {
+    if (!isHost) return;
+    if (!confirm('Are you sure you want to close this room for everyone?')) return;
+    setIsPlaying(false);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('soundsphere-active-room-id');
+      localStorage.removeItem('soundsphere-active-room-name');
+    }
+    try {
+      await fetchWithAuth(`/api/rooms/${roomId}`, { method: 'DELETE' });
+    } catch (e) {
+      console.error('Failed to close room:', e);
     }
     router.push('/library');
   };
@@ -753,6 +817,30 @@ export default function JamRoomPage({ params }: { params: Promise<{ roomId: stri
             >
               <LogOut size={13} /> Leave Room
             </button>
+            {isHost && (
+              <button
+                onClick={handleCloseRoom}
+                style={{
+                  flex: isMobile ? 1 : 'initial',
+                  background: '#dc2626',
+                  color: '#ffffff',
+                  border: 'none',
+                  padding: '8px 16px',
+                  borderRadius: 20,
+                  fontSize: 12,
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 6,
+                  height: 38,
+                  boxSizing: 'border-box'
+                }}
+              >
+                🚫 Close Room
+              </button>
+            )}
           </div>
         </div>
 

@@ -1,9 +1,20 @@
 import { Track, Artist } from '@/types';
 
-// ─── Mood fingerprints ───────────────────────────────────────────────────────
-const MOOD_GENRES: Record<string, string[]> = {
+// Helper to generate a stable pseudo-random seed between 0 and 1 for a given string
+export function getUserSeed(userId: string | undefined, salt = ''): number {
+  if (!userId) return Math.random();
+  const str = userId + salt;
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return Math.abs(hash % 1000) / 1000;
+}
+
+// Mood fingerprints
+export const MOOD_GENRES: Record<string, string[]> = {
   happy:    ['Pop', 'Dance Pop', 'Dance', 'R&B', 'Reggae'],
-  sad:      ['Indie', 'Indie Rock', 'Alternative', 'Dream Pop', 'Lo-Fi'],
+  sad:      ['Indie', 'Indie Rock', 'Alternative', 'Dream Pop', 'Lo-Fi', 'Sad'],
   energetic:['Electronic', 'Hip-Hop', 'Dance', 'Metal', 'Rock'],
   chill:    ['Ambient', 'Lo-Fi', 'Jazz', 'Classical', 'Dream Pop'],
   romantic: ['R&B', 'Pop', 'Soul', 'Jazz', 'Classical'],
@@ -11,17 +22,7 @@ const MOOD_GENRES: Record<string, string[]> = {
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
 function popularityScore(track: Track): number {
-  // Normalize plays (max ~10M) + recency bonus (current year = 1.0, each year older = 0.9x)
   const playScore = Math.log10(Math.max(1, track.plays)) / 7;
   const ageScore = Math.pow(0.9, Math.max(0, new Date().getFullYear() - track.year));
   return (playScore * 0.7 + ageScore * 0.3);
@@ -31,14 +32,34 @@ function noveltyScore(track: Track, listenedIds: Set<string>): number {
   return listenedIds.has(track.id) ? 0.1 : 1.0;
 }
 
-function genreAffinity(track: Track, genreScores: Record<string, number>): number {
+function genreAffinity(track: Track, genreScores: Record<string, number>, preferredLanguages: string[] = []): number {
   const maxScore = Math.max(1, ...Object.values(genreScores));
-  return (genreScores[track.genre] ?? 0) / maxScore;
+  let score = (genreScores[track.genre] ?? 0) / maxScore;
+
+  // Language / preferred genres bonus
+  if (preferredLanguages.length > 0) {
+    const trackGenreLower = (track.genre || '').toLowerCase();
+    const trackLangLower = ((track as any).language || '').toLowerCase();
+    const hasLangMatch = preferredLanguages.some(lang => 
+      trackGenreLower.includes(lang) || trackLangLower.includes(lang)
+    );
+    if (hasLangMatch) {
+      score += 0.5; // substantial bonus
+    }
+  }
+  return score;
 }
 
-// ─── Collaborative Filtering (simulated) ─────────────────────────────────────
+function artistAffinity(track: Track, followedArtistIds: string[]): number {
+  return followedArtistIds.includes(track.artistId) ? 1.0 : 0.0;
+}
+
+function moodAffinity(track: Track, detectedMood = 'happy'): number {
+  const genres = MOOD_GENRES[detectedMood.toLowerCase()] ?? [];
+  return genres.includes(track.genre) ? 1.0 : 0.0;
+}
+
 function collaborativeScore(track: Track, likedTracks: Track[]): number {
-  // Find tracks with similar genre/artist to liked tracks
   let sc = 0;
   for (const liked of likedTracks) {
     if (liked.artistId === track.artistId) sc += 2;
@@ -53,71 +74,180 @@ export function getDailyMix(
   likedTrackIds: string[],
   genreScores: Record<string, number>,
   allTracks: Track[],
-  count = 25
+  count = 25,
+  userId?: string,
+  followedArtistIds: string[] = [],
+  preferredLanguages: string[] = [],
+  detectedMood = 'happy',
+  vibeEnergy = 0.5,
+  vibeDiscovery = 0.5,
+  vibeSimilarity = 0.5,
+  skipCounts: Record<string, number> = {}
 ): Track[] {
   const likedSet = new Set(likedTrackIds);
   const likedTracks = allTracks.filter(t => likedSet.has(t.id));
   const listenedIds = new Set(likedTrackIds);
 
   const scored = allTracks.map(track => {
-    const s = (
-      genreAffinity(track, genreScores) * 0.35 +
-      collaborativeScore(track, likedTracks) * 0.30 +
-      popularityScore(track) * 0.20 +
-      noveltyScore(track, listenedIds) * 0.15
-    );
-    return { track, score: s };
+    const genreScore = genreAffinity(track, genreScores, preferredLanguages);
+    const artistScore = artistAffinity(track, followedArtistIds);
+    const moodScore = moodAffinity(track, detectedMood);
+    const collabScore = collaborativeScore(track, likedTracks);
+    const popScore = popularityScore(track);
+    const novelScore = noveltyScore(track, listenedIds);
+    const seedScore = getUserSeed(userId, track.id);
+
+    // Energy factor adjustment
+    const isHighEnergyGenre = ['Electronic', 'Hip-Hop', 'Dance', 'Metal', 'Rock'].includes(track.genre);
+    const energyVibeScore = isHighEnergyGenre ? vibeEnergy : (1.0 - vibeEnergy);
+
+    const skipCount = skipCounts[track.id] || 0;
+    const skipPenalty = skipCount >= 3 ? 1.0 : skipCount * 0.3;
+
+    const score = (
+      genreScore * 0.20 +
+      artistScore * 0.15 +
+      moodScore * 0.20 +
+      collabScore * (vibeSimilarity * 0.25) +
+      popScore * 0.10 +
+      novelScore * (vibeDiscovery * 0.20) +
+      energyVibeScore * (vibeEnergy * 0.15) +
+      seedScore * 0.05
+    ) - skipPenalty;
+
+    return { track, score };
   });
 
-  return scored.sort((a, b) => b.score - a.score || b.track.id.localeCompare(a.track.id)).slice(0, count).map(x => x.track);
+  return scored
+    .sort((a, b) => b.score - a.score || b.track.id.localeCompare(a.track.id))
+    .slice(0, count)
+    .map(x => x.track);
 }
 
 export function getDiscoverWeekly(
   likedTrackIds: string[],
   listenedIds: string[],
   allTracks: Track[],
-  count = 30
+  count = 30,
+  userId?: string,
+  followedArtistIds: string[] = [],
+  preferredLanguages: string[] = [],
+  detectedMood = 'happy',
+  vibeEnergy = 0.5,
+  vibeDiscovery = 0.5,
+  vibeSimilarity = 0.5,
+  skipCounts: Record<string, number> = {}
 ): Track[] {
   const heard = new Set([...likedTrackIds, ...listenedIds]);
   const candidates = allTracks.filter(t => !heard.has(t.id));
 
   const likedTracks = allTracks.filter(t => likedTrackIds.includes(t.id));
-  const scored = candidates.map(track => ({
-    track,
-    score: collaborativeScore(track, likedTracks) * 0.5 + popularityScore(track) * 0.3,
-  }));
+  const scored = (candidates.length > 0 ? candidates : allTracks).map(track => {
+    const artistScore = artistAffinity(track, followedArtistIds);
+    const genreScore = genreAffinity(track, {}, preferredLanguages);
+    const moodScore = moodAffinity(track, detectedMood);
+    const collabScore = collaborativeScore(track, likedTracks);
+    const popScore = popularityScore(track);
+    const seedScore = getUserSeed(userId, track.id);
 
-  return scored.sort((a, b) => b.score - a.score || b.track.id.localeCompare(a.track.id)).slice(0, count).map(x => x.track);
+    const isHighEnergyGenre = ['Electronic', 'Hip-Hop', 'Dance', 'Metal', 'Rock'].includes(track.genre);
+    const energyVibeScore = isHighEnergyGenre ? vibeEnergy : (1.0 - vibeEnergy);
+
+    const skipCount = skipCounts[track.id] || 0;
+    const skipPenalty = skipCount >= 3 ? 1.0 : skipCount * 0.3;
+
+    const score = (
+      artistScore * 0.20 +
+      genreScore * 0.15 +
+      moodScore * 0.20 +
+      collabScore * (vibeSimilarity * 0.25) +
+      popScore * 0.10 +
+      energyVibeScore * (vibeEnergy * 0.15) +
+      seedScore * 0.10
+    ) - skipPenalty;
+
+    return { track, score };
+  });
+
+  return scored
+    .sort((a, b) => b.score - a.score || b.track.id.localeCompare(a.track.id))
+    .slice(0, count)
+    .map(x => x.track);
 }
 
 export function getReleaseRadar(
   followedArtistIds: string[],
   allTracks: Track[],
-  count = 20
+  count = 20,
+  userId?: string,
+  preferredLanguages: string[] = [],
+  detectedMood = 'happy',
+  vibeEnergy = 0.5,
+  skipCounts: Record<string, number> = {}
 ): Track[] {
   const recentYear = new Date().getFullYear();
-  const fromFollowed = allTracks.filter(t =>
-    followedArtistIds.includes(t.artistId) && t.year >= recentYear - 1
-  );
-  const rest = allTracks.filter(t => t.year >= recentYear).slice(0, count - fromFollowed.length);
-  return [...fromFollowed, ...rest].sort((a, b) => b.year - a.year || b.plays - a.plays || b.id.localeCompare(a.id)).slice(0, count);
+  
+  const scored = allTracks.map(track => {
+    const isNew = track.year >= recentYear - 1 ? 1.0 : 0.0;
+    const artistScore = artistAffinity(track, followedArtistIds);
+    const genreScore = genreAffinity(track, {}, preferredLanguages);
+    const moodScore = moodAffinity(track, detectedMood);
+    const seedScore = getUserSeed(userId, track.id);
+
+    const isHighEnergyGenre = ['Electronic', 'Hip-Hop', 'Dance', 'Metal', 'Rock'].includes(track.genre);
+    const energyVibeScore = isHighEnergyGenre ? vibeEnergy : (1.0 - vibeEnergy);
+
+    const skipCount = skipCounts[track.id] || 0;
+    const skipPenalty = skipCount >= 3 ? 1.0 : skipCount * 0.3;
+
+    const score = (
+      isNew * 0.35 +
+      artistScore * 0.25 +
+      moodScore * 0.15 +
+      genreScore * 0.15 +
+      energyVibeScore * (vibeEnergy * 0.10) +
+      seedScore * 0.05
+    ) - skipPenalty;
+
+    return { track, score };
+  });
+
+  return scored
+    .sort((a, b) => b.score - a.score || b.track.id.localeCompare(a.track.id))
+    .slice(0, count)
+    .map(x => x.track);
 }
 
 export function getMoodRecommendations(
   mood: string,
   allTracks: Track[],
-  count = 25
+  count = 25,
+  userId?: string,
+  followedArtistIds: string[] = []
 ): Track[] {
   const targetGenres = MOOD_GENRES[mood.toLowerCase()] ?? [];
-  if (targetGenres.length === 0) return [...allTracks].sort((a, b) => b.plays - a.plays || b.id.localeCompare(a.id)).slice(0, count);
+  
+  const scored = allTracks.map(track => {
+    const genreRank = targetGenres.indexOf(track.genre);
+    const moodGenreScore = genreRank >= 0 ? (targetGenres.length - genreRank) / targetGenres.length : 0;
+    const artistScore = artistAffinity(track, followedArtistIds);
+    const seedScore = getUserSeed(userId, track.id);
+    const popScore = popularityScore(track);
 
-  const scored = allTracks.map(t => {
-    const genreRank = targetGenres.indexOf(t.genre);
-    const sc = genreRank >= 0 ? (targetGenres.length - genreRank) / targetGenres.length : 0;
-    return { t, sc: sc + popularityScore(t) * 0.3 };
+    const score = (
+      moodGenreScore * 0.45 +
+      artistScore * 0.20 +
+      popScore * 0.15 +
+      seedScore * 0.20
+    );
+
+    return { track, score };
   });
 
-  return scored.sort((a, b) => b.sc - a.sc || b.t.id.localeCompare(a.t.id)).slice(0, count).map(x => x.t);
+  return scored
+    .sort((a, b) => b.score - a.score || b.track.id.localeCompare(a.track.id))
+    .slice(0, count)
+    .map(x => x.track);
 }
 
 export function getSimilarArtists(
@@ -140,27 +270,71 @@ export function getSimilarArtists(
 
 export function getTopCharts(
   allTracks: Track[],
-  limit = 50
+  limit = 50,
+  userId?: string,
+  detectedMood = 'happy',
+  vibeEnergy = 0.5,
+  skipCounts: Record<string, number> = {}
 ): Track[] {
-  return [...allTracks]
-    .sort((a, b) => b.plays - a.plays || b.id.localeCompare(a.id))
-    .slice(0, limit);
+  const scored = allTracks.map(track => {
+    const seed = getUserSeed(userId, track.id);
+    const moodScore = moodAffinity(track, detectedMood);
+    const isHighEnergyGenre = ['Electronic', 'Hip-Hop', 'Dance', 'Metal', 'Rock'].includes(track.genre);
+    const energyVibeScore = isHighEnergyGenre ? vibeEnergy : (1.0 - vibeEnergy);
+
+    const skipCount = skipCounts[track.id] || 0;
+    const skipPenalty = (skipCount >= 3 ? 1.0 : skipCount * 0.3) * track.plays * 2;
+
+    // Combine absolute popularity with mood bonus + energy match + user-specific seed variation
+    const score = (track.plays + moodScore * (track.plays * 0.15) + energyVibeScore * (track.plays * 0.10) + seed * (Math.max(100, track.plays) * 0.10)) - skipPenalty;
+    return { track, score };
+  });
+
+  return scored
+    .sort((a, b) => b.score - a.score || b.track.id.localeCompare(a.track.id))
+    .slice(0, limit)
+    .map(x => x.track);
 }
 
 export function getGenreRecommendations(
   genre: string,
   allTracks: Track[],
-  count = 20
+  count = 20,
+  userId?: string
 ): Track[] {
-  const direct = allTracks.filter(t => t.genre === genre);
-  const rest = allTracks.filter(t => t.genre !== genre).sort(() => Math.random() - 0.5);
-  return [...direct, ...rest].slice(0, count);
+  const targetGenreLower = genre.toLowerCase();
+  
+  const scored = allTracks.map(track => {
+    const isGenreMatch = (track.genre || '').toLowerCase() === targetGenreLower ? 1.0 : 0.0;
+    const seed = getUserSeed(userId, track.id);
+    const popScore = popularityScore(track);
+
+    const score = (
+      isGenreMatch * 0.60 +
+      popScore * 0.20 +
+      seed * 0.20
+    );
+
+    return { track, score };
+  });
+
+  return scored
+    .sort((a, b) => b.score - a.score || b.track.id.localeCompare(a.track.id))
+    .slice(0, count)
+    .map(x => x.track);
 }
 
 export function getDailyMixes(
   likedTrackIds: string[],
   genreScores: Record<string, number>,
-  allTracks: Track[]
+  allTracks: Track[],
+  userId?: string,
+  followedArtistIds: string[] = [],
+  preferredLanguages: string[] = [],
+  detectedMood = 'happy',
+  vibeEnergy = 0.5,
+  vibeDiscovery = 0.5,
+  vibeSimilarity = 0.5
 ): { title: string; description: string; tracks: Track[]; gradient: string; emoji: string }[] {
   const topGenres = Object.entries(genreScores).sort((a, b) => b[1] - a[1]).map(([g]) => g);
   const defaultMixes = [
@@ -175,6 +349,6 @@ export function getDailyMixes(
     description: mix.desc,
     emoji: mix.emoji,
     gradient: mix.gradient,
-    tracks: getDailyMix(likedTrackIds, { [mix.genre]: 10, ...genreScores }, allTracks, 25),
+    tracks: getDailyMix(likedTrackIds, { [mix.genre]: 10, ...genreScores }, allTracks, 25, userId, followedArtistIds, preferredLanguages, detectedMood, vibeEnergy, vibeDiscovery, vibeSimilarity),
   }));
 }

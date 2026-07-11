@@ -12,6 +12,27 @@ export default function CapacitorInit() {
   const router = useRouter();
 
   useEffect(() => {
+    // Global Safe JSON response parser patch to prevent SyntaxError crashes from non-JSON (HTML) responses
+    if (typeof window !== 'undefined' && window.Response && !(window as any).__beatoResponsePatched) {
+      (window as any).__beatoResponsePatched = true;
+      const originalJson = window.Response.prototype.json;
+      window.Response.prototype.json = async function () {
+        try {
+          return await originalJson.call(this);
+        } catch (err) {
+          console.warn("Global Safe JSON Parser intercepted invalid JSON response:", err);
+          try {
+            const cloned = this.clone();
+            const text = await cloned.text();
+            if (text.trim().startsWith('<')) {
+              return { success: false, error: "Server returned HTML instead of JSON", isHtml: true, htmlContent: text };
+            }
+          } catch (_) {}
+          return { success: false, error: "Failed to parse JSON response" };
+        }
+      };
+    }
+
     // Clean up local testing server URL if present
     if (typeof window !== 'undefined') {
       const stored = window.localStorage.getItem('beato_api_url');

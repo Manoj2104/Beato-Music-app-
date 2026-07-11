@@ -33,8 +33,85 @@ const FacebookIcon = () => (
   </svg>
 );
 
+const getLevenshteinDistance = (a: string, b: string): number => {
+  const tmp = [];
+  for (let i = 0; i <= a.length; i++) {
+    tmp[i] = [i];
+  }
+  for (let j = 0; j <= b.length; j++) {
+    tmp[0][j] = j;
+  }
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      tmp[i][j] = Math.min(
+        tmp[i - 1][j] + 1, // deletion
+        tmp[i][j - 1] + 1, // insertion
+        tmp[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1) // substitution
+      );
+    }
+  }
+  return tmp[a.length][b.length];
+};
+
+const getTypoSuggestion = (email: string): string | null => {
+  const parts = email.split('@');
+  if (parts.length !== 2) return null;
+  const username = parts[0];
+  const domain = parts[1].toLowerCase();
+
+  const COMMON_DOMAINS = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'icloud.com', 'beato.com'];
+  let bestMatch = null;
+  let minDistance = 999;
+
+  for (const common of COMMON_DOMAINS) {
+    if (domain === common) return null; // Exact match, no typo
+    const dist = getLevenshteinDistance(domain, common);
+    if (dist < minDistance) {
+      minDistance = dist;
+      bestMatch = common;
+    }
+  }
+
+  if (bestMatch && minDistance <= 4) {
+    return `${username}@${bestMatch}`;
+  }
+
+  return null;
+};
+
+const validateEmail = (email: string) => {
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  if (!email || !emailRegex.test(email) || email.includes('..')) {
+    return { isValid: false, suggestion: null as string | null };
+  }
+
+  const suggestion = getTypoSuggestion(email);
+  if (suggestion) {
+    return { isValid: false, suggestion };
+  }
+
+  const parts = email.split('@');
+  if (parts.length === 2) {
+    const domain = parts[1].toLowerCase();
+    if (domain.endsWith('.vom') || domain.endsWith('.con') || domain.endsWith('.cmo') || domain.endsWith('.col')) {
+      const correctedDomain = domain
+        .replace(/\.vom$/, '.com')
+        .replace(/\.con$/, '.com')
+        .replace(/\.cmo$/, '.com')
+        .replace(/\.col$/, '.com');
+      return {
+        isValid: false,
+        suggestion: `${parts[0]}@${correctedDomain}`
+      };
+    }
+  }
+
+  return { isValid: true, suggestion: null };
+};
+
 export default function LoginPage() {
   const [step, setStep] = useState<'welcome' | 'login-email' | 'login-password' | 'email-otp' | 'whatsapp-send' | 'whatsapp-otp'>('login-email');
+  const [emailSuggestion, setEmailSuggestion] = useState<string | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -53,14 +130,19 @@ export default function LoginPage() {
   useEffect(() => {
     let isMounted = true;
     const checkEmailRegistered = async () => {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!email || !emailRegex.test(email)) {
+      const validation = validateEmail(email);
+      if (isMounted) {
+        setEmailSuggestion(validation.suggestion);
+      }
+
+      if (!validation.isValid) {
         if (isMounted) {
           setEmailExists(null);
           setCheckingEmail(false);
         }
         return;
       }
+
       if (isMounted) setCheckingEmail(true);
       try {
         const response = await fetch('/api/auth/check-email', {
@@ -296,9 +378,56 @@ export default function LoginPage() {
   };
 
   const handleOtpChange = (i: number, val: string) => {
-    if (val.length > 1) return;
-    const n = [...otp]; n[i] = val; setOtp(n);
-    if (val && i < 5) document.getElementById(`otp-${i + 1}`)?.focus();
+    const cleanVal = val.trim();
+    const n = [...otp];
+
+    if (cleanVal.length > 1) {
+      const digits = cleanVal.replace(/\D/g, '').slice(0, 6).split('');
+      const updatedOtp = [...otp];
+      for (let j = 0; j < digits.length; j++) {
+        if (i + j < 6) {
+          updatedOtp[i + j] = digits[j];
+        }
+      }
+      setOtp(updatedOtp);
+      const focusIndex = Math.min(i + digits.length - 1, 5);
+      document.getElementById(`otp-${focusIndex}`)?.focus();
+      return;
+    }
+
+    n[i] = cleanVal;
+    setOtp(n);
+
+    if (cleanVal) {
+      if (i < 5) {
+        document.getElementById(`otp-${i + 1}`)?.focus();
+      }
+    } else {
+      if (i > 0) {
+        document.getElementById(`otp-${i - 1}`)?.focus();
+      }
+    }
+  };
+
+  const handleOtpKeyDown = (i: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace') {
+      if (!otp[i] && i > 0) {
+        const n = [...otp];
+        n[i - 1] = '';
+        setOtp(n);
+        document.getElementById(`otp-${i - 1}`)?.focus();
+      }
+    }
+  };
+
+  const handleOtpPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').trim();
+    if (pastedData.length >= 6) {
+      const digits = pastedData.slice(0, 6).split('');
+      setOtp(digits);
+      document.getElementById('otp-5')?.focus();
+    }
   };
 
   const handleSendOtp = async (e: React.FormEvent) => {
@@ -600,7 +729,7 @@ export default function LoginPage() {
                     className="auth-input"
                     style={{
                       ...inputStyle,
-                      borderColor: emailExists === false ? '#dc2626' : BORDER
+                      borderColor: BORDER
                     }}
                   />
                   {checkingEmail && (
@@ -608,10 +737,35 @@ export default function LoginPage() {
                       Checking availability...
                     </p>
                   )}
-                  {emailExists === false && (
-                    <p style={{ color: '#dc2626', fontSize: '12px', marginTop: '6px', fontWeight: 500 }}>
-                      ⚠️ Account not found. Please sign up.
-                    </p>
+                  {emailSuggestion && (
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      background: 'rgba(217, 119, 6, 0.05)',
+                      border: '1px solid rgba(217, 119, 6, 0.15)',
+                      borderRadius: '10px',
+                      padding: '10px 14px',
+                      marginTop: '12px',
+                      boxSizing: 'border-box'
+                    }}>
+                      <span style={{ fontSize: '15px', lineHeight: '1' }}>💡</span>
+                      <p style={{ margin: 0, color: '#b45309', fontSize: '13px', fontWeight: 600, lineHeight: '1.4', fontFamily: 'Inter, sans-serif' }}>
+                        Did you mean{' '}
+                        <span
+                          onClick={() => setEmail(emailSuggestion)}
+                          style={{
+                            textDecoration: 'underline',
+                            cursor: 'pointer',
+                            color: '#b45309',
+                            fontWeight: 700
+                          }}
+                        >
+                          {emailSuggestion}
+                        </span>
+                        ?
+                      </p>
+                    </div>
                   )}
                 </div>
                 <button
@@ -623,8 +777,6 @@ export default function LoginPage() {
                     <div style={{ width: 20, height: 20, border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
                   ) : checkingEmail ? (
                     'Checking...'
-                  ) : emailExists === false ? (
-                    'Continue to Sign Up'
                   ) : (
                     'Continue'
                   )}
@@ -638,7 +790,7 @@ export default function LoginPage() {
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%', marginBottom: '24px' }}>
-                <button onClick={() => setStep('whatsapp-send')} className="social-oauth-btn">
+                <button onClick={() => toast('Coming soon!', { icon: '📱' })} className="social-oauth-btn">
                   <Smartphone size={16} style={{ position: 'absolute', left: '20px' }} />
                   <span>Phone number</span>
                 </button>
@@ -785,6 +937,8 @@ export default function LoginPage() {
                       inputMode="numeric"
                       value={digit}
                       onChange={e => handleOtpChange(i, e.target.value)}
+                      onKeyDown={e => handleOtpKeyDown(i, e)}
+                      onPaste={handleOtpPaste}
                       maxLength={1}
                       suppressHydrationWarning
                       style={{
@@ -934,6 +1088,8 @@ export default function LoginPage() {
                       inputMode="numeric"
                       value={digit}
                       onChange={e => handleOtpChange(i, e.target.value)}
+                      onKeyDown={e => handleOtpKeyDown(i, e)}
+                      onPaste={handleOtpPaste}
                       maxLength={1}
                       suppressHydrationWarning
                       style={{

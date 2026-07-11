@@ -4,9 +4,10 @@ import { useState, useEffect, useRef, useMemo, ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, ChevronRight, Heart, Music, Sparkles, TrendingUp, Clock, Headphones, Star, Search, X, Plus, Check, Bell } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import TrackCard from '@/components/music/TrackCard';
 import TopBar from '@/components/layout/TopBar';
+import PodcastsView from '@/components/music/PodcastsView';
 import { mockAlbums, mockArtists, mockPlaylists, mockTracks } from '@/lib/mockData';
 import { usePlayerStore } from '@/store/playerStore';
 import { useAuthStore } from '@/store/authStore';
@@ -18,7 +19,7 @@ import toast from 'react-hot-toast';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import AdBanner from '@/components/layout/AdBanner';
-import { getDailyMix, getDiscoverWeekly, getReleaseRadar, getTopCharts } from '@/lib/recommendations';
+import { getDailyMix, getDiscoverWeekly, getReleaseRadar, getTopCharts, MOOD_GENRES } from '@/lib/recommendations';
 
 const GREEN = 'var(--color-ss-primary, #0f5132)';
 
@@ -172,12 +173,21 @@ function AlbumCardInline({ track, onPlay, isPlaying, isActive, cardStyle = 'clas
   const titleSize = cardSize === 'xs' ? 12 : cardSize === 'sm' ? 13 : 14;
   const artistSize = cardSize === 'xs' ? 10 : cardSize === 'sm' ? 11 : 12;
 
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isActive) {
+      usePlayerStore.getState().togglePlay();
+    } else {
+      onPlay();
+    }
+  };
+
   return (
-    <div style={wrapperStyle} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} onClick={onPlay}>
+    <div style={wrapperStyle} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} onClick={handleClick}>
       <div style={imageContainerStyle}>
         <div style={{ width: '100%', height: isBanner ? '100%' : undefined, paddingBottom: isBanner ? undefined : '100%', background: displayImage ? 'none' : trackGradient(track.id), position: 'relative' }}>
           {displayImage ? (
-            <img src={displayImage} alt="" onError={() => setImgError(true)} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img loading="lazy" src={displayImage} alt="" onError={() => setImgError(true)} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
           ) : (
             <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span style={{ fontSize: cardSize === 'xs' ? 18 : cardSize === 'sm' ? 22 : 28 }}>🎵</span>
@@ -187,7 +197,7 @@ function AlbumCardInline({ track, onPlay, isPlaying, isActive, cardStyle = 'clas
         <AnimatePresence>
           {hov && (
             <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}
-              onClick={e => { e.stopPropagation(); onPlay(); }}
+              onClick={handleClick}
               style={{
                 position: 'absolute',
                 bottom: cardSize === 'xs' ? 4 : cardSize === 'sm' ? 6 : 10,
@@ -205,9 +215,9 @@ function AlbumCardInline({ track, onPlay, isPlaying, isActive, cardStyle = 'clas
                 zIndex: 10
               }}>
               {isActive && isPlaying ? (
-                <Pause size={cardSize === 'xs' ? 10 : cardSize === 'sm' ? 14 : 18} fill="black" color="black" />
+                <Pause size={cardSize === 'xs' ? 10 : cardSize === 'sm' ? 14 : 18} fill="white" color="white" />
               ) : (
-                <Play size={cardSize === 'xs' ? 10 : cardSize === 'sm' ? 14 : 18} fill="black" color="black" />
+                <Play size={cardSize === 'xs' ? 10 : cardSize === 'sm' ? 14 : 18} fill="white" color="white" style={{ marginLeft: cardSize === 'xs' ? 1 : 2 }} />
               )}
             </motion.button>
           )}
@@ -307,7 +317,7 @@ function AdCard({ config, isMobile, ads = [], theme = 'glass', resolvedAd }: { c
         </div>
         {activeConfig.googleAdsense?.sandboxMode && (
           <div style={{ marginTop: 12, padding: 8, borderRadius: 6, background: 'rgba(245, 158, 11, 0.1)', color: '#d97706', fontSize: 10, fontWeight: 700 }}>
-            ⚠️ Google Ads Sandbox Placeholder active. Live invoicing simulation running.
+            âš ï¸ Google Ads Sandbox Placeholder active. Live invoicing simulation running.
           </div>
         )}
       </div>
@@ -434,7 +444,7 @@ function AdCard({ config, isMobile, ads = [], theme = 'glass', resolvedAd }: { c
       }}>
         {/* Blurred background halo for rich aesthetics */}
         {bgImg && !isVideo && (
-          <img src={bgImg} alt="" style={{
+          <img loading="lazy" src={bgImg} alt="" style={{
             position: 'absolute',
             top: 0,
             left: 0,
@@ -450,7 +460,7 @@ function AdCard({ config, isMobile, ads = [], theme = 'glass', resolvedAd }: { c
         {isVideo ? (
           <video src={videoUrl} autoPlay loop muted={isMuted} playsInline style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', zIndex: 2 }} />
         ) : (
-          <img src={bgImg} alt="" style={{ 
+          <img loading="lazy" src={bgImg} alt="" style={{ 
             width: '100%', 
             height: '100%', 
             objectFit: bgImg.includes('uploads') ? 'contain' : 'cover', 
@@ -536,12 +546,23 @@ export default function HomePage() {
   const isOnline = useNetworkStatus();
   const prevOnlineRef = useRef<boolean | null>(null);
   const [mounted, setMounted] = useState(_homeHydrated);
+  const [activeCategory, setActiveCategory] = useState<'All' | 'Podcasts'>('All');
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const cat = searchParams.get('category');
+    if (cat === 'podcasts') {
+      setActiveCategory('Podcasts');
+    } else {
+      setActiveCategory('All');
+    }
+  }, [searchParams]);
   const { currentTrack, isPlaying, playTrack, togglePlay } = usePlayerStore();
   const { user, toggleSavePlaylist, toggleLikeSong, setMobileDrawerOpen } = useAuthStore();
   const isMobile = useIsMobile(); // ⚡ shared single resize listener
   const [hasShownToast, setHasShownToast] = useState(false);
   const [showMobileNotificationDropdown, setShowMobileNotificationDropdown] = useState(false);
-  const { allTracks: baseTracks, getAllTracks, getForYouTracks, uploadedTracks, recentlyPlayed, genreScores, activeArtistIds, fetchTracks } = useMusicStore();
+  const { allTracks: baseTracks, getAllTracks, getForYouTracks, uploadedTracks, recentlyPlayed, genreScores, activeArtistIds, fetchTracks, skipCounts } = useMusicStore();
   const { customPlaylists } = usePlaylistStore();
   const { downloadedTracks } = useDownloadStore();
 
@@ -735,21 +756,123 @@ export default function HomePage() {
     prevOnlineRef.current = isOnline;
   }, [isOnline, mounted]);
 
-  // Auto-slider disabled — manual swipe/tap only
+  // Auto-slider disabled â€”Â manual swipe/tap only
 
 
   // Real-time data
-  const allTracks = useMemo(() => getAllTracks(), [baseTracks, uploadedTracks, activeArtistIds]);
+  const allTracks = useMemo(() => getAllTracks().filter(t => t.genre !== 'Podcast' && t.audioUrl !== 'channel-marker'), [baseTracks, uploadedTracks, activeArtistIds]);
   const likedSongIds = useMemo(() => user?.likedSongs ?? [], [user?.likedSongs]);
   const likedTracks = useMemo(() => allTracks.filter(t => likedSongIds.includes(t.id)), [allTracks, likedSongIds]);
   
   // Real-time recommendations using helper algorithms
   const recentTrackIds = useMemo(() => recentlyPlayed.map(t => t.id), [recentlyPlayed]);
-  const forYouTracks = useMemo(() => getDiscoverWeekly(likedSongIds, recentTrackIds, allTracks, 20), [likedSongIds, recentTrackIds, allTracks]);
-  const recommendedTracks = useMemo(() => getDailyMix(likedSongIds, genreScores, allTracks, 20), [likedSongIds, genreScores, allTracks]);
-  
-  const newTracks = useMemo(() => [...approvedUploadedTracks, ...allTracks.filter(t => !approvedUploadedTracks.some(ut => ut.id === t.id))].slice(0, 8), [approvedUploadedTracks, allTracks]);
-  const trendingTracks = useMemo(() => [...allTracks].sort((a, b) => b.plays - a.plays).slice(0, 8), [allTracks]);
+  const followedArtistIds = useMemo(() => user?.followedArtists ?? [], [user?.followedArtists]);
+  const preferredLanguages = useMemo(() => {
+    const langStr = user?.preferences?.language || '';
+    return langStr ? langStr.split(',').map((s: string) => s.trim().toLowerCase()) : [];
+  }, [user?.preferences?.language]);
+
+  // Dynamic genre profile boosted by currently playing song
+  const dynamicGenreScores = useMemo(() => {
+    const scores = { ...genreScores };
+    if (currentTrack) {
+      scores[currentTrack.genre] = (scores[currentTrack.genre] || 0) + 15;
+    }
+    return scores;
+  }, [genreScores, currentTrack]);
+
+  // Dynamic followed artist profile boosted by currently playing artist
+  const dynamicFollowedArtists = useMemo(() => {
+    const artists = [...followedArtistIds];
+    if (currentTrack && !artists.includes(currentTrack.artistId)) {
+      artists.push(currentTrack.artistId);
+    }
+    return artists;
+  }, [followedArtistIds, currentTrack]);
+
+  // Real-time State of Mind (Mood) & Vibe parameters analysis of the user's active listening session
+  const autoVibeParameters = useMemo(() => {
+    const recentTracks = recentlyPlayed.slice(0, 6);
+    let mood = 'happy';
+    let energy = 0.5;
+    let discovery = 0.5;
+    let similarity = 0.5;
+
+    const seedTrack = currentTrack || recentTracks[0];
+
+    if (seedTrack) {
+      const genre = seedTrack.genre;
+      let foundMood = 'happy';
+      for (const [m, genres] of Object.entries(MOOD_GENRES || {})) {
+        if (genres.includes(genre)) {
+          foundMood = m;
+          break;
+        }
+      }
+      mood = foundMood;
+
+      const isHighEnergy = ['Electronic', 'Hip-Hop', 'Dance', 'Metal', 'Rock'].includes(genre);
+      energy = isHighEnergy ? 0.85 : 0.25;
+      similarity = 0.85; // High similarity to match the vibe of the playing song
+      discovery = 0.6;
+    } else {
+      const hour = new Date().getHours();
+      if (hour >= 22 || hour < 5) {
+        mood = 'chill';
+        energy = 0.2;
+        similarity = 0.7;
+      } else if (hour >= 5 && hour < 11) {
+        mood = 'energetic';
+        energy = 0.8;
+        similarity = 0.5;
+      } else if (hour >= 11 && hour < 17) {
+        mood = 'focus';
+        energy = 0.4;
+        similarity = 0.6;
+      } else {
+        mood = 'happy';
+        energy = 0.6;
+        similarity = 0.5;
+      }
+      discovery = 0.5;
+    }
+
+    return { mood, energy, discovery, similarity };
+  }, [recentlyPlayed, likedSongIds, currentTrack]);
+
+  const activeMood = autoVibeParameters.mood;
+  const vibeEnergy = autoVibeParameters.energy;
+  const vibeDiscovery = autoVibeParameters.discovery;
+  const vibeSimilarity = autoVibeParameters.similarity;
+
+  const moodInfo = useMemo(() => {
+    switch (activeMood) {
+      case 'happy': return { label: 'Happy State', emoji: 'â˜€ï¸', color: '#b45309', bg: 'rgba(217, 119, 6, 0.12)', border: '1px solid rgba(217, 119, 6, 0.2)', bgGradient: 'radial-gradient(circle at 50% -100px, rgba(251, 191, 36, 0.16) 0%, rgba(255, 255, 255, 0) 60%)' };
+      case 'sad': return { label: 'Melancholy State', emoji: 'ðŸŒ§ï¸', color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.12)', border: '1px solid rgba(59, 130, 246, 0.2)', bgGradient: 'radial-gradient(circle at 50% -100px, rgba(59, 130, 246, 0.16) 0%, rgba(255, 255, 255, 0) 60%)' };
+      case 'energetic': return { label: 'High Energy State', emoji: '⚡', color: '#e11d48', bg: 'rgba(225, 29, 72, 0.12)', border: '1px solid rgba(225, 29, 72, 0.2)', bgGradient: 'radial-gradient(circle at 50% -100px, rgba(239, 68, 68, 0.16) 0%, rgba(255, 255, 255, 0) 60%)' };
+      case 'chill': return { label: 'Chill State', emoji: '🌊', color: '#0d9488', bg: 'rgba(13, 148, 136, 0.12)', border: '1px solid rgba(13, 148, 136, 0.2)', bgGradient: 'radial-gradient(circle at 50% -100px, rgba(20, 184, 166, 0.16) 0%, rgba(255, 255, 255, 0) 60%)' };
+      case 'romantic': return { label: 'Romantic State', emoji: '💖', color: '#db2777', bg: 'rgba(219, 39, 119, 0.12)', border: '1px solid rgba(219, 39, 119, 0.2)', bgGradient: 'radial-gradient(circle at 50% -100px, rgba(219, 39, 119, 0.16) 0%, rgba(255, 255, 255, 0) 60%)' };
+      case 'focus': return { label: 'Focus State', emoji: '🧠', color: '#4f46e5', bg: 'rgba(79, 70, 229, 0.12)', border: '1px solid rgba(79, 70, 229, 0.2)', bgGradient: 'radial-gradient(circle at 50% -100px, rgba(79, 70, 229, 0.16) 0%, rgba(255, 255, 255, 0) 60%)' };
+      default: return { label: 'Happy State', emoji: 'â˜€ï¸', color: '#b45309', bg: 'rgba(217, 119, 6, 0.12)', border: '1px solid rgba(217, 119, 6, 0.2)', bgGradient: 'radial-gradient(circle at 50% -100px, rgba(15, 81, 50, 0.10) 0%, rgba(255, 255, 255, 0) 60%)' };
+    }
+  }, [activeMood]);
+
+  const forYouTracks = useMemo(() => 
+    getDiscoverWeekly(likedSongIds, recentTrackIds, allTracks, 20, user?.id, dynamicFollowedArtists, preferredLanguages, activeMood, vibeEnergy, vibeDiscovery, vibeSimilarity, skipCounts),
+    [likedSongIds, recentTrackIds, allTracks, user?.id, dynamicFollowedArtists, preferredLanguages, activeMood, vibeEnergy, vibeDiscovery, vibeSimilarity, skipCounts]
+  );
+  const recommendedTracks = useMemo(() => 
+    getDailyMix(likedSongIds, dynamicGenreScores, allTracks, 20, user?.id, dynamicFollowedArtists, preferredLanguages, activeMood, vibeEnergy, vibeDiscovery, vibeSimilarity, skipCounts),
+    [likedSongIds, dynamicGenreScores, allTracks, user?.id, dynamicFollowedArtists, preferredLanguages, activeMood, vibeEnergy, vibeDiscovery, vibeSimilarity, skipCounts]
+  );
+  const newTracks = useMemo(() => 
+    getReleaseRadar(dynamicFollowedArtists, allTracks, 8, user?.id, preferredLanguages, activeMood, vibeEnergy, skipCounts),
+    [dynamicFollowedArtists, allTracks, user?.id, preferredLanguages, activeMood, vibeEnergy, skipCounts]
+  );
+  const trendingTracks = useMemo(() => 
+    getTopCharts(allTracks, 8, user?.id, activeMood, vibeEnergy, skipCounts),
+    [allTracks, user?.id, activeMood, vibeEnergy, skipCounts]
+  );
   const recentTracks = useMemo(() => recentlyPlayed.length > 0 ? recentlyPlayed.slice(0, 6) : allTracks.slice(0, 6), [recentlyPlayed, allTracks]);
   const topGenres = useMemo(() => Object.entries(genreScores).sort((a, b) => b[1] - a[1]).slice(0, 4), [genreScores]);
   const hasPersonalization = topGenres.length > 0;
@@ -884,7 +1007,7 @@ export default function HomePage() {
 
           <div>
             <h3 style={{ color: '#fff', fontSize: cSize === 'xs' ? 14 : 15.5, fontWeight: 800, margin: '0 0 4px 0', fontFamily: 'Outfit, sans-serif' }}>{event.name}</h3>
-            <p style={{ color: '#a3a3a3', fontSize: 11.5, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>📍 {event.location}</p>
+            <p style={{ color: '#a3a3a3', fontSize: 11.5, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>ðŸ“ {event.location}</p>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(255,255,255,0.02)', padding: '8px 12px', borderRadius: 10 }}>
@@ -918,12 +1041,12 @@ export default function HomePage() {
                   });
                   const data = await res.json();
                   if (data.success) {
-                    toast.success(`🎟️ ${data.message}`);
+                    toast.success(`ðŸŽŸï¸ ${data.message}`);
                   } else {
                     toast.error(data.error || 'Failed to book ticket');
                   }
                 } catch (err) {
-                  toast.success(`🎟️ Ticket booked successfully for ${event.name}!`);
+                  toast.success(`ðŸŽŸï¸ Ticket booked successfully for ${event.name}!`);
                 }
               }}
               style={{
@@ -985,7 +1108,7 @@ export default function HomePage() {
                   <div>
                     <h4 style={{ color: '#fff', fontSize: 14, fontWeight: 700, margin: 0 }}>{event.name}</h4>
                     <p style={{ color: '#737373', fontSize: 11.5, margin: '2px 0 0 0' }}>
-                      {artistName} • 📍 {event.location}
+                      {artistName} â€¢ ðŸ“ {event.location}
                     </p>
                     <p style={{ color: '#a3a3a3', fontSize: 10.5, margin: '2px 0 0 0' }}>
                       📅 {event.date} at {event.time || '8:00 PM'}
@@ -1011,12 +1134,12 @@ export default function HomePage() {
                         });
                         const data = await res.json();
                         if (data.success) {
-                          toast.success(`🎟️ ${data.message}`);
+                          toast.success(`ðŸŽŸï¸ ${data.message}`);
                         } else {
                           toast.error(data.error || 'Failed to book ticket');
                         }
                       } catch (err) {
-                        toast.success(`🎟️ Ticket booked successfully for ${event.name}!`);
+                        toast.success(`ðŸŽŸï¸ Ticket booked successfully for ${event.name}!`);
                       }
                     }}
                     style={{ background: GREEN, color: '#000', border: 'none', borderRadius: 20, padding: '5px 12px', fontSize: 11, fontWeight: 700, cursor: 'pointer', width: isMobile ? 'auto' : 'initial' }}
@@ -1055,7 +1178,7 @@ export default function HomePage() {
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.65) 100%)', zIndex: 1 }} />
           {artistAvatar && (
             <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
-              <img src={artistAvatar} alt={event.name} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.25, filter: 'blur(2px)' }} />
+              <img loading="lazy" src={artistAvatar} alt={event.name} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.25, filter: 'blur(2px)' }} />
             </div>
           )}
           
@@ -1080,7 +1203,7 @@ export default function HomePage() {
                 {event.name}
               </h2>
               <p className="text-white-muted-force" style={{ color: '#aaa', fontSize: 12.5, marginBottom: 14 }}>
-                👤 {artistName} • 📍 {event.location}
+                👤 {artistName} â€¢ ðŸ“ {event.location}
               </p>
               <button
                 type="button"
@@ -1099,12 +1222,12 @@ export default function HomePage() {
                     });
                     const data = await res.json();
                     if (data.success) {
-                      toast.success(`🎟️ ${data.message}`);
+                      toast.success(`ðŸŽŸï¸ ${data.message}`);
                     } else {
                       toast.error(data.error || 'Failed to book ticket');
                     }
                   } catch (err) {
-                    toast.success(`🎟️ Ticket booked successfully for ${event.name}!`);
+                    toast.success(`ðŸŽŸï¸ Ticket booked successfully for ${event.name}!`);
                   }
                 }}
                 style={{
@@ -1123,7 +1246,7 @@ export default function HomePage() {
                 onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
                 onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
               >
-                Get Tickets • {event.price || 'Free'}
+                Get Tickets â€¢ {event.price || 'Free'}
               </button>
             </div>
             
@@ -1532,7 +1655,7 @@ export default function HomePage() {
             )}
           </div>
 
-          {/* ── Ad Placement: homepage_hero (rendered right below welcome greeting) ── */}
+          {/* â”€â”€ Ad Placement: homepage_hero (rendered right below welcome greeting) â”€â”€ */}
           {(resolveActiveAd('homepage_hero', ['banner', 'video']) || visualAd) && (
             <div style={{ marginTop: 8, marginBottom: 28 }}>
               <AdBanner ad={resolveActiveAd('homepage_hero', ['banner', 'video']) || visualAd} theme={adTheme} />
@@ -1576,7 +1699,7 @@ export default function HomePage() {
               </button>
               <Link href="/library?tab=liked" style={{ color: 'var(--color-ss-text-muted, #64748b)', fontSize: 13, textDecoration: 'none' }}
                 onMouseEnter={e => (e.currentTarget.style.color = 'var(--color-ss-text-primary, #0f172a)')}
-                onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-ss-text-muted, #64748b)')}>View all →</Link>
+                onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-ss-text-muted, #64748b)')}>View all â†’</Link>
             </div>
           </motion.div>
         );
@@ -1633,10 +1756,10 @@ export default function HomePage() {
                       </div>
                       <div style={{ position: 'absolute', top: 12, right: 12, display: 'flex', gap: 8 }}>
                         <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(255, 255, 255, 0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#221a15', fontSize: 12 }}>
-                          Ã°Å¸â€Å 
+                          ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ…Â 
                         </div>
                         <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(255, 255, 255, 0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#221a15', fontSize: 12, fontWeight: 'bold' }}>
-                          ⋮
+                          â‹®
                         </div>
                       </div>
                     </div>
@@ -1717,14 +1840,14 @@ export default function HomePage() {
                 >
                   {promo.image && (
                     <div style={{ position: 'absolute', inset: 0 }}>
-                      <img src={promo.image} alt={promo.title} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.7 }} />
+                      <img loading="lazy" src={promo.image} alt={promo.title} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.7 }} />
                       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(251,249,245,0.85) 0%, rgba(251,249,245,0.2) 60%, rgba(251,249,245,0.65) 100%)' }} />
                     </div>
                   )}
                   <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', padding: '0 28px', zIndex: 2 }}>
                     <div style={{ maxWidth: '65%' }}>
                       <span style={{ color: GREEN, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 6 }}>
-                        🔥 Special Promotion • {promo.type}
+                        🔥 Special Promotion â€¢ {promo.type}
                       </span>
                       <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 22, fontWeight: 950, color: '#221a15', marginBottom: 4 }}>
                         {promo.title}
@@ -1752,7 +1875,7 @@ export default function HomePage() {
         return (
           <Section
             key="made_for_you"
-            title={`${hasPersonalization ? '🤖 ' : '🎵 '}${hasPersonalization ? 'Made For You' : 'Picked For You'}`}
+            title={`${hasPersonalization ? 'ðŸ¤– ' : '🎵 '}${hasPersonalization ? 'Made For You' : 'Picked For You'}`}
             subtitle={hasPersonalization ? `Based on your love of ${topGenres.map(([g]) => g).slice(0, 2).join(' & ')}` : 'AI-curated based on your taste'}
             link="/library">
             {config?.layout === 'minimal_quick_access' ? renderQuickAccessGrid(forYouTracks, 6, config) : renderSectionTracks(forYouTracks, config)}
@@ -1774,7 +1897,7 @@ export default function HomePage() {
                   <span style={{ color: GREEN, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 8 }}>🎵 Featured Artist</span>
                   <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 40, fontWeight: 900, color: 'var(--color-ss-text-primary, #0f172a)', marginBottom: 6 }}>{featuredArtist.name}</h2>
                   <p style={{ color: 'var(--color-ss-text-muted, #64748b)', fontSize: 13, marginBottom: 18 }}>
-                    {featuredArtist.genres.join(' · ')} · {(featuredArtist.monthlyListeners / 1_000_000).toFixed(1)}M monthly listeners
+                    {featuredArtist.genres.join(' Â· ')} Â· {(featuredArtist.monthlyListeners / 1_000_000).toFixed(1)}M monthly listeners
                   </p>
                   <div style={{ display: 'flex', gap: 10 }}>
                     <button onClick={() => { const tracks = allTracks.filter(t => t.artistId === featuredArtist.id); if (tracks.length) playTrack(tracks[0], tracks.slice(1)); }}
@@ -1822,7 +1945,7 @@ export default function HomePage() {
       case 'your_taste':
         if (!hasPersonalization) return null;
         return (
-          <Section key="your_taste" title="🎯 Your Taste" subtitle="Genres you've been exploring">
+          <Section key="your_taste" title="ðŸŽ¯ Your Taste" subtitle="Genres you've been exploring">
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
               {topGenres.map(([genre, score]) => (
                 <div key={genre} style={{ padding: '18px 20px', borderRadius: 14, background: `linear-gradient(135deg, ${GENRE_COLORS[genre] || '#b08850'}25, ${GENRE_COLORS[genre] || '#b08850'}10)`, border: `1px solid ${GENRE_COLORS[genre] || '#b08850'}30`, cursor: 'pointer' }}>
@@ -1842,7 +1965,7 @@ export default function HomePage() {
       case 'recently_played': {
         const config = customSections[sectionId];
         return (
-          <Section key="recently_played" title="⏱ Recently Played" link="/library">
+          <Section key="recently_played" title="â± Recently Played" link="/library">
             {config?.layout === 'minimal_quick_access' ? renderQuickAccessGrid(recentTracks, 6, config) : renderSectionTracks(recentTracks, config)}
           </Section>
         );
@@ -1857,7 +1980,7 @@ export default function HomePage() {
                 { mood: 'Chill', emoji: '😌', gradient: 'linear-gradient(135deg, #0e7490, #06b6d4)', songs: 41 },
                 { mood: 'Energetic', emoji: '⚡', gradient: 'linear-gradient(135deg, #b91c1c, #f97316)', songs: 56 },
                 { mood: 'Romantic', emoji: '💖', gradient: 'linear-gradient(135deg, #9d174d, #34d399)', songs: 28 },
-                { mood: 'Focus', emoji: '🎯', gradient: 'linear-gradient(135deg, #065f46, #b08850)', songs: 37 },
+                { mood: 'Focus', emoji: 'ðŸŽ¯', gradient: 'linear-gradient(135deg, #065f46, #b08850)', songs: 37 },
                 { mood: 'Sad', emoji: '😢', gradient: 'linear-gradient(135deg, #1e3a5f, #6366f1)', songs: 32 },
               ].map(item => {
                 const tracks = mockTracks.slice(0, 4);
@@ -1884,7 +2007,7 @@ export default function HomePage() {
               {[
                 { title: 'Daily Mix 1', desc: 'Aurora Nightfall, Nyx & Prometheus and more', gradient: 'linear-gradient(135deg, #4c1d95, #7c3aed)', emoji: '🌌' },
                 { title: 'Daily Mix 2', desc: 'Selene Ray, Cipher Nova and more', gradient: 'linear-gradient(135deg, #831843, #34d399)', emoji: '🌸' },
-                { title: 'Daily Mix 3', desc: 'The Velvet Echoes, Marco Santos and more', gradient: 'linear-gradient(135deg, #78350f, #f59e0b)', emoji: '🎸' },
+                { title: 'Daily Mix 3', desc: 'The Velvet Echoes, Marco Santos and more', gradient: 'linear-gradient(135deg, #78350f, #f59e0b)', emoji: 'ðŸŽ¸' },
                 { title: 'Daily Mix 4', desc: 'Based on your recent plays', gradient: 'linear-gradient(135deg, #064e3b, #10b981)', emoji: '🌊' },
               ].map((mix, i) => {
                 const tracks = mockTracks.slice(i * 3, i * 3 + 3);
@@ -1939,14 +2062,14 @@ export default function HomePage() {
             >
               {promo.image && (
                 <div style={{ position: 'absolute', inset: 0 }}>
-                  <img src={promo.image} alt={promo.title} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.7 }} />
+                  <img loading="lazy" src={promo.image} alt={promo.title} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.7 }} />
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.55) 100%)' }} />
                 </div>
               )}
               <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', padding: '0 28px', zIndex: 2 }}>
                 <div style={{ maxWidth: '65%' }}>
                   <span style={{ color: GREEN, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 6 }}>
-                    🔥 Special Promotion • {promo.type}
+                    🔥 Special Promotion â€¢ {promo.type}
                   </span>
                   <h2 className="text-white-force" style={{ fontFamily: 'Outfit, sans-serif', fontSize: 22, fontWeight: 950, color: '#fff', marginBottom: 4 }}>
                     {promo.title}
@@ -1982,7 +2105,7 @@ export default function HomePage() {
           const isLiveEvents = config.type === 'ticket_sales' || config.type === 'live_event_cta' || config.type === 'live_events' || sectionId.includes('live_event') || sectionId.includes('ticket_sales');
 
           if (isLiveEvents) {
-            // ── Background styles ──
+            // â”€â”€ Background styles â”€â”€
             const bgType = config.background?.type || config.bgStyle;
             const bgVal = config.background?.value || '';
 
@@ -2016,7 +2139,7 @@ export default function HomePage() {
               containerStyle.boxShadow = '0 0 30px rgba(176, 136, 80,0.08)';
             }
 
-            // ── Border Styles ──
+            // â”€â”€ Border Styles â”€â”€
             const borderStyle = config.borderStyle;
             const borderColorVal = config.borderColor || 'var(--theme-primary, #b08850)';
 
@@ -2027,7 +2150,7 @@ export default function HomePage() {
               containerStyle.boxShadow = `0 0 15px ${borderColorVal}33`;
             }
 
-            // ── Animation Variants ──
+            // â”€â”€ Animation Variants â”€â”€
             const animationType = config.animation || 'none';
             const variants = {
               none: { opacity: 1, y: 0 },
@@ -2054,7 +2177,7 @@ export default function HomePage() {
               <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 0, borderRadius: 18 }}>
                 {isImageBg && bgVal && (
                   <>
-                    <img src={bgVal} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <img loading="lazy" src={bgVal} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.85) 100%)' }} />
                   </>
                 )}
@@ -2172,7 +2295,7 @@ export default function HomePage() {
                 allTracks.find(t => t.id === tid) || mockTracks.find(t => t.id === tid)
               ).filter((t: any): t is typeof mockTracks[0] => !!t);
               linkPath = `/playlist/${targetPlId}`;
-              if (!subtitleText) subtitleText = `Playlist • ${playlist.title}`;
+              if (!subtitleText) subtitleText = `Playlist â€¢ ${playlist.title}`;
             }
           } else if (source === 'album') {
             const album = mockAlbums.find(a => a.id === config.targetId);
@@ -2184,7 +2307,7 @@ export default function HomePage() {
                 ).filter((t: any): t is typeof mockTracks[0] => !!t);
               }
               linkPath = `/album/${config.targetId}`;
-              if (!subtitleText) subtitleText = `Album • ${album.title}`;
+              if (!subtitleText) subtitleText = `Album â€¢ ${album.title}`;
             }
           } else if (source === 'artist_spotlight' || config.type === 'artist_spotlight' || config.type === 'featured_artist') {
             const targetArtistId = config.targetId || featuredArtist.id;
@@ -2237,7 +2360,7 @@ export default function HomePage() {
 
           if (tracks.length === 0 && !isHeroSection && !isSpotlightSection && !isNewInteractiveLayout) return null;
 
-          // ── Background styles ──
+          // â”€â”€ Background styles â”€â”€
           const bgType = config.background?.type || config.bgStyle;
           const bgVal = config.background?.value || '';
 
@@ -2271,7 +2394,7 @@ export default function HomePage() {
             containerStyle.boxShadow = '0 0 30px rgba(176, 136, 80,0.08)';
           }
 
-          // ── Border Styles ──
+          // â”€â”€ Border Styles â”€â”€
           const borderStyle = config.borderStyle;
           const borderColorVal = config.borderColor || 'var(--theme-primary, #b08850)';
 
@@ -2282,7 +2405,7 @@ export default function HomePage() {
             containerStyle.boxShadow = `0 0 15px ${borderColorVal}33`;
           }
 
-          // ── Animation Variants ──
+          // â”€â”€ Animation Variants â”€â”€
           const animationType = config.animation || 'none';
           const variants = {
             none: { opacity: 1, y: 0 },
@@ -2310,7 +2433,7 @@ export default function HomePage() {
             <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 0, borderRadius: 18 }}>
               {isImageBg && bgVal && (
                 <>
-                  <img src={bgVal} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img loading="lazy" src={bgVal} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.85) 100%)' }} />
                 </>
               )}
@@ -2332,7 +2455,7 @@ export default function HomePage() {
             </div>
           );
 
-          // ── Hero Section Render (if config is hero / spotlight) ──
+          // â”€â”€ Hero Section Render (if config is hero / spotlight) â”€â”€
           if (isHeroSection) {
             return (
               <motion.div
@@ -2444,7 +2567,7 @@ export default function HomePage() {
                           cursor: 'pointer'
                         }}
                       >
-                        <img src={plCover} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <img loading="lazy" src={plCover} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       </motion.div>
                     </Link>
                     
@@ -2512,7 +2635,7 @@ export default function HomePage() {
                           border: isCurrent ? '2px solid #000' : 'none'
                         }}>
                           <div style={{ width: '100%', height: '100%', borderRadius: '50%', border: '2px solid #000', overflow: 'hidden' }}>
-                            <img src={coverImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <img loading="lazy" src={coverImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                           </div>
                         </div>
                         <span style={{
@@ -2569,11 +2692,11 @@ export default function HomePage() {
                         
                         <div style={{ position: 'absolute', right: 10, bottom: isMobile ? 40 : 50, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, zIndex: 2 }}>
                           <div style={{ width: 26, height: 26, borderRadius: '50%', border: '1px solid #fff', overflow: 'hidden', background: '#333' }}>
-                            <img src={coverImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <img loading="lazy" src={coverImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                           </div>
-                          <span style={{ fontSize: isMobile ? 14 : 16 }}>❤️</span>
-                          <span style={{ fontSize: isMobile ? 14 : 16 }}>💬</span>
-                          <span style={{ fontSize: isMobile ? 14 : 16 }}>📨</span>
+                          <span style={{ fontSize: isMobile ? 14 : 16 }}>â¤ï¸</span>
+                          <span style={{ fontSize: isMobile ? 14 : 16 }}>ðŸ’¬</span>
+                          <span style={{ fontSize: isMobile ? 14 : 16 }}>ðŸ“¨</span>
                         </div>
 
                         <div style={{
@@ -2636,7 +2759,7 @@ export default function HomePage() {
                           border: isCenter ? '2px solid var(--theme-primary, #b08850)' : '1px solid rgba(255,255,255,0.06)'
                         }}
                       >
-                        <img src={coverImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <img loading="lazy" src={coverImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       </motion.div>
                     );
                   })}
@@ -2666,7 +2789,7 @@ export default function HomePage() {
                         }}
                       >
                         <div style={{ width: '100%', paddingTop: '100%', position: 'relative', borderRadius: 8, overflow: 'hidden' }}>
-                          <img src={coverImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                          <img loading="lazy" src={coverImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
                         </div>
                         <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: isCurrent ? 'var(--theme-primary, #b08850)' : '#fff', marginTop: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.title}</div>
                         <div style={{ fontSize: isMobile ? 10 : 11, color: 'var(--theme-text-muted, #737373)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.artistName}</div>
@@ -2701,7 +2824,7 @@ export default function HomePage() {
                         }}
                       >
                         <div style={{ width: '100%', paddingTop: '100%', position: 'relative', border: '1px solid rgba(255,255,255,0.1)' }}>
-                          <img src={coverImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                          <img loading="lazy" src={coverImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
                         </div>
                         <div style={{ fontSize: isMobile ? 11.5 : 13, fontWeight: 900, color: '#00f0ff', fontFamily: 'monospace', marginTop: 8, textShadow: '1px 1px 0px #ff007f', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.title.toUpperCase()}</div>
                         <div style={{ fontSize: isMobile ? 9 : 10, color: '#fff', opacity: 0.8, fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.artistName}</div>
@@ -2738,8 +2861,8 @@ export default function HomePage() {
                         }}
                       >
                         <span style={{ fontSize: isMobile ? 16 : 20, fontWeight: 950, color: rankColor, width: 24, textAlign: 'center', fontFamily: 'Outfit, sans-serif' }}>{i + 1}</span>
-                        <span style={{ fontSize: 10, color: 'var(--theme-primary, #b08850)' }}>▲</span>
-                        <img src={coverImg} alt="" style={{ width: isMobile ? 32 : 44, height: isMobile ? 32 : 44, borderRadius: 6, objectFit: 'cover', flexShrink: 0 }} />
+                        <span style={{ fontSize: 10, color: 'var(--theme-primary, #b08850)' }}>â–²</span>
+                        <img loading="lazy" src={coverImg} alt="" style={{ width: isMobile ? 32 : 44, height: isMobile ? 32 : 44, borderRadius: 6, objectFit: 'cover', flexShrink: 0 }} />
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: isMobile ? 13 : 15, fontWeight: 800, color: isCurrent ? 'var(--theme-primary, #b08850)' : '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.title}</div>
                           <div style={{ fontSize: isMobile ? 11 : 12, color: 'var(--theme-text-muted, #737373)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 2 }}>{track.artistName}</div>
@@ -2771,7 +2894,7 @@ export default function HomePage() {
                 }}
                 onClick={() => playTrack(track, tracks)}
                 >
-                  <img src={coverImg} alt="" style={{ width: isMobile ? 56 : 90, height: isMobile ? 56 : 90, borderRadius: 10, objectFit: 'cover', border: '1px solid rgba(255,255,255,0.1)' }} />
+                  <img loading="lazy" src={coverImg} alt="" style={{ width: isMobile ? 56 : 90, height: isMobile ? 56 : 90, borderRadius: 10, objectFit: 'cover', border: '1px solid rgba(255,255,255,0.1)' }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: isMobile ? 9 : 11, fontWeight: 900, color: '#10b981', letterSpacing: '0.08em' }}>NEW RELEASE COUNTDOWN</div>
                     <div style={{ fontSize: isMobile ? 14 : 20, fontWeight: 900, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 4 }}>{track.title}</div>
@@ -2814,7 +2937,7 @@ export default function HomePage() {
                     onClick={() => playTrack(t1, tracks)}
                     style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 12, padding: 12, display: 'flex', flexDirection: 'column', cursor: 'pointer' }}
                   >
-                    <img src={t1.coverImage || config.customImage} alt="" style={{ width: '100%', height: isMobile ? 90 : 150, objectFit: 'cover', borderRadius: 8 }} />
+                    <img loading="lazy" src={t1.coverImage || config.customImage} alt="" style={{ width: '100%', height: isMobile ? 90 : 150, objectFit: 'cover', borderRadius: 8 }} />
                     <span style={{ fontSize: isMobile ? 14 : 18, fontWeight: 900, fontFamily: 'serif', color: '#fff', marginTop: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>{t1.title}</span>
                     <span style={{ fontSize: isMobile ? 11 : 12, color: 'var(--theme-text-muted, #737373)', marginTop: 6, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: 1.4 }}>Specially featured editorial layout showing track highlight. Discover more about the artist and album details now.</span>
                   </motion.div>
@@ -2827,7 +2950,7 @@ export default function HomePage() {
                         onClick={() => playTrack(track, tracks)}
                         style={{ display: 'flex', gap: 12, alignItems: 'center', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: 10, padding: 10, cursor: 'pointer' }}
                       >
-                        <img src={track.coverImage || undefined} alt="" style={{ width: isMobile ? 36 : 50, height: isMobile ? 36 : 50, borderRadius: 6, objectFit: 'cover' }} />
+                        <img loading="lazy" src={track.coverImage || undefined} alt="" style={{ width: isMobile ? 36 : 50, height: isMobile ? 36 : 50, borderRadius: 6, objectFit: 'cover' }} />
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.title}</div>
                           <div style={{ fontSize: isMobile ? 10 : 12, color: 'var(--theme-text-muted, #737373)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 2 }}>{track.artistName}</div>
@@ -2852,11 +2975,11 @@ export default function HomePage() {
                   gap: isMobile ? 12 : 20,
                   marginBottom: 16
                 }}>
-                  <img src={artist.image} alt="" style={{ width: isMobile ? 50 : 70, height: isMobile ? 50 : 70, borderRadius: '50%', objectFit: 'cover', border: '2px solid #fff', flexShrink: 0 }} />
+                  <img loading="lazy" src={artist.image} alt="" style={{ width: isMobile ? 50 : 70, height: isMobile ? 50 : 70, borderRadius: '50%', objectFit: 'cover', border: '2px solid #fff', flexShrink: 0 }} />
                   <div style={{ flex: 1, minWidth: 0, position: 'relative', background: 'var(--theme-card, #181818)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px 12px 12px 0px', padding: '12px 16px' }}>
                     <div style={{ position: 'absolute', left: -6, bottom: 0, width: 0, height: 0, borderTop: '6px solid transparent', borderRight: '6px solid var(--theme-card, #181818)', borderBottom: '0px solid transparent' }} />
                     <div style={{ fontSize: isMobile ? 13 : 15, fontStyle: 'italic', color: '#e5e7eb', lineHeight: 1.4 }}>"I make songs for the quiet dreamers of the night..."</div>
-                    <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: 'var(--theme-primary, #b08850)', marginTop: 6, textAlign: 'right' }}>— {artist.name}</div>
+                    <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: 'var(--theme-primary, #b08850)', marginTop: 6, textAlign: 'right' }}>â€”Â {artist.name}</div>
                   </div>
                 </div>
               );
@@ -2887,7 +3010,7 @@ export default function HomePage() {
                     }}
                   >
                     <div style={{ fontSize: isMobile ? 10 : 11, color: '#fff', opacity: 0.6, fontWeight: 800 }}>FEATURED</div>
-                    <img src={t1.coverImage || config.customImage} alt="" style={{ width: '100%', height: isMobile ? 70 : 100, objectFit: 'cover', borderRadius: 8, margin: '10px 0' }} />
+                    <img loading="lazy" src={t1.coverImage || config.customImage} alt="" style={{ width: '100%', height: isMobile ? 70 : 100, objectFit: 'cover', borderRadius: 8, margin: '10px 0' }} />
                     <div style={{ fontSize: isMobile ? 13 : 15, fontWeight: 900, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t1.title}</div>
                   </motion.div>
 
@@ -2906,7 +3029,7 @@ export default function HomePage() {
                       cursor: 'pointer'
                     }}
                   >
-                    <img src={t2.coverImage || undefined} alt="" style={{ width: isMobile ? 32 : 44, height: isMobile ? 32 : 44, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
+                    <img loading="lazy" src={t2.coverImage || undefined} alt="" style={{ width: isMobile ? 32 : 44, height: isMobile ? 32 : 44, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 850, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t2.title}</div>
                     </div>
@@ -3462,7 +3585,7 @@ export default function HomePage() {
                         }}>
                           {config.title || "SELF CARE DAYS"}
                         </h2>
-                        <span style={{ fontSize: 24 }}>✨</span>
+                        <span style={{ fontSize: 24 }}>âœ¨</span>
                       </div>
                       <p style={{ margin: '4px 0 0 0', fontSize: 14, color: '#87786c', fontWeight: 555 }}>
                         Curated audio therapies and premium deals handcrafted just for your device.
@@ -3654,7 +3777,7 @@ export default function HomePage() {
                                   <span style={{ fontSize: 15, fontWeight: 900, color: '#221a15', letterSpacing: '-0.01em' }}>
                                     {cardTitles[i]}
                                   </span>
-                                  <span style={{ fontSize: 16 }}>🎧</span>
+                                  <span style={{ fontSize: 16 }}>ðŸŽ§</span>
                                 </div>
                                 <div style={{ fontSize: 11, color: '#87786c', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                   Featuring {track.title}
@@ -3779,20 +3902,20 @@ export default function HomePage() {
             if (rawLayout === 'portal_category_grid') {
               const isExpanded = !!portalExpanded[sectionId];
               const topCategories = [
-                { title: 'Super Hits', icon: '🔥', path: '/search' },
-                { title: 'New Releases', icon: '🆕', path: '/search' },
-                { title: 'Live Concerts', icon: '🎤', path: '/library' },
-                { title: 'Artist Radio', icon: '📻', path: '/library' }
+                { title: 'Super Hits', img: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=150&h=150&fit=crop', path: '/search' },
+                { title: 'New Releases', img: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=150&h=150&fit=crop', path: '/search' },
+                { title: 'Live Concerts', img: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=150&h=150&fit=crop', path: '/library' },
+                { title: 'Artist Radio', img: 'https://images.unsplash.com/photo-1484755560615-a4c64e778a6c?w=150&h=150&fit=crop', path: '/library' }
               ];
               const gridCategories = [
-                { title: 'Trending Playlists', icon: '📋', path: '/library' },
-                { title: 'Mood Mixes', icon: '🌊', path: '/search' },
-                { title: 'Top Podcasts', icon: '🎙️', path: '/search' },
-                { title: 'Weekly Charts', icon: '📈', path: '/search' },
-                { title: 'Premium Tracks', icon: '👑', path: '/library' },
-                { title: 'Jam Rooms', icon: '🗣️', path: '/library' },
-                { title: 'Merch Store', icon: '👕', path: '/library' },
-                { title: 'Concert Tickets', icon: '🎫', path: '/library' }
+                { title: 'Trending Playlists', img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=100&h=100&fit=crop', path: '/library' },
+                { title: 'Mood Mixes', img: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=100&h=100&fit=crop', path: '/search' },
+                { title: 'Top Podcasts', img: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=100&h=100&fit=crop', path: '/search' },
+                { title: 'Weekly Charts', img: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=100&h=100&fit=crop', path: '/search' },
+                { title: 'Premium Tracks', img: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=100&h=100&fit=crop', path: '/library' },
+                { title: 'Jam Rooms', img: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=100&h=100&fit=crop', path: '/library' },
+                { title: 'Merch Store', img: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=100&h=100&fit=crop', path: '/library' },
+                { title: 'Concert Tickets', img: 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=100&h=100&fit=crop', path: '/library' }
               ];
               const visibleGridItems = isExpanded ? gridCategories : gridCategories.slice(0, 4);
 
@@ -3805,23 +3928,47 @@ export default function HomePage() {
                         key={cat.title}
                         onClick={() => router.push(cat.path)}
                         style={{
-                          background: '#FAF5E8',
+                          position: 'relative',
                           borderRadius: 16,
-                          padding: isMobile ? '14px 6px' : '20px 12px',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: 8,
-                          border: '1px solid rgba(176,136,80,0.18)',
+                          height: isMobile ? 76 : 100,
+                          overflow: 'hidden',
                           cursor: 'pointer',
                           transition: 'all 0.2s ease',
-                          boxShadow: '0 2px 8px rgba(176,136,80,0.06)'
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                         }}
                         className="hover-scale-subtle"
                       >
-                        <span style={{ fontSize: isMobile ? 26 : 34 }}>{cat.icon}</span>
-                        <span style={{ fontSize: isMobile ? 10 : 12.5, fontWeight: 800, color: '#3d2e20', textAlign: 'center', lineHeight: 1.2 }}>{cat.title}</span>
+                        {/* Background Image */}
+                        <img 
+                          src={cat.img} 
+                          alt="" 
+                          style={{ 
+                            width: '100%', 
+                            height: '100%', 
+                            objectFit: 'cover'
+                          }} 
+                        />
+                        {/* Gradient Overlay */}
+                        <div style={{
+                          position: 'absolute',
+                          inset: 0,
+                          background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.15) 100%)'
+                        }} />
+                        {/* Title Overlay */}
+                        <span style={{
+                          position: 'absolute',
+                          bottom: 10,
+                          left: 10,
+                          right: 10,
+                          fontSize: isMobile ? 10.5 : 13,
+                          fontWeight: 900,
+                          color: '#fff',
+                          textAlign: 'left',
+                          lineHeight: 1.15,
+                          textShadow: '0 1px 4px rgba(0,0,0,0.4)'
+                        }}>
+                          {cat.title}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -3852,22 +3999,18 @@ export default function HomePage() {
                             width: isMobile ? 38 : 50,
                             height: isMobile ? 38 : 50,
                             borderRadius: '50%',
-                            background: 'rgba(176,136,80,0.07)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: isMobile ? 18 : 22,
-                            border: '1px solid rgba(176,136,80,0.12)',
-                            transition: 'background 0.2s'
+                            overflow: 'hidden',
+                            border: '1.5px solid rgba(176,136,80,0.14)',
+                            boxShadow: '0 2px 6px rgba(0,0,0,0.06)'
                           }}>
-                            {cat.icon}
+                            <img src={cat.img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                           </div>
                           <span style={{ fontSize: isMobile ? 9.5 : 11, fontWeight: 700, color: '#4d3f35', textAlign: 'center', lineHeight: 1.25 }}>{cat.title}</span>
                         </div>
                       ))}
                     </div>
 
-                    {/* Expand/collapse — mobile only */}
+                    {/* Expand/collapse â€” mobile only */}
                     {isMobile && (
                       <div
                         onClick={() => setPortalExpanded(prev => ({ ...prev, [sectionId]: !prev[sectionId] }))}
@@ -3891,7 +4034,7 @@ export default function HomePage() {
                           display: 'inline-flex',
                           transition: 'transform 0.3s ease',
                           transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'
-                        }}>▼</span>
+                        }}>â–¼</span>
                       </div>
                     )}
                   </div>
@@ -3928,11 +4071,11 @@ export default function HomePage() {
                 'rgba(176, 136, 80,0.12)', 'rgba(140, 108, 68,0.12)', 'rgba(176, 136, 80,0.12)',
                 'rgba(239,68,68,0.12)', 'rgba(245,158,11,0.12)', 'rgba(52, 211, 153,0.12)'
               ];
-              const cardEmojis = ['🏖️', '🌙', '📚', '💪', '🎪', '🎸'];
+              const cardEmojis = ['ðŸ–ï¸', '🌙', 'ðŸ“š', 'ðŸ’ª', 'ðŸŽª', 'ðŸŽ¸'];
 
               return (
                 <div key={sectionId} style={{ marginBottom: 32 }}>
-                  {/* 1. Header Banner — premium glass style */}
+                  {/* 1. Header Banner â€”Â premium glass style */}
                   <div style={{
                     borderRadius: 20,
                     background: 'linear-gradient(135deg, #022c22 0%, #064e3b 50%, #022c22 100%)',
@@ -3989,7 +4132,7 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  {/* 2. Grid — premium glass cards */}
+                  {/* 2. Grid â€”Â premium glass cards */}
                   <div style={{
                     display: 'grid',
                     gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
@@ -4051,7 +4194,7 @@ export default function HomePage() {
                             border: `2px solid ${accent}30`,
                           }}>
                             {coverImg ? (
-                              <img src={coverImg} alt="" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              <img loading="lazy" src={coverImg} alt="" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             ) : (
                               <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg, ${accent}40, #000)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>{emoji}</div>
                             )}
@@ -4071,7 +4214,7 @@ export default function HomePage() {
                             zIndex: 1,
                             letterSpacing: '0.03em'
                           }}>
-                            Listen Now ➔
+                            Listen Now âž”
                           </div>
                         </motion.div>
                       );
@@ -4087,7 +4230,7 @@ export default function HomePage() {
                 hubTracks.push(mockTracks[hubTracks.length % mockTracks.length]);
               }
               const hubNames = ['Hip Hop', 'EDM Party', 'Lo-Fi Chill', 'Pop Hits', 'Rock Anthems', 'Acoustic'];
-              const icons = ['🎧', '⚡', '📚', '🎤', '🎸', '🎻'];
+              const icons = ['ðŸŽ§', '⚡', 'ðŸ“š', '🎤', 'ðŸŽ¸', 'ðŸŽ»'];
               const activeHub = activeHubFilter[sectionId] || 'Hip Hop';
 
               // Filter tracks based on activeHub
@@ -4163,7 +4306,7 @@ export default function HomePage() {
                             position: 'relative',
                             transition: 'all 0.25s ease'
                           }}>
-                            {track.coverImage ? (<img src={track.coverImage} alt="" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', opacity: 0.25 }} />) : null}
+                            {track.coverImage ? (<img loading="lazy" src={track.coverImage} alt="" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', opacity: 0.25 }} />) : null}
                             <span style={{ zIndex: 1, transform: isActive ? 'scale(1.15)' : 'none', transition: 'transform 0.2s' }}>{icons[i]}</span>
                           </div>
                           <span style={{ 
@@ -4210,10 +4353,10 @@ export default function HomePage() {
                         onClick={() => playTrack(track, displayHubTracks)}
                         >
                           <div style={{ width: '100%', aspectRatio: '1', borderRadius: 8, overflow: 'hidden', marginBottom: 8, position: 'relative' }}>
-                            <img src={track.coverImage || undefined} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <img loading="lazy" src={track.coverImage || undefined} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             {isCurrent && isPlaying && (
                               <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <span style={{ fontSize: 20 }}>Ã°Å¸â€Å </span>
+                                <span style={{ fontSize: 20 }}>ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ…Â </span>
                               </div>
                             )}
                           </div>
@@ -4286,7 +4429,7 @@ export default function HomePage() {
                 }));
               };
 
-              /* ── 3-card peek carousel ── */
+              /* â”€â”€ 3-card peek carousel â”€â”€ */
               const PEEK = isMobile ? 54 : 68;  // px visible for side cards
               const GAP  = 10;
               const leftIdx  = (slideIndex - 1 + slides.length) % slides.length;
@@ -4321,13 +4464,13 @@ export default function HomePage() {
                     {/* gradient bg */}
                     <div style={{ position:'absolute', inset:0, background: slide.gradient, zIndex:0 }} />
 
-                    {/* photo — right 50% for center, full bleed for sides */}
+                    {/* photo â€”Â right 50% for center, full bleed for sides */}
                     <div style={{
                       position:'absolute', top:0, right:0,
                       width: isC ? '52%' : '100%',
                       height:'100%', zIndex:1, overflow:'hidden'
                     }}>
-                      <img src={slide.image} alt={slide.title} style={{
+                      <img loading="lazy" src={slide.image} alt={slide.title} style={{
                         width:'100%', height:'100%', objectFit:'cover',
                         filter: isC ? 'brightness(0.8)' : 'brightness(0.35) saturate(0.4)',
                         transition:'filter 0.4s'
@@ -4383,7 +4526,7 @@ export default function HomePage() {
                           onClick={e => {
                             e.stopPropagation();
                             if (idx === 1) playTrack(tracks[0] || mockTracks[0], tracks);
-                            else toast.success(`Opening ${slide.title}…`);
+                            else toast.success(`Opening ${slide.title}â€¦`);
                           }}
                           style={{
                             alignSelf:'flex-start',
@@ -4399,7 +4542,7 @@ export default function HomePage() {
                           }}
                           onMouseEnter={e => { e.currentTarget.style.transform='scale(1.05)'; }}
                           onMouseLeave={e => { e.currentTarget.style.transform='scale(1)'; }}
-                        >▶ {slide.actionText}</button>
+                        >â–¶ {slide.actionText}</button>
                       </div>
                     </>}
                   </div>
@@ -4411,7 +4554,7 @@ export default function HomePage() {
                   {/* outer clips the overflowing side cards */}
                   <div style={{ position:'relative', overflow:'hidden', paddingTop:6, paddingBottom:4 }}>
 
-                    {/* left arrow — overlays the left peek card */}
+                    {/* left arrow â€”Â overlays the left peek card */}
                     <button
                       onClick={prevSlide}
                       style={{
@@ -4425,7 +4568,7 @@ export default function HomePage() {
                       }}
                       onMouseEnter={e=>{ e.currentTarget.style.background='#b08850'; e.currentTarget.style.color='#000'; }}
                       onMouseLeave={e=>{ e.currentTarget.style.background='rgba(16,10,6,0.78)'; e.currentTarget.style.color='#d4a96a'; }}
-                    >‹</button>
+                    >â€¹</button>
 
                     {/* right arrow */}
                     <button
@@ -4441,9 +4584,9 @@ export default function HomePage() {
                       }}
                       onMouseEnter={e=>{ e.currentTarget.style.background='#b08850'; e.currentTarget.style.color='#000'; }}
                       onMouseLeave={e=>{ e.currentTarget.style.background='rgba(16,10,6,0.78)'; e.currentTarget.style.color='#d4a96a'; }}
-                    >›</button>
+                    >â€º</button>
 
-                    {/* the 3-card row — negative side margins bleed into outer overflow:hidden */}
+                    {/* the 3-card row â€”Â negative side margins bleed into outer overflow:hidden */}
                     <div style={{
                       display:'flex',
                       alignItems:'center',
@@ -4486,7 +4629,7 @@ export default function HomePage() {
               }
               const brandNames = ['Bose Sound', 'Sony Audio', 'Sennheiser', 'Pioneer DJ'];
               const brandDiscounts = ['Up to 30% Off Gear', 'Exclusive Tiers', '40% Off Studio FLAC', 'DJ Deck Bundles'];
-              const brandIcons = ['Ã°Å¸â€Å ', '📻', '🎧', '🎚️'];
+              const brandIcons = ['ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ…Â ', '📻', 'ðŸŽ§', 'ðŸŽšï¸'];
               const brandBorders = ['rgba(176, 136, 80, 0.35)', 'rgba(16, 185, 129, 0.35)', 'rgba(16, 185, 129, 0.35)', 'rgba(52, 211, 153, 0.35)'];
               const textColors = ['#b08850', '#10b981', '#10b981', '#34d399'];
               const brandGrads = [
@@ -4511,10 +4654,10 @@ export default function HomePage() {
                         {config.title || 'Brand Partner Stores'}
                       </h3>
                     </div>
-                    <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: isMobile ? 11 : 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', marginLeft: 12 }}>See all →</span>
+                    <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: isMobile ? 11 : 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', marginLeft: 12 }}>See all â†’</span>
                   </div>
 
-                  {/* 2x2 Grid of partner audio brands — glassmorphic premium */}
+                  {/* 2x2 Grid of partner audio brands â€”Â glassmorphic premium */}
                   <div style={{
                     display: 'grid',
                     gridTemplateColumns: 'repeat(2, 1fr)',
@@ -4583,7 +4726,7 @@ export default function HomePage() {
                             background: `linear-gradient(135deg, ${accent}20, #000)`
                           }}>
                             {coverImg ? (
-                              <img src={coverImg} alt="" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              <img loading="lazy" src={coverImg} alt="" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             ) : (
                               <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>{brandIcons[i]}</div>
                             )}
@@ -4661,7 +4804,7 @@ export default function HomePage() {
                       flexShrink: 0,
                       marginLeft: 12
                     }}>
-                      ➔
+                      âž”
                     </button>
                   </motion.div>
                 </div>
@@ -4677,7 +4820,7 @@ export default function HomePage() {
               const detailsText = ['Starting at 120 BPM', 'HQ Dolby Atmos', '100% Chill Vibes'];
               const prices = ['FREE STREAM', 'HQ AUDIO', 'FREE STREAM'];
               const iconBackgrounds = ['#e11d48', '#2563eb', '#059669'];
-              const moodEmojis = ['🔥', '⚡', '🌿'];
+              const moodEmojis = ['🔥', '⚡', 'ðŸŒ¿'];
               const moodGrads = [
                 'linear-gradient(145deg, rgba(225,29,72,0.15) 0%, rgba(8,8,8,0.9) 100%)',
                 'linear-gradient(145deg, rgba(37,99,235,0.15) 0%, rgba(8,8,8,0.9) 100%)',
@@ -4713,7 +4856,7 @@ export default function HomePage() {
                         borderRadius: 20,
                         display: 'inline-block'
                       }}>
-                        🎭 BEAT MANIA
+                        ðŸŽ­ BEAT MANIA
                       </span>
                       <h3 style={{
                         margin: '8px 0 0 0',
@@ -4782,7 +4925,7 @@ export default function HomePage() {
                               background: `linear-gradient(135deg, ${accent}30, #000)`
                             }}>
                               {coverImg ? (
-                                <img src={coverImg} alt="" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                <img loading="lazy" src={coverImg} alt="" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                               ) : (
                                 <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>{moodEmojis[i]}</div>
                               )}
@@ -4828,15 +4971,15 @@ export default function HomePage() {
 
               const displayDealsTracks = filteredDealsTracks.length > 0 ? filteredDealsTracks : tracks.slice(0, 6);
 
-              const prices = ['₹0', 'Free', '₹0', 'Premium', '₹0', 'Free'];
-              const originalPrices = ['~~₹199~~', '~~₹99~~', '~~₹149~~', '~~₹299~~', '~~₹199~~', '~~₹99~~'];
+              const prices = ['â‚¹0', 'Free', 'â‚¹0', 'Premium', 'â‚¹0', 'Free'];
+              const originalPrices = ['~~â‚¹199~~', '~~â‚¹99~~', '~~â‚¹149~~', '~~â‚¹299~~', '~~â‚¹199~~', '~~â‚¹99~~'];
               const discounts = ['100% OFF', 'FREE', '100% OFF', 'EXCLUSIVE', '100% OFF', 'FREE'];
 
               return (
                 <div key={sectionId} style={{ marginBottom: 32 }}>
                   <div style={{ display: 'flex', flexDirection: 'column', marginBottom: 14 }}>
                     <span style={{ color: GREEN, fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                      DEALS STARTING AT ₹0
+                      DEALS STARTING AT â‚¹0
                     </span>
                     <h3 style={{ margin: '2px 0 6px 0', color: '#fff', fontSize: isMobile ? 17 : 22, fontFamily: 'Outfit, sans-serif', fontWeight: 800 }}>
                       {config.title || "Claim Premium Tracks & Singles"}
@@ -4911,7 +5054,7 @@ export default function HomePage() {
                         >
                           {/* Image card wrapper */}
                           <div style={{ position: 'relative', width: '100%', aspectRatio: '1', borderRadius: 12, overflow: 'hidden', marginBottom: 8 }}>
-                            {track.coverImage ? (<img src={track.coverImage} alt="" onError={e => { const p = (e.target as HTMLImageElement).parentElement; if (p) p.style.background = 'linear-gradient(135deg, rgba(176, 136, 80,0.15), #000)'; (e.target as HTMLImageElement).style.display = 'none'; }} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />) : null}
+                            {track.coverImage ? (<img loading="lazy" src={track.coverImage} alt="" onError={e => { const p = (e.target as HTMLImageElement).parentElement; if (p) p.style.background = 'linear-gradient(135deg, rgba(176, 136, 80,0.15), #000)'; (e.target as HTMLImageElement).style.display = 'none'; }} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />) : null}
                             
                             {/* Heart/Like Button on top-right of image */}
                             <button
@@ -4969,7 +5112,7 @@ export default function HomePage() {
                                 } else {
                                   setCartTracks(prev => [...prev, track]);
                                   toast.success('Added track to cart! Check the cart bar at the bottom.', {
-                                    icon: '🛒'
+                                    icon: 'ðŸ›’'
                                   });
                                 }
                               }}
@@ -4993,7 +5136,7 @@ export default function HomePage() {
                                 boxShadow: '0 4px 10px rgba(0,0,0,0.5)'
                               }}
                             >
-                              {isInCart ? '✕' : '+'}
+                              {isInCart ? 'âœ•' : '+'}
                             </button>
                           </div>
 
@@ -5324,7 +5467,7 @@ export default function HomePage() {
                               {track.title}
                             </div>
                             <div style={{ color: 'var(--theme-text-muted, #737373)', fontSize: 11, marginTop: 2 }}>
-                              {track.artistName} • {track.albumName}
+                              {track.artistName} â€¢ {track.albumName}
                             </div>
                           </div>
                           <button
@@ -5344,7 +5487,7 @@ export default function HomePage() {
                             onMouseEnter={e => e.currentTarget.style.background = 'var(--theme-primary, #b08850)'}
                             onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
                           >
-                            {isPl ? <Pause size={14} color="black" fill="black" /> : <Play size={14} color="white" fill="white" />}
+                            {isPl ? <Pause size={14} color="white" fill="white" /> : <Play size={14} color="white" fill="white" />}
                           </button>
                         </div>
                       </div>
@@ -5354,7 +5497,7 @@ export default function HomePage() {
               );
             }
 
-            // ── 1. AUTO HERO SLIDER (Zepto top banner) ──
+            // â”€â”€ 1. AUTO HERO SLIDER (Zepto top banner) â”€â”€
             if (rawLayout === 'hero_auto_slider') {
               const hasCustomBanners = config.banners && config.banners.length > 0;
               const slides = hasCustomBanners 
@@ -5440,7 +5583,7 @@ export default function HomePage() {
               const badge = subtitle || badgeLabels[safeIdx % badgeLabels.length];
               const desc2 = desc || 'Discover the latest trending tracks and curated playlists.';
 
-              // ── MOBILE + DESKTOP: 3-card peek carousel ──
+              // â”€â”€ MOBILE + DESKTOP: 3-card peek carousel â”€â”€
               return (() => {
                 if (!isMobile) {
                   // Premium Laptop View
@@ -5844,7 +5987,7 @@ export default function HomePage() {
                         />
                       )}
 
-                      {/* Bottom scrim —  only on center */}
+                      {/* Bottom scrim â€”  only on center */}
                       {isC && (
                         <div style={{
                           position: 'absolute', inset: 0, zIndex: 1,
@@ -5853,7 +5996,7 @@ export default function HomePage() {
                         }} />
                       )}
 
-                      {/* Badge —  top left, center only */}
+                      {/* Badge â€”  top left, center only */}
                       {isC && (
                         <div style={{ position: 'absolute', top: 13, left: 13, zIndex: 5 }}>
                           <span style={{
@@ -5874,7 +6017,7 @@ export default function HomePage() {
                         </div>
                       )}
 
-                      {/* Three-dot —  top right, center only */}
+                      {/* Three-dot â€”  top right, center only */}
                       {isC && (
                         <button
                           onClick={e => e.stopPropagation()}
@@ -5886,10 +6029,10 @@ export default function HomePage() {
                             color: '#fff', fontSize: 16, cursor: 'pointer',
                             display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1,
                           }}
-                        >⋮</button>
+                        >â‹®</button>
                       )}
 
-                      {/* Bottom text + CTA —  center only */}
+                      {/* Bottom text + CTA â€”  center only */}
                       {isC && (
                         <div style={{
                           position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 4,
@@ -5951,60 +6094,132 @@ export default function HomePage() {
                       <span style={{ color: accent, fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>
                         {config.subtitle || 'SPOTLIGHT'}
                       </span>
-                      <h3 style={{ margin: 0, color: 'var(--theme-text, #fff)', fontSize: isMobile ? 17 : 22, fontFamily: 'Outfit, sans-serif', fontWeight: 800 }}>
+                      <h3 style={{ margin: 0, color: '#fff', fontSize: isMobile ? 17 : 22, fontFamily: 'Outfit, sans-serif', fontWeight: 800 }}>
                         {config.title || 'Beato Spotlight'}
                       </h3>
                     </div>
 
-                    {/* Outer clips side-cards flush at edges */}
-                    <div style={{ position: 'relative', overflow: 'hidden', paddingTop: 6, paddingBottom: 2 }}>
-                      {/* 3-card flex row —  negative margins create the edge-bleed peek */}
-                      <div style={{
-                        display: 'flex', alignItems: 'center',
-                        gap: GAP_W,
-                        marginLeft: -PEEK_OFFSET,
-                        marginRight: -PEEK_OFFSET,
-                      }}>
-                        {renderSpotlightCard(slides[leftI],  leftI,   'left')}
-                        {renderSpotlightCard(slides[safeIdx], safeIdx, 'center')}
-                        {renderSpotlightCard(slides[rightI], rightI,  'right')}
-                      </div>
+                    {/* Horizontal scrollable container (no-scrollbar) */}
+                    <div 
+                      style={{ 
+                        display: 'flex', 
+                        gap: 16, 
+                        overflowX: 'auto', 
+                        paddingBottom: 14, 
+                        scrollSnapType: 'x mandatory', 
+                        WebkitOverflowScrolling: 'touch' 
+                      }} 
+                      className="no-scrollbar"
+                    >
+                      {slides.map((slide: any, idx2: number) => {
+                        const ca = accentColors[idx2 % accentColors.length];
+                        const img = slide.imageUrl || slide.coverImage || (config.customImage) || '';
+                        const slTitle = slide.title || '';
+                        const slArtist = slide.artistName || desc2;
+                        const slBadge = slide.subtitle || badgeLabels[idx2 % badgeLabels.length];
+                        const isActive = currentTrack?.title === slTitle;
 
-                      {/* Dot indicators */}
-                      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: 12 }}>
-                        {slides.map((_: any, i: number) => (
-                          <div
-                            key={i}
-                            onClick={() => setIdx(i)}
-                            style={{
-                              width: i === safeIdx ? 22 : 7, height: 7, borderRadius: 4,
-                              background: i === safeIdx ? accentColors[safeIdx % accentColors.length] : 'rgba(176,136,80,0.22)',
-                              transition: 'all 0.35s cubic-bezier(0.4,0,0.2,1)',
+                        // Action handler for card click / play button click
+                        const handlePlaySpotlight = (e: React.MouseEvent) => {
+                          e.stopPropagation();
+                          const matchingTrack = allTracks.find(t => t.title === slTitle);
+                          if (matchingTrack) {
+                            playTrack(matchingTrack, allTracks);
+                          } else if (slide.audioUrl) {
+                            playTrack({
+                              id: slide.id || `spot-${idx2}`,
+                              title: slTitle,
+                              artistName: slArtist,
+                              coverImage: img,
+                              audioUrl: slide.audioUrl,
+                              duration: slide.duration || 180,
+                            } as any, []);
+                          } else {
+                            alert('Playing spotlight track...');
+                          }
+                        };
+
+                        return (
+                          <div 
+                            key={`${idx2}-${slide.id || idx2}`} 
+                            style={{ 
+                              position: 'relative', 
+                              width: isMobile ? 290 : 340, 
+                              height: isMobile ? 160 : 190, 
+                              borderRadius: 16, 
+                              overflow: 'hidden', 
+                              flexShrink: 0, 
+                              boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
                               cursor: 'pointer',
-                              boxShadow: i === safeIdx ? `0 0 8px ${accentColors[safeIdx % accentColors.length]}90` : 'none',
+                              scrollSnapAlign: 'start',
+                              border: `1px solid rgba(255,255,255,0.06)`
                             }}
-                          />
-                        ))}
-                      </div>
+                            onClick={handlePlaySpotlight}
+                          >
+                            {/* Background Image */}
+                            {img && (
+                              <img src={img} alt={slTitle} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            )}
+                            
+                            {/* Dark Gradient Overlay */}
+                            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.05) 100%)' }} />
+
+                            {/* Play Icon Badge */}
+                            <div 
+                              style={{ 
+                                position: 'absolute', 
+                                top: 14, 
+                                right: 14, 
+                                width: 38, 
+                                height: 38, 
+                                borderRadius: '50%', 
+                                background: isActive && isPlaying ? ca : 'rgba(255, 255, 255, 0.95)', 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                justifyContent: 'center',
+                                color: '#000',
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+                              }}
+                            >
+                              {isActive && isPlaying ? <Pause size={18} fill="black" /> : <Play size={18} fill="black" style={{ marginLeft: 2 }} />}
+                            </div>
+
+                            {/* Category/Badge Label */}
+                            <div style={{ position: 'absolute', top: 14, left: 14, background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.25)', padding: '4px 10px', borderRadius: 20, fontSize: 9, fontWeight: 800, color: '#fff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                              {slBadge}
+                            </div>
+
+                            {/* Details at Bottom */}
+                            <div style={{ position: 'absolute', bottom: 14, left: 14, right: 14, color: '#fff' }}>
+                              <p style={{ margin: '0 0 2px', fontSize: 10.5, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#fff', opacity: 0.85 }}>
+                                {slArtist}
+                              </p>
+                              <h4 style={{ margin: 0, fontSize: isMobile ? 14 : 16, fontWeight: 900, lineHeight: 1.25, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', color: '#fff' }}>
+                                {slTitle}
+                              </h4>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 );
               })()
             }
 
-            // ——— 2. CATEGORY QUICK TILES (Zepto category pills) ———
+            // â€”â€”â€” 2. CATEGORY QUICK TILES (Zepto category pills) â€”â€”â€”
             if (rawLayout === 'category_quick_tiles') {
               const cats = [
                 { label: 'Pop Hits', emoji: '🎤', color: '#34d399', bg: 'rgba(52, 211, 153,0.12)' },
                 { label: 'EDM', emoji: '⚡', color: '#10b981', bg: 'rgba(16, 185, 129,0.12)' },
-                { label: 'Hip-Hop', emoji: '🎧', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
-                { label: 'Lo-Fi', emoji: '☕', color: '#10b981', bg: 'rgba(16, 185, 129,0.12)' },
-                { label: 'Rock', emoji: '🎸', color: '#ef4444', bg: 'rgba(239,68,68,0.12)' },
-                { label: 'Acoustic', emoji: '🌿', color: '#10b981', bg: 'rgba(16,185,129,0.12)' },
-                { label: 'R&B', emoji: '💜', color: '#a855f7', bg: 'rgba(168,85,247,0.12)' },
-                { label: 'Jazz', emoji: '🎷', color: '#f97316', bg: 'rgba(249,115,22,0.12)' },
+                { label: 'Hip-Hop', emoji: 'ðŸŽ§', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
+                { label: 'Lo-Fi', emoji: 'â˜•', color: '#10b981', bg: 'rgba(16, 185, 129,0.12)' },
+                { label: 'Rock', emoji: 'ðŸŽ¸', color: '#ef4444', bg: 'rgba(239,68,68,0.12)' },
+                { label: 'Acoustic', emoji: 'ðŸŒ¿', color: '#10b981', bg: 'rgba(16,185,129,0.12)' },
+                { label: 'R&B', emoji: 'ðŸ’œ', color: '#a855f7', bg: 'rgba(168,85,247,0.12)' },
+                { label: 'Jazz', emoji: 'ðŸŽ·', color: '#f97316', bg: 'rgba(249,115,22,0.12)' },
                 { label: 'Trending', emoji: '🔥', color: '#ef4444', bg: 'rgba(239,68,68,0.12)' },
-                { label: 'New', emoji: '✨', color: GREEN, bg: 'rgba(176, 136, 80,0.12)' },
+                { label: 'New', emoji: 'âœ¨', color: GREEN, bg: 'rgba(176, 136, 80,0.12)' },
               ];
               return (
                 <div key={sectionId} style={{ marginBottom: 28 }}>
@@ -6029,7 +6244,7 @@ export default function HomePage() {
               );
             }
 
-            // ── 3. FLASH DEALS COUNTDOWN (Blinkit limited-time) ──
+            // â”€â”€ 3. FLASH DEALS COUNTDOWN (Blinkit limited-time) â”€â”€
             if (rawLayout === 'flash_deals_countdown') {
               const dealTracks = tracks.slice(0, 5);
               while (dealTracks.length < 5) dealTracks.push(mockTracks[dealTracks.length % mockTracks.length]);
@@ -6043,7 +6258,7 @@ export default function HomePage() {
                       <span style={{ fontSize: isMobile ? 16 : 20 }}>⚡</span>
                       <div>
                         <div style={{ color: '#fff', fontSize: isMobile ? 14 : 18, fontWeight: 950, fontFamily: 'Outfit,sans-serif' }}>{config.title || 'Flash Deals'}</div>
-                        <div style={{ color: 'rgba(255,255,255,0.55)', fontSize: isMobile ? 10 : 11 }}>Limited time — grab before it&apos;s gone!</div>
+                        <div style={{ color: 'rgba(255,255,255,0.55)', fontSize: isMobile ? 10 : 11 }}>Limited time â€”Â grab before it&apos;s gone!</div>
                       </div>
                     </div>
                     <div style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 10, padding: '4px 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -6058,10 +6273,10 @@ export default function HomePage() {
                       return (
                         <motion.div key={`${track.id}-flash-${i}`} whileHover={{ scale: 1.04, y: -4 }} onClick={() => playTrack(track, dealTracks)} style={{ flexShrink: 0, width: isMobile ? 120 : 148, background: 'rgba(10,10,10,0.9)', border: `1px solid ${acc}30`, borderRadius: 14, overflow: 'hidden', cursor: 'pointer', boxShadow: '0 6px 20px rgba(0,0,0,0.4)', marginRight: isMobile ? 0 : undefined }}>
                           <div style={{ position: 'relative', width: '100%', paddingTop: '100%', background: `linear-gradient(135deg,${acc}20,#000)` }}>
-                            {coverImg && <img src={coverImg} alt="" onError={e => (e.target as HTMLImageElement).style.display = 'none'} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />}
+                            {coverImg && <img loading="lazy" src={coverImg} alt="" onError={e => (e.target as HTMLImageElement).style.display = 'none'} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />}
                             <div style={{ position: 'absolute', top: 6, left: 6, background: acc, color: acc === GREEN ? '#000' : '#fff', fontSize: 8.5, fontWeight: 900, padding: '2px 7px', borderRadius: 6 }}>{discounts[i]}</div>
                             <div style={{ position: 'absolute', bottom: 6, left: '50%', transform: 'translateX(-50%)', background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', borderRadius: 6, padding: '2px 8px', whiteSpace: 'nowrap' }}>
-                              <span style={{ color: acc, fontSize: 9, fontWeight: 900, fontFamily: 'monospace' }}>⏱ {timeUnits[i]}</span>
+                              <span style={{ color: acc, fontSize: 9, fontWeight: 900, fontFamily: 'monospace' }}>â± {timeUnits[i]}</span>
                             </div>
                           </div>
                           <div style={{ padding: isMobile ? '8px 8px' : '10px 12px' }}>
@@ -6080,7 +6295,7 @@ export default function HomePage() {
               );
             }
 
-            // ── 4. NEW LAUNCHES SPOTLIGHT (Flipkart new launches) ──
+            // â”€â”€ 4. NEW LAUNCHES SPOTLIGHT (Flipkart new launches) â”€â”€
             if (rawLayout === 'new_launches_spotlight') {
               const launchTracks = tracks.slice(0, 6);
               while (launchTracks.length < 4) launchTracks.push(mockTracks[launchTracks.length % mockTracks.length]);
@@ -6100,7 +6315,7 @@ export default function HomePage() {
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.8fr 1fr', gap: 14 }}>
                     <motion.div whileHover={{ scale: 1.01 }} onClick={() => playTrack(launchTracks[0], launchTracks)} style={{ borderRadius: 18, overflow: 'hidden', position: 'relative', height: isMobile ? 200 : 240, cursor: 'pointer', background: 'linear-gradient(135deg,#0a1f0d,#000)' }}>
-                      {launchTracks[0].coverImage && <img src={launchTracks[0].coverImage} alt="" onError={e => (e.target as HTMLImageElement).style.display = 'none'} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.5 }} />}
+                      {launchTracks[0].coverImage && <img loading="lazy" src={launchTracks[0].coverImage} alt="" onError={e => (e.target as HTMLImageElement).style.display = 'none'} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.5 }} />}
                       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top,rgba(0,0,0,0.9) 0%,rgba(0,0,0,0.1) 60%)' }} />
                       <div style={{ position: 'absolute', top: 12, left: 12, background: launchColors[0], color: '#000', fontSize: 9, fontWeight: 900, padding: '3px 10px', borderRadius: 20 }}>{launchBadges[0]}</div>
                       <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '16px 18px' }}>
@@ -6118,7 +6333,7 @@ export default function HomePage() {
                             onMouseEnter={e => (e.currentTarget.style.borderColor = `${acc}40`)}
                             onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)')}>
                             <div style={{ width: 44, height: 44, borderRadius: 10, overflow: 'hidden', flexShrink: 0, background: `linear-gradient(135deg,${acc}30,#000)` }}>
-                              {coverImg && <img src={coverImg} alt="" onError={e => (e.target as HTMLImageElement).style.display = 'none'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+                              {coverImg && <img loading="lazy" src={coverImg} alt="" onError={e => (e.target as HTMLImageElement).style.display = 'none'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
                             </div>
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div style={{ color: '#fff', fontSize: 13, fontWeight: 800, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.title}</div>
@@ -6134,15 +6349,15 @@ export default function HomePage() {
               );
             }
 
-            // ── 5. FEATURED BRANDS ROW (Flipkart brand logos) ──
+            // â”€â”€ 5. FEATURED BRANDS ROW (Flipkart brand logos) â”€â”€
             if (rawLayout === 'featured_brands_row') {
               const brandList = [
                 { name: 'Spotify', sub: '30 Days Free', emoji: '🎵', color: '#b08850' },
                 { name: 'Apple Music', sub: '3 Months Free', emoji: '🎶', color: '#fc3c44' },
-                { name: 'YouTube', sub: 'Premium Trial', emoji: '▶', color: '#ff0000' },
-                { name: 'Amazon', sub: 'Prime Music', emoji: 'Ã°Å¸â€Å ', color: '#ff9900' },
+                { name: 'YouTube', sub: 'Premium Trial', emoji: 'â–¶', color: '#ff0000' },
+                { name: 'Amazon', sub: 'Prime Music', emoji: 'ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ…Â ', color: '#ff9900' },
                 { name: 'Tidal', sub: 'HiFi Quality', emoji: '🌊', color: '#00b4ff' },
-                { name: 'Deezer', sub: '90 Days Trial', emoji: '🎧', color: '#a238ff' },
+                { name: 'Deezer', sub: '90 Days Trial', emoji: 'ðŸŽ§', color: '#a238ff' },
               ];
               const featTrack = tracks[0] || mockTracks[0];
               return (
@@ -6185,7 +6400,7 @@ export default function HomePage() {
               );
             }
 
-            // ── 6. TOP CHART BILLBOARD (ranked list) ──
+            // â”€â”€ 6. TOP CHART BILLBOARD (ranked list) â”€â”€
             if (rawLayout === 'top_chart_billboard') {
               const chartTracks = tracks.slice(0, 8);
               while (chartTracks.length < 5) chartTracks.push(mockTracks[chartTracks.length % mockTracks.length]);
@@ -6212,7 +6427,7 @@ export default function HomePage() {
                           </div>
                           <div style={{ fontSize: isMobile ? 9 : 10, color: trendColors[i], fontWeight: 900, width: 28, textAlign: 'center' }}>{trends[i]}</div>
                           <div style={{ width: isMobile ? 38 : 44, height: isMobile ? 38 : 44, borderRadius: 8, overflow: 'hidden', flexShrink: 0, background: 'linear-gradient(135deg,rgba(176, 136, 80,0.2),#000)' }}>
-                            {coverImg && <img src={coverImg} alt="" onError={e => (e.target as HTMLImageElement).style.display = 'none'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+                            {coverImg && <img loading="lazy" src={coverImg} alt="" onError={e => (e.target as HTMLImageElement).style.display = 'none'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ color: isCurr ? GREEN : '#fff', fontSize: isMobile ? 12.5 : 14, fontWeight: 800, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.title}</div>
@@ -6230,7 +6445,7 @@ export default function HomePage() {
               );
             }
 
-            // ── 7. ARTIST FOLLOW CARDS (Swiggy restaurant card style) ──
+            // â”€â”€ 7. ARTIST FOLLOW CARDS (Swiggy restaurant card style) â”€â”€
             if (rawLayout === 'artist_follow_cards') {
               const artistTracks = tracks.slice(0, 6);
               while (artistTracks.length < 4) artistTracks.push(mockTracks[artistTracks.length % mockTracks.length]);
@@ -6254,13 +6469,13 @@ export default function HomePage() {
                       return (
                         <motion.div key={`${track.id}-artist-${i}`} whileHover={{ y: -6 }} style={{ flexShrink: 0, width: isMobile ? 148 : 180, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 18, overflow: 'hidden', cursor: 'pointer', boxShadow: '0 6px 20px rgba(0,0,0,0.3)', transition: 'all 0.3s ease', marginRight: isMobile ? 0 : undefined }}>
                           <div style={{ height: isMobile ? 80 : 100, background: `linear-gradient(135deg,${accent}30,#000)`, position: 'relative', overflow: 'hidden' }}>
-                            {coverImg && <img src={coverImg} alt="" onError={e => (e.target as HTMLImageElement).style.display = 'none'} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.5 }} />}
+                            {coverImg && <img loading="lazy" src={coverImg} alt="" onError={e => (e.target as HTMLImageElement).style.display = 'none'} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.5 }} />}
                             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom,transparent 40%,rgba(0,0,0,0.6) 100%)' }} />
                             <div style={{ position: 'absolute', top: 8, right: 8, background: `${accent}20`, border: `1px solid ${accent}40`, borderRadius: 6, padding: '2px 8px', color: accent, fontSize: 9, fontWeight: 900 }}>{ratings[i]}</div>
                           </div>
                           <div style={{ display: 'flex', justifyContent: 'center', marginTop: -24, position: 'relative', zIndex: 1 }}>
                             <div style={{ width: 48, height: 48, borderRadius: '50%', border: '3px solid #000', overflow: 'hidden', background: `linear-gradient(135deg,${accent}40,#000)`, boxShadow: `0 0 0 2px ${accent}40` }}>
-                              {coverImg && <img src={coverImg} alt="" onError={e => (e.target as HTMLImageElement).style.display = 'none'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+                              {coverImg && <img loading="lazy" src={coverImg} alt="" onError={e => (e.target as HTMLImageElement).style.display = 'none'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
                             </div>
                           </div>
                           <div style={{ padding: isMobile ? '8px 12px 12px' : '10px 14px 14px', textAlign: 'center' }}>
@@ -6283,7 +6498,7 @@ export default function HomePage() {
               );
             }
 
-            // ── 8. FREE DEALS GRID (Blinkit ₹9 deals style) ──
+            // â”€â”€ 8. FREE DEALS GRID (Blinkit â‚¹9 deals style) â”€â”€
             if (rawLayout === 'free_deals_grid') {
               const dealGrid = tracks.slice(0, 8);
               while (dealGrid.length < 6) dealGrid.push(mockTracks[dealGrid.length % mockTracks.length]);
@@ -6305,7 +6520,7 @@ export default function HomePage() {
                         return (
                           <motion.div key={`${track.id}-free-${i}`} whileHover={{ scale: 1.05, y: -3 }} onClick={() => playTrack(track, dealGrid)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, cursor: 'pointer', minWidth: 0 }}>
                             <div style={{ position: 'relative', width: '100%', paddingTop: '100%', borderRadius: 10, overflow: 'hidden', background: 'linear-gradient(135deg, var(--color-ss-hover, #ebdcb9) 0%, var(--color-ss-surface, #f4eede) 100%)' }}>
-                              {coverImg && <img src={coverImg} alt="" onError={e => (e.target as HTMLImageElement).style.display = 'none'} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />}
+                              {coverImg && <img loading="lazy" src={coverImg} alt="" onError={e => (e.target as HTMLImageElement).style.display = 'none'} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />}
                               <div style={{ position: 'absolute', top: 3, left: 3, background: '#4d3f35', color: '#fff', fontSize: isMobile ? 7 : 8, fontWeight: 900, padding: '2px 5px', borderRadius: 4 }}>{offerBadges[i]}</div>
                             </div>
                             <div style={{ textAlign: 'center', width: '100%' }}>
@@ -6322,13 +6537,13 @@ export default function HomePage() {
               );
             }
 
-            // ── 9. PROMO RED BLOCK (Blinkit Meat Mania style) ──
+            // â”€â”€ 9. PROMO RED BLOCK (Blinkit Meat Mania style) â”€â”€
             if (rawLayout === 'promo_red_block') {
               const promoTracks = tracks.slice(0, 3);
               while (promoTracks.length < 3) promoTracks.push(mockTracks[promoTracks.length % mockTracks.length]);
               const promoNames = ['Bass Drop', 'Weekend Remix', 'Night Anthem'];
               const promoSubs = ['Heavy Bass Tracks', 'Top DJ Remixes', 'Late Night Vibes'];
-              const promoEmojis = ['Ã°Å¸â€Å ', '🎛️', '🌙'];
+              const promoEmojis = ['ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ…Â ', 'ðŸŽ›ï¸', '🌙'];
               const promoAccents = ['#ef4444', '#f59e0b', '#10b981'];
               return (
                 <div key={sectionId} style={{ marginBottom: 32 }}>
@@ -6357,7 +6572,7 @@ export default function HomePage() {
                         return (
                           <motion.div key={`${track.id}-promo-${i}`} whileHover={{ scale: 1.04, y: -3 }} onClick={() => playTrack(track, promoTracks)} style={{ background: 'rgba(0,0,0,0.5)', border: `1px solid ${acc}30`, borderRadius: 14, padding: isMobile ? 10 : 14, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', cursor: 'pointer', backdropFilter: 'blur(8px)' }}>
                             <div style={{ width: isMobile ? 44 : 56, height: isMobile ? 44 : 56, borderRadius: 12, overflow: 'hidden', marginBottom: 8, border: `2px solid ${acc}50`, background: `linear-gradient(135deg,${acc}30,#000)`, boxShadow: `0 0 16px ${acc}30` }}>
-                              {coverImg ? <img src={coverImg} alt="" onError={e => (e.target as HTMLImageElement).style.display = 'none'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>{promoEmojis[i]}</div>}
+                              {coverImg ? <img loading="lazy" src={coverImg} alt="" onError={e => (e.target as HTMLImageElement).style.display = 'none'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>{promoEmojis[i]}</div>}
                             </div>
                             <div style={{ color: '#fff', fontSize: isMobile ? 11 : 13, fontWeight: 900, fontFamily: 'Outfit,sans-serif', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{promoNames[i]}</div>
                             <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: isMobile ? 9 : 10, marginTop: 2 }}>{promoSubs[i]}</div>
@@ -6371,17 +6586,17 @@ export default function HomePage() {
               );
             }
 
-            // ── 10. FRESH PICKS CIRCLES (Zepto produce circles) ──
+            // â”€â”€ 10. FRESH PICKS CIRCLES (Zepto produce circles) â”€â”€
             if (rawLayout === 'fresh_picks_circles') {
               const freshItems = [
                 { label: 'Trending', emoji: '🔥', color: '#ef4444', shine: 'rgba(239,68,68,0.3)' },
-                { label: 'Chill', emoji: '❄️', color: '#10b981', shine: 'rgba(16, 185, 129,0.3)' },
-                { label: 'Romantic', emoji: '💕', color: '#34d399', shine: 'rgba(52, 211, 153,0.3)' },
-                { label: 'Workout', emoji: '💪', color: '#f59e0b', shine: 'rgba(245,158,11,0.3)' },
-                { label: 'Party', emoji: '🎉', color: '#a855f7', shine: 'rgba(168,85,247,0.3)' },
-                { label: 'Focus', emoji: '🎯', color: '#10b981', shine: 'rgba(16,185,129,0.3)' },
-                { label: 'New', emoji: '✨', color: GREEN, shine: 'rgba(176, 136, 80,0.3)' },
-                { label: 'Top 50', emoji: 'Ã°Å¸Ââ€ ', color: '#ffd700', shine: 'rgba(255,215,0,0.3)' },
+                { label: 'Chill', emoji: 'â„ï¸', color: '#10b981', shine: 'rgba(16, 185, 129,0.3)' },
+                { label: 'Romantic', emoji: 'ðŸ’•', color: '#34d399', shine: 'rgba(52, 211, 153,0.3)' },
+                { label: 'Workout', emoji: 'ðŸ’ª', color: '#f59e0b', shine: 'rgba(245,158,11,0.3)' },
+                { label: 'Party', emoji: 'ðŸŽ‰', color: '#a855f7', shine: 'rgba(168,85,247,0.3)' },
+                { label: 'Focus', emoji: 'ðŸŽ¯', color: '#10b981', shine: 'rgba(16,185,129,0.3)' },
+                { label: 'New', emoji: 'âœ¨', color: GREEN, shine: 'rgba(176, 136, 80,0.3)' },
+                { label: 'Top 50', emoji: 'ÃƒÂ°Ã…Â¸Ã‚ÂÃ¢â‚¬Â ', color: '#ffd700', shine: 'rgba(255,215,0,0.3)' },
               ];
               return (
                 <div key={sectionId} style={{ marginBottom: 32 }}>
@@ -6396,7 +6611,7 @@ export default function HomePage() {
                       return (
                         <motion.div key={item.label} whileHover={{ scale: 1.08, y: -5 }} onClick={() => { playTrack(t, tracks); toast.success(`Playing ${item.label}!`); }} style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, cursor: 'pointer', marginRight: isMobile ? 0 : undefined }}>
                           <div style={{ width: isMobile ? 72 : 90, height: isMobile ? 72 : 90, borderRadius: '50%', background: `radial-gradient(circle at 35% 30%, ${item.shine}, ${item.color}20 60%, rgba(0,0,0,0.6) 100%)`, border: `2.5px solid ${item.color}50`, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', boxShadow: `0 8px 20px rgba(0,0,0,0.4), 0 0 0 1px ${item.color}20` }}>
-                            {coverImg && <img src={coverImg} alt="" onError={e => (e.target as HTMLImageElement).style.display = 'none'} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.3, borderRadius: '50%' }} />}
+                            {coverImg && <img loading="lazy" src={coverImg} alt="" onError={e => (e.target as HTMLImageElement).style.display = 'none'} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.3, borderRadius: '50%' }} />}
                             <div style={{ position: 'absolute', top: 5, left: 10, width: isMobile ? 22 : 28, height: isMobile ? 10 : 13, borderRadius: '50%', background: 'rgba(255,255,255,0.25)', transform: 'rotate(-20deg)', filter: 'blur(2px)' }} />
                             <span style={{ fontSize: isMobile ? 26 : 32, position: 'relative', zIndex: 1 }}>{item.emoji}</span>
                           </div>
@@ -6458,7 +6673,7 @@ export default function HomePage() {
 
   const layoutToRender = homeLayoutOrder;
 
-  const pageBg = activeTheme ? activeTheme.background : '#ffffff';
+  const pageBg = activeTheme ? activeTheme.background : 'var(--color-ss-bg, #f2f7f4)';
   const headerGradient = activeTheme ? activeTheme.gradient : 'linear-gradient(180deg, rgba(15, 81, 50, 0.08) 0%, rgba(255, 255, 255, 0) 100%)';
 
   if (!mounted) {
@@ -6471,7 +6686,7 @@ export default function HomePage() {
 
 
   return (
-    <div className="homepage-themed" style={{ minHeight: '100%', paddingBottom: 32, background: pageBg, transition: 'background 0.5s ease' }}>
+    <div className="homepage-themed" style={{ minHeight: '100%', paddingBottom: 32, background: pageBg, transition: 'background 0.5s ease', position: 'relative' }}>
       
       {/* Dynamic Theme Injector */}
       <style>{`
@@ -6542,11 +6757,12 @@ export default function HomePage() {
             
             {/* Category Chips */}
             <div style={{ display: 'flex', gap: 8, alignItems: 'center', position: 'relative' }}>
-              {['All', 'Music', 'Podcasts'].map((chip) => {
-                const active = chip === 'All';
+              {['All', 'Podcasts'].map((chip) => {
+                const active = chip === activeCategory;
                 return (
                   <button
                     key={chip}
+                    onClick={() => setActiveCategory(chip as any)}
                     style={{
                       background: active ? 'var(--color-ss-primary, #0f5132)' : 'var(--color-ss-hover, #e8ece9)',
                       color: active ? '#fff' : 'var(--color-ss-text-primary, #0f172a)',
@@ -6647,12 +6863,12 @@ export default function HomePage() {
                               {approvedUploadedTracks.slice(0, 3).map(t => t.title).join(', ')}
                               {approvedUploadedTracks.length > 3 ? `...and ${approvedUploadedTracks.length - 3} more` : ''}
                             </span>{' '}
-                            — just uploaded by artists
+                            â€”Â just uploaded by artists
                           </p>
                         </div>
                       ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '8px 0' }}>
-                          <span style={{ fontSize: 18, color: '#87786c' }}>🔕</span>
+                          <span style={{ fontSize: 18, color: '#87786c' }}>ðŸ”•</span>
                           <p style={{ fontSize: 12, margin: 0, color: '#87786c', fontWeight: 500 }}>
                             No new notifications
                           </p>
@@ -6672,19 +6888,21 @@ export default function HomePage() {
       <div style={{ padding: isMobile ? '0 16px' : '0 24px' }}>
 
 
-        {/* ── Uploaded Tracks Alert ── */}
+        {/* â”€â”€ Uploaded Tracks Alert â”€â”€ */}
         {!isMobile && approvedUploadedTracks.length > 0 && (
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
             style={{ marginBottom: 24, padding: '14px 20px', borderRadius: 14, background: 'rgba(176, 136, 80,0.08)', border: '1px solid rgba(176, 136, 80,0.2)', display: 'flex', alignItems: 'flex-start', gap: 12 }}>
             <Star size={16} color={GREEN} style={{ marginTop: 2, flexShrink: 0 }} />
             <p style={{ color: '#221a15', fontSize: 13, fontWeight: 600, lineHeight: '1.4' }}>
-              🎵 New artist tracks added! <span style={{ color: GREEN }}>{approvedUploadedTracks.slice(0, 3).map(t => t.title).join(', ')}{approvedUploadedTracks.length > 3 ? `...and ${approvedUploadedTracks.length - 3} more` : ''}</span> — just uploaded by artists
+              🎵 New artist tracks added! <span style={{ color: GREEN }}>{approvedUploadedTracks.slice(0, 3).map(t => t.title).join(', ')}{approvedUploadedTracks.length > 3 ? `...and ${approvedUploadedTracks.length - 3} more` : ''}</span> â€”Â just uploaded by artists
             </p>
           </motion.div>
         )}
 
         {/* Dynamic sections rendered in sequenced order */}
-        {layoutToRender.length > 0 ? (
+        {activeCategory === 'Podcasts' ? (
+          <PodcastsView initialSubTab={searchParams.get('subtab') as any} />
+        ) : layoutToRender.length > 0 ? (
           layoutToRender.map(sectionId => {
             try {
               const sectionJSX = renderHomeSection(sectionId);
@@ -6774,7 +6992,7 @@ export default function HomePage() {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <span style={{ color: '#fff', fontSize: 13, fontWeight: 800, fontFamily: 'Outfit, sans-serif' }}>
-                  Unlock extra ₹50 OFF!
+                  Unlock extra â‚¹50 OFF!
                 </span>
                 <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11 }}>
                   Added to your Beato cart
@@ -6786,7 +7004,7 @@ export default function HomePage() {
                 onClick={() => {
                   setCartTracks([]);
                   toast.success('Successfully claimed premium vibes! Enjoy your tracks.', {
-                    icon: '🎉',
+                    icon: 'ðŸŽ‰',
                     style: {
                       background: '#0a0a0a',
                       color: '#fff',
@@ -6810,7 +7028,7 @@ export default function HomePage() {
                 onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.03)'}
                 onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
               >
-                Claim Deal ➔
+                Claim Deal âž”
               </button>
               <button
                 onClick={() => setCartTracks([])}
@@ -6828,7 +7046,7 @@ export default function HomePage() {
                   fontSize: 11
                 }}
               >
-                ✕
+                âœ•
               </button>
             </div>
           </motion.div>

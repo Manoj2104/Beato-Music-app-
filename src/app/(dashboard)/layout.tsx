@@ -20,6 +20,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { WifiOff } from 'lucide-react';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { getRoomUrl } from '@/lib/api';
 
 import AdBanner from '@/components/layout/AdBanner';
 
@@ -310,7 +311,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         }}
         onClick={() => {
           if (typeof window !== 'undefined') {
-            window.location.href = `/room/${activeRoomId}`;
+            window.location.href = getRoomUrl(activeRoomId);
           }
         }}
         >
