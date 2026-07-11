@@ -100,6 +100,8 @@ export default function PlayerBar() {
     playlistPickerTrack, 
     closePlaylistPicker 
   } = usePlaylistStore();
+  const { getAllTracks } = useMusicStore();
+  const allTracks = getAllTracks();
   const downloaded = currentTrack ? downloadedTrackIds.includes(currentTrack.id) : false;
   const downloading = currentTrack ? downloadingIds.includes(currentTrack.id) : false;
   const [showPlaylistPicker, setShowPlaylistPicker] = useState(false);
@@ -1023,71 +1025,81 @@ export default function PlayerBar() {
 
                 {/* Scrollable Playlists list */}
                 <div className="no-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '8px 24px' }}>
-                  {customPlaylists.filter(pl => pl.title.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '32px 0', color: '#87786c', fontSize: 13.5 }}>
-                      No playlists found.
-                    </div>
-                  ) : (
-                    customPlaylists
-                      .filter(pl => pl.title.toLowerCase().includes(searchQuery.toLowerCase()))
-                      .map(pl => {
-                        const alreadyAdded = pl.tracks.includes(activePickerTrack.id);
-                        return (
-                          <button
-                            key={pl.id}
-                            onClick={() => {
-                              if (alreadyAdded) {
-                                removeTrackFromPlaylist(pl.id, activePickerTrack.id);
-                                toast.success(`Removed from "${pl.title}"`, { id: 'playlist-toggle' });
-                              } else {
-                                addTrackToPlaylist(pl.id, activePickerTrack.id);
-                                toast.success(`Added to "${pl.title}"`, { id: 'playlist-toggle' });
-                              }
-                            }}
-                            style={{
-                              display: 'flex', alignItems: 'center', gap: 14,
-                              width: '100%', padding: '10px 12px', borderRadius: 8,
-                              background: 'none', border: 'none', cursor: 'pointer',
-                              textAlign: 'left', transition: 'background 0.15s',
-                            }}
-                            onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,81,50,0.04)'}
-                            onMouseLeave={e => e.currentTarget.style.background = 'none'}
-                          >
-                            <div style={{
-                              width: 44, height: 44, borderRadius: 6, flexShrink: 0,
-                              background: pl.gradientCss || 'linear-gradient(135deg, var(--color-ss-primary, #0f5132), var(--color-ss-secondary, #198754))',
-                              display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
-                            }}>
-                              {pl.coverImage ? (
-                                <img src={pl.coverImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                              ) : (
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>
-                              )}
-                            </div>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <p style={{ color: alreadyAdded ? GREEN : '#221a15', fontSize: 14, fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pl.title}</p>
-                              <p style={{ color: '#87786c', fontSize: 12, margin: '2px 0 0', }}>{pl.tracks.length === 0 ? 'Empty' : `${pl.tracks.length} song${pl.tracks.length === 1 ? '' : 's'}`}</p>
-                            </div>
-                            {alreadyAdded ? (
-                              <div style={{
-                                width: 22, height: 22, borderRadius: '50%', background: GREEN,
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              }}>
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-                                  <polyline points="20 6 9 17 4 12" />
-                                </svg>
-                              </div>
+                  {(() => {
+                    const myPlaylists = customPlaylists.filter(pl => {
+                      if (user) return pl.ownerId === user.id;
+                      return pl.ownerId === 'guest' || !pl.ownerId;
+                    });
+                    const filtered = myPlaylists.filter(pl => pl.title.toLowerCase().includes(searchQuery.toLowerCase()));
+                    if (filtered.length === 0) {
+                      return (
+                        <div style={{ textAlign: 'center', padding: '32px 0', color: '#87786c', fontSize: 13.5 }}>
+                          No playlists found.
+                        </div>
+                      );
+                    }
+                    return filtered.map(pl => {
+                      const alreadyAdded = pl.tracks.includes(activePickerTrack.id);
+                      const firstTrackId = pl.tracks?.[0];
+                      const firstTrack = allTracks.find(t => t.id === firstTrackId);
+                      const resolvedCover = pl.coverImage || firstTrack?.coverImage || '';
+
+                      return (
+                        <button
+                          key={pl.id}
+                          onClick={() => {
+                            if (alreadyAdded) {
+                              removeTrackFromPlaylist(pl.id, activePickerTrack.id);
+                              toast.success(`Removed from "${pl.title}"`, { id: 'playlist-toggle' });
+                            } else {
+                              addTrackToPlaylist(pl.id, activePickerTrack.id);
+                              toast.success(`Added to "${pl.title}"`, { id: 'playlist-toggle' });
+                            }
+                          }}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: 14,
+                            width: '100%', padding: '10px 12px', borderRadius: 8,
+                            background: 'none', border: 'none', cursor: 'pointer',
+                            textAlign: 'left', transition: 'background 0.15s',
+                          }}
+                          onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,81,50,0.04)'}
+                          onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                        >
+                          <div style={{
+                            width: 44, height: 44, borderRadius: 6, flexShrink: 0,
+                            background: pl.gradientCss || 'linear-gradient(135deg, var(--color-ss-primary, #0f5132), var(--color-ss-secondary, #198754))',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
+                          }}>
+                            {resolvedCover ? (
+                              <img src={resolvedCover} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             ) : (
-                              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(43,34,26,0.4)" strokeWidth="2">
-                                <circle cx="12" cy="12" r="10" />
-                                <line x1="12" y1="8" x2="12" y2="16" />
-                                <line x1="8" y1="12" x2="16" y2="12" />
-                              </svg>
+                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>
                             )}
-                          </button>
-                        );
-                      })
-                  )}
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <p style={{ color: alreadyAdded ? GREEN : '#221a15', fontSize: 14, fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pl.title}</p>
+                            <p style={{ color: '#87786c', fontSize: 12, margin: '2px 0 0', }}>{pl.tracks.length === 0 ? 'Empty' : `${pl.tracks.length} song${pl.tracks.length === 1 ? '' : 's'}`}</p>
+                          </div>
+                          {alreadyAdded ? (
+                            <div style={{
+                              width: 22, height: 22, borderRadius: '50%', background: GREEN,
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            }}>
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                              </svg>
+                            </div>
+                          ) : (
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(43,34,26,0.4)" strokeWidth="2">
+                              <circle cx="12" cy="12" r="10" />
+                              <line x1="12" y1="8" x2="12" y2="16" />
+                              <line x1="8" y1="12" x2="16" y2="12" />
+                            </svg>
+                          )}
+                        </button>
+                      );
+                    });
+                  })()}
 
                   {/* New playlist item at the bottom of the list */}
                   <button
@@ -1994,71 +2006,81 @@ export default function PlayerBar() {
 
               {/* Scrollable Playlists list */}
               <div className="no-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '8px 24px' }}>
-                {customPlaylists.filter(pl => pl.title.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '32px 0', color: '#87786c', fontSize: 13.5 }}>
-                    No playlists found.
-                  </div>
-                ) : (
-                  customPlaylists
-                    .filter(pl => pl.title.toLowerCase().includes(searchQuery.toLowerCase()))
-                    .map(pl => {
-                      const alreadyAdded = pl.tracks.includes(activePickerTrack.id);
-                      return (
-                        <button
-                          key={pl.id}
-                          onClick={() => {
-                            if (alreadyAdded) {
-                              removeTrackFromPlaylist(pl.id, activePickerTrack.id);
-                              toast.success(`Removed from "${pl.title}"`, { id: 'playlist-toggle' });
-                            } else {
-                              addTrackToPlaylist(pl.id, activePickerTrack.id);
-                              toast.success(`Added to "${pl.title}"`, { id: 'playlist-toggle' });
-                            }
-                          }}
-                          style={{
-                            display: 'flex', alignItems: 'center', gap: 14,
-                            width: '100%', padding: '10px 12px', borderRadius: 8,
-                            background: 'none', border: 'none', cursor: 'pointer',
-                            textAlign: 'left', transition: 'background 0.15s',
-                          }}
-                          onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,81,50,0.04)'}
-                          onMouseLeave={e => e.currentTarget.style.background = 'none'}
-                        >
-                          <div style={{
-                            width: 44, height: 44, borderRadius: 6, flexShrink: 0,
-                            background: pl.gradientCss || 'linear-gradient(135deg, var(--color-ss-primary, #0f5132), var(--color-ss-secondary, #198754))',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
-                          }}>
-                            {pl.coverImage ? (
-                              <img src={pl.coverImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            ) : (
-                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>
-                            )}
-                          </div>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <p style={{ color: alreadyAdded ? GREEN : '#221a15', fontSize: 14, fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pl.title}</p>
-                            <p style={{ color: '#87786c', fontSize: 12, margin: '2px 0 0', }}>{pl.tracks.length === 0 ? 'Empty' : `${pl.tracks.length} song${pl.tracks.length === 1 ? '' : 's'}`}</p>
-                          </div>
-                          {alreadyAdded ? (
-                            <div style={{
-                              width: 22, height: 22, borderRadius: '50%', background: GREEN,
-                              display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            }}>
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                              </svg>
-                            </div>
+                {(() => {
+                  const myPlaylists = customPlaylists.filter(pl => {
+                    if (user) return pl.ownerId === user.id;
+                    return pl.ownerId === 'guest' || !pl.ownerId;
+                  });
+                  const filtered = myPlaylists.filter(pl => pl.title.toLowerCase().includes(searchQuery.toLowerCase()));
+                  if (filtered.length === 0) {
+                    return (
+                      <div style={{ textAlign: 'center', padding: '32px 0', color: '#87786c', fontSize: 13.5 }}>
+                        No playlists found.
+                      </div>
+                    );
+                  }
+                  return filtered.map(pl => {
+                    const alreadyAdded = pl.tracks.includes(activePickerTrack.id);
+                    const firstTrackId = pl.tracks?.[0];
+                    const firstTrack = allTracks.find(t => t.id === firstTrackId);
+                    const resolvedCover = pl.coverImage || firstTrack?.coverImage || '';
+
+                    return (
+                      <button
+                        key={pl.id}
+                        onClick={() => {
+                          if (alreadyAdded) {
+                            removeTrackFromPlaylist(pl.id, activePickerTrack.id);
+                            toast.success(`Removed from "${pl.title}"`, { id: 'playlist-toggle' });
+                          } else {
+                            addTrackToPlaylist(pl.id, activePickerTrack.id);
+                            toast.success(`Added to "${pl.title}"`, { id: 'playlist-toggle' });
+                          }
+                        }}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 14,
+                          width: '100%', padding: '10px 12px', borderRadius: 8,
+                          background: 'none', border: 'none', cursor: 'pointer',
+                          textAlign: 'left', transition: 'background 0.15s',
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,81,50,0.04)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                      >
+                        <div style={{
+                          width: 44, height: 44, borderRadius: 6, flexShrink: 0,
+                          background: pl.gradientCss || 'linear-gradient(135deg, var(--color-ss-primary, #0f5132), var(--color-ss-secondary, #198754))',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
+                        }}>
+                          {resolvedCover ? (
+                            <img src={resolvedCover} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                           ) : (
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(43,34,26,0.4)" strokeWidth="2">
-                              <circle cx="12" cy="12" r="10" />
-                              <line x1="12" y1="8" x2="12" y2="16" />
-                              <line x1="8" y1="12" x2="16" y2="12" />
-                            </svg>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>
                           )}
-                        </button>
-                      );
-                    })
-                )}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p style={{ color: alreadyAdded ? GREEN : '#221a15', fontSize: 14, fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pl.title}</p>
+                          <p style={{ color: '#87786c', fontSize: 12, margin: '2px 0 0', }}>{pl.tracks.length === 0 ? 'Empty' : `${pl.tracks.length} song${pl.tracks.length === 1 ? '' : 's'}`}</p>
+                        </div>
+                        {alreadyAdded ? (
+                          <div style={{
+                            width: 22, height: 22, borderRadius: '50%', background: GREEN,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          }}>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                          </div>
+                        ) : (
+                          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(43,34,26,0.4)" strokeWidth="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="12" y1="8" x2="12" y2="16" />
+                            <line x1="8" y1="12" x2="16" y2="12" />
+                          </svg>
+                        )}
+                      </button>
+                    );
+                  });
+                })()}
 
                 {/* New playlist item at the bottom of the list */}
                 <button

@@ -14,6 +14,7 @@ import { usePlayerStore } from '@/store/playerStore';
 import { useAuthStore } from '@/store/authStore';
 import { useDownloadStore } from '@/store/downloadStore';
 import { usePlaylistStore } from '@/store/playlistStore';
+import { useMusicStore } from '@/store/musicStore';
 import { formatDuration, mockArtists } from '@/lib/mockData';
 import { getLyricsForTrack } from '@/lib/lyrics';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -44,6 +45,8 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
   const downloading = currentTrack ? downloadingIds.includes(currentTrack.id) : false;
   const currentTrackProgress = currentTrack ? (downloadProgress[currentTrack.id] || 0) : 0;
   const { customPlaylists, addTrackToPlaylist, removeTrackFromPlaylist, addPlaylist } = usePlaylistStore();
+  const { getAllTracks } = useMusicStore();
+  const allTracks = getAllTracks();
   const router = useRouter();
 
   const [showPlaylistPicker, setShowPlaylistPicker] = useState(false);
@@ -2218,47 +2221,57 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
 
               {/* Scrollable Playlists list */}
               <div style={{ overflowY: 'auto', flex: 1, padding: '0 12px' }}>
-                {customPlaylists.filter(pl => pl.title.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 ? (
-                  <div style={{ padding: '32px 24px', textAlign: 'center', color: '#737373', fontSize: 14 }}>
-                    No playlists found.
-                  </div>
-                ) : (
-                  customPlaylists
-                    .filter(pl => pl.title.toLowerCase().includes(searchQuery.toLowerCase()))
-                    .map(pl => {
-                      const alreadyAdded = pl.tracks.includes(currentTrack.id);
-                      return (
-                        <button
-                          key={pl.id}
-                          onClick={() => {
-                            if (alreadyAdded) {
-                              removeTrackFromPlaylist(pl.id, currentTrack.id);
-                              toast.success(`Removed from "${pl.title}"`, { id: 'playlist-toggle' });
-                            } else {
-                              addTrackToPlaylist(pl.id, currentTrack.id);
-                              toast.success(`Added to "${pl.title}"`, { id: 'playlist-toggle' });
-                            }
-                          }}
-                          style={{
-                            display: 'flex', alignItems: 'center', gap: 14,
-                            width: '100%', padding: '10px 12px', borderRadius: 8,
-                            background: 'none', border: 'none', cursor: 'pointer',
-                            textAlign: 'left', transition: 'background 0.15s',
-                          }}
-                          onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,81,50,0.05)'}
-                          onMouseLeave={e => e.currentTarget.style.background = 'none'}
-                        >
-                          <div style={{
-                            width: 44, height: 44, borderRadius: 6, flexShrink: 0,
-                            background: pl.gradientCss || 'linear-gradient(135deg,#1e3a5f,#0ea5e9)',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
-                          }}>
-                            {pl.coverImage ? (
-                              <img src={pl.coverImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            ) : (
-                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>
-                            )}
-                          </div>
+                {(() => {
+                  const myPlaylists = customPlaylists.filter(pl => {
+                    if (user) return pl.ownerId === user.id;
+                    return pl.ownerId === 'guest' || !pl.ownerId;
+                  });
+                  const filtered = myPlaylists.filter(pl => pl.title.toLowerCase().includes(searchQuery.toLowerCase()));
+                  if (filtered.length === 0) {
+                    return (
+                      <div style={{ padding: '32px 24px', textAlign: 'center', color: '#737373', fontSize: 14 }}>
+                        No playlists found.
+                      </div>
+                    );
+                  }
+                  return filtered.map(pl => {
+                    const alreadyAdded = pl.tracks.includes(currentTrack.id);
+                    const firstTrackId = pl.tracks?.[0];
+                    const firstTrack = allTracks.find(t => t.id === firstTrackId);
+                    const resolvedCover = pl.coverImage || firstTrack?.coverImage || '';
+
+                    return (
+                      <button
+                        key={pl.id}
+                        onClick={() => {
+                          if (alreadyAdded) {
+                            removeTrackFromPlaylist(pl.id, currentTrack.id);
+                            toast.success(`Removed from "${pl.title}"`, { id: 'playlist-toggle' });
+                          } else {
+                            addTrackToPlaylist(pl.id, currentTrack.id);
+                            toast.success(`Added to "${pl.title}"`, { id: 'playlist-toggle' });
+                          }
+                        }}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 14,
+                          width: '100%', padding: '10px 12px', borderRadius: 8,
+                          background: 'none', border: 'none', cursor: 'pointer',
+                          textAlign: 'left', transition: 'background 0.15s',
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,81,50,0.05)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                      >
+                        <div style={{
+                          width: 44, height: 44, borderRadius: 6, flexShrink: 0,
+                          background: pl.gradientCss || 'linear-gradient(135deg,#1e3a5f,#0ea5e9)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
+                        }}>
+                          {resolvedCover ? (
+                            <img src={resolvedCover} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          ) : (
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>
+                          )}
+                        </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <p style={{ color: alreadyAdded ? '#0f5132' : '#0f172a', fontSize: 14, fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pl.title}</p>
                             <p style={{ color: '#737373', fontSize: 12, margin: '2px 0 0', }}>{pl.tracks.length === 0 ? 'Empty' : `${pl.tracks.length} song${pl.tracks.length === 1 ? '' : 's'}`}</p>
@@ -2281,8 +2294,8 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                           )}
                         </button>
                       );
-                    })
-                )}
+                    });
+                  })()}
 
                 {/* New playlist item at the bottom of the list */}
                 <button

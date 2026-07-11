@@ -944,7 +944,6 @@
       "following": 0,
       "likedSongs": [
         "track-sp-1783765219508-7bq52",
-        "track-sp-1783767931039-rpcyz",
         "track-sp-1783767118808-wqgy4"
       ],
       "savedAlbums": [],
@@ -968,8 +967,9 @@
       "stats": {
         "topGenres": [],
         "topTracks": [
-          "track-sp-1783767276450-ofllb",
-          "track-sp-1783767307455-43zow",
+          "track-sp-1783768053160-km3lk",
+          "track-sp-1783768042679-73kk5",
+          "track-sp-1783768869297-l5c9v",
           "track-sp-1783767842807-dc798",
           "track-sp-1783768967538-44dhp",
           "track-sp-1783765219508-7bq52",
@@ -1021,7 +1021,7 @@
         ],
         "streaksCount": 0,
         "discoverScore": 0,
-        "totalListeningTime": 26815
+        "totalListeningTime": 27115
       },
       "bio": "Manoj is a manually added creator on Beato.",
       "verified": false,
@@ -1115,13 +1115,6 @@
       "attempts": 0,
       "expiresAt": "2026-06-25T11:57:41.905Z",
       "createdAt": "2026-06-25T11:52:41.905Z"
-    },
-    {
-      "phone": "manoj2104s@gmail.com",
-      "code": "898421",
-      "attempts": 1,
-      "expiresAt": "2026-06-25T12:06:08.919Z",
-      "createdAt": "2026-06-25T12:01:08.919Z"
     },
     {
       "phone": "manoj5632@gmail.com",
@@ -1757,6 +1750,12 @@
       "userId": "superadmin-1",
       "token": "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiJzdXBlcmFkbWluLTEiLCJlbWFpbCI6InN1cGVyYWRtaW5AYmVhdG8uY29tIiwicm9sZSI6IlNVUEVSX0FETUlOIiwibmFtZSI6IlN1cGVyIEFkbWluIiwiaWF0IjoxNzgzNzYzMDM4LCJleHAiOjE4MTUyOTkwMzh9.aXrVLi7kpuaEZXDl2gFNtqrRgFJHbDeBSJPcTmIPcIc",
       "expiresAt": "2027-07-11T09:43:58.458Z"
+    },
+    {
+      "id": "session-1783776476315",
+      "userId": "artist-1783505262754",
+      "token": "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiJhcnRpc3QtMTc4MzUwNTI2Mjc1NCIsImVtYWlsIjoibWFub2oyMTA0c0BnbWFpbC5jb20iLCJyb2xlIjoiQVJUSVNUIiwibmFtZSI6Ik1hbm9qIiwiaWF0IjoxNzgzNzc2NDc2LCJleHAiOjE4MTUzMTI0NzZ9.6e6U4cvYK7O8chNsPEis0Xe08bTUZRXW_rl1LHkwBww",
+      "expiresAt": "2027-07-11T13:27:56.315Z"
     }
   ],
   "tracks": [
@@ -24786,7 +24785,7 @@
           "frequency": 3,
           "priority": "medium",
           "type": "banner",
-          "impressions": 192,
+          "impressions": 202,
           "clicks": 1,
           "createdAt": "2026-07-03T11:02:22.549Z"
         },
