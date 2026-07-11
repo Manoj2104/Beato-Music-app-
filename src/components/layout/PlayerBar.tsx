@@ -92,10 +92,18 @@ export default function PlayerBar() {
   const isPrevLocked = isFree && (prevSongTimestamps || []).filter((t: number) => t > oneHourAgo).length >= 10;
 
   const { downloadTrack, removeDownloadedTrack, downloadedTrackIds, downloadingIds } = useDownloadStore();
-  const { customPlaylists, addTrackToPlaylist, removeTrackFromPlaylist, addPlaylist } = usePlaylistStore();
+  const { 
+    customPlaylists, 
+    addTrackToPlaylist, 
+    removeTrackFromPlaylist, 
+    addPlaylist, 
+    playlistPickerTrack, 
+    closePlaylistPicker 
+  } = usePlaylistStore();
   const downloaded = currentTrack ? downloadedTrackIds.includes(currentTrack.id) : false;
   const downloading = currentTrack ? downloadingIds.includes(currentTrack.id) : false;
   const [showPlaylistPicker, setShowPlaylistPicker] = useState(false);
+  const activePickerTrack = playlistPickerTrack || (showPlaylistPicker ? currentTrack : null);
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleDownloadClick = async (e: React.MouseEvent) => {
@@ -883,7 +891,261 @@ export default function PlayerBar() {
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   });
 
-  if (!currentTrack) return null;
+  if (!currentTrack) {
+    if (activePickerTrack) {
+      return (
+        <AnimatePresence>
+          {activePickerTrack && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => { setShowPlaylistPicker(false); closePlaylistPicker(); setSearchQuery(''); }}
+              style={{
+                position: 'fixed', inset: 0, background: 'rgba(43,34,26,0.3)',
+                backdropFilter: 'blur(4px)',
+                zIndex: 20000, display: 'flex', alignItems: 'flex-end',
+              }}
+            >
+              <motion.div
+                initial={{ y: '100%' }}
+                animate={{ y: 0 }}
+                exit={{ y: '100%' }}
+                transition={{ type: 'spring', damping: 30, stiffness: 250 }}
+                onClick={e => e.stopPropagation()}
+                style={{
+                  width: '100%', background: '#ffffff',
+                  borderRadius: '24px 24px 0 0', padding: '8px 0 32px',
+                  display: 'flex', flexDirection: 'column', gap: 0,
+                  boxShadow: '0 -10px 40px rgba(43,34,26,0.08)',
+                  maxHeight: '80vh', overflow: 'hidden',
+                }}
+              >
+                {/* Drag Handle Indicator */}
+                <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(43,34,26,0.1)', margin: '8px auto 16px', flexShrink: 0 }} />
+
+                {/* Header */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px 16px', flexShrink: 0 }}>
+                  <span style={{ fontSize: 18, fontWeight: 800, color: '#221a15', fontFamily: 'Outfit, sans-serif' }}>Saved in</span>
+                  <button
+                    onClick={() => {
+                      const title = prompt("Enter playlist title:");
+                      if (!title) return;
+                      const newId = `playlist-custom-${Date.now()}`;
+                      const newPlaylist = {
+                        id: newId,
+                        title,
+                        description: 'A custom playlist created by you.',
+                        coverImage: '',
+                        ownerId: user?.id || 'guest',
+                        ownerName: user?.name || 'You',
+                        tracks: [activePickerTrack.id],
+                        totalTracks: 1,
+                        duration: 0,
+                        isPublic: true,
+                        isCollaborative: false,
+                        followers: 0,
+                        createdAt: new Date().toISOString().split('T')[0],
+                        updatedAt: new Date().toISOString().split('T')[0],
+                      };
+                      addPlaylist(newPlaylist);
+                      toast.success(`Created playlist "${title}" and added song`, { id: 'playlist-create' });
+                    }}
+                    style={{ background: 'none', border: 'none', color: GREEN, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
+                  >
+                    New playlist
+                  </button>
+                </div>
+
+                {/* Liked Songs Row (Current saved state indicator) */}
+                {(() => {
+                  const isTargetLiked = user?.likedSongs?.includes(activePickerTrack.id) ?? false;
+                  return (
+                    <div style={{ padding: '0 24px 16px', borderBottom: '1px solid rgba(43,34,26,0.08)', flexShrink: 0 }}>
+                      <button
+                        onClick={() => {
+                          toggleLikeSong(activePickerTrack.id);
+                          toast.success(isTargetLiked ? 'Removed from Liked Songs' : 'Added to Liked Songs', { id: 'liked-toggle-toast' });
+                        }}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 14, width: '100%',
+                          background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left',
+                          padding: '12px 16px', borderRadius: 8, transition: 'background 0.15s',
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,81,50,0.04)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                      >
+                        <div style={{
+                          width: 44, height: 44, borderRadius: 6, flexShrink: 0,
+                          background: 'linear-gradient(135deg, var(--color-ss-primary, #0f5132), var(--color-ss-secondary, #198754))',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                          <Heart size={20} fill="#fff" color="#fff" />
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <p style={{ color: '#221a15', fontSize: 14, fontWeight: 600, margin: 0 }}>Liked Songs</p>
+                          <p style={{ color: '#87786c', fontSize: 12, margin: '2px 0 0' }}>Your favorite songs list</p>
+                        </div>
+                        {isTargetLiked ? (
+                          <div style={{
+                            width: 22, height: 22, borderRadius: '50%', background: GREEN,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          }}>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                          </div>
+                        ) : (
+                          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(43,34,26,0.4)" strokeWidth="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="12" y1="8" x2="12" y2="16" />
+                            <line x1="8" y1="12" x2="16" y2="12" />
+                          </svg>
+                        )}
+                      </button>
+                    </div>
+                  );
+                })()}
+
+                {/* Search bar inside sheet */}
+                <div style={{ padding: '16px 24px', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 10, background: '#fafaf9' }}>
+                  <input
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    placeholder="Find playlist"
+                    style={{
+                      flex: 1, background: '#f4eede', border: '1px solid rgba(43,34,26,0.08)',
+                      borderRadius: 18, padding: '8px 16px', fontSize: 13.5, color: '#221a15',
+                      outline: 'none', fontFamily: 'var(--font-inter), sans-serif',
+                    }}
+                  />
+                </div>
+
+                {/* Scrollable Playlists list */}
+                <div className="no-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '8px 24px' }}>
+                  {customPlaylists.filter(pl => pl.title.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '32px 0', color: '#87786c', fontSize: 13.5 }}>
+                      No playlists found.
+                    </div>
+                  ) : (
+                    customPlaylists
+                      .filter(pl => pl.title.toLowerCase().includes(searchQuery.toLowerCase()))
+                      .map(pl => {
+                        const alreadyAdded = pl.tracks.includes(activePickerTrack.id);
+                        return (
+                          <button
+                            key={pl.id}
+                            onClick={() => {
+                              if (alreadyAdded) {
+                                removeTrackFromPlaylist(pl.id, activePickerTrack.id);
+                                toast.success(`Removed from "${pl.title}"`, { id: 'playlist-toggle' });
+                              } else {
+                                addTrackToPlaylist(pl.id, activePickerTrack.id);
+                                toast.success(`Added to "${pl.title}"`, { id: 'playlist-toggle' });
+                              }
+                            }}
+                            style={{
+                              display: 'flex', alignItems: 'center', gap: 14,
+                              width: '100%', padding: '10px 12px', borderRadius: 8,
+                              background: 'none', border: 'none', cursor: 'pointer',
+                              textAlign: 'left', transition: 'background 0.15s',
+                            }}
+                            onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,81,50,0.04)'}
+                            onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                          >
+                            <div style={{
+                              width: 44, height: 44, borderRadius: 6, flexShrink: 0,
+                              background: pl.gradientCss || 'linear-gradient(135deg, var(--color-ss-primary, #0f5132), var(--color-ss-secondary, #198754))',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
+                            }}>
+                              {pl.coverImage ? (
+                                <img src={pl.coverImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              ) : (
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>
+                              )}
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <p style={{ color: alreadyAdded ? GREEN : '#221a15', fontSize: 14, fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pl.title}</p>
+                              <p style={{ color: '#87786c', fontSize: 12, margin: '2px 0 0', }}>{pl.tracks.length === 0 ? 'Empty' : `${pl.tracks.length} song${pl.tracks.length === 1 ? '' : 's'}`}</p>
+                            </div>
+                            {alreadyAdded ? (
+                              <div style={{
+                                width: 22, height: 22, borderRadius: '50%', background: GREEN,
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              }}>
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                                  <polyline points="20 6 9 17 4 12" />
+                                </svg>
+                              </div>
+                            ) : (
+                              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(43,34,26,0.4)" strokeWidth="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="8" x2="12" y2="16" />
+                                <line x1="8" y1="12" x2="16" y2="12" />
+                              </svg>
+                            )}
+                          </button>
+                        );
+                      })
+                  )}
+
+                  {/* New playlist item at the bottom of the list */}
+                  <button
+                    onClick={() => {
+                      const title = prompt("Enter playlist title:");
+                      if (!title) return;
+                      const newId = `playlist-custom-${Date.now()}`;
+                      const newPlaylist = {
+                        id: newId,
+                        title,
+                        description: 'A custom playlist created by you.',
+                        coverImage: '',
+                        ownerId: user?.id || 'guest',
+                        ownerName: user?.name || 'You',
+                        tracks: [activePickerTrack.id],
+                        totalTracks: 1,
+                        duration: 0,
+                        isPublic: true,
+                        isCollaborative: false,
+                        followers: 0,
+                        createdAt: new Date().toISOString().split('T')[0],
+                        updatedAt: new Date().toISOString().split('T')[0],
+                      };
+                      addPlaylist(newPlaylist);
+                      toast.success(`Created playlist "${title}" and added song`, { id: 'playlist-create' });
+                    }}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 14,
+                      width: '100%', padding: '10px 12px', borderRadius: 8,
+                      background: 'none', border: 'none', cursor: 'pointer',
+                      textAlign: 'left', transition: 'background 0.15s',
+                      marginTop: 4,
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(43,34,26,0.04)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                  >
+                    <div style={{
+                      width: 44, height: 44, borderRadius: 6, flexShrink: 0,
+                      background: '#f4eede', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(43,34,26,0.6)" strokeWidth="2.5">
+                        <line x1="12" y1="5" x2="12" y2="19" />
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                      </svg>
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ color: '#221a15', fontSize: 14, fontWeight: 600, margin: 0 }}>New playlist</p>
+                    </div>
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      );
+    }
+    return null;
+  }
 
   // Progress circle geometry math for mobile player (matching second ref image capsule layout)
   const circleRadius = 23;
@@ -1604,12 +1866,12 @@ export default function PlayerBar() {
 
       {/* ── Playlist Picker Bottom Sheet ── */}
       <AnimatePresence>
-        {showPlaylistPicker && currentTrack && (
+        {activePickerTrack && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => { setShowPlaylistPicker(false); setSearchQuery(''); }}
+            onClick={() => { setShowPlaylistPicker(false); closePlaylistPicker(); setSearchQuery(''); }}
             style={{
               position: 'fixed', inset: 0, background: 'rgba(43,34,26,0.3)',
               backdropFilter: 'blur(4px)',
@@ -1648,7 +1910,7 @@ export default function PlayerBar() {
                       coverImage: '',
                       ownerId: user?.id || 'guest',
                       ownerName: user?.name || 'You',
-                      tracks: [currentTrack.id],
+                      tracks: [activePickerTrack.id],
                       totalTracks: 1,
                       duration: 0,
                       isPublic: true,
@@ -1667,90 +1929,89 @@ export default function PlayerBar() {
               </div>
 
               {/* Liked Songs Row (Current saved state indicator) */}
-              <div style={{ padding: '0 24px 16px', borderBottom: '1px solid rgba(43,34,26,0.08)', flexShrink: 0 }}>
-                <button
-                  onClick={() => {
-                    toggleLikeSong(currentTrack.id);
-                    toast.success(isLiked ? 'Removed from Liked Songs' : 'Added to Liked Songs', { id: 'liked-toggle-toast' });
-                  }}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 14, width: '100%',
-                    background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left',
-                    padding: '12px 16px', borderRadius: 8, transition: 'background 0.15s',
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,81,50,0.04)'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'none'}
-                >
-                  <div style={{
-                    width: 44, height: 44, borderRadius: 6, flexShrink: 0,
-                    background: 'linear-gradient(135deg, var(--color-ss-primary, #0f5132), var(--color-ss-secondary, #198754))',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    <Heart size={20} fill="#fff" color="#fff" />
+              {(() => {
+                const isTargetLiked = user?.likedSongs?.includes(activePickerTrack.id) ?? false;
+                return (
+                  <div style={{ padding: '0 24px 16px', borderBottom: '1px solid rgba(43,34,26,0.08)', flexShrink: 0 }}>
+                    <button
+                      onClick={() => {
+                        toggleLikeSong(activePickerTrack.id);
+                        toast.success(isTargetLiked ? 'Removed from Liked Songs' : 'Added to Liked Songs', { id: 'liked-toggle-toast' });
+                      }}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 14, width: '100%',
+                        background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left',
+                        padding: '12px 16px', borderRadius: 8, transition: 'background 0.15s',
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,81,50,0.04)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                    >
+                      <div style={{
+                        width: 44, height: 44, borderRadius: 6, flexShrink: 0,
+                        background: 'linear-gradient(135deg, var(--color-ss-primary, #0f5132), var(--color-ss-secondary, #198754))',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}>
+                        <Heart size={20} fill="#fff" color="#fff" />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <p style={{ color: '#221a15', fontSize: 14, fontWeight: 600, margin: 0 }}>Liked Songs</p>
+                        <p style={{ color: '#87786c', fontSize: 12, margin: '2px 0 0' }}>Your favorite songs list</p>
+                      </div>
+                      {isTargetLiked ? (
+                        <div style={{
+                          width: 22, height: 22, borderRadius: '50%', background: GREEN,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        </div>
+                      ) : (
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(43,34,26,0.4)" strokeWidth="2">
+                          <circle cx="12" cy="12" r="10" />
+                          <line x1="12" y1="8" x2="12" y2="16" />
+                          <line x1="8" y1="12" x2="16" y2="12" />
+                        </svg>
+                      )}
+                    </button>
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <p style={{ color: '#221a15', fontSize: 14, fontWeight: 600, margin: 0 }}>Liked Songs</p>
-                  </div>
-                  {isLiked ? (
-                    <div style={{
-                      width: 22, height: 22, borderRadius: '50%', background: GREEN,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    </div>
-                  ) : (
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(43,34,26,0.4)" strokeWidth="2">
-                      <circle cx="12" cy="12" r="10" />
-                      <line x1="12" y1="8" x2="12" y2="16" />
-                      <line x1="8" y1="12" x2="16" y2="12" />
-                    </svg>
-                  )}
-                </button>
-              </div>
+                );
+              })()}
 
-              {/* Search Bar */}
-              <div style={{ display: 'flex', gap: 10, padding: '16px 24px', flexShrink: 0 }}>
-                <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center' }}>
-                  <svg style={{ position: 'absolute', left: 12, color: 'rgba(43,34,26,0.4)' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                  <input
-                    type="text"
-                    placeholder="Find playlist"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    style={{
-                      width: '100%', background: '#f4eede', border: 'none',
-                      borderRadius: '8px', padding: '10px 12px 10px 38px',
-                      color: '#221a15', fontSize: '14px', outline: 'none',
-                    }}
-                  />
-                </div>
-                <button style={{ background: '#f4eede', border: 'none', borderRadius: '8px', padding: '0 16px', color: '#221a15', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
-                  Sort
-                </button>
+              {/* Search bar inside sheet */}
+              <div style={{ padding: '16px 24px', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 10, background: '#fafaf9' }}>
+                <input
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  placeholder="Find playlist"
+                  style={{
+                    flex: 1, background: '#f4eede', border: '1px solid rgba(43,34,26,0.08)',
+                    borderRadius: 18, padding: '8px 16px', fontSize: 13.5, color: '#221a15',
+                    outline: 'none', fontFamily: 'var(--font-inter), sans-serif',
+                  }}
+                />
               </div>
 
               {/* Scrollable Playlists list */}
-              <div style={{ overflowY: 'auto', flex: 1, padding: '0 12px' }}>
+              <div className="no-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '8px 24px' }}>
                 {customPlaylists.filter(pl => pl.title.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 ? (
-                  <div style={{ padding: '32px 24px', textAlign: 'center', color: '#87786c', fontSize: 14 }}>
+                  <div style={{ textAlign: 'center', padding: '32px 0', color: '#87786c', fontSize: 13.5 }}>
                     No playlists found.
                   </div>
                 ) : (
                   customPlaylists
                     .filter(pl => pl.title.toLowerCase().includes(searchQuery.toLowerCase()))
                     .map(pl => {
-                      const alreadyAdded = pl.tracks.includes(currentTrack.id);
+                      const alreadyAdded = pl.tracks.includes(activePickerTrack.id);
                       return (
                         <button
                           key={pl.id}
                           onClick={() => {
                             if (alreadyAdded) {
-                              removeTrackFromPlaylist(pl.id, currentTrack.id);
+                              removeTrackFromPlaylist(pl.id, activePickerTrack.id);
                               toast.success(`Removed from "${pl.title}"`, { id: 'playlist-toggle' });
                             } else {
-                              addTrackToPlaylist(pl.id, currentTrack.id);
+                              addTrackToPlaylist(pl.id, activePickerTrack.id);
                               toast.success(`Added to "${pl.title}"`, { id: 'playlist-toggle' });
                             }
                           }}
@@ -1812,7 +2073,7 @@ export default function PlayerBar() {
                       coverImage: '',
                       ownerId: user?.id || 'guest',
                       ownerName: user?.name || 'You',
-                      tracks: [currentTrack.id],
+                      tracks: [activePickerTrack.id],
                       totalTracks: 1,
                       duration: 0,
                       isPublic: true,

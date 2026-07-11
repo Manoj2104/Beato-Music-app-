@@ -133,8 +133,18 @@ function PlaylistSearchCard({ playlist }: { playlist: any }) {
 function TopResult({ topResult, onPlay }: { topResult: SearchResult['topResult']; onPlay: () => void }) {
   if (!topResult) return null;
   const item = topResult.item as any;
-  const displayImg = (item.coverImage && item.coverImage !== 'undefined' && item.coverImage !== 'null') ? item.coverImage
-    : ((item.imageUrl && item.imageUrl !== 'undefined') ? item.imageUrl : null);
+  let displayImg: string | null = null;
+  if (topResult.type === 'playlist') {
+    let fallbackImg: string | null = null;
+    if (!item.coverImage || item.coverImage === 'undefined' || item.coverImage === 'null') {
+      const firstTrack = useMusicStore.getState().getAllTracks().find((t: any) => t.id === item.tracks?.[0]);
+      if (firstTrack?.coverImage) fallbackImg = firstTrack.coverImage;
+    }
+    displayImg = (item.coverImage && item.coverImage !== 'undefined' && item.coverImage !== 'null') ? item.coverImage : fallbackImg;
+  } else {
+    displayImg = (item.coverImage && item.coverImage !== 'undefined' && item.coverImage !== 'null') ? item.coverImage
+      : ((item.imageUrl && item.imageUrl !== 'undefined' && item.imageUrl !== 'null') ? item.imageUrl : null);
+  }
   const typeLabel = topResult.type === 'track' ? `Song · ${item.artistName}`
     : topResult.type === 'artist' ? 'Artist'
     : topResult.type === 'album' ? `Album · ${item.artistName}`
@@ -227,10 +237,10 @@ function SongRow({ track, index, queue, onPlay, isActive, isPlaying }: {
       {/* Actions */}
       <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
         <button
-          onClick={() => toggleLikeSong?.(track.id)}
-          style={{ width: 30, height: 30, borderRadius: '50%', border: `1.5px solid ${BORDER}`, background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: isLiked ? GREEN : MUTED, transition: 'all 0.15s' }}
+          onClick={() => usePlaylistStore.getState().openPlaylistPicker(track)}
+          style={{ width: 30, height: 30, borderRadius: '50%', border: `1.5px solid ${BORDER}`, background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: MUTED, transition: 'all 0.15s' }}
           onMouseEnter={e => { e.currentTarget.style.borderColor = GREEN; e.currentTarget.style.color = GREEN; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.color = isLiked ? GREEN : MUTED; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.color = MUTED; }}
         >
           <Plus size={14} />
         </button>
@@ -453,6 +463,12 @@ export default function SearchPage() {
   useEffect(() => {
     setMounted(true);
     setRecents(loadRecents());
+
+    // Sync latest public and custom playlists from the cloud database so they can be searched!
+    usePlaylistStore.getState().syncFromCloud().catch(err => {
+      console.error('Failed to sync search playlists on mount:', err);
+    });
+
     const el = document.querySelector('.app-main');
     if (!el) return;
     const h = () => setScrolled(el.scrollTop > 5);
@@ -498,7 +514,7 @@ export default function SearchPage() {
       pushRecent({ query: debouncedQuery, title: debouncedQuery, subtitle: 'Search', type: 'query', coverImage: null, gradient: null, saved: false });
     }
     setRecents(loadRecents());
-  }, [debouncedQuery, uploadedTracks, activeArtistIds]);
+  }, [debouncedQuery, uploadedTracks, activeArtistIds, customPlaylists]);
 
   // ── Handlers ────────────────────────────────────────────────
   const exitFocus = () => {

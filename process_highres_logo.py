@@ -12,14 +12,14 @@ def process_logo():
     img = Image.open(input_path).convert("RGBA")
 
     # Center crop to get a perfect square of the logo contents
-    # The logo is centered. Let's crop it tightly to 920x920 to remove unnecessary margins.
+    # The logo is centered. Let's crop it tightly to 780x780 to zoom in and remove unwanted edges.
     w, h = img.size
-    crop_size = 920
+    crop_size = 780
     left = (w - crop_size) // 2
     top = (h - crop_size) // 2
     right = left + crop_size
     bottom = top + crop_size
-    cropped = img.crop((left, top, right, bottom)) # 920x920 perfect square
+    cropped = img.crop((left, top, right, bottom)) # 780x780 perfect square
 
     # Apply unsharp mask to make it look extremely sharp (4K quality like)
     # This removes any JPEG compression artifacts or blurriness.
@@ -49,8 +49,8 @@ def process_logo():
         # 1. Standard Launcher Icon (ic_launcher.png)
         # Paste squircle logo in center of pure white canvas
         square_canvas = Image.new("RGBA", (920, 920), (255, 255, 255, 255))
-        # Keep logo size at ~80% of canvas to look well-proportioned
-        sq_logo_size = int(920 * 0.80)
+        # Keep logo size at ~90% of canvas to look well-proportioned
+        sq_logo_size = int(920 * 0.90)
         sq_logo = sharpened.resize((sq_logo_size, sq_logo_size), Image.Resampling.LANCZOS)
         sq_offset = (920 - sq_logo_size) // 2
         square_canvas.paste(sq_logo, (sq_offset, sq_offset), sq_logo)
@@ -60,12 +60,12 @@ def process_logo():
         
         # 2. Round Launcher Icon (ic_launcher_round.png)
         # Draw a white circle, then paste squircle logo inside
-        round_canvas = Image.new("RGBA", (920, 920), (0, 0, 0, 0))
+        round_canvas = Image.new("RGBA", (920, 920), (255, 255, 255, 255)) # use white background directly
         draw = ImageDraw.Draw(round_canvas)
         draw.ellipse([4, 4, 916, 916], fill=(255, 255, 255, 255))
         
-        # Keep logo size at ~72% to fit perfectly within the circular white card
-        rd_logo_size = int(920 * 0.72)
+        # Keep logo size at ~84% to fit perfectly within the circular white card
+        rd_logo_size = int(920 * 0.84)
         rd_logo = sharpened.resize((rd_logo_size, rd_logo_size), Image.Resampling.LANCZOS)
         rd_offset = (920 - rd_logo_size) // 2
         round_canvas.paste(rd_logo, (rd_offset, rd_offset), rd_logo)
@@ -74,9 +74,9 @@ def process_logo():
         round_canvas.resize(size, Image.Resampling.LANCZOS).save(round_icon_path, "PNG")
         
         # 3. Adaptive Foreground Icon (ic_launcher_foreground.png)
-        # Transparent canvas with scaled-down logo in the center (72% size)
+        # Transparent canvas with scaled-down logo in the center (84% size)
         fg_canvas = Image.new("RGBA", (920, 920), (0, 0, 0, 0))
-        fg_logo_size = int(920 * 0.72)
+        fg_logo_size = int(920 * 0.84)
         fg_logo = sharpened.resize((fg_logo_size, fg_logo_size), Image.Resampling.LANCZOS)
         fg_offset = (920 - fg_logo_size) // 2
         fg_canvas.paste(fg_logo, (fg_offset, fg_offset), fg_logo)

@@ -266,6 +266,116 @@ async function scrapeSpotifyPlaylistOrAlbum(type: 'playlist' | 'album', id: stri
   };
 }
 
+async function fetchTracksViaSpotifyApi(
+  type: 'playlist' | 'album',
+  id: string,
+  clientId: string,
+  clientSecret: string
+): Promise<{ playlistTitle: string; coverImage: string; tracks: SpotifyTrackInfo[] }> {
+  const auth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+  const tokenRes: any = await globalThis.fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Basic ${auth}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: 'grant_type=client_credentials',
+  });
+  if (!tokenRes.ok) {
+    const errText = await tokenRes.text();
+    throw new Error(`Spotify authorization failed: ${errText}`);
+  }
+  const tokenData = await tokenRes.json();
+  const token = tokenData.access_token;
+
+  let playlistTitle = '';
+  let coverImage = '';
+  const tracks: SpotifyTrackInfo[] = [];
+
+  if (type === 'playlist') {
+    // Get playlist meta
+    const metaRes: any = await globalThis.fetch(`https://api.spotify.com/v1/playlists/${id}`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    if (!metaRes.ok) {
+      const errText = await metaRes.text();
+      throw new Error(`Failed to fetch playlist metadata: ${errText}`);
+    }
+    const metaData = await metaRes.json();
+    playlistTitle = metaData.name || 'Spotify Playlist';
+    coverImage = metaData.images?.[0]?.url || '';
+
+    // Paginate tracks
+    let nextUrl: string | null = `https://api.spotify.com/v1/playlists/${id}/tracks?limit=100`;
+    while (nextUrl) {
+      const tracksRes: any = await globalThis.fetch(nextUrl, {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (!tracksRes.ok) break;
+      const tracksData = await tracksRes.json();
+      
+      if (tracksData.items) {
+        for (const item of tracksData.items) {
+          const t = item.track;
+          if (!t) continue;
+          tracks.push({
+            id: t.id || '',
+            title: t.name || 'Unknown Track',
+            artist: t.artists?.map((a: any) => a.name).join(', ') || 'Unknown Artist',
+            album: t.album?.name || 'Single',
+            coverImage: t.album?.images?.[0]?.url || coverImage,
+            duration: Math.round((t.duration_ms || 0) / 1000) || 210,
+            explicit: !!t.explicit,
+            releaseDate: t.album?.release_date || '',
+            spotifyUrl: `https://open.spotify.com/track/${t.id}`,
+          });
+        }
+      }
+      nextUrl = tracksData.next;
+    }
+  } else {
+    // Get album metadata & tracks
+    const metaRes: any = await globalThis.fetch(`https://api.spotify.com/v1/albums/${id}`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    if (!metaRes.ok) {
+      const errText = await metaRes.text();
+      throw new Error(`Failed to fetch album metadata: ${errText}`);
+    }
+    const metaData = await metaRes.json();
+    playlistTitle = metaData.name || 'Spotify Album';
+    coverImage = metaData.images?.[0]?.url || '';
+
+    let nextUrl: string | null = `https://api.spotify.com/v1/albums/${id}/tracks?limit=100`;
+    while (nextUrl) {
+      const tracksRes: any = await globalThis.fetch(nextUrl, {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (!tracksRes.ok) break;
+      const tracksData = await tracksRes.json();
+
+      if (tracksData.items) {
+        for (const t of tracksData.items) {
+          tracks.push({
+            id: t.id || '',
+            title: t.name || 'Unknown Track',
+            artist: t.artists?.map((a: any) => a.name).join(', ') || 'Unknown Artist',
+            album: playlistTitle,
+            coverImage: coverImage,
+            duration: Math.round((t.duration_ms || 0) / 1000) || 210,
+            explicit: !!t.explicit,
+            releaseDate: metaData.release_date || '',
+            spotifyUrl: `https://open.spotify.com/track/${t.id}`,
+          });
+        }
+      }
+      nextUrl = tracksData.next;
+    }
+  }
+
+  return { playlistTitle, coverImage, tracks };
+}
+
 // ─── YouTube Search — Smart multi-strategy with language awareness ────────────
 // (KNOWN_LANGUAGES and detectLanguage are declared above near the top of this file)
 
@@ -397,7 +507,10 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { url } = body;
+    const { url, clientId, clientSecret } = body;
+
+    const effClientId = clientId || process.env.SPOTIFY_CLIENT_ID;
+    const effClientSecret = clientSecret || process.env.SPOTIFY_CLIENT_SECRET;
 
     if (!url || typeof url !== 'string') {
       return NextResponse.json({ error: 'Spotify URL is required.' }, { status: 400 });
@@ -449,16 +562,29 @@ export async function POST(request: NextRequest) {
     // ── PLAYLIST or ALBUM ────────────────────────────────────────────────────
     if (parsed.type === 'playlist' || parsed.type === 'album') {
       let result: { playlistTitle: string; coverImage: string; tracks: SpotifyTrackInfo[] };
+      let warning: string | null = null;
       try {
-        result = await scrapeSpotifyPlaylistOrAlbum(parsed.type, parsed.id);
+        if (effClientId && effClientSecret) {
+          console.log(`[spotify-extract] Fetching ${parsed.type} via official API using credentials...`);
+          result = await fetchTracksViaSpotifyApi(parsed.type, parsed.id, effClientId, effClientSecret);
+        } else {
+          console.log(`[spotify-extract] Scraping ${parsed.type} via public HTML guest mode...`);
+          result = await scrapeSpotifyPlaylistOrAlbum(parsed.type, parsed.id);
+        }
       } catch (err: any) {
-        // Return 422 instead of 502 to prevent Vercel from returning its default HTML error page
-        return NextResponse.json({
-          error: `Failed to fetch ${parsed.type}: ${err.message}`,
-        }, { status: 422 });
+        console.warn(`[spotify-extract] Official API or main scrape failed: ${err.message}. Trying guest mode fallback...`);
+        warning = err.message;
+        try {
+          result = await scrapeSpotifyPlaylistOrAlbum(parsed.type, parsed.id);
+        } catch (innerErr: any) {
+          return NextResponse.json({
+            error: `Failed to fetch ${parsed.type}: ${innerErr.message} (Primary error: ${err.message})`,
+          }, { status: 422 });
+        }
       }
 
-      const tracksToProcess = result.tracks.slice(0, 100);
+      // If official API is used, we can process more than 100 tracks, let's allow up to 500 tracks.
+      const tracksToProcess = result.tracks.slice(0, 500);
       const enrichedTracks = tracksToProcess.map((t) => {
         const searchQuery = `${t.artist} ${t.title} official audio`;
         return {
@@ -483,6 +609,7 @@ export async function POST(request: NextRequest) {
         playlistTitle: result.playlistTitle,
         coverImage: result.coverImage,
         tracks: enrichedTracks,
+        warning: warning,
       });
     }
 

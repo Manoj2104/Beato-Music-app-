@@ -288,6 +288,21 @@ export default function UploadPage() {
   const [spConvertProgress, setSpConvertProgress] = useState(0);
   const [spLogs, setSpLogs] = useState<string[]>([]);
   const [spPlaylistSelection, setSpPlaylistSelection] = useState<Record<string, boolean>>({});
+  const [spClientId, setSpClientId] = useState('');
+  const [spClientSecret, setSpClientSecret] = useState('');
+  const [spHideDuplicates, setSpHideDuplicates] = useState(true);
+  const [spWarning, setSpWarning] = useState<string | null>(null);
+
+  // Load saved Spotify credentials from localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedId = localStorage.getItem('ss_spotify_client_id');
+      const savedSecret = localStorage.getItem('ss_spotify_client_secret');
+      if (savedId) setSpClientId(savedId);
+      if (savedSecret) setSpClientSecret(savedSecret);
+    }
+  }, []);
+
   const [spSingleMetadata, setSpSingleMetadata] = useState<any>({
     title: '',
     songName: '',
@@ -478,6 +493,13 @@ export default function UploadPage() {
     if (!spArtistId) { toast.error('Please select a target artist'); return; }
 
     try {
+      setSpWarning(null);
+      // Save credentials in localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('ss_spotify_client_id', spClientId);
+        localStorage.setItem('ss_spotify_client_secret', spClientSecret);
+      }
+
       setSpLoading(true);
       setSpParsedData(null);
       setSpLogs(['🔍 Fetching Spotify metadata...']);
@@ -486,13 +508,21 @@ export default function UploadPage() {
       const res = await fetch('/api/admin/spotify-extract', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: spUrl, artistId: spArtistId }),
+        body: JSON.stringify({ 
+          url: spUrl, 
+          artistId: spArtistId,
+          clientId: spClientId || undefined,
+          clientSecret: spClientSecret || undefined
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to parse Spotify URL');
 
       if (data.success) {
         setSpParsedData(data);
+        if (data.warning) {
+          setSpWarning(data.warning);
+        }
         if (data.type === 'track' && data.track) {
           setSpSingleMetadata({ ...data.track, genre: 'Pop' });
         } else if ((data.type === 'playlist' || data.type === 'album') && data.tracks) {
@@ -2674,6 +2704,48 @@ export default function UploadPage() {
               </div>
             </div>
 
+            {spWarning && (
+              <div style={{
+                background: 'rgba(239, 68, 68, 0.05)',
+                border: '1.5px solid rgba(239, 68, 68, 0.25)',
+                borderRadius: 16,
+                padding: 16,
+                fontSize: 13,
+                color: '#b91c1c',
+                lineHeight: 1.5,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 8,
+                position: 'relative'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <span style={{ fontSize: 18 }}>⚠️</span>
+                    <strong style={{ fontWeight: 800 }}>Spotify API Key Warning (Read-only Fallback)</strong>
+                  </div>
+                  <button 
+                    type="button"
+                    onClick={() => setSpWarning(null)}
+                    style={{
+                      background: 'none', border: 'none', color: '#b91c1c', fontSize: 16, cursor: 'pointer', padding: 0, opacity: 0.7
+                    }}
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div style={{ color: '#7f1d1d' }}>
+                  The default server Spotify developer credentials failed to fetch this playlist via the official API:
+                  <div style={{ background: 'rgba(239, 68, 68, 0.08)', borderRadius: 8, padding: 8, margin: '8px 0', fontFamily: 'monospace', fontSize: 11.5, wordBreak: 'break-all' }}>
+                    {spWarning}
+                  </div>
+                  <strong>We successfully fell back to guest-scraping mode, but it is limited to the first 30 tracks of the playlist.</strong>
+                  <div style={{ marginTop: 8 }}>
+                    To bypass this limit and extract all 100+ tracks, please input a **Spotify Client ID &amp; Client Secret** from a Spotify Premium developer account under the <strong>Spotify API Credentials (Optional)</strong> section below.
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 32, alignItems: 'start' }}>
 
               {/* Left Column: Form */}
@@ -2719,6 +2791,49 @@ export default function UploadPage() {
                     />
                     <div style={{ fontSize: 10.5, color: 'var(--color-ss-text-muted, #87786c)', marginTop: 2 }}>
                       💡 Right-click any song on Spotify → Share → Copy Song Link
+                    </div>
+                  </div>
+
+                  {/* Optional Spotify Credentials */}
+                  <div style={{ background: 'rgba(29, 185, 84, 0.04)', border: '1px dashed rgba(29, 185, 84, 0.25)', borderRadius: 12, padding: 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ fontSize: 13 }}>🔑</span>
+                      <span style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--color-ss-text-primary, #221a15)' }}>Spotify API Credentials (Optional)</span>
+                    </div>
+                    <div style={{ fontSize: 10, color: 'var(--color-ss-text-muted, #87786c)', lineHeight: '1.4' }}>
+                      Enter your Spotify Developer Client ID and Secret to bypass the 30-track limit and fetch the entire playlist (100+ songs).
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        <label style={{ fontSize: 10.5, fontWeight: 700, color: 'var(--color-ss-text-primary, #221a15)' }}>Client ID</label>
+                        <input suppressHydrationWarning
+                          type="text"
+                          value={spClientId}
+                          onChange={(e) => setSpClientId(e.target.value)}
+                          placeholder="Client ID"
+                          style={{
+                            width: '100%', background: 'var(--color-ss-surface, #f4eede)',
+                            border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
+                            borderRadius: 8, padding: '8px 10px', color: 'var(--color-ss-text-primary, #221a15)', fontSize: 12,
+                            outline: 'none'
+                          }}
+                        />
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        <label style={{ fontSize: 10.5, fontWeight: 700, color: 'var(--color-ss-text-primary, #221a15)' }}>Client Secret</label>
+                        <input suppressHydrationWarning
+                          type="password"
+                          value={spClientSecret}
+                          onChange={(e) => setSpClientSecret(e.target.value)}
+                          placeholder="Client Secret"
+                          style={{
+                            width: '100%', background: 'var(--color-ss-surface, #f4eede)',
+                            border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08))',
+                            borderRadius: 8, padding: '8px 10px', color: 'var(--color-ss-text-primary, #221a15)', fontSize: 12,
+                            outline: 'none'
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -2902,12 +3017,7 @@ export default function UploadPage() {
                         <div>
                           <h4 style={{ fontSize: 13.5, fontWeight: 800, color: 'var(--color-ss-text-primary, #221a15)', margin: 0 }}>{spParsedData.playlistTitle}</h4>
                           <div style={{ fontSize: 11, color: 'var(--color-ss-text-muted, #87786c)', marginTop: 2 }}>
-                            {spParsedData.tracks?.length} tracks found 
-                            {spParsedData.tracks?.length === 30 && (
-                              <span style={{ color: '#b45309', marginLeft: 6, fontWeight: 700 }}>
-                                (Limited to first 30 tracks by Spotify guest mode)
-                              </span>
-                            )}
+                            {spParsedData.tracks?.length} tracks found
                           </div>
                         </div>
                       </div>
@@ -2948,6 +3058,27 @@ export default function UploadPage() {
                       >Deselect Duplicates</button>
                     </div>
 
+                    {/* Hide Duplicates toggle */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, userSelect: 'none', background: 'rgba(43, 34, 26, 0.03)', padding: '6px 12px', borderRadius: 8, border: '1px solid var(--color-ss-border, rgba(43, 34, 26, 0.05))' }}>
+                      <input suppressHydrationWarning
+                        type="checkbox"
+                        id="hideDuplicatesCheckbox"
+                        checked={spHideDuplicates}
+                        onChange={(e) => setSpHideDuplicates(e.target.checked)}
+                        style={{ width: 14, height: 14, cursor: 'pointer', accentColor: '#1DB954' }}
+                      />
+                      <label htmlFor="hideDuplicatesCheckbox" style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--color-ss-text-muted, #87786c)', cursor: 'pointer', flex: 1 }}>
+                        Hide already uploaded / duplicate tracks ({spParsedData.tracks.filter((t: any) => {
+                          return allTracks.some((ext: any) => {
+                            if (ext.spotifyTrackId && ext.spotifyTrackId === t.spotifyId) return true;
+                            const cleanExtTitle = ext.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+                            const cleanSpTitle = t.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+                            return cleanExtTitle === cleanSpTitle;
+                          });
+                        }).length} hidden)
+                      </label>
+                    </div>
+
                     {/* Tracks checklist */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 260, overflowY: 'auto', paddingRight: 4 }}>
                       {spParsedData.tracks?.map((t: any, index: number) => {
@@ -2959,6 +3090,8 @@ export default function UploadPage() {
                           const cleanSpTitle = t.title.toLowerCase().replace(/[^a-z0-9]/g, '');
                           return cleanExtTitle === cleanSpTitle;
                         });
+
+                        if (spHideDuplicates && isDup) return null;
 
                         return (
                           <div key={`${t.spotifyId}-${index}`} style={{

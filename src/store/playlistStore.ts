@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { Track } from '@/types';
 
 export interface CustomPlaylist {
   id: string;
@@ -28,6 +29,11 @@ interface PlaylistStore {
   removeTrackFromPlaylist: (playlistId: string, trackId: string) => void;
   setCustomPlaylists: (playlists: CustomPlaylist[]) => void;
   syncFromCloud: (userId?: string) => Promise<void>;
+  
+  // Playlist picker UI state
+  playlistPickerTrack: Track | null;
+  openPlaylistPicker: (track: Track) => void;
+  closePlaylistPicker: () => void;
 }
 
 export const usePlaylistStore = create<PlaylistStore>()(
@@ -126,10 +132,15 @@ export const usePlaylistStore = create<PlaylistStore>()(
         } catch (err) {
           console.error('Failed to sync playlists from cloud database:', err);
         }
-      }
+      },
+
+      playlistPickerTrack: null,
+      openPlaylistPicker: (track) => set({ playlistPickerTrack: track }),
+      closePlaylistPicker: () => set({ playlistPickerTrack: null }),
     }),
     {
       name: 'beato-custom-playlists-store',
+      partialize: (state) => ({ customPlaylists: state.customPlaylists }),
     }
   )
 );
