@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import TopBar from '@/components/layout/TopBar';
 import { usePlayerStore } from '@/store/playerStore';
 import { useAuthStore } from '@/store/authStore';
@@ -849,8 +849,19 @@ function ArtistMobileView({
 // ─── Main ────────────────────────────────────────────────────────────────────
 const TABS = ['Overview', 'Popular', 'Albums', 'About'];
 
-export default function ArtistPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+export default function ArtistPage({ params }: { params?: Promise<{ id: string }> }) {
+  const searchParams = useSearchParams();
+  
+  let id = '';
+  if (params) {
+    try {
+      const resolved = use(params);
+      id = resolved?.id || '';
+    } catch (e) {}
+  }
+  if (!id && searchParams) {
+    id = searchParams.get('id') || '';
+  }
   const { allTracks } = useMusicStore();
   const { user, toggleFollowArtist } = useAuthStore();
   const { currentTrack, isPlaying, playTrack, togglePlay } = usePlayerStore();

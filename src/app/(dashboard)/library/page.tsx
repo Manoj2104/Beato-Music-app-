@@ -166,7 +166,7 @@ function LibraryPlaylistCard({ playlist, pinned, onPin, onDelete, isCustom }: {
       )}
 
       {/* Cover */}
-      <Link href={`/playlist/${playlist.id}`} style={{ textDecoration: 'none' }}>
+      <Link href={`/playlist?id=${playlist.id}`} style={{ textDecoration: 'none' }}>
         <div style={{ position: 'relative', aspectRatio: '1', background: gradCss, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
           {resolvedCover && !isLiked ? (
             <img src={resolvedCover} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -993,11 +993,11 @@ function MobileLibraryView({
                       if (isLiked) {
                         setActiveTab('Liked');
                       } else if (item.type === 'playlist') {
-                        router.push(`/playlist/${item.id}`);
+                        router.push(`/playlist?id=${item.id}`);
                       } else if (item.type === 'artist') {
-                        router.push(`/artist/${item.id}`);
+                        router.push(`/artist?id=${item.id}`);
                       } else if (item.type === 'album') {
-                        router.push(`/album/${item.id}`);
+                        router.push(`/album?id=${item.id}`);
                       } else if (item.type === 'room') {
                         router.push(getRoomUrl(item.id));
                       }
@@ -1121,11 +1121,11 @@ function MobileLibraryView({
                         if (isLiked) {
                           setActiveTab('Liked');
                         } else if (item.type === 'playlist') {
-                          router.push(`/playlist/${item.id}`);
+                          router.push(`/playlist?id=${item.id}`);
                         } else if (item.type === 'artist') {
-                          router.push(`/artist/${item.id}`);
+                          router.push(`/artist?id=${item.id}`);
                         } else if (item.type === 'album') {
-                          router.push(`/album/${item.id}`);
+                          router.push(`/album?id=${item.id}`);
                         } else if (item.type === 'room') {
                           router.push(getRoomUrl(item.id));
                         }
@@ -1210,7 +1210,7 @@ function MobileLibraryView({
                 {recommendedPlaylists.map(pl => (
                   <div 
                     key={pl.id} 
-                    onClick={() => router.push(`/playlist/${pl.id}`)}
+                    onClick={() => router.push(`/playlist?id=${pl.id}`)}
                     style={{ 
                       flexShrink: 0, 
                       width: 140, 
@@ -1579,7 +1579,7 @@ function LibraryPageContent() {
     toast.success(`"${pl.title}" created 🎵`, { style: { background: '#1a1a1a', color: '#fff', border: `1px solid ${G}30` } });
     setNewTitle('');
     setShowCreateModal(false);
-    router.push(`/playlist/${plId}`);
+    router.push(`/playlist?id=${plId}`);
   };
 
   const handleCreateRoom = () => {
@@ -2134,7 +2134,7 @@ function LibraryPageContent() {
                     const resolvedCover = p.coverImage || firstTrack?.coverImage || '';
 
                     return (
-                      <Link key={p.id} href={`/playlist/${p.id}`} style={{ textDecoration: 'none' }}>
+                      <Link key={p.id} href={`/playlist?id=${p.id}`} style={{ textDecoration: 'none' }}>
                         <div style={{ display: 'grid', gridTemplateColumns: '28px 50px 1fr 80px 100px 40px', gap: 14, alignItems: 'center', padding: '8px 16px', transition: 'background 0.15s', cursor: 'pointer' }}
                           onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
                           onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>

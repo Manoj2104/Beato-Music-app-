@@ -119,7 +119,7 @@ function PlaylistSearchCard({ playlist }: { playlist: any }) {
   const displayImg = (playlist.coverImage && playlist.coverImage !== 'undefined') ? playlist.coverImage : fallbackImg;
   const grad = playlist.gradientCss || (isLiked ? 'linear-gradient(135deg,#4338ca,#60a5fa)' : 'linear-gradient(135deg,#1e3a5f,#0ea5e9)');
   return (
-    <Link href={`/playlist/${playlist.id}`} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', gap: 8 }}>
+    <Link href={`/playlist?id=${playlist.id}`} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', gap: 8 }}>
       <div style={{ width: '100%', paddingBottom: '100%', position: 'relative', borderRadius: 10, overflow: 'hidden', background: displayImg ? 'none' : grad }}>
         {displayImg ? <img src={displayImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
           : <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28 }}>{isLiked ? '❤️' : '🎶'}</div>}

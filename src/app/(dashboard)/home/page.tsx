@@ -229,7 +229,7 @@ function AlbumCardInline({ track, onPlay, isPlaying, isActive, cardStyle = 'clas
           onClick={e => {
             e.preventDefault();
             e.stopPropagation();
-            router.push(`/artist/${track.artistId}`);
+            router.push(`/artist?id=${track.artistId}`);
           }}
           style={{ textDecoration: 'none', width: '100%', display: 'block', cursor: 'pointer' }}
         >
@@ -1330,11 +1330,11 @@ export default function HomePage() {
       // Construct default items
       const DEFAULT_QUICK_ITEMS: QuickAccessItem[] = [
         { id: 'liked', label: 'Liked Songs', gradient: 'linear-gradient(135deg, #4338ca, #60a5fa)', icon: '♥', href: '/library?tab=liked' },
-        { id: 'discover', label: 'Discover Weekly', gradient: 'linear-gradient(135deg, #1e3a5f, #7c3aed)', icon: '✦', href: '/playlist/playlist-2', playlistId: 'playlist-2' },
-        { id: 'daily1', label: 'Daily Mix 1', gradient: 'linear-gradient(135deg, #5b21b6, #be185d)', icon: '★', href: '/playlist/playlist-3', playlistId: 'playlist-3' },
-        { id: 'midnight', label: 'Midnight Vibes', gradient: 'linear-gradient(135deg, #1e3a5f, #1e40af)', icon: '🌙', href: '/playlist/playlist-4', playlistId: 'playlist-4' },
-        { id: 'workout', label: 'Workout Energy', gradient: 'linear-gradient(135deg, #92400e, #dc2626)', icon: '⚡', href: '/playlist/playlist-5', playlistId: 'playlist-5' },
-        { id: 'chill', label: 'Chill Lounge', gradient: 'linear-gradient(135deg, #065f46, #0e7490)', icon: '🌊', href: '/playlist/playlist-6', playlistId: 'playlist-6' },
+        { id: 'discover', label: 'Discover Weekly', gradient: 'linear-gradient(135deg, #1e3a5f, #7c3aed)', icon: '✦', href: '/playlist?id=playlist-2', playlistId: 'playlist-2' },
+        { id: 'daily1', label: 'Daily Mix 1', gradient: 'linear-gradient(135deg, #5b21b6, #be185d)', icon: '★', href: '/playlist?id=playlist-3', playlistId: 'playlist-3' },
+        { id: 'midnight', label: 'Midnight Vibes', gradient: 'linear-gradient(135deg, #1e3a5f, #1e40af)', icon: '🌙', href: '/playlist?id=playlist-4', playlistId: 'playlist-4' },
+        { id: 'workout', label: 'Workout Energy', gradient: 'linear-gradient(135deg, #92400e, #dc2626)', icon: '⚡', href: '/playlist?id=playlist-5', playlistId: 'playlist-5' },
+        { id: 'chill', label: 'Chill Lounge', gradient: 'linear-gradient(135deg, #065f46, #0e7490)', icon: '🌊', href: '/playlist?id=playlist-6', playlistId: 'playlist-6' },
       ];
 
       // Get user's saved/custom playlists
@@ -1360,7 +1360,7 @@ export default function HomePage() {
         return {
           id: playlist.id,
           label: playlist.title,
-          href: `/playlist/${playlist.id}`,
+          href: `/playlist?id=${playlist.id}`,
           coverImage: isUrl ? playlist.coverImage : (fallbackImg || null),
           gradient: isUrl || fallbackImg ? undefined : gradient,
           icon: isUrl || fallbackImg ? undefined : '🎶',
@@ -1791,7 +1791,7 @@ export default function HomePage() {
                           {promo.description}
                         </p>
                       </div>
-                      <Link href={`/playlist/${promo.targetId || 'playlist-1'}`}>
+                      <Link href={`/playlist?id=${promo.targetId || 'playlist-1'}`}>
                         <button style={{
                           background: '#221a15',
                           color: '#fff',
@@ -1815,11 +1815,11 @@ export default function HomePage() {
 
               let targetPath = '/';
               if (promo.type === 'playlist') {
-                targetPath = `/playlist/${promo.targetId || 'playlist-1'}`;
+                targetPath = `/playlist?id=${promo.targetId || 'playlist-1'}`;
               } else if (promo.type === 'album') {
-                targetPath = `/album/${promo.targetId || 'album-1'}`;
+                targetPath = `/album?id=${promo.targetId || 'album-1'}`;
               } else if (promo.targetId) {
-                targetPath = promo.targetId.startsWith('/') ? promo.targetId : `/playlist/${promo.targetId}`;
+                targetPath = promo.targetId.startsWith('/') ? promo.targetId : `/playlist?id=${promo.targetId}`;
               }
 
                return (
@@ -1905,7 +1905,7 @@ export default function HomePage() {
                       <Play size={16} fill="white" /> Play
                     </button>
                     <button
-                      onClick={() => router.push(`/artist/${featuredArtist.id}`)}
+                      onClick={() => router.push(`/artist?id=${featuredArtist.id}`)}
                       style={{ padding: '10px 22px', borderRadius: 100, background: 'transparent', border: '1px solid rgba(43,34,26,0.3)', color: '#221a15', fontWeight: 600, fontSize: 14, cursor: 'pointer' }}
                     >
                       View Artist
@@ -2037,11 +2037,11 @@ export default function HomePage() {
 
           let targetPath = '/';
           if (promo.type === 'playlist') {
-            targetPath = `/playlist/${promo.targetId || 'playlist-1'}`;
+            targetPath = `/playlist?id=${promo.targetId || 'playlist-1'}`;
           } else if (promo.type === 'album') {
-            targetPath = `/album/${promo.targetId || 'album-1'}`;
+            targetPath = `/album?id=${promo.targetId || 'album-1'}`;
           } else if (promo.targetId) {
-            targetPath = promo.targetId.startsWith('/') ? promo.targetId : `/playlist/${promo.targetId}`;
+            targetPath = promo.targetId.startsWith('/') ? promo.targetId : `/playlist?id=${promo.targetId}`;
           }
 
           return (
@@ -2294,7 +2294,7 @@ export default function HomePage() {
               tracks = playlist.tracks.map((tid: string) => 
                 allTracks.find(t => t.id === tid) || mockTracks.find(t => t.id === tid)
               ).filter((t: any): t is typeof mockTracks[0] => !!t);
-              linkPath = `/playlist/${targetPlId}`;
+              linkPath = `/playlist?id=${targetPlId}`;
               if (!subtitleText) subtitleText = `Playlist â€¢ ${playlist.title}`;
             }
           } else if (source === 'album') {
@@ -2543,7 +2543,7 @@ export default function HomePage() {
                 <div key={sectionId} style={{ marginBottom: 12, display: 'flex', flexDirection: 'column', gap: 14 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                     <Link 
-                      href={`/playlist/${targetPlId}`} 
+                      href={`/playlist?id=${targetPlId}`} 
                       onClick={(e) => {
                         if (plTracks.length > 0) {
                           playTrack(plTracks[0], plTracks.slice(1));

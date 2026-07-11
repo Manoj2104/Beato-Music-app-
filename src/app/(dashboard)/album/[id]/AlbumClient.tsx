@@ -12,8 +12,22 @@ import { getAlbumById, getArtistById, mockTracks, mockAlbums, formatDuration } f
 import { usePlayerStore } from '@/store/playerStore';
 import { useAuthStore } from '@/store/authStore';
 
-export default function AlbumPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+import { useSearchParams } from 'next/navigation';
+
+export default function AlbumPage({ params }: { params?: Promise<{ id: string }> }) {
+  const searchParams = useSearchParams();
+  
+  let id = '';
+  if (params) {
+    try {
+      const resolved = use(params);
+      id = resolved?.id || '';
+    } catch (e) {}
+  }
+  if (!id && searchParams) {
+    id = searchParams.get('id') || '';
+  }
+  
   const album = getAlbumById(id);
   const artist = album ? getArtistById(album.artistId) : null;
   const { currentTrack, isPlaying, playTrack, togglePlay } = usePlayerStore();

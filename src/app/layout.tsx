@@ -1,22 +1,9 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter, Outfit } from 'next/font/google';
 import ClientToaster from '@/components/layout/ClientToaster';
 import CapacitorInit from '@/components/layout/CapacitorInit';
 import OfflineBanner from '@/components/layout/OfflineBanner';
 import AppSplashScreen from '@/components/layout/AppSplashScreen';
 import './globals.css';
-
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-  display: 'swap',
-});
-
-const outfit = Outfit({
-  subsets: ['latin'],
-  variable: '--font-outfit',
-  display: 'swap',
-});
 
 export const viewport: Viewport = {
   themeColor: '#000000',
@@ -40,7 +27,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${outfit.variable}`} suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head />
       <body className="bg-ss-bg text-ss-text-primary antialiased">
         <AppSplashScreen />

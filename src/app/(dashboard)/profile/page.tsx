@@ -771,7 +771,7 @@ export default function ProfilePage() {
                 return (
                   <Link 
                     key={pl.id} 
-                    href={`/playlist/${pl.id}`}
+                    href={`/playlist?id=${pl.id}`}
                     style={{ 
                       display: 'flex', 
                       alignItems: 'center', 

@@ -11,7 +11,7 @@ import toast from 'react-hot-toast';
 import {
   Users, Headphones, MessageSquare, Send, Volume2, Play, Pause,
   Search, Share2, Crown, LogOut, Music, ChevronRight, VolumeX, SkipForward, HelpCircle,
-  Shuffle, SkipBack, Repeat, Heart, Download, Copy, X
+  Shuffle, SkipBack, Repeat, Heart, Download, Copy, X, Lock, Unlock, Trash2
 } from 'lucide-react';
 import { fetchWithAuth } from '@/lib/api';
 
@@ -701,18 +701,18 @@ export default function JamRoomPage({ params }: { params?: Promise<{ roomId: str
         {/* ── Header Bar ── */}
         <div style={{
           display: 'flex',
-          flexDirection: isMobile ? 'column' : 'row',
-          alignItems: isMobile ? 'stretch' : 'center',
+          flexDirection: 'row',
+          alignItems: 'center',
           justifyContent: 'space-between',
-          gap: isMobile ? 16 : 12,
+          gap: 12,
           paddingBottom: '16px',
           borderBottom: '1px solid rgba(21,128,61,0.18)',
-          marginBottom: isMobile ? '12px' : '24px'
+          marginBottom: '16px'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
             <div style={{
-              width: 48,
-              height: 48,
+              width: 44,
+              height: 44,
               borderRadius: 12,
               background: 'linear-gradient(135deg, #15803d, #166534)',
               display: 'flex',
@@ -721,124 +721,157 @@ export default function JamRoomPage({ params }: { params?: Promise<{ roomId: str
               boxShadow: '0 4px 12px rgba(21,128,61,0.2)',
               flexShrink: 0
             }}>
-              <Headphones size={24} color="#ffffff" />
+              <Headphones size={22} color="#ffffff" />
             </div>
-            <div>
-              <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(17px, 5vw, 20px)', fontWeight: 900, margin: 0 }}>{room.name}</h1>
-              <p style={{ color: '#706155', fontSize: 12, margin: '2px 0 0' }}>
-                Host: <span style={{ fontWeight: 700 }}>{room.hostName}</span> • {room.isCollaborative ? '👥 Collaboration active' : '👑 Host Controls'}
+            <div style={{ minWidth: 0 }}>
+              <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(15px, 4.5vw, 18px)', fontWeight: 900, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{room.name}</h1>
+              <p style={{ color: '#706155', fontSize: 11, margin: '2px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                Host: <span style={{ fontWeight: 700 }}>{room.hostName}</span> • {room.isCollaborative ? '👥 Collab' : '👑 Host'}
               </p>
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: 8, width: isMobile ? '100%' : 'auto', boxSizing: 'border-box' }}>
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}>
+            {/* Share / Invite button */}
             <button
               onClick={handleShareRoom}
+              title="Invite Friends"
               style={{
-                flex: isMobile ? 1 : 'initial',
-                background: 'rgba(21,128,61,0.1)',
-                border: '1px solid rgba(21,128,61,0.3)',
+                width: 36,
+                height: 36,
+                borderRadius: '50%',
+                background: 'rgba(21,128,61,0.06)',
+                border: '1px solid rgba(21,128,61,0.18)',
                 color: '#15803d',
-                padding: '8px 16px',
-                borderRadius: 20,
-                fontSize: 12,
-                fontWeight: 700,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 6,
-                height: 38,
-                boxSizing: 'border-box'
+                transition: 'all 0.2s',
+                outline: 'none'
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'rgba(21,128,61,0.12)';
+                e.currentTarget.style.transform = 'scale(1.05)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'rgba(21,128,61,0.06)';
+                e.currentTarget.style.transform = 'scale(1)';
               }}
             >
-              <Share2 size={13} color="#15803d" /> Invite Friends
+              <Share2 size={15} color="#15803d" />
             </button>
 
             {/* Lock/Unlock control — host only */}
             {isHost && (
               <button
                 onClick={handleToggleLock}
-                title={isRoomLocked ? 'Unlock room controls' : 'Lock room controls'}
+                title={isRoomLocked ? 'Unlock Room Controls' : 'Lock Room Controls'}
                 style={{
-                  flex: isMobile ? 1 : 'initial',
-                  background: isRoomLocked ? 'rgba(220,80,80,0.15)' : 'rgba(80,200,120,0.12)',
-                  color: isRoomLocked ? '#e05050' : '#50c878',
-                  border: `1px solid ${isRoomLocked ? 'rgba(220,80,80,0.4)' : 'rgba(80,200,120,0.35)'}`,
-                  padding: '8px 14px',
-                  borderRadius: 20,
-                  fontSize: 12,
-                  fontWeight: 700,
+                  width: 36,
+                  height: 36,
+                  borderRadius: '50%',
+                  background: isRoomLocked ? 'rgba(220,80,80,0.08)' : 'rgba(21,128,61,0.06)',
+                  border: `1px solid ${isRoomLocked ? 'rgba(220,80,80,0.22)' : 'rgba(21,128,61,0.18)'}`,
+                  color: isRoomLocked ? '#dc2626' : '#15803d',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: 5,
-                  height: 38,
-                  boxSizing: 'border-box',
-                  transition: 'all 0.2s'
+                  transition: 'all 0.2s',
+                  outline: 'none'
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = isRoomLocked ? 'rgba(220,80,80,0.14)' : 'rgba(21,128,61,0.12)';
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = isRoomLocked ? 'rgba(220,80,80,0.08)' : 'rgba(21,128,61,0.06)';
+                  e.currentTarget.style.transform = 'scale(1)';
                 }}
               >
-                {isRoomLocked ? '🔒 Locked' : '🔓 Unlocked'}
+                {isRoomLocked ? <Lock size={15} /> : <Unlock size={15} />}
               </button>
             )}
-            {/* Non-host sees lock status badge */}
+
+            {/* Non-host lock status badge */}
             {!isHost && isRoomLocked && (
-              <span style={{
-                display: 'flex', alignItems: 'center', gap: 4,
-                background: 'rgba(220,80,80,0.12)',
-                color: '#e05050',
-                border: '1px solid rgba(220,80,80,0.3)',
-                borderRadius: 20, padding: '4px 12px',
-                fontSize: 11, fontWeight: 700, height: 38,
-                boxSizing: 'border-box'
-              }}>🔒 Host controls only</span>
+              <div 
+                title="Room is locked by Host"
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: '50%',
+                  background: 'rgba(220,80,80,0.08)',
+                  border: '1px solid rgba(220,80,80,0.2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <Lock size={15} color="#dc2626" />
+              </div>
             )}
 
+            {/* Leave Room button */}
             <button
               onClick={handleLeaveRoom}
+              title="Leave Room"
               style={{
-                flex: isMobile ? 1 : 'initial',
-                background: '#15803d',
-                color: '#ffffff',
-                border: 'none',
-                padding: '8px 16px',
-                borderRadius: 20,
-                fontSize: 12,
-                fontWeight: 800,
+                width: 36,
+                height: 36,
+                borderRadius: '50%',
+                background: 'rgba(21,128,61,0.06)',
+                border: '1px solid rgba(21,128,61,0.18)',
+                color: '#15803d',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 6,
-                height: 38,
-                boxSizing: 'border-box'
+                transition: 'all 0.2s',
+                outline: 'none'
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'rgba(21,128,61,0.12)';
+                e.currentTarget.style.transform = 'scale(1.05)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'rgba(21,128,61,0.06)';
+                e.currentTarget.style.transform = 'scale(1)';
               }}
             >
-              <LogOut size={13} /> Leave Room
+              <LogOut size={15} />
             </button>
+
+            {/* Close Room button — host only */}
             {isHost && (
               <button
                 onClick={handleCloseRoom}
+                title="Close Room for Everyone"
                 style={{
-                  flex: isMobile ? 1 : 'initial',
-                  background: '#dc2626',
-                  color: '#ffffff',
-                  border: 'none',
-                  padding: '8px 16px',
-                  borderRadius: 20,
-                  fontSize: 12,
-                  fontWeight: 800,
+                  width: 36,
+                  height: 36,
+                  borderRadius: '50%',
+                  background: 'rgba(220,80,80,0.08)',
+                  border: '1px solid rgba(220,80,80,0.22)',
+                  color: '#dc2626',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: 6,
-                  height: 38,
-                  boxSizing: 'border-box'
+                  transition: 'all 0.2s',
+                  outline: 'none'
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = 'rgba(220,80,80,0.14)';
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = 'rgba(220,80,80,0.08)';
+                  e.currentTarget.style.transform = 'scale(1)';
                 }}
               >
-                🚫 Close Room
+                <Trash2 size={15} />
               </button>
             )}
           </div>
@@ -1123,25 +1156,18 @@ export default function JamRoomPage({ params }: { params?: Promise<{ roomId: str
           {/* Browse & Search Section */}
           {(!isMobile || activeMobileTab === 'player') && (
             <div className="jam-browse-card" style={{
-              borderRadius: 24,
-              boxShadow: '0 8px 30px rgba(43,34,26,0.02)',
+              background: '#ffffff',
+              borderRadius: 20,
+              border: '1px solid rgba(21,128,61,0.18)',
+              boxShadow: '0 8px 30px rgba(43,34,26,0.04)',
               marginTop: 20,
               width: '100%',
               minWidth: 0,
               boxSizing: 'border-box'
             }}>
-              {/* Home-style section header */}
-              <div style={{ marginBottom: 16, display: 'flex', flexDirection: 'column' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#15803d', boxShadow: '0 0 8px #15803d' }} />
-                  <span style={{ color: '#15803d', fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
-                    Find Tracks
-                  </span>
-                </div>
-                <h3 style={{ margin: 0, color: '#221a15', fontSize: 16, fontFamily: 'Outfit, sans-serif', fontWeight: 900 }}>
-                  Browse & Search Songs
-                </h3>
-              </div>
+              <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 16, fontWeight: 900, margin: '0 0 16px', color: '#15803d' }}>
+                Browse & Search Songs
+              </h3>
 
               {/* Inside-Room Search Input */}
               <div style={{ position: 'relative', marginBottom: 20 }}>
@@ -1602,24 +1628,15 @@ export default function JamRoomPage({ params }: { params?: Promise<{ roomId: str
           {/* Shared Room Queue Panel */}
           {(!isMobile || activeMobileTab === 'queue') && (
             <div className="jam-browse-card" style={{
-              borderRadius: 24,
-              boxShadow: '0 8px 30px rgba(43,34,26,0.02)',
+              background: '#ffffff',
+              borderRadius: 20,
+              border: '1px solid rgba(21,128,61,0.18)',
+              boxShadow: '0 8px 30px rgba(43,34,26,0.04)',
               width: '100%',
               minWidth: 0,
               boxSizing: 'border-box'
             }}>
-              {/* Home-style section header */}
-              <div style={{ marginBottom: 16, display: 'flex', flexDirection: 'column' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#15803d', boxShadow: '0 0 8px #15803d' }} />
-                  <span style={{ color: '#15803d', fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
-                    Next Up
-                  </span>
-                </div>
-                <h3 style={{ margin: 0, color: '#221a15', fontSize: 16, fontFamily: 'Outfit, sans-serif', fontWeight: 900 }}>
-                  Shared Queue
-                </h3>
-              </div>
+            <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 16, fontWeight: 800, margin: '0 0 16px' }}>Shared Queue</h3>
 
             {/* Song Search to Add to Queue */}
             <div style={{ position: 'relative', marginBottom: 16 }}>
@@ -1769,24 +1786,17 @@ export default function JamRoomPage({ params }: { params?: Promise<{ roomId: str
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24, height: isMobile ? 'auto' : '80vh' }}>
           {/* Active Participants List */}
           <div className="jam-browse-card" style={{
-            borderRadius: 24,
-            boxShadow: '0 8px 30px rgba(43,34,26,0.02)',
+            background: '#ffffff',
+            borderRadius: 20,
+            border: '1px solid rgba(21,128,61,0.18)',
+            boxShadow: '0 8px 30px rgba(43,34,26,0.04)',
             width: '100%',
             minWidth: 0,
             boxSizing: 'border-box'
           }}>
-            {/* Home-style section header */}
-            <div style={{ marginBottom: 16, display: 'flex', flexDirection: 'column' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#15803d', boxShadow: '0 0 8px #15803d' }} />
-                <span style={{ color: '#15803d', fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
-                  Live Room
-                </span>
-              </div>
-              <h3 style={{ margin: 0, color: '#221a15', fontSize: 16, fontFamily: 'Outfit, sans-serif', fontWeight: 900 }}>
-                Active Listeners ({room.participants?.length || 0})
-              </h3>
-            </div>
+            <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 15, fontWeight: 800, margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Users size={16} color="#15803d" /> Active Listeners ({room.participants?.length || 0})
+            </h3>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               {room.participants?.map(p => (
                 <div
@@ -1812,8 +1822,10 @@ export default function JamRoomPage({ params }: { params?: Promise<{ roomId: str
 
           {/* Social Chat Interface with Bubble reactions */}
           <div className="jam-browse-card" style={{
-            borderRadius: 24,
-            boxShadow: '0 8px 30px rgba(43,34,26,0.02)',
+            background: '#ffffff',
+            borderRadius: 20,
+            border: '1px solid rgba(21,128,61,0.18)',
+            boxShadow: '0 8px 30px rgba(43,34,26,0.04)',
             flex: 1,
             display: 'flex',
             flexDirection: 'column',
@@ -1859,18 +1871,9 @@ export default function JamRoomPage({ params }: { params?: Promise<{ roomId: str
               </AnimatePresence>
             </div>
 
-            {/* Home-style section header */}
-            <div style={{ marginBottom: 16, display: 'flex', flexDirection: 'column' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#15803d', boxShadow: '0 0 8px #15803d' }} />
-                <span style={{ color: '#15803d', fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
-                  Chat
-                </span>
-              </div>
-              <h3 style={{ margin: 0, color: '#221a15', fontSize: 16, fontFamily: 'Outfit, sans-serif', fontWeight: 900 }}>
-                Live Chat
-              </h3>
-            </div>
+            <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 15, fontWeight: 800, margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <MessageSquare size={16} color="#15803d" /> Live Chat
+            </h3>
 
             {/* Chat message logs */}
             <div style={{

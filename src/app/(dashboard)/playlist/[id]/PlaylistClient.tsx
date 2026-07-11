@@ -10,7 +10,7 @@ import {
   PlusCircle
 } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import toast from 'react-hot-toast';
 import TopBar from '@/components/layout/TopBar';
 import TrackCard from '@/components/music/TrackCard';
@@ -384,9 +384,20 @@ function DesktopTrendingCard({ track, onAdd, isAdded, onPlay }: { track: any; on
 }
 
 // ─── Main Page ───────────────────────────────────────────────────────────────
-export default function PlaylistPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+export default function PlaylistPage({ params }: { params?: Promise<{ id: string }> }) {
+  const searchParams = useSearchParams();
   const router = useRouter();
+
+  let id = '';
+  if (params) {
+    try {
+      const resolved = use(params);
+      id = resolved?.id || '';
+    } catch (e) {}
+  }
+  if (!id && searchParams) {
+    id = searchParams.get('id') || '';
+  }
   const [hydrated, setHydrated] = useState(false);
   const [currentTime, setCurrentTime] = useState('11:41');
   const [scrollTop, setScrollTop] = useState(0);
@@ -591,7 +602,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
 
   const handleShare = () => {
     if (!playlist) return;
-    const url = typeof window !== 'undefined' ? `${window.location.origin}/playlist/${playlist.id}` : '';
+    const url = typeof window !== 'undefined' ? `${window.location.origin}/playlist?id=${playlist.id}` : '';
     if (url) {
       navigator.clipboard.writeText(url)
         .then(() => toast.success('Playlist link copied to clipboard! 🔗', { style: { background: '#1a1a1a', color: '#fff' } }))
