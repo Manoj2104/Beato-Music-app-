@@ -756,7 +756,7 @@ export default function HomePage() {
     prevOnlineRef.current = isOnline;
   }, [isOnline, mounted]);
 
-  // Auto-slider disabled â€”Â manual swipe/tap only
+  // Auto-slider disabled • manual swipe/tap only
 
 
   // Real-time data
@@ -2979,7 +2979,7 @@ export default function HomePage() {
                   <div style={{ flex: 1, minWidth: 0, position: 'relative', background: 'var(--theme-card, #181818)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px 12px 12px 0px', padding: '12px 16px' }}>
                     <div style={{ position: 'absolute', left: -6, bottom: 0, width: 0, height: 0, borderTop: '6px solid transparent', borderRight: '6px solid var(--theme-card, #181818)', borderBottom: '0px solid transparent' }} />
                     <div style={{ fontSize: isMobile ? 13 : 15, fontStyle: 'italic', color: '#e5e7eb', lineHeight: 1.4 }}>"I make songs for the quiet dreamers of the night..."</div>
-                    <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: 'var(--theme-primary, #b08850)', marginTop: 6, textAlign: 'right' }}>â€”Â {artist.name}</div>
+                    <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: 'var(--theme-primary, #b08850)', marginTop: 6, textAlign: 'right' }}>• {artist.name}</div>
                   </div>
                 </div>
               );
@@ -4075,7 +4075,7 @@ export default function HomePage() {
 
               return (
                 <div key={sectionId} style={{ marginBottom: 32 }}>
-                  {/* 1. Header Banner â€”Â premium glass style */}
+                  {/* 1. Header Banner • premium glass style */}
                   <div style={{
                     borderRadius: 20,
                     background: 'linear-gradient(135deg, #022c22 0%, #064e3b 50%, #022c22 100%)',
@@ -4132,7 +4132,7 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  {/* 2. Grid â€”Â premium glass cards */}
+                  {/* 2. Grid • premium glass cards */}
                   <div style={{
                     display: 'grid',
                     gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
@@ -4464,7 +4464,7 @@ export default function HomePage() {
                     {/* gradient bg */}
                     <div style={{ position:'absolute', inset:0, background: slide.gradient, zIndex:0 }} />
 
-                    {/* photo â€”Â right 50% for center, full bleed for sides */}
+                    {/* photo • right 50% for center, full bleed for sides */}
                     <div style={{
                       position:'absolute', top:0, right:0,
                       width: isC ? '52%' : '100%',
@@ -4554,7 +4554,7 @@ export default function HomePage() {
                   {/* outer clips the overflowing side cards */}
                   <div style={{ position:'relative', overflow:'hidden', paddingTop:6, paddingBottom:4 }}>
 
-                    {/* left arrow â€”Â overlays the left peek card */}
+                    {/* left arrow • overlays the left peek card */}
                     <button
                       onClick={prevSlide}
                       style={{
@@ -4586,7 +4586,7 @@ export default function HomePage() {
                       onMouseLeave={e=>{ e.currentTarget.style.background='rgba(16,10,6,0.78)'; e.currentTarget.style.color='#d4a96a'; }}
                     >â€º</button>
 
-                    {/* the 3-card row â€”Â negative side margins bleed into outer overflow:hidden */}
+                    {/* the 3-card row • negative side margins bleed into outer overflow:hidden */}
                     <div style={{
                       display:'flex',
                       alignItems:'center',
@@ -4657,7 +4657,7 @@ export default function HomePage() {
                     <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: isMobile ? 11 : 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', marginLeft: 12 }}>See all â†’</span>
                   </div>
 
-                  {/* 2x2 Grid of partner audio brands â€”Â glassmorphic premium */}
+                  {/* 2x2 Grid of partner audio brands • glassmorphic premium */}
                   <div style={{
                     display: 'grid',
                     gridTemplateColumns: 'repeat(2, 1fr)',
@@ -6258,7 +6258,7 @@ export default function HomePage() {
                       <span style={{ fontSize: isMobile ? 16 : 20 }}>⚡</span>
                       <div>
                         <div style={{ color: '#fff', fontSize: isMobile ? 14 : 18, fontWeight: 950, fontFamily: 'Outfit,sans-serif' }}>{config.title || 'Flash Deals'}</div>
-                        <div style={{ color: 'rgba(255,255,255,0.55)', fontSize: isMobile ? 10 : 11 }}>Limited time â€”Â grab before it&apos;s gone!</div>
+                        <div style={{ color: 'rgba(255,255,255,0.55)', fontSize: isMobile ? 10 : 11 }}>Limited time • grab before it&apos;s gone!</div>
                       </div>
                     </div>
                     <div style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 10, padding: '4px 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -6821,34 +6821,38 @@ export default function HomePage() {
                       onClick={() => setShowMobileNotificationDropdown(false)}
                       style={{ position: 'fixed', inset: 0, zIndex: 999 }}
                     />
-                    <div style={{
-                      position: 'absolute',
-                      top: 40,
-                      right: 0,
-                      zIndex: 1000,
-                      width: 290,
-                      background: 'rgba(255, 255, 255, 0.95)',
-                      backdropFilter: 'blur(20px)',
-                      WebkitBackdropFilter: 'blur(20px)',
-                      border: '1px solid rgba(43, 34, 26, 0.08)',
-                      borderRadius: 14,
-                      padding: 16,
-                      boxShadow: '0 12px 36px rgba(43, 34, 26, 0.08)',
-                      color: '#221a15',
-                      animation: 'fadeIn 0.18s ease-out',
-                      transformOrigin: 'top right'
-                    }}>
+                    <motion.div 
+                      initial={{ opacity: 0, y: -10, scale: 0.95, x: '-50%' }}
+                      animate={{ opacity: 1, y: 0, scale: 1, x: '-50%' }}
+                      style={{
+                        position: 'absolute',
+                        top: 42,
+                        left: '50%',
+                        zIndex: 1000,
+                        width: 290,
+                        background: 'rgba(255, 255, 255, 0.96)',
+                        backdropFilter: 'blur(20px)',
+                        WebkitBackdropFilter: 'blur(20px)',
+                        border: '1px solid rgba(15, 81, 50, 0.08)',
+                        borderRadius: 16,
+                        padding: 16,
+                        boxShadow: '0 16px 40px rgba(15, 81, 50, 0.1)',
+                        color: '#0f172a',
+                        transformOrigin: 'top center'
+                      }}
+                    >
+                      {/* Triangle Arrow */}
                       {/* Triangle Arrow */}
                       <div style={{
                         position: 'absolute',
                         top: -6,
-                        right: 12,
+                        left: '50%',
                         width: 10,
                         height: 10,
-                        background: 'rgba(255, 255, 255, 0.95)',
-                        borderLeft: '1px solid rgba(43, 34, 26, 0.08)',
-                        borderTop: '1px solid rgba(43, 34, 26, 0.08)',
-                        transform: 'rotate(45deg)'
+                        background: 'rgba(255, 255, 255, 0.96)',
+                        borderLeft: '1px solid rgba(15, 81, 50, 0.08)',
+                        borderTop: '1px solid rgba(15, 81, 50, 0.08)',
+                        transform: 'translateX(-50%) rotate(45deg)'
                       }} />
 
                       {approvedUploadedTracks.length > 0 ? (
@@ -6863,18 +6867,18 @@ export default function HomePage() {
                               {approvedUploadedTracks.slice(0, 3).map(t => t.title).join(', ')}
                               {approvedUploadedTracks.length > 3 ? `...and ${approvedUploadedTracks.length - 3} more` : ''}
                             </span>{' '}
-                            â€”Â just uploaded by artists
+                            • just uploaded by artists
                           </p>
                         </div>
                       ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '8px 0' }}>
-                          <span style={{ fontSize: 18, color: '#87786c' }}>ðŸ”•</span>
+                          <span style={{ fontSize: 18, color: '#87786c' }}>🔔</span>
                           <p style={{ fontSize: 12, margin: 0, color: '#87786c', fontWeight: 500 }}>
                             No new notifications
                           </p>
                         </div>
                       )}
-                    </div>
+                    </motion.div>
                   </>
                 )}
               </div>
@@ -6894,7 +6898,7 @@ export default function HomePage() {
             style={{ marginBottom: 24, padding: '14px 20px', borderRadius: 14, background: 'rgba(176, 136, 80,0.08)', border: '1px solid rgba(176, 136, 80,0.2)', display: 'flex', alignItems: 'flex-start', gap: 12 }}>
             <Star size={16} color={GREEN} style={{ marginTop: 2, flexShrink: 0 }} />
             <p style={{ color: '#221a15', fontSize: 13, fontWeight: 600, lineHeight: '1.4' }}>
-              🎵 New artist tracks added! <span style={{ color: GREEN }}>{approvedUploadedTracks.slice(0, 3).map(t => t.title).join(', ')}{approvedUploadedTracks.length > 3 ? `...and ${approvedUploadedTracks.length - 3} more` : ''}</span> â€”Â just uploaded by artists
+              🎵 New artist tracks added! <span style={{ color: GREEN }}>{approvedUploadedTracks.slice(0, 3).map(t => t.title).join(', ')}{approvedUploadedTracks.length > 3 ? `...and ${approvedUploadedTracks.length - 3} more` : ''}</span> • just uploaded by artists
             </p>
           </motion.div>
         )}

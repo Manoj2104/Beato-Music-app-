@@ -268,76 +268,244 @@ export default function PodcastsView({ initialSubTab }: { initialSubTab?: 'disco
           // ── PODCAST DETAILS VIEW ──
           <motion.div 
             key="podcast-details"
-            initial={{ opacity: 0, x: 10 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -10 }}
-            style={{ padding: 16 }}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            style={{ padding: '16px 20px 32px' }}
           >
-            <button 
-              onClick={() => setSelectedPodcast(null)}
-              style={{ display: 'flex', alignItems: 'center', gap: 8, background: SURFACE, border: 'none', padding: '6px 12px', borderRadius: 20, cursor: 'pointer', marginBottom: 16, color: TEXT, fontSize: 13, fontWeight: 600 }}
-            >
-              <ArrowLeft size={16} /> Back to Discover
-            </button>
+            {/* Immersive Header Banner */}
+            <div style={{
+              position: 'relative',
+              borderRadius: 24,
+              overflow: 'hidden',
+              padding: '24px 20px',
+              marginBottom: 24,
+              boxShadow: '0 8px 32px rgba(15, 81, 50, 0.04)',
+              border: `1px solid ${BORDER}`
+            }}>
+              {/* Blurred Cover Backdrop */}
+              <div style={{
+                position: 'absolute',
+                inset: 0,
+                backgroundImage: `url(${selectedPodcast.coverImage})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                filter: 'blur(32px) saturate(1.4) brightness(0.92)',
+                transform: 'scale(1.15)',
+                zIndex: 0
+              }} />
+              {/* Gradient overlay */}
+              <div style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(to bottom, rgba(251,249,245,0.15) 0%, rgba(255,255,255,0.92) 85%, #ffffff 100%)',
+                zIndex: 1
+              }} />
 
-            <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', flexWrap: 'wrap', marginBottom: 20 }}>
-              <img 
-                src={selectedPodcast.coverImage} 
-                alt="" 
-                style={{ width: 130, height: 130, borderRadius: 16, objectFit: 'cover', boxShadow: '0 8px 24px rgba(43,34,26,0.1)' }} 
-              />
-              <div style={{ flex: 1, minWidth: 200 }}>
-                <span style={{ fontSize: 11, background: SURFACE, padding: '3px 8px', borderRadius: 6, fontWeight: 700, color: GREEN }}>{selectedPodcast.category}</span>
-                <h1 style={{ fontFamily: 'Outfit,sans-serif', fontSize: 24, fontWeight: 900, color: TEXT, margin: '8px 0 4px' }}>{selectedPodcast.title}</h1>
-                <p style={{ color: MUTED, fontSize: 14, margin: 0 }}>Hosted by <b>{selectedPodcast.host}</b></p>
-                <p style={{ color: MUTED, fontSize: 13, marginTop: 4 }}>{selectedPodcast.followers.toLocaleString()} followers · {selectedPodcast.episodesCount} episodes</p>
-                
-                <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-                  <button 
-                    onClick={() => handleFollowToggle(selectedPodcast.id)}
+              {/* Header Content */}
+              <div style={{ position: 'relative', zIndex: 2 }}>
+                <button 
+                  onClick={() => setSelectedPodcast(null)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    background: 'rgba(255, 255, 255, 0.9)',
+                    backdropFilter: 'blur(10px)',
+                    border: `1px solid ${BORDER}`,
+                    padding: '6px 14px',
+                    borderRadius: 30,
+                    cursor: 'pointer',
+                    marginBottom: 20,
+                    color: TEXT,
+                    fontSize: 12.5,
+                    fontWeight: 700,
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+                    transition: 'transform 0.2s'
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.03)'}
+                  onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                >
+                  <ArrowLeft size={14} /> Back to Discover
+                </button>
+
+                <div style={{ display: 'flex', gap: 20, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <img 
+                    src={selectedPodcast.coverImage} 
+                    alt="" 
                     style={{
-                      background: followedPodcasts.includes(selectedPodcast.id) ? SURFACE : GREEN,
-                      color: followedPodcasts.includes(selectedPodcast.id) ? TEXT : '#fff',
-                      border: 'none', borderRadius: 20, padding: '7px 18px', fontSize: 12.5, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6
-                    }}
-                  >
-                    {followedPodcasts.includes(selectedPodcast.id) ? <UserCheck size={14} /> : <Plus size={14} />}
-                    {followedPodcasts.includes(selectedPodcast.id) ? 'Following' : 'Follow'}
-                  </button>
-                  <button style={{ width: 34, height: 34, borderRadius: '50%', background: SURFACE, border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', color: TEXT, cursor: 'pointer' }}>
-                    <Share2 size={15} />
-                  </button>
+                      width: 140,
+                      height: 140,
+                      borderRadius: 20,
+                      objectFit: 'cover',
+                      boxShadow: '0 12px 36px rgba(15, 81, 50, 0.2)',
+                      border: '3px solid #ffffff'
+                    }} 
+                  />
+                  <div style={{ flex: 1, minWidth: 220 }}>
+                    <span style={{
+                      fontSize: 10,
+                      background: 'rgba(15, 81, 50, 0.08)',
+                      padding: '4px 10px',
+                      borderRadius: 30,
+                      fontWeight: 800,
+                      color: GREEN,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.06em',
+                      border: `1px solid ${BORDER}`
+                    }}>
+                      {selectedPodcast.category}
+                    </span>
+                    <h1 style={{
+                      fontFamily: 'Outfit,sans-serif',
+                      fontSize: 28,
+                      fontWeight: 900,
+                      color: TEXT,
+                      margin: '10px 0 6px',
+                      lineHeight: 1.25,
+                      letterSpacing: '-0.02em'
+                    }}>
+                      {selectedPodcast.title}
+                    </h1>
+                    <p style={{ color: MUTED, fontSize: 14.5, margin: 0, fontWeight: 500 }}>
+                      Hosted by <span style={{ color: TEXT, fontWeight: 700 }}>{selectedPodcast.host}</span>
+                    </p>
+                    <p style={{ color: MUTED, fontSize: 13, marginTop: 4, fontWeight: 500 }}>
+                      {selectedPodcast.followers.toLocaleString()} followers · {selectedPodcast.episodesCount} episodes
+                    </p>
+                    
+                    <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+                      <button 
+                        onClick={() => handleFollowToggle(selectedPodcast.id)}
+                        style={{
+                          background: followedPodcasts.includes(selectedPodcast.id) ? 'rgba(15, 81, 50, 0.06)' : GREEN,
+                          color: followedPodcasts.includes(selectedPodcast.id) ? GREEN : '#fff',
+                          border: followedPodcasts.includes(selectedPodcast.id) ? `1px solid ${GREEN}30` : 'none',
+                          borderRadius: 30,
+                          padding: '8px 22px',
+                          fontSize: 13,
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          boxShadow: followedPodcasts.includes(selectedPodcast.id) ? 'none' : '0 4px 12px rgba(15, 81, 50, 0.2)',
+                          transition: 'transform 0.15s'
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.02)'}
+                        onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                      >
+                        {followedPodcasts.includes(selectedPodcast.id) ? <UserCheck size={14} /> : <Plus size={14} />}
+                        {followedPodcasts.includes(selectedPodcast.id) ? 'Following' : 'Follow'}
+                      </button>
+                      <button style={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: '50%',
+                        background: 'rgba(255, 255, 255, 0.9)',
+                        border: `1px solid ${BORDER}`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: TEXT,
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+                        transition: 'transform 0.15s'
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
+                      onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                      >
+                        <Share2 size={14} />
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div style={{ background: ELEVATED, borderRadius: 14, padding: 14, border: `1px solid ${BORDER}`, marginBottom: 20 }}>
-              <h3 style={{ margin: '0 0 6px', fontSize: 14, color: TEXT }}>About</h3>
-              <p style={{ color: MUTED, fontSize: 13, lineHeight: 1.4, margin: 0 }}>{selectedPodcast.description}</p>
+            {/* About Block */}
+            <div style={{
+              background: '#ffffff',
+              borderRadius: 18,
+              padding: 18,
+              border: `1px solid ${BORDER}`,
+              marginBottom: 26,
+              boxShadow: '0 4px 20px rgba(15, 81, 50, 0.02)'
+            }}>
+              <h3 style={{ margin: '0 0 8px', fontSize: 14.5, fontWeight: 800, color: TEXT, letterSpacing: '0.01em', textTransform: 'uppercase', opacity: 0.85 }}>About</h3>
+              <p style={{ color: '#4d5562', fontSize: 13.5, lineHeight: 1.55, margin: 0, fontFamily: 'Inter, sans-serif' }}>{selectedPodcast.description}</p>
             </div>
 
-            <h3 style={{ fontFamily: 'Outfit,sans-serif', fontSize: 18, color: TEXT, marginBottom: 12 }}>Episodes</h3>
+            {/* Episodes List */}
+            <h3 style={{ fontFamily: 'Outfit,sans-serif', fontSize: 20, fontWeight: 900, color: TEXT, marginBottom: 16, letterSpacing: '-0.01em' }}>Episodes</h3>
             {selectedPodcast.episodes.length === 0 ? (
-              <p style={{ color: MUTED, fontSize: 13, textAlign: 'center', padding: '24px 0' }}>No episodes published on this channel yet.</p>
+              <p style={{ color: MUTED, fontSize: 13.5, textAlign: 'center', padding: '36px 0', border: `1px dashed ${BORDER}`, borderRadius: 16 }}>No episodes published on this channel yet.</p>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 {selectedPodcast.episodes.map(ep => {
                   const isActive = currentTrack?.id === ep.id;
                   return (
-                    <div key={ep.id} style={{ background: ELEVATED, borderRadius: 12, padding: 14, border: `1px solid ${BORDER}`, position: 'relative' }}>
-                      <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                    <div 
+                      key={ep.id} 
+                      style={{
+                        background: '#ffffff',
+                        borderRadius: 16,
+                        padding: 18,
+                        border: isActive ? `2px solid ${GREEN}` : `1px solid ${BORDER}`,
+                        boxShadow: isActive ? '0 8px 24px rgba(15, 81, 50, 0.08)' : '0 4px 16px rgba(15, 81, 50, 0.02)',
+                        transition: 'all 0.25s',
+                        position: 'relative'
+                      }}
+                    >
+                      <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
                         <button 
                           onClick={() => handlePlayEpisode(ep)}
-                          style={{ width: 36, height: 36, borderRadius: '50%', background: GREEN, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', flexShrink: 0 }}
+                          style={{
+                            width: 40,
+                            height: 40,
+                            borderRadius: '50%',
+                            background: isActive ? GREEN : 'rgba(15, 81, 50, 0.08)',
+                            border: 'none',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: isActive ? '#fff' : GREEN,
+                            flexShrink: 0,
+                            boxShadow: isActive ? '0 4px 12px rgba(15, 81, 50, 0.3)' : 'none',
+                            transition: 'all 0.2s'
+                          }}
+                          onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
+                          onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
                         >
-                          {isActive && isPlaying ? <Pause size={15} fill="white" /> : <Play size={15} fill="white" style={{ marginLeft: 2 }} />}
+                          {isActive && isPlaying ? <Pause size={16} fill="currentColor" /> : <Play size={16} fill="currentColor" style={{ marginLeft: isActive ? 2 : 3 }} />}
                         </button>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <h4 style={{ margin: '0 0 4px', fontSize: 14, fontWeight: 700, color: isActive ? GREEN : TEXT, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ep.title}</h4>
-                          <span style={{ fontSize: 11, color: MUTED }}>Ep {ep.episodeNumber} · {ep.duration}</span>
+                          <h4 style={{
+                            margin: '0 0 4px',
+                            fontSize: 14.5,
+                            fontWeight: 800,
+                            color: isActive ? GREEN : TEXT,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            {ep.title}
+                          </h4>
+                          <span style={{ fontSize: 11.5, color: MUTED, fontWeight: 500 }}>
+                            Episode {ep.episodeNumber} · {ep.duration}
+                          </span>
                         </div>
                       </div>
-                      <p style={{ color: MUTED, fontSize: 12.5, lineHeight: 1.4, margin: '10px 0 0' }}>{ep.description}</p>
+                      <p style={{
+                        color: '#555e6d',
+                        fontSize: 12.8,
+                        lineHeight: 1.5,
+                        margin: '12px 0 0 0',
+                        fontFamily: 'Inter, sans-serif'
+                      }}>
+                        {ep.description}
+                      </p>
                     </div>
                   );
                 })}

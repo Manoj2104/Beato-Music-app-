@@ -443,11 +443,15 @@ async function findAndDownloadFromMasstamilan(songTitle: string, artistName: str
         while ((dlMatch = dlRegex.exec(songHtml)) !== null) {
           const href = dlMatch[1];
           const text = dlMatch[2].toLowerCase();
-          if (text.includes('320kbps')) {
+          if (text.includes('zip')) continue; // Skip full album zip downloads
+          
+          if (text.includes('320kbps') && !url320) {
             url320 = `https://www.masstamilan.dev${href}`;
-          } else if (text.includes('128kbps')) {
+          } else if (text.includes('128kbps') && !url128) {
             url128 = `https://www.masstamilan.dev${href}`;
           }
+          
+          if (url320 && url128) break;
         }
         
         const targetDownloadUrl = url320 || url128;
