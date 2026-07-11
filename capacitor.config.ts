@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'io.beato.app',
-  appName: 'beato',
+  appName: 'Beato',
   webDir: 'out',
   plugins: {
     StatusBar: {
