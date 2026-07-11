@@ -948,7 +948,7 @@
       "savedAlbums": [],
       "followedArtists": [],
       "playlists": [
-        "playlist-custom-1783769208320"
+        "playlist-custom-1783772797904"
       ],
       "preferences": {
         "theme": "dark",
@@ -964,6 +964,7 @@
       "stats": {
         "topGenres": [],
         "topTracks": [
+          "track-sp-1783768967538-44dhp",
           "track-sp-1783765219508-7bq52",
           "track-sp-1783765209492-bqndh",
           "track-sp-1783769116078-ji4ow",
@@ -1013,7 +1014,7 @@
         ],
         "streaksCount": 0,
         "discoverScore": 0,
-        "totalListeningTime": 24986
+        "totalListeningTime": 25277
       },
       "bio": "Manoj is a manually added creator on Beato.",
       "verified": false,
@@ -24740,7 +24741,7 @@
           "frequency": 3,
           "priority": "medium",
           "type": "banner",
-          "impressions": 186,
+          "impressions": 192,
           "clicks": 1,
           "createdAt": "2026-07-03T11:02:22.549Z"
         },
