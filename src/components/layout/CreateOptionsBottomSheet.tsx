@@ -128,9 +128,12 @@ export default function CreateOptionsBottomSheet() {
     setShowCreateRoomModal(true);
   };
 
+  const [isCreatingRoom, setIsCreatingRoom] = useState(false);
+
   const submitCreateRoom = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!newRoomName.trim()) return;
+    if (!newRoomName.trim() || isCreatingRoom) return;
+    setIsCreatingRoom(true);
     try {
       const res = await fetchWithAuth('/api/rooms', {
         method: 'POST',
@@ -155,6 +158,8 @@ export default function CreateOptionsBottomSheet() {
     } catch (err) {
       console.error('Failed to create room:', err);
       toast.error('Network error creating room');
+    } finally {
+      setIsCreatingRoom(false);
     }
   };
 
@@ -521,9 +526,9 @@ export default function CreateOptionsBottomSheet() {
 
                 <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
                   <button type="button" onClick={() => setShowCreateRoomModal(false)} style={{ padding: '10px 18px', borderRadius: 10, background: 'rgba(15,81,50,0.06)', border: '1px solid rgba(176,136,80,0.15)', color: '#64748b', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
-                  <button type="submit" disabled={!newRoomName.trim()}
-                    style={{ padding: '10px 22px', borderRadius: 10, background: newRoomName.trim() ? '#0f5132' : 'rgba(15, 81, 50, 0.15)', border: 'none', color: '#fff', fontSize: 13, fontWeight: 800, cursor: newRoomName.trim() ? 'pointer' : 'not-allowed', fontFamily: 'Outfit, sans-serif', boxShadow: newRoomName.trim() ? '0 4px 12px rgba(15,81,50,0.15)' : 'none' }}>
-                    Create Room
+                  <button type="submit" disabled={!newRoomName.trim() || isCreatingRoom}
+                    style={{ padding: '10px 22px', borderRadius: 10, background: (newRoomName.trim() && !isCreatingRoom) ? '#0f5132' : 'rgba(15, 81, 50, 0.15)', border: 'none', color: '#fff', fontSize: 13, fontWeight: 800, cursor: (newRoomName.trim() && !isCreatingRoom) ? 'pointer' : 'not-allowed', fontFamily: 'Outfit, sans-serif', boxShadow: (newRoomName.trim() && !isCreatingRoom) ? '0 4px 12px rgba(15,81,50,0.15)' : 'none' }}>
+                    {isCreatingRoom ? 'Creating...' : 'Create Room'}
                   </button>
                 </div>
               </div>
