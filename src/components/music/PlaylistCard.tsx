@@ -9,6 +9,7 @@ import { Playlist } from '@/types';
 import { usePlayerStore } from '@/store/playerStore';
 import { mockTracks } from '@/lib/mockData';
 import { cn } from '@/lib/utils';
+import { useMusicStore } from '@/store/musicStore';
 
 interface PlaylistCardProps {
   playlist: Playlist;
@@ -18,9 +19,16 @@ interface PlaylistCardProps {
 export default function PlaylistCard({ playlist, variant = 'grid' }: PlaylistCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const { currentTrack, isPlaying, playTrack, togglePlay } = usePlayerStore();
+  const { getAllTracks } = useMusicStore();
+  const allTracks = getAllTracks();
 
-  const tracks = mockTracks.filter(t => playlist.tracks.includes(t.id));
+  const tracks = allTracks.filter(t => playlist.tracks.includes(t.id));
   const isCurrentPlaylist = tracks.some(t => t.id === currentTrack?.id);
+
+  // Resolve cover image from first track if playlist.coverImage is empty
+  const firstTrackId = playlist.tracks?.[0];
+  const firstTrack = allTracks.find(t => t.id === firstTrackId);
+  const resolvedCover = playlist.coverImage || firstTrack?.coverImage || '';
 
   const handlePlay = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -47,8 +55,8 @@ export default function PlaylistCard({ playlist, variant = 'grid' }: PlaylistCar
               <div className={`w-full h-full bg-gradient-to-br ${playlist.gradient || 'from-indigo-600 to-blue-400'} flex items-center justify-center`}>
                 <Heart size={20} className="text-white" />
               </div>
-            ) : playlist.coverImage ? (
-              <Image src={playlist.coverImage} alt={playlist.title} fill className="object-cover" />
+            ) : resolvedCover ? (
+              <Image src={resolvedCover} alt={playlist.title} fill className="object-cover" />
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-neutral-800 to-neutral-900 flex items-center justify-center">
                 <span className="text-sm">🎵</span>
@@ -90,9 +98,9 @@ export default function PlaylistCard({ playlist, variant = 'grid' }: PlaylistCar
               <div className={`w-full h-full bg-gradient-to-br ${playlist.gradient || 'from-indigo-600 to-blue-400'} flex items-center justify-center`}>
                 <Heart size={40} className="text-white" />
               </div>
-            ) : playlist.coverImage ? (
+            ) : resolvedCover ? (
               <Image
-                src={playlist.coverImage}
+                src={resolvedCover}
                 alt={playlist.title}
                 fill
                 className="object-cover"

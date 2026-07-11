@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense } from 'react';
-import JamRoomPage from './[roomId]/JamRoomClient';
+import JamRoomPage from '@/components/music/JamRoomClient';
 
 export default function Page() {
   return (

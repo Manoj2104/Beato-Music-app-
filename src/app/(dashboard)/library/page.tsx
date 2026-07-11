@@ -141,14 +141,16 @@ function LibraryPlaylistCard({ playlist, pinned, onPin, onDelete, isCustom }: {
   const [menuOpen, setMenuOpen] = useState(false);
   const { currentTrack, isPlaying, playTrack, togglePlay } = usePlayerStore();
   const { user } = useAuthStore();
-  const tracks = mockTracks.filter(t => (playlist.tracks || []).includes(t.id));
+  const { getAllTracks } = useMusicStore();
+  const allTracks = getAllTracks();
+  const tracks = allTracks.filter(t => (playlist.tracks || []).includes(t.id));
   const isActive = tracks.some(t => t.id === currentTrack?.id);
   const isLiked = playlist.id === 'playlist-1';
   const gradCss = playlist.gradientCss || (isLiked ? 'linear-gradient(135deg,#064e3b,#10b981)' : 'linear-gradient(135deg,#1e3a5f,#0ea5e9)');
 
   // Resolve cover image from first track if playlist.coverImage is empty
   const firstTrackId = playlist.tracks?.[0];
-  const firstTrack = mockTracks.find(t => t.id === firstTrackId);
+  const firstTrack = allTracks.find(t => t.id === firstTrackId);
   const resolvedCover = playlist.coverImage || firstTrack?.coverImage || '';
 
   return (

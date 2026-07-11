@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense } from 'react';
-import PlaylistPage from './[id]/PlaylistClient';
+import PlaylistPage from '@/components/music/PlaylistClient';
 
 export default function Page() {
   return (

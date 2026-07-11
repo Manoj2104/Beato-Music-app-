@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import PlaylistClient from './PlaylistClient';
+import PlaylistClient from '@/components/music/PlaylistClient';
 
 export async function generateStaticParams() {
   const ids = new Set<string>();

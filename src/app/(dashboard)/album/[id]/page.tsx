@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import AlbumClient from './AlbumClient';
+import AlbumClient from '@/components/music/AlbumClient';
 
 export async function generateStaticParams() {
   const ids = new Set<string>();

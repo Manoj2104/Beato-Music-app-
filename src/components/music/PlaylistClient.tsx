@@ -2496,7 +2496,7 @@ export default function PlaylistPage({ params }: { params?: Promise<{ id: string
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        color: user?.likedSongs.includes(track.id) ? '#0f5132' : 'rgba(255,255,255,0.6)',
+                        color: user?.likedSongs.includes(track.id) ? '#0f5132' : '#221a15',
                       }}
                     >
                       {user?.likedSongs.includes(track.id) ? (
@@ -2531,12 +2531,12 @@ export default function PlaylistPage({ params }: { params?: Promise<{ id: string
                     >
                       {downloadingIds.includes(track.id) ? (
                         <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} style={{ display: 'flex' }}>
-                          <div style={{ width: 18, height: 18, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.2)', borderTopColor: '#0f5132' }} />
+                          <div style={{ width: 18, height: 18, borderRadius: '50%', border: '2px solid rgba(0,0,0,0.1)', borderTopColor: '#0f5132' }} />
                         </motion.div>
                       ) : downloadedTrackIds.includes(track.id) ? (
                         <Download size={20} color="#0f5132" />
                       ) : (
-                        <Download size={20} color="rgba(255,255,255,0.6)" />
+                        <Download size={20} color="#221a15" />
                       )}
                     </button>
                   </div>
@@ -2550,7 +2550,7 @@ export default function PlaylistPage({ params }: { params?: Promise<{ id: string
                     style={{
                       background: 'transparent',
                       border: 'none',
-                      color: '#94a3b8',
+                      color: '#221a15',
                       cursor: 'pointer',
                       padding: 4
                     }}

@@ -1,4 +1,4 @@
-import JamRoomPage from './JamRoomClient';
+import JamRoomPage from '@/components/music/JamRoomClient';
 
 export async function generateStaticParams() {
   return [

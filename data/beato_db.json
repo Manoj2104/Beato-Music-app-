@@ -943,12 +943,16 @@
       "followers": 0,
       "following": 0,
       "likedSongs": [
-        "track-sp-1783765219508-7bq52"
+        "track-sp-1783765219508-7bq52",
+        "track-sp-1783767931039-rpcyz",
+        "track-sp-1783767118808-wqgy4"
       ],
       "savedAlbums": [],
       "followedArtists": [],
       "playlists": [
-        "playlist-custom-1783772797904"
+        "playlist-custom-1783772797904",
+        "playlist-custom-1783773307136",
+        "playlist-custom-1783773323389"
       ],
       "preferences": {
         "theme": "dark",
@@ -964,6 +968,8 @@
       "stats": {
         "topGenres": [],
         "topTracks": [
+          "track-sp-1783767276450-ofllb",
+          "track-sp-1783767307455-43zow",
           "track-sp-1783767842807-dc798",
           "track-sp-1783768967538-44dhp",
           "track-sp-1783765219508-7bq52",
@@ -1015,7 +1021,7 @@
         ],
         "streaksCount": 0,
         "discoverScore": 0,
-        "totalListeningTime": 25767
+        "totalListeningTime": 26815
       },
       "bio": "Manoj is a manually added creator on Beato.",
       "verified": false,
@@ -1060,6 +1066,8 @@
       "stats": {
         "topGenres": [],
         "topTracks": [
+          "track-sp-1783767971600-71qsg",
+          "track-sp-1783767276450-ofllb",
           "track-sp-1783768385084-9co9i",
           "track-sp-1783765455361-zqxul",
           "track-sp-1783765227952-05cdu",
@@ -1072,7 +1080,7 @@
         ],
         "streaksCount": 0,
         "discoverScore": 0,
-        "totalListeningTime": 1485
+        "totalListeningTime": 1935
       },
       "bio": null,
       "verified": false,
@@ -15590,6 +15598,42 @@
       "city": "Chennai",
       "isPremium": true,
       "timestamp": "2026-07-11T11:56:57.280Z",
+      "isFlagged": false,
+      "device": "Mobile App"
+    },
+    {
+      "id": "STR-A3DD8C65",
+      "trackId": "track-sp-1783767276450-ofllb",
+      "artistId": "artist-1783505262754",
+      "userId": "superadmin-1",
+      "country": "IN",
+      "city": "Chennai",
+      "isPremium": true,
+      "timestamp": "2026-07-11T12:53:00.955Z",
+      "isFlagged": false,
+      "device": "Mobile App"
+    },
+    {
+      "id": "STR-53A4E398",
+      "trackId": "track-sp-1783768053160-km3lk",
+      "artistId": "artist-1783505262754",
+      "userId": "superadmin-1",
+      "country": "IN",
+      "city": "Chennai",
+      "isPremium": true,
+      "timestamp": "2026-07-11T12:57:52.019Z",
+      "isFlagged": false,
+      "device": "Mobile App"
+    },
+    {
+      "id": "STR-8ABB801D",
+      "trackId": "track-sp-1783767971600-71qsg",
+      "artistId": "artist-1783505262754",
+      "userId": "superadmin-1",
+      "country": "IN",
+      "city": "Chennai",
+      "isPremium": true,
+      "timestamp": "2026-07-11T12:57:53.978Z",
       "isFlagged": false,
       "device": "Mobile App"
     }
