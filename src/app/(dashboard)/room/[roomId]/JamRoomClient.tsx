@@ -1123,18 +1123,25 @@ export default function JamRoomPage({ params }: { params?: Promise<{ roomId: str
           {/* Browse & Search Section */}
           {(!isMobile || activeMobileTab === 'player') && (
             <div className="jam-browse-card" style={{
-              background: '#ffffff',
-              borderRadius: 20,
-              border: '1px solid rgba(21,128,61,0.18)',
-              boxShadow: '0 8px 30px rgba(43,34,26,0.04)',
+              borderRadius: 24,
+              boxShadow: '0 8px 30px rgba(43,34,26,0.02)',
               marginTop: 20,
               width: '100%',
               minWidth: 0,
               boxSizing: 'border-box'
             }}>
-              <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 16, fontWeight: 900, margin: '0 0 16px', color: '#15803d' }}>
-                Browse & Search Songs
-              </h3>
+              {/* Home-style section header */}
+              <div style={{ marginBottom: 16, display: 'flex', flexDirection: 'column' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#15803d', boxShadow: '0 0 8px #15803d' }} />
+                  <span style={{ color: '#15803d', fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+                    Find Tracks
+                  </span>
+                </div>
+                <h3 style={{ margin: 0, color: '#221a15', fontSize: 16, fontFamily: 'Outfit, sans-serif', fontWeight: 900 }}>
+                  Browse & Search Songs
+                </h3>
+              </div>
 
               {/* Inside-Room Search Input */}
               <div style={{ position: 'relative', marginBottom: 20 }}>
@@ -1595,15 +1602,24 @@ export default function JamRoomPage({ params }: { params?: Promise<{ roomId: str
           {/* Shared Room Queue Panel */}
           {(!isMobile || activeMobileTab === 'queue') && (
             <div className="jam-browse-card" style={{
-              background: '#ffffff',
-              borderRadius: 20,
-              border: '1px solid rgba(21,128,61,0.18)',
-              boxShadow: '0 8px 30px rgba(43,34,26,0.04)',
+              borderRadius: 24,
+              boxShadow: '0 8px 30px rgba(43,34,26,0.02)',
               width: '100%',
               minWidth: 0,
               boxSizing: 'border-box'
             }}>
-            <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 16, fontWeight: 800, margin: '0 0 16px' }}>Shared Queue</h3>
+              {/* Home-style section header */}
+              <div style={{ marginBottom: 16, display: 'flex', flexDirection: 'column' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#15803d', boxShadow: '0 0 8px #15803d' }} />
+                  <span style={{ color: '#15803d', fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+                    Next Up
+                  </span>
+                </div>
+                <h3 style={{ margin: 0, color: '#221a15', fontSize: 16, fontFamily: 'Outfit, sans-serif', fontWeight: 900 }}>
+                  Shared Queue
+                </h3>
+              </div>
 
             {/* Song Search to Add to Queue */}
             <div style={{ position: 'relative', marginBottom: 16 }}>
@@ -1753,17 +1769,24 @@ export default function JamRoomPage({ params }: { params?: Promise<{ roomId: str
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24, height: isMobile ? 'auto' : '80vh' }}>
           {/* Active Participants List */}
           <div className="jam-browse-card" style={{
-            background: '#ffffff',
-            borderRadius: 20,
-            border: '1px solid rgba(21,128,61,0.18)',
-            boxShadow: '0 8px 30px rgba(43,34,26,0.04)',
+            borderRadius: 24,
+            boxShadow: '0 8px 30px rgba(43,34,26,0.02)',
             width: '100%',
             minWidth: 0,
             boxSizing: 'border-box'
           }}>
-            <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 15, fontWeight: 800, margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Users size={16} color="#15803d" /> Active Listeners ({room.participants?.length || 0})
-            </h3>
+            {/* Home-style section header */}
+            <div style={{ marginBottom: 16, display: 'flex', flexDirection: 'column' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#15803d', boxShadow: '0 0 8px #15803d' }} />
+                <span style={{ color: '#15803d', fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+                  Live Room
+                </span>
+              </div>
+              <h3 style={{ margin: 0, color: '#221a15', fontSize: 16, fontFamily: 'Outfit, sans-serif', fontWeight: 900 }}>
+                Active Listeners ({room.participants?.length || 0})
+              </h3>
+            </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               {room.participants?.map(p => (
                 <div
@@ -1789,10 +1812,8 @@ export default function JamRoomPage({ params }: { params?: Promise<{ roomId: str
 
           {/* Social Chat Interface with Bubble reactions */}
           <div className="jam-browse-card" style={{
-            background: '#ffffff',
-            borderRadius: 20,
-            border: '1px solid rgba(21,128,61,0.18)',
-            boxShadow: '0 8px 30px rgba(43,34,26,0.04)',
+            borderRadius: 24,
+            boxShadow: '0 8px 30px rgba(43,34,26,0.02)',
             flex: 1,
             display: 'flex',
             flexDirection: 'column',
@@ -1838,9 +1859,18 @@ export default function JamRoomPage({ params }: { params?: Promise<{ roomId: str
               </AnimatePresence>
             </div>
 
-            <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 15, fontWeight: 800, margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <MessageSquare size={16} color="#15803d" /> Live Chat
-            </h3>
+            {/* Home-style section header */}
+            <div style={{ marginBottom: 16, display: 'flex', flexDirection: 'column' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#15803d', boxShadow: '0 0 8px #15803d' }} />
+                <span style={{ color: '#15803d', fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+                  Chat
+                </span>
+              </div>
+              <h3 style={{ margin: 0, color: '#221a15', fontSize: 16, fontFamily: 'Outfit, sans-serif', fontWeight: 900 }}>
+                Live Chat
+              </h3>
+            </div>
 
             {/* Chat message logs */}
             <div style={{
