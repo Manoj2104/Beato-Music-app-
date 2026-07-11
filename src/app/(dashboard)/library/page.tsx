@@ -2126,7 +2126,7 @@ function LibraryPageContent() {
                     <span>#</span><span /><span>Title</span><span>Tracks</span><span>Updated</span><span />
                   </div>
                   {filteredPlaylists.map((p, i) => {
-                    const tracks = mockTracks.filter(t => (p.tracks || []).includes(t.id));
+                    const tracks = allTracks.filter(t => (p.tracks || []).includes(t.id));
                     const isActive = tracks.some(t => t.id === currentTrack?.id);
                     const gradCss = (p as any).gradientCss || (p.id === 'playlist-1' ? 'linear-gradient(135deg,#064e3b,#10b981)' : 'linear-gradient(135deg,#1e3a5f,#0ea5e9)');
 
