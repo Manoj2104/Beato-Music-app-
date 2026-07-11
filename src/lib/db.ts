@@ -824,7 +824,7 @@ let cachedDb: DatabaseSchema | null = null;
 let lastModifiedTime: number = 0;
 
 function readDb(): DatabaseSchema {
-  if (cachedDb && (process.env.DATABASE_MODE === 'supabase' || !fs.existsSync(DB_FILE))) {
+  if (cachedDb && !fs.existsSync(DB_FILE)) {
     return cachedDb;
   }
   ensureDbExists();
