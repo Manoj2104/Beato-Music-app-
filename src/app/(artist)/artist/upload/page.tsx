@@ -282,7 +282,7 @@ export default function UploadPage() {
 
   // ─── Spotify Extractor States ───────────────────────────────────────────
   const [spUrl, setSpUrl] = useState('');
-  const [spArtistId, setSpArtistId] = useState('');
+  const [spArtistId, setSpArtistId] = useState('auto');
   const [spLoading, setSpLoading] = useState(false);
   const [spParsedData, setSpParsedData] = useState<any>(null);
   const [spConvertProgress, setSpConvertProgress] = useState(0);
@@ -2766,7 +2766,8 @@ export default function UploadPage() {
                         outline: 'none', fontFamily: 'inherit'
                       }}
                     >
-                      <option value="">— Select Platform Artist —</option>
+                      <option value="auto">🪄 Automatically Detect / Create Artist (Recommended)</option>
+                      <option value="" disabled>────────────────────────</option>
                       {artists.map((a: any) => (
                         <option key={a.id} value={a.id}>{a.name} ({a.email})</option>
                       ))}

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, Repeat1,
   Volume2, VolumeX, Volume1, Maximize2, ListMusic, Mic2, Heart,
-  MoreHorizontal, Laptop2, Music2, Clock, Gauge, Sliders, Headphones, Download, X, Plus
+  MoreHorizontal, Laptop2, Music2, Clock, Gauge, Sliders, Headphones, Download, X, Plus, PlusCircle, Smartphone, Check
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -20,6 +20,10 @@ import { formatDuration } from '@/lib/mockData';
 import { socketManager } from '@/lib/socket';
 import { useSocket } from '@/lib/useSocket';
 import FullscreenPlayer from './FullscreenPlayer';
+import { getOfflineAudio } from '@/lib/offlineDb';
+import { useGestureControls } from '@/hooks/useGestureControls';
+import { getLyricsForTrack, parseLrc } from '@/lib/lyrics';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import {
   updateMediaMetadata,
   updateMediaPlaybackState,
@@ -73,6 +77,8 @@ function PlayerTrackImage({ coverImage, title }: { coverImage: string; title: st
   );
 }
 
+const lyricsClientCache = new Map<string, any>();
+
 export default function PlayerBar() {
   const {
     currentTrack, isPlaying, volume, isMuted, progress, duration,
@@ -82,7 +88,7 @@ export default function PlayerBar() {
     setProgress, setDuration, toggleShuffle, cycleRepeat,
     toggleQueue, toggleLyrics, playNext, setSleepTimer, setCrossfade,
     setActiveDevice, setActiveDeviceId, setAvailableDevices,
-    prevSongTimestamps
+    prevSongTimestamps, gestureControlsEnabled, setGestureControlsEnabled
   } = usePlayerStore();
 
   const { user, toggleLikeSong } = useAuthStore();
@@ -104,9 +110,65 @@ export default function PlayerBar() {
   const allTracks = getAllTracks();
   const downloaded = currentTrack ? downloadedTrackIds.includes(currentTrack.id) : false;
   const downloading = currentTrack ? downloadingIds.includes(currentTrack.id) : false;
+  const isMobile = useIsMobile();
   const [showPlaylistPicker, setShowPlaylistPicker] = useState(false);
   const activePickerTrack = playlistPickerTrack || (showPlaylistPicker ? currentTrack : null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showMobileContext, setShowMobileContext] = useState(false);
+
+  // Trigger Spotify-style context banner slide-up animation on track change
+  useEffect(() => {
+    if (currentTrack) {
+      setShowMobileContext(true);
+      const timer = setTimeout(() => {
+        setShowMobileContext(false);
+      }, 3000); // Stays visible for 3 seconds, then collapses smoothly
+      return () => clearTimeout(timer);
+    }
+  }, [currentTrack?.id]);
+
+  // Back button handler for Playlist Picker when opened via PlayerBar
+  useEffect(() => {
+    if (!activePickerTrack) return;
+
+    const handleBackButton = () => {
+      setShowPlaylistPicker(false);
+      closePlaylistPicker();
+      setSearchQuery('');
+      return true; // handled
+    };
+
+    (window as any).backButtonHandlers = (window as any).backButtonHandlers || [];
+    (window as any).backButtonHandlers.push(handleBackButton);
+
+    return () => {
+      if ((window as any).backButtonHandlers) {
+        (window as any).backButtonHandlers = (window as any).backButtonHandlers.filter(
+          (h: any) => h !== handleBackButton
+        );
+      }
+    };
+  }, [activePickerTrack, closePlaylistPicker]);
+
+  // Device Gesture and Motion controls (Nod to Play/Pause, Shake to Skip)
+  const { toggleGestures } = useGestureControls(
+    isPlaying,
+    togglePlay,
+    () => usePlayerStore.getState().playNext(true),
+    gestureControlsEnabled,
+    setGestureControlsEnabled
+  );
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).toggleGestureControls = toggleGestures;
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+        try { delete (window as any).toggleGestureControls; } catch {}
+      }
+    };
+  }, [toggleGestures]);
 
   const handleDownloadClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -538,7 +600,8 @@ export default function PlayerBar() {
     useMusicStore.getState().syncTrackStatus(trackId, status);
   });
 
-  // Unified Audio Source & State controller
+  // 1. Audio Source Loading Effect
+  // Runs only when the track ID or URL changes.
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -595,7 +658,6 @@ export default function PlayerBar() {
     const loadAudio = async () => {
       let resolvedUrl = currentTrack.audioUrl;
       try {
-        const { getOfflineAudio } = await import('@/lib/offlineDb');
         const cachedBlob = await getOfflineAudio(currentTrack.id);
         if (cachedBlob && active) {
           resolvedUrl = URL.createObjectURL(cachedBlob);
@@ -635,12 +697,54 @@ export default function PlayerBar() {
         setProgress(0);
         setLocalProgress(0);
         setDuration(currentTrack.duration || 0);
+
+        // Once loaded, check if we should start playing
+        if (isPlaying) {
+          audio.play().catch((err) => {
+            console.warn('Playback request failed or interrupted:', err);
+            if (err.name === 'NotAllowedError') {
+              toast.error('Autoplay blocked. Tap Play to start music!', { id: 'autoplay-toast' });
+              setIsPlaying(false);
+            }
+          });
+        }
       }
+    };
 
-      // Apply properties
-      audio.volume = isMuted ? 0 : volume;
-      audio.playbackRate = currentSpeed;
+    loadAudio();
 
+    return () => {
+      active = false;
+    };
+  }, [currentTrack?.id, currentTrack?.audioUrl, ytPlayer]);
+
+  // 2. Playback Control Effect (Instant Sync)
+  // Runs whenever play/pause state, volume, mute, or speed changes.
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !currentTrack) return;
+
+    const isYtTrack = !!(currentTrack as any).youtubeVideoId && (!currentTrack?.audioUrl || currentTrack.audioUrl.startsWith('/api/track/stream'));
+
+    if (isYtTrack) {
+      if (ytPlayer && typeof ytPlayer.getPlayerState === 'function') {
+        try {
+          if (isPlaying) {
+            ytPlayer.playVideo();
+          } else {
+            ytPlayer.pauseVideo();
+          }
+        } catch {}
+      }
+      return;
+    }
+
+    // Apply properties synchronously
+    audio.volume = isMuted ? 0 : volume;
+    audio.playbackRate = currentSpeed;
+
+    // Trigger play or pause instantly if the correct source is already set
+    if (loadedTrackIdRef.current === currentTrack.id) {
       if (isPlaying) {
         audio.play().catch((err) => {
           console.warn('Playback request failed or interrupted:', err);
@@ -652,14 +756,138 @@ export default function PlayerBar() {
       } else {
         audio.pause();
       }
+    }
+  }, [isPlaying, volume, isMuted, currentSpeed, currentTrack?.id, ytPlayer]);
+
+  const cleanTrackTitleForQuery = (title: string): string => {
+    if (!title) return '';
+    let cleaned = title
+      .replace(/\(official\s+video\)/gi, '')
+      .replace(/\[lyrical\]/gi, '')
+      .replace(/\(lyrics\)/gi, '')
+      .replace(/\(lyric\s+video\)/gi, '')
+      .replace(/\(full\s+song\)/gi, '')
+      .replace(/\(video\s+song\)/gi, '')
+      .replace(/\(audio\)/gi, '')
+      .replace(/\[audio\]/gi, '')
+      .replace(/\(remix\)/gi, '')
+      .replace(/\[remix\]/gi, '')
+      .replace(/\(cover\)/gi, '')
+      .replace(/\[cover\]/gi, '')
+      .replace(/with\s+lyrics/gi, '')
+      .replace(/lyrical\s+video/gi, '')
+      .replace(/official\s+audio/gi, '')
+      .replace(/video\s+song/gi, '')
+      .replace(/full\s+song/gi, '')
+      .replace(/audio\s+song/gi, '')
+      .replace(/8d\s+audio/gi, '')
+      .replace(/8d\s+version/gi, '')
+      .replace(/lo-fi\s+remix/gi, '')
+      .replace(/lofi\s+remix/gi, '')
+      .trim();
+
+    const separators = /[|\-•:\/\\]/;
+    const parts = cleaned.split(separators);
+    if (parts.length > 0) {
+      const firstPart = parts[0].trim();
+      if (firstPart.length > 0) {
+        cleaned = firstPart;
+      }
+    }
+
+    return cleaned
+      .replace(/\(From "[^"]+"\)/gi, '')
+      .replace(/\(From '[^']+'\)/gi, '')
+      .replace(/\([^)]+\)/g, '')
+      .replace(/\[[^\]]+\]/g, '')
+      .trim();
+  };
+
+  const cleanArtistNameForQuery = (artist: string): string => {
+    if (!artist) return '';
+    return artist
+      .replace(/feat\..*/gi, '')
+      .replace(/ft\..*/gi, '')
+      .replace(/featuring.*/gi, '')
+      .split(',')[0]
+      .split('&')[0]
+      .split(';')[0]
+      .trim();
+  };
+
+  // 3. Lyrics Fetcher Effect
+  // Asynchronously queries LRCLIB for real synced lyrics when the track changes
+  useEffect(() => {
+    if (!currentTrack) {
+      usePlayerStore.setState({ lyrics: [] });
+      return;
+    }
+
+    let active = true;
+
+    const fetchTrackLyrics = async () => {
+      const cacheKey = currentTrack.id;
+
+      // 1. First check client cache to load instantly (0ms)
+      if (lyricsClientCache.has(cacheKey)) {
+        if (active) {
+          const cachedLyrics = lyricsClientCache.get(cacheKey);
+          usePlayerStore.setState({ lyrics: cachedLyrics });
+        }
+        return;
+      }
+
+      // 2. Get placeholder/local lyrics first so there is no delay/empty screen
+      const localLyrics = getLyricsForTrack(currentTrack.id, currentTrack.title, currentTrack.artistName);
+      if (active) {
+        usePlayerStore.setState({ lyrics: localLyrics });
+      }
+
+      // 3. Query local Server Proxy route
+      try {
+        const cleanedTitle = cleanTrackTitleForQuery(currentTrack.title);
+        const cleanedArtist = cleanArtistNameForQuery(currentTrack.artistName);
+
+        const url = `/api/lyrics?title=${encodeURIComponent(cleanedTitle)}&artist=${encodeURIComponent(cleanedArtist)}`;
+        const res = await fetch(url);
+        
+        if (!active) return;
+
+        if (res.ok) {
+          const data = await res.json();
+          let parsed = [];
+          if (data.syncedLyrics) {
+            parsed = parseLrc(data.syncedLyrics);
+          } else if (data.plainLyrics) {
+            // Fallback: If only plain text lyrics exist, map them dynamically across song duration
+            const lines = data.plainLyrics.split('\n').filter((l: string) => l.trim());
+            const trackDuration = duration || currentTrack.duration || 180;
+            const step = trackDuration / (lines.length || 1);
+            parsed = lines.map((line: string, i: number) => ({
+              time: i * step,
+              text: line.trim()
+            }));
+          }
+
+          if (parsed.length > 0 && active) {
+            console.log(`[PlayerBar] Successfully loaded lyrics for: ${currentTrack.title}`);
+            // Save to client cache so next plays are completely instant
+            lyricsClientCache.set(cacheKey, parsed);
+            usePlayerStore.setState({ lyrics: parsed });
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn('[PlayerBar] Failed to fetch lyrics:', err);
+      }
     };
 
-    loadAudio();
+    fetchTrackLyrics();
 
     return () => {
       active = false;
     };
-  }, [currentTrack?.id, currentTrack?.audioUrl, isPlaying, volume, isMuted, currentSpeed, setProgress, setIsPlaying, setDuration, ytPlayer]);
+  }, [currentTrack?.id, duration]);
 
   // Media Session API for Lock Screen & Status Bar controls (Web + Native via @capgo/capacitor-media-session)
   useEffect(() => {
@@ -1168,7 +1396,16 @@ export default function PlayerBar() {
   const strokeDashoffset = duration > 0 ? circumference - (currentProgress / duration) * circumference : circumference;
 
   return (
-    <div className="app-player">
+    <div 
+      className="app-player"
+      style={isMobile ? {
+        height: 56,
+        position: 'relative',
+        overflow: 'visible',
+        width: 'calc(100vw - 16px)',
+        margin: '4px auto 2px auto',
+      } : undefined}
+    >
       <audio ref={audioRef} preload="metadata" />
       <div style={{ position: 'absolute', width: 1, height: 1, opacity: 0.001, pointerEvents: 'none', overflow: 'hidden' }}>
         <div ref={ytPlayerContainerRef} />
@@ -1686,193 +1923,215 @@ export default function PlayerBar() {
         </div>
       </div>
 
-      {/* ── Mobile Player Layout ── */}
+      {/* ── Mobile Player Layout (Spotify Style) ── */}
       <div 
         className="mobile-player-layout" 
+        style={{ 
+          cursor: 'pointer',
+          position: 'relative',
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-start',
+          alignItems: 'stretch',
+          overflow: 'visible'
+        }}
         onClick={() => setIsFullscreen(true)}
-        style={{ cursor: 'pointer' }}
         onTouchStart={(e) => {
           (e.currentTarget as any)._touchStartY = e.touches[0].clientY;
+          (e.currentTarget as any)._touchMoved = false;
+        }}
+        onTouchMove={(e) => {
+          const startY = (e.currentTarget as any)._touchStartY || 0;
+          if (Math.abs(e.touches[0].clientY - startY) > 10) {
+            (e.currentTarget as any)._touchMoved = true;
+          }
         }}
         onTouchEnd={(e) => {
           const startY = (e.currentTarget as any)._touchStartY || 0;
           const endY = e.changedTouches[0].clientY;
-          const dy = startY - endY; // positive = swipe up
-          if (dy > 60) {
-            setIsFullscreen(true); // swipe UP → open fullscreen
+          const dy = startY - endY;
+          if (dy > 40) {
+            e.preventDefault();
+            setIsFullscreen(true);
           }
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0, flex: 1 }}>
-          {/* Circular Album Cover Art with progress ring (48px outer, 38px inner) */}
-          <div style={{ position: 'relative', width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <svg height={48} width={48} style={{ position: 'absolute', transform: 'rotate(-90deg)', zIndex: 1, pointerEvents: 'none' }}>
-              <circle
-                stroke="rgba(15, 81, 50, 0.08)"
-                fill="transparent"
-                strokeWidth={2}
-                r={normalizedRadius}
-                cx={24}
-                cy={24}
-              />
-              <circle
-                stroke="var(--color-ss-primary, #0f5132)"
-                fill="transparent"
-                strokeWidth={strokeWidth}
-                strokeDasharray={circumference + ' ' + circumference}
-                style={{ strokeDashoffset, transition: 'stroke-dashoffset 0.1s linear' }}
-                strokeLinecap="round"
-                r={normalizedRadius}
-                cx={24}
-                cy={24}
-              />
-            </svg>
-            <div style={{ width: 38, height: 38, borderRadius: '50%', overflow: 'hidden', position: 'relative', zIndex: 2, border: '1px solid rgba(15, 81, 50, 0.08)' }}>
-              <PlayerTrackImage coverImage={currentTrack.coverImage} title={currentTrack.title} />
-            </div>
-          </div>
-
-          {/* Title & Artist */}
-          <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
-            <p style={{
-              color: '#221a15',
-              fontWeight: '800',
-              fontSize: 14,
-              margin: 0,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              fontFamily: 'Outfit, sans-serif'
-            }}>{currentTrack.title}</p>
-            <p style={{
-              color: '#87786c',
-              fontWeight: '500',
-              fontSize: 12,
-              margin: 0,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              fontFamily: 'Outfit, sans-serif'
-            }}>{currentTrack.artistName}</p>
+        {/* ── TOP SECTION (Lighter green context banner - floats/slides UP behind the main pill) ── */}
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 6,
+          right: 6,
+          height: 26,
+          background: '#198754',
+          borderRadius: '12px 12px 0 0',
+          border: '1px solid rgba(255, 255, 255, 0.12)',
+          borderBottom: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          paddingLeft: 10,
+          paddingRight: 10,
+          boxSizing: 'border-box',
+          zIndex: 1,
+          pointerEvents: showMobileContext ? 'auto' : 'none',
+          transform: showMobileContext ? 'translateY(-25px)' : 'translateY(0)',
+          opacity: showMobileContext ? 1 : 0,
+          transition: 'transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.35s'
+        }}>
+          <div style={{ fontSize: 9, fontWeight: 800, color: '#ffffff', letterSpacing: '0.05em', textTransform: 'uppercase', fontFamily: 'Outfit, sans-serif' }}>
+            {currentTrack.isAd ? 'Sponsored' : 'Recommended for you'}
           </div>
         </div>
 
-        {/* Action Buttons (Playback Skip & Play/Pause controls + Plus & Download symbols) */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }} onClick={e => e.stopPropagation()}>
-          {/* Plus / Add to Playlist Button */}
-          <button
-            onClick={e => { e.stopPropagation(); setShowPlaylistPicker(true); }}
-            style={{ background: 'transparent', border: 'none', padding: 4, cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#87786c', transition: 'color 0.15s' }}
-            title="Add to Playlist"
-            onMouseEnter={e => (e.currentTarget.style.color = '#221a15')}
-            onMouseLeave={e => (e.currentTarget.style.color = '#87786c')}
-          >
-            <Plus size={18} strokeWidth={1.8} />
-          </button>
+        {/* ── BOTTOM SECTION (Main Dark Green Player Pill - stays in place, zIndex: 2) ── */}
+        <div style={{
+          position: 'relative',
+          zIndex: 2,
+          height: 56,
+          width: '100%',
+          background: '#0f5132',
+          borderRadius: 16,
+          border: '1px solid rgba(255, 255, 255, 0.12)',
+          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.25)',
+          overflow: 'hidden',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingLeft: 12,
+          paddingRight: 12,
+          boxSizing: 'border-box'
+        }}>
+          {/* Left side: Cover art & Title/Artist */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: 1 }}>
+            <div style={{ width: 38, height: 38, borderRadius: 6, overflow: 'hidden', flexShrink: 0, boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
+              <PlayerTrackImage coverImage={currentTrack.coverImage} title={currentTrack.title} />
+            </div>
 
-          {/* Download Button */}
-          {!isFree && (
+            {/* Title & Artist & Device info */}
+            <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+                <span style={{
+                  color: '#ffffff',
+                  fontWeight: '800',
+                  fontSize: 13.5,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  fontFamily: 'Outfit, sans-serif'
+                }}>{currentTrack.title}</span>
+                {currentTrack.explicit && (
+                  <span style={{
+                    fontSize: 8.5,
+                    fontWeight: 800,
+                    background: 'rgba(255, 255, 255, 0.2)',
+                    color: '#ffffff',
+                    padding: '1px 3px',
+                    borderRadius: 2,
+                    textTransform: 'uppercase',
+                    flexShrink: 0,
+                    fontFamily: 'Outfit, sans-serif'
+                  }}>E</span>
+                )}
+              </div>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 1, minWidth: 0 }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: '#1db954', fontSize: 11, fontWeight: 700, fontFamily: 'Outfit, sans-serif', flexShrink: 0 }}>
+                  ⚡ {activeDevice || 'Speaker'}
+                </span>
+                <span style={{ color: 'rgba(255, 255, 255, 0.65)', fontSize: 11, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'Outfit, sans-serif' }}>
+                  • {currentTrack.artistName}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Right side: Action controls */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }} onClick={e => e.stopPropagation()} onTouchEnd={e => e.stopPropagation()}>
+            {/* Dynamic Device Icon based on name */}
             <button
-              onClick={handleDownloadClick}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                padding: 4,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                color: downloading ? 'var(--color-ss-secondary, #8c6c44)' : downloaded ? 'var(--color-ss-secondary, #8c6c44)' : '#87786c',
-                transition: 'color 0.15s',
-                position: 'relative'
-              }}
-              title={downloaded ? "Remove download" : downloading ? "Downloading..." : "Download"}
-              onMouseEnter={e => { if (!downloaded && !downloading) e.currentTarget.style.color = '#221a15'; }}
-              onMouseLeave={e => { if (!downloaded && !downloading) e.currentTarget.style.color = '#87786c'; }}
+              onClick={e => { e.stopPropagation(); setIsFullscreen(true); }}
+              style={{ background: 'transparent', border: 'none', padding: 4, cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#1db954' }}
+              title={`Playing on ${activeDevice || 'Speaker'}`}
             >
-              {downloading ? (
-                <div style={{
-                  width: 18, height: 18, border: '2px solid rgba(176,136,80,0.2)', borderTop: '2px solid var(--color-ss-secondary, #8c6c44)',
-                  borderRadius: '50%', animation: 'spin 0.7s linear infinite'
-                }} />
+              {(() => {
+                const name = (activeDevice || 'Speaker').toLowerCase();
+                if (name.includes('headphone') || name.includes('headset') || name.includes('earphone') || name.includes('buds') || name.includes('air 01') || name.includes('bluetooth')) {
+                  return <Headphones size={18} strokeWidth={2.2} />;
+                }
+                if (name.includes('phone') || name.includes('mobile') || name.includes('iphone') || name.includes('android')) {
+                  return <Smartphone size={18} strokeWidth={2.2} />;
+                }
+                return <Laptop2 size={18} strokeWidth={2.2} />;
+              })()}
+            </button>
+
+            {/* Plus Button: Toggles Liked Songs */}
+            <button
+              onClick={e => {
+                e.stopPropagation();
+                if (currentTrack) {
+                  toggleLikeSong(currentTrack.id);
+                  if (!isLiked) {
+                    toast.success(`Added "${currentTrack.title}" to Liked Songs! 💚`, { id: 'liked-toast' });
+                  } else {
+                    toast.success(`Removed "${currentTrack.title}" from Liked Songs`, { id: 'liked-toast' });
+                  }
+                }
+              }}
+              style={{ background: 'transparent', border: 'none', padding: 4, cursor: 'pointer', display: 'flex', alignItems: 'center', color: isLiked ? '#1db954' : '#ffffff' }}
+              title={isLiked ? "Remove from Liked Songs" : "Add to Liked Songs"}
+            >
+              {isLiked ? (
+                <Check size={20} strokeWidth={2.5} />
               ) : (
-                <Download size={18} strokeWidth={1.8} />
+                <PlusCircle size={20} strokeWidth={2} />
               )}
             </button>
-          )}
 
-          {/* Previous Button */}
-          <button
-            onClick={e => { e.stopPropagation(); usePlayerStore.getState().playPrevious(); }}
-            disabled={isPrevLocked}
-            style={{ 
-              background: 'transparent', 
-              border: 'none', 
-              padding: 4, 
-              cursor: isPrevLocked ? 'not-allowed' : 'pointer', 
-              display: 'flex', 
-              alignItems: 'center', 
-              color: '#221a15', 
-              transition: 'color 0.15s',
-              opacity: isPrevLocked ? 0.35 : 1
-            }}
-            title={isPrevLocked ? "Previous (Premium Only or wait 1 hour)" : "Previous"}
-            onMouseEnter={e => { if (!isPrevLocked) e.currentTarget.style.color = 'var(--color-ss-secondary, #8c6c44)'; }}
-            onMouseLeave={e => { if (!isPrevLocked) e.currentTarget.style.color = '#221a15'; }}
-          >
-            <SkipBack size={18} strokeWidth={1.8} fill="none" />
-          </button>
+            <button
+              onClick={e => { e.stopPropagation(); togglePlay(); }}
+              disabled={currentTrack?.isAd === true}
+              style={{ 
+                background: 'transparent', 
+                border: 'none', 
+                padding: 4,
+                cursor: currentTrack?.isAd ? 'not-allowed' : 'pointer', 
+                display: 'flex', 
+                alignItems: 'center', 
+                color: '#ffffff',
+                opacity: currentTrack?.isAd ? 0.5 : 1
+              }}
+              title={isPlaying ? "Pause" : "Play"}
+            >
+              {isPlaying ? (
+                <Pause size={20} strokeWidth={2.2} fill="currentColor" />
+              ) : (
+                <Play size={20} strokeWidth={2.2} fill="currentColor" />
+              )}
+            </button>
+          </div>
 
-          {/* Play/Pause Button */}
-          <button
-            onClick={e => { e.stopPropagation(); togglePlay(); }}
-            disabled={currentTrack?.isAd === true}
-            style={{ 
-              background: 'var(--color-ss-primary, #0f5132)', 
-              border: 'none', 
-              borderRadius: '50%',
-              width: 34,
-              height: 34,
-              cursor: currentTrack?.isAd ? 'not-allowed' : 'pointer', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              color: '#ffffff', 
-              transition: 'transform 0.15s, background-color 0.15s',
-              opacity: currentTrack?.isAd ? 0.5 : 1,
-              boxShadow: '0 4px 10px rgba(15, 81, 50, 0.25)'
-            }}
-            onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.05)'; }}
-            onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
-            title={isPlaying ? "Pause" : "Play"}
-          >
-            {isPlaying ? (
-              <Pause size={14} strokeWidth={2.2} fill="currentColor" />
-            ) : (
-              <Play size={14} strokeWidth={2.2} fill="currentColor" style={{ marginLeft: 2 }} />
-            )}
-          </button>
-
-          {/* Next Button */}
-          <button
-            onClick={e => { e.stopPropagation(); playNext(true); }}
-            disabled={currentTrack?.isAd === true}
-            style={{ 
-              background: 'transparent', 
-              border: 'none', 
-              padding: 4, 
-              cursor: currentTrack?.isAd ? 'not-allowed' : 'pointer', 
-              display: 'flex', 
-              alignItems: 'center', 
-              color: '#221a15', 
-              transition: 'color 0.15s',
-              opacity: currentTrack?.isAd ? 0.35 : 1
-            }}
-            title={currentTrack?.isAd ? "Next (Ad Playing)" : "Next"}
-            onMouseEnter={e => { if (currentTrack?.isAd !== true) e.currentTarget.style.color = 'var(--color-ss-secondary, #8c6c44)'; }}
-            onMouseLeave={e => { if (currentTrack?.isAd !== true) e.currentTarget.style.color = '#221a15'; }}
-          >
-            <SkipForward size={18} strokeWidth={1.8} fill="none" />
-          </button>
+          {/* Thin bottom progress bar (Spotify Style) */}
+          <div style={{ 
+            position: 'absolute', 
+            bottom: 0, 
+            left: 0, 
+            right: 0, 
+            height: 3, 
+            background: 'rgba(255, 255, 255, 0.15)',
+            zIndex: 3,
+            pointerEvents: 'none'
+          }}>
+            <div style={{ 
+              height: '100%', 
+              width: `${(localProgress / (duration || (currentTrack ? currentTrack.duration : 180))) * 100}%`, 
+              background: '#ffffff',
+              borderRadius: '0 2px 2px 0',
+              transition: 'width 0.2s linear'
+            }} />
+          </div>
         </div>
       </div>
 

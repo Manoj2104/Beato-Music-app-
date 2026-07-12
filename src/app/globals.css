@@ -96,7 +96,17 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-outfit), system-ui, sans-serif;
 }
 .app-sidebar { grid-row: 1 / 2; grid-column: 1 / 2; overflow: hidden; border-radius: 12px; background: var(--color-ss-surface, #f8faf8); border: 1px solid rgba(15, 81, 50, 0.05); }
 .app-main { grid-row: 1 / 2; grid-column: 2 / 3; overflow-y: auto; overflow-x: hidden; border-radius: 12px; background: var(--color-ss-bg, #ffffff); position: relative; scroll-behavior: smooth; padding-top: var(--sat); border: 1px solid rgba(15, 81, 50, 0.05); }
-.app-player { grid-row: 2 / 3; grid-column: 1 / -1; border-radius: 12px; background: #ffffff; border: 1px solid rgba(43, 34, 26, 0.08); box-shadow: 0 4px 20px rgba(43, 34, 26, 0.05); }
+.app-player { 
+  grid-row: 2 / 3; 
+  grid-column: 1 / -1; 
+  border-radius: 12px; 
+  --mobile-player-bg: #ffffff;
+  --mobile-player-border: rgba(43, 34, 26, 0.08);
+  --mobile-player-shadow: 0 4px 20px rgba(43, 34, 26, 0.05);
+  background: var(--mobile-player-bg); 
+  border: 1px solid var(--mobile-player-border); 
+  box-shadow: var(--mobile-player-shadow); 
+}
 .app-right-panel { grid-row: 1 / 2; grid-column: 3 / 4; overflow: hidden; }
 
 .desktop-player-layout {
@@ -166,6 +176,15 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-outfit), system-ui, sans-serif;
   width: 12px; height: 12px; border: none; border-radius: 50%; background: var(--color-ss-text-primary, #0f172a); cursor: pointer; opacity: 0; transition: opacity 0.1s;
 }
 .progress-bar:hover::-moz-range-thumb { opacity: 1; }
+
+@media (max-width: 768px) {
+  .progress-bar::-webkit-slider-thumb {
+    opacity: 1 !important;
+  }
+  .progress-bar::-moz-range-thumb {
+    opacity: 1 !important;
+  }
+}
 
 .volume-bar {
   -webkit-appearance: none; appearance: none;
@@ -348,28 +367,49 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-outfit), system-ui, sans-serif;
   .app-player {
     grid-row: 2 / 3 !important;
     grid-column: 1 / 2 !important;
-    border-radius: 18px !important;
-    height: 64px !important;
-    margin: 8px 12px 6px 12px !important;
-    background: rgba(220, 245, 230, 0.96) !important;
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
-    border: 1px solid rgba(15, 81, 50, 0.08) !important;
-    box-shadow: 0 8px 24px rgba(15, 81, 50, 0.08) !important;
-    overflow: hidden !important;
-    display: flex !important;
-    align-items: center !important;
+    border-radius: 0 !important;
+    margin: 4px auto 2px auto !important;
+    width: calc(100vw - 16px) !important;
+    overflow: visible !important;
+    display: block !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Mobile player layout overrides for dark green background */
+  .mobile-player-layout p {
+    color: #ffffff !important;
+  }
+  .mobile-player-layout p + p {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+  .mobile-player-layout button {
+    color: rgba(255, 255, 255, 0.85) !important;
+  }
+  .mobile-player-layout button svg {
+    color: currentColor !important;
+  }
+  
+
+
+  /* Progress ring adjustments */
+  .mobile-player-layout svg circle[stroke*="rgba"] {
+    stroke: rgba(255, 255, 255, 0.15) !important;
+  }
+  .mobile-player-layout svg circle[stroke*="var"] {
+    stroke: #ffffff !important;
   }
   .desktop-player-layout {
     display: none !important;
   }
   .mobile-player-layout {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    padding: 0 12px !important;
     height: 100% !important;
     width: 100% !important;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
   }
   .app-right-panel { display: none !important; }
   .app-layout.no-player { grid-template-rows: 1fr auto !important; }

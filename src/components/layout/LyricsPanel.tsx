@@ -3,24 +3,17 @@ import { X, Mic } from 'lucide-react';
 import Link from 'next/link';
 import { usePlayerStore } from '@/store/playerStore';
 import { useAuthStore } from '@/store/authStore';
-import { getLyricsForTrack } from '@/lib/lyrics';
 
 interface LyricsPanelProps {
   onClose: () => void;
 }
 
 export default function LyricsPanel({ onClose }: LyricsPanelProps) {
-  const { currentTrack, progress, adsConfig } = usePlayerStore();
+  const { currentTrack, progress, adsConfig, lyrics } = usePlayerStore();
   const { user } = useAuthStore();
   const showLyricsAd = adsConfig?.placements?.lyricsPanel !== false;
   const isFree = user?.subscription === 'free' && showLyricsAd;
   const containerRef = useRef<HTMLDivElement>(null);
-
-  // Fetch the lyrics for the current track
-  const lyrics = useMemo(() => {
-    if (!currentTrack) return [];
-    return getLyricsForTrack(currentTrack.id, currentTrack.title, currentTrack.artistName);
-  }, [currentTrack]);
 
   // Find the index of the active lyric line
   const activeIndex = useMemo(() => {

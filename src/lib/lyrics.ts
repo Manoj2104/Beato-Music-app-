@@ -82,3 +82,35 @@ export function getLyricsForTrack(trackId: string, trackTitle: string, artistNam
     { time: 60, text: "Enjoy the premium sound." }
   ];
 }
+
+export function parseLrc(lrcText: string): LyricLine[] {
+  const lines = lrcText.split('\n');
+  const result: LyricLine[] = [];
+  
+  // Regex to match [mm:ss.xx] or [mm:ss.xxx] or [mm:ss]
+  const timeRegex = /\[(\d{2}):(\d{2})(?:\.(\d{2,3}))?\]/;
+  
+  for (const line of lines) {
+    const match = timeRegex.exec(line);
+    if (match) {
+      const min = parseInt(match[1], 10);
+      const sec = parseInt(match[2], 10);
+      const msStr = match[3] || '00';
+      const ms = parseInt(msStr.padEnd(3, '0').substring(0, 3), 10);
+      
+      const timeInSeconds = min * 60 + sec + ms / 1000;
+      const text = line.replace(timeRegex, '').trim();
+      
+      // Filter out metadata tags like [ar: ...] or empty lines,
+      // but keep lines representing instrumental breaks or actual content
+      if (text || result.length === 0 || timeInSeconds > 0) {
+        result.push({
+          time: timeInSeconds,
+          text: text || '🎵'
+        });
+      }
+    }
+  }
+  
+  return result.sort((a, b) => a.time - b.time);
+}

@@ -5,6 +5,7 @@ import { socketManager } from '@/lib/socket';
 import { useAuthStore } from './authStore';
 import { useMusicStore } from './musicStore';
 import toast from 'react-hot-toast';
+import { LyricLine } from '@/lib/lyrics';
 
 interface PlayerStore {
   currentTrack: Track | null;
@@ -31,6 +32,8 @@ interface PlayerStore {
   skipTimestamps: number[];
   prevSongTimestamps: number[];
   adsConfig: any;
+  gestureControlsEnabled: boolean;
+  lyrics: LyricLine[];
   
   // Actions
   setCurrentTrack: (track: Track) => void;
@@ -57,6 +60,7 @@ interface PlayerStore {
   setActiveDeviceId: (id: string) => void;
   setAvailableDevices: (devices: { id: string; label: string }[]) => void;
   setAdsConfig: (config: any) => void;
+  setGestureControlsEnabled: (val: boolean) => void;
 }
 
 let cachedGeo: { city: string; country: string } | null = null;
@@ -113,6 +117,8 @@ export const usePlayerStore = create<PlayerStore>()(
       skipTimestamps: [],
       prevSongTimestamps: [],
       adsConfig: null,
+      gestureControlsEnabled: false,
+      lyrics: [],
 
       setCurrentTrack: (track) => set({ currentTrack: track, progress: 0 }),
       
@@ -379,6 +385,7 @@ export const usePlayerStore = create<PlayerStore>()(
       setActiveDevice: (device) => set({ activeDevice: device }),
       setActiveDeviceId: (id) => set({ activeDeviceId: id }),
       setAvailableDevices: (devices) => set({ availableDevices: devices }),
+      setGestureControlsEnabled: (val) => set({ gestureControlsEnabled: val }),
     }),
     {
       name: 'beato-player',
@@ -389,6 +396,7 @@ export const usePlayerStore = create<PlayerStore>()(
         crossfade: state.crossfade,
         activeDevice: state.activeDevice,
         activeDeviceId: state.activeDeviceId,
+        gestureControlsEnabled: state.gestureControlsEnabled,
       }),
     }
   )

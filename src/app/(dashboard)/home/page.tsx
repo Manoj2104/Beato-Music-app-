@@ -1682,7 +1682,11 @@ export default function HomePage() {
         if (likedTracks.length === 0) return null;
         return (
           <motion.div key="liked_songs" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-            style={{ marginBottom: 32, borderRadius: 18, padding: '20px 24px', background: 'linear-gradient(135deg, rgba(15,81,50,0.08), rgba(25,135,84,0.1))', border: '1px solid rgba(15,81,50,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            onClick={(e) => {
+              if ((e.target as HTMLElement).closest('button')) return;
+              router.push('/library?tab=liked');
+            }}
+            style={{ marginBottom: 32, borderRadius: 18, padding: '20px 24px', background: 'linear-gradient(135deg, rgba(15,81,50,0.08), rgba(25,135,84,0.1))', border: '1px solid rgba(15,81,50,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
               <div style={{ width: 52, height: 52, borderRadius: 10, background: 'linear-gradient(135deg, var(--color-ss-primary, #0f5132), var(--color-ss-secondary, #198754))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Heart size={22} color="white" fill="white" />

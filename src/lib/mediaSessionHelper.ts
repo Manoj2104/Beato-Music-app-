@@ -105,8 +105,7 @@ export async function updateMediaPositionState(details: { duration: number; posi
     }
   }
 }
-
-export async function registerMediaActionHandlers(handlers: {
+export function registerMediaActionHandlers(handlers: {
   onPlay: () => void;
   onPause: () => void;
   onPrevious: () => void;
@@ -115,11 +114,50 @@ export async function registerMediaActionHandlers(handlers: {
 }) {
   if (typeof window === 'undefined') return () => {};
 
+  // Earbuds/Headphones multi-press detector (Double-press -> Next, Triple-press -> Prev)
+  let lastPressTime = 0;
+  let pressCount = 0;
+  let resetTimeout: any = null;
+
+  const handlePress = (action: 'play' | 'pause') => {
+    const now = Date.now();
+    const timeDiff = now - lastPressTime;
+    lastPressTime = now;
+
+    if (resetTimeout) {
+      clearTimeout(resetTimeout);
+    }
+
+    if (timeDiff < 550) {
+      pressCount++;
+    } else {
+      pressCount = 1;
+    }
+
+    resetTimeout = setTimeout(() => {
+      pressCount = 0;
+    }, 550);
+
+    if (pressCount === 1) {
+      if (action === 'play') {
+        handlers.onPlay();
+      } else {
+        handlers.onPause();
+      }
+    } else if (pressCount === 2) {
+      console.log('[MediaSession Interceptor] Double-click earbud -> Skip Next');
+      handlers.onNext();
+    } else if (pressCount >= 3) {
+      console.log('[MediaSession Interceptor] Triple-click earbud -> Skip Previous');
+      handlers.onPrevious();
+    }
+  };
+
   // 1. Web Handlers
   if ('mediaSession' in navigator) {
     try {
-      navigator.mediaSession.setActionHandler('play', handlers.onPlay);
-      navigator.mediaSession.setActionHandler('pause', handlers.onPause);
+      navigator.mediaSession.setActionHandler('play', () => handlePress('play'));
+      navigator.mediaSession.setActionHandler('pause', () => handlePress('pause'));
       navigator.mediaSession.setActionHandler('previoustrack', handlers.onPrevious);
       navigator.mediaSession.setActionHandler('nexttrack', handlers.onNext);
       if (handlers.onSeekTo) {
@@ -143,10 +181,10 @@ export async function registerMediaActionHandlers(handlers: {
         if (isCleanedUp) return;
         
         await MediaSession.setActionHandler({ action: 'play' }, () => {
-          handlers.onPlay();
+          handlePress('play');
         });
         await MediaSession.setActionHandler({ action: 'pause' }, () => {
-          handlers.onPause();
+          handlePress('pause');
         });
         await MediaSession.setActionHandler({ action: 'previoustrack' }, () => {
           handlers.onPrevious();
@@ -166,7 +204,6 @@ export async function registerMediaActionHandlers(handlers: {
       }
     })();
   }
-
   return () => {
     isCleanedUp = true;
     if ('mediaSession' in navigator) {

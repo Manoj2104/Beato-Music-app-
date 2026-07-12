@@ -173,6 +173,17 @@ export default function CapacitorInit() {
     let backListener: any = null;
     
     App.addListener('backButton', ({ canGoBack }) => {
+      // Check if there are any custom registered back button handlers (like open drawers, modals, or fullscreen player)
+      const handlers = (window as any).backButtonHandlers || [];
+      if (handlers.length > 0) {
+        // Execute the most recently registered handler (top of the stack)
+        const topHandler = handlers[handlers.length - 1];
+        const handled = topHandler();
+        if (handled) {
+          return;
+        }
+      }
+
       if (!canGoBack || window.location.pathname === '/') {
         App.minimizeApp();
       } else {

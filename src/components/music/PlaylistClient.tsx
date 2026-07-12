@@ -427,6 +427,28 @@ export default function PlaylistPage({ params }: { params?: Promise<{ id: string
   const [showPlaylistPicker, setShowPlaylistPicker] = useState(false);
   const [pickerSearchQuery, setPickerSearchQuery] = useState('');
 
+  // Back button handler for local Playlist Picker in PlaylistClient
+  useEffect(() => {
+    if (!showPlaylistPicker) return;
+
+    const handleBackButton = () => {
+      setShowPlaylistPicker(false);
+      setPickerSearchQuery('');
+      return true; // handled
+    };
+
+    (window as any).backButtonHandlers = (window as any).backButtonHandlers || [];
+    (window as any).backButtonHandlers.push(handleBackButton);
+
+    return () => {
+      if ((window as any).backButtonHandlers) {
+        (window as any).backButtonHandlers = (window as any).backButtonHandlers.filter(
+          (h: any) => h !== handleBackButton
+        );
+      }
+    };
+  }, [showPlaylistPicker]);
+
   const handleDownloadClick = async (e: React.MouseEvent, track: any) => {
     e.stopPropagation();
     const downloaded = downloadedTrackIds.includes(track.id);

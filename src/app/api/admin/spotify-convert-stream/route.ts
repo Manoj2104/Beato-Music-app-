@@ -485,9 +485,12 @@ export async function POST(request: NextRequest) {
     return new Response(JSON.stringify({ error: 'artistId required' }), { status: 400 });
   }
 
-  const artist = db.getUserById(artistId);
-  if (!artist) {
-    return new Response(JSON.stringify({ error: `Artist ${artistId} not found` }), { status: 404 });
+  let artist: any = null;
+  if (artistId !== 'auto') {
+    artist = db.getUserById(artistId);
+    if (!artist) {
+      return new Response(JSON.stringify({ error: `Artist ${artistId} not found` }), { status: 404 });
+    }
   }
 
   // Support both single track and multi-track (playlist/album)
@@ -515,6 +518,63 @@ export async function POST(request: NextRequest) {
         const title = item.songName || item.title || `Track ${trackNum}`;
         const expectedDuration = parseInt(item.duration) || 0;
 
+        let currentArtistId = artistId;
+        let currentArtistName = artist ? artist.name : '';
+        let collaboratorIds: string[] = [];
+
+        if (artistId === 'auto' || !artistId) {
+          const rawArtistName = item.artist || 'Unknown Artist';
+          const artistNames = rawArtistName.split(',').map((name: string) => name.trim()).filter(Boolean);
+          const resolvedIds: string[] = [];
+
+          for (const rawName of artistNames) {
+            const cleanNameForEmail = rawName.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const generatedEmail = `${cleanNameForEmail}@beato.com`;
+
+            const allUsers = db.getUsers();
+            let foundUser = allUsers.find(u => 
+              u.name.toLowerCase() === rawName.toLowerCase() ||
+              u.email.toLowerCase() === generatedEmail.toLowerCase()
+            );
+
+            if (!foundUser) {
+              const generatedId = `artist-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
+              const newUser = {
+                id: generatedId,
+                name: rawName,
+                email: generatedEmail,
+                passwordHash: '$2a$10$T8Z.XG9Kq0m1v1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1',
+                role: 'ARTIST' as const,
+                isActive: true,
+                bio: `${rawName} is an automatically created creator on Beato from Spotify imports.`,
+                country: 'IN',
+                avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
+                followers: Math.floor(Math.random() * 1000) + 100,
+                following: 0,
+                likedSongs: [],
+                savedAlbums: [],
+                followedArtists: [],
+                playlists: [],
+              };
+              const savedUser = db.saveUser(newUser);
+              db.updateUserRole(savedUser.id, 'ARTIST');
+              foundUser = savedUser;
+              console.log(`[spotify-convert-stream] Automatically created collaborator artist: "${rawName}" (${generatedEmail}) with ID: ${savedUser.id}`);
+            } else {
+              if ((foundUser.role as any) !== 'ARTIST' && (foundUser.role as any) !== 'artist') {
+                db.updateUserRole(foundUser.id, 'ARTIST');
+                foundUser.role = 'ARTIST';
+              }
+              console.log(`[spotify-convert-stream] Found existing collaborator artist: "${rawName}" with ID: ${foundUser.id}`);
+            }
+            resolvedIds.push(foundUser.id);
+          }
+
+          currentArtistId = resolvedIds[0] || 'auto';
+          currentArtistName = rawArtistName; // Keep the full original string (e.g. Sooraj Santhosh, Chinmayi...) so that it displays perfectly in listings
+          collaboratorIds = resolvedIds;
+        }
+
         // Try Masstamilan first (direct high quality download)
         let videoId = item.youtubeVideoId || null;
         let mp3Path: string | null = null;
@@ -529,7 +589,7 @@ export async function POST(request: NextRequest) {
             percentage: Math.round(((i / total) + (1 / total) * 0.05) * 100),
             message: `[${trackNum}/${total}] 🔍 Searching Masstamilan: ${title}`
           });
-          const dlPath = await findAndDownloadFromMasstamilan(title, artist.name);
+          const dlPath = await findAndDownloadFromMasstamilan(title, currentArtistName);
           if (dlPath) {
             mp3Path = dlPath;
             isMasstamilan = true;
@@ -599,8 +659,8 @@ export async function POST(request: NextRequest) {
               const newTrack = {
                 id: trackId,
                 title,
-                artistId,
-                artistName: artist.name,
+                artistId: currentArtistId,
+                artistName: currentArtistName,
                 albumId: 'single',
                 albumName: item.album || 'Single',
                 coverImage: item.coverImage || '',
@@ -629,7 +689,7 @@ export async function POST(request: NextRequest) {
                 user.token || 'unknown',
                 `Super Admin (${user.role})`,
                 'UPLOAD',
-                `Registered cloud stream for Spotify track "${title}" (YouTube: ${videoId}) for artist "${artist.name}"`
+                `Registered cloud stream for Spotify track "${title}" (YouTube: ${videoId}) for artist "${currentArtistName}"`
               );
 
               send({
@@ -766,8 +826,8 @@ export async function POST(request: NextRequest) {
           const newTrack = {
             id: trackId,
             title,
-            artistId,
-            artistName: artist.name,
+            artistId: currentArtistId,
+            artistName: currentArtistName,
             albumId: 'single',
             albumName: item.album || 'Single',
             coverImage: item.coverImage || '',
@@ -796,7 +856,7 @@ export async function POST(request: NextRequest) {
             user.token || 'unknown',
             `Super Admin (${user.role})`,
             'UPLOAD',
-            `Extracted Spotify track "${title}" via YouTube ${videoId} for artist "${artist.name}". SHA256: ${sha256}`
+            `Extracted Spotify track "${title}" via YouTube ${videoId} for artist "${currentArtistName}". SHA256: ${sha256}`
           );
 
           send({
@@ -828,7 +888,7 @@ export async function POST(request: NextRequest) {
         total,
         uploaded: createdTracks.length,
         errors,
-        message: `Successfully extracted ${createdTracks.length}/${total} Spotify track(s) for "${artist.name}".`,
+        message: `Successfully extracted ${createdTracks.length}/${total} Spotify track(s).`,
         tracks: createdTracks.map(t => ({ ...t, waveform: undefined })),
       });
 

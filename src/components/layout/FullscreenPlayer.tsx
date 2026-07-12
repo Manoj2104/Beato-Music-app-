@@ -6,7 +6,7 @@ import {
   Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, Repeat1,
   Volume2, VolumeX, Volume1, Minimize2, Mic, Heart, Clock, Gauge, Sliders, Disc,
   ChevronDown, MoreVertical, Share2, ListMusic, Check, Menu, GripVertical, Trash2, Music,
-  Download, PlusCircle, X, ChevronLeft, MinusCircle, User, Users, XCircle, Radio, Info, Barcode
+  Download, PlusCircle, X, ChevronLeft, MinusCircle, User, Users, XCircle, Radio, Info, Barcode, Headphones
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
@@ -27,10 +27,10 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
   const {
     currentTrack, isPlaying, volume, isMuted, progress, duration,
     shuffle, repeat, crossfade, sleepTimer, activeDevice, activeDeviceId, availableDevices,
-    queue, setQueue, playTrack, clearQueue, removeFromQueue, setIsPlaying,
+    queue, history, setQueue, playTrack, clearQueue, removeFromQueue, setIsPlaying,
     togglePlay, setVolume, toggleMute, toggleShuffle, cycleRepeat,
     setCrossfade, setSleepTimer, playNext, playPrevious, setActiveDevice, setActiveDeviceId,
-    prevSongTimestamps
+    prevSongTimestamps, gestureControlsEnabled, lyrics
   } = usePlayerStore();
 
   const { user, toggleLikeSong } = useAuthStore();
@@ -130,6 +130,15 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
   const [featuresDrawerTab, setFeaturesDrawerTab] = useState<'options' | 'sleep' | 'playlist'>('options');
   const [showBeatoCode, setShowBeatoCode] = useState(false);
   const [playlistSearchQuery, setPlaylistSearchQuery] = useState('');
+  const [coverDragX, setCoverDragX] = useState(0);
+
+  const handleToggleGestures = useCallback(() => {
+    if (typeof window !== 'undefined' && (window as any).toggleGestureControls) {
+      (window as any).toggleGestureControls();
+    } else {
+      toast.error('Motion gesture service is offline.');
+    }
+  }, []);
 
   const handleReorder = useCallback((newQueue: any[]) => {
     setQueue(newQueue);
@@ -174,10 +183,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
   };
 
   // Synced lyrics data
-  const lyrics = useMemo(() => {
-    if (!currentTrack) return [];
-    return getLyricsForTrack(currentTrack.id, currentTrack.title, currentTrack.artistName);
-  }, [currentTrack]);
+
 
   // Handle local progress syncing
   useEffect(() => {
@@ -212,7 +218,6 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
     return index === -1 ? 0 : index;
   }, [lyrics, localProgress]);
 
-  // Center active lyric line in viewport
   useEffect(() => {
     if (activeLineIndex === -1 || !lyricsRef.current) return;
     const activeEl = lyricsRef.current.children[activeLineIndex] as HTMLElement;
@@ -228,6 +233,96 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
       behavior: 'smooth'
     });
   }, [activeLineIndex]);
+
+  // Back button interception for hardware back button on Android/Capacitor
+  const backStateRef = useRef({
+    showPlaylistPicker,
+    showQueueDrawer,
+    showFeaturesDrawer,
+    showDeviceSelector,
+    showSpeedMenu,
+    showSleepMenu,
+    showSettings,
+    showBeatoCode,
+    showBio,
+    showAllLyrics,
+    onClose
+  });
+
+  useEffect(() => {
+    backStateRef.current = {
+      showPlaylistPicker,
+      showQueueDrawer,
+      showFeaturesDrawer,
+      showDeviceSelector,
+      showSpeedMenu,
+      showSleepMenu,
+      showSettings,
+      showBeatoCode,
+      showBio,
+      showAllLyrics,
+      onClose
+    };
+  });
+
+  useEffect(() => {
+    const handleBackButton = () => {
+      const state = backStateRef.current;
+      if (state.showPlaylistPicker) {
+        setShowPlaylistPicker(false);
+        return true;
+      }
+      if (state.showQueueDrawer) {
+        setShowQueueDrawer(false);
+        return true;
+      }
+      if (state.showFeaturesDrawer) {
+        setShowFeaturesDrawer(false);
+        return true;
+      }
+      if (state.showDeviceSelector) {
+        setShowDeviceSelector(false);
+        return true;
+      }
+      if (state.showSpeedMenu) {
+        setShowSpeedMenu(false);
+        return true;
+      }
+      if (state.showSleepMenu) {
+        setShowSleepMenu(false);
+        return true;
+      }
+      if (state.showSettings) {
+        setShowSettings(false);
+        return true;
+      }
+      if (state.showBeatoCode) {
+        setShowBeatoCode(false);
+        return true;
+      }
+      if (state.showBio) {
+        setShowBio(false);
+        return true;
+      }
+      if (state.showAllLyrics) {
+        setShowAllLyrics(false);
+        return true;
+      }
+      state.onClose();
+      return true;
+    };
+
+    (window as any).backButtonHandlers = (window as any).backButtonHandlers || [];
+    (window as any).backButtonHandlers.push(handleBackButton);
+
+    return () => {
+      if ((window as any).backButtonHandlers) {
+        (window as any).backButtonHandlers = (window as any).backButtonHandlers.filter(
+          (h: any) => h !== handleBackButton
+        );
+      }
+    };
+  }, []);
 
   const progressPercent = duration > 0 ? (localProgress / duration) * 100 : 0;
   const volumePercent = isMuted ? 0 : volume * 100;
@@ -625,23 +720,40 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                 <AnimatePresence>
                   {showSpeedMenu && (
                     <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
+                      initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                      transition={{ type: 'spring', duration: 0.3 }}
                       style={{
                         position: 'absolute',
-                        bottom: 'calc(100% + 10px)',
+                        bottom: 'calc(100% + 12px)',
                         left: 0,
-                        background: '#ffffff',
-                        border: '1px solid #282828',
-                        borderRadius: 8,
-                        overflow: 'hidden',
+                        background: 'rgba(255, 255, 255, 0.88)',
+                        backdropFilter: 'blur(12px)',
+                        WebkitBackdropFilter: 'blur(12px)',
+                        border: '1px solid rgba(15, 81, 50, 0.08)',
+                        borderRadius: 16,
+                        padding: 6,
                         zIndex: 100,
                         display: 'flex',
                         flexDirection: 'column',
-                        width: 90
+                        width: 120,
+                        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 16px -6px rgba(0, 0, 0, 0.04), inset 0 1px 1px rgba(255,255,255,0.8)'
                       }}
                     >
+                      <span style={{ 
+                        fontSize: 10, 
+                        color: '#87786c', 
+                        padding: '8px 12px 6px 12px', 
+                        fontWeight: 700, 
+                        borderBottom: '1px solid rgba(15, 81, 50, 0.06)', 
+                        textTransform: 'uppercase', 
+                        textAlign: 'left',
+                        letterSpacing: '0.08em',
+                        marginBottom: 4
+                      }}>
+                        Speed
+                      </span>
                       {[0.5, 0.75, 1, 1.25, 1.5, 2].map((s) => (
                         <button
                           key={s}
@@ -649,23 +761,28 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                           style={{
                             background: 'none',
                             border: 'none',
-                            color: playbackSpeed === s ? '#10b981' : '#fff',
+                            color: playbackSpeed === s ? '#0f5132' : '#221a15',
                             padding: '8px 12px',
                             fontSize: 12,
-                            fontWeight: 600,
+                            fontWeight: playbackSpeed === s ? '700' : '500',
                             cursor: 'pointer',
-                            textAlign: 'center',
-                            backgroundColor: playbackSpeed === s ? 'rgba(16, 185, 129, 0.2)' : 'transparent',
-                            transition: 'background 0.2s'
+                            textAlign: 'left',
+                            borderRadius: 10,
+                            backgroundColor: playbackSpeed === s ? 'rgba(15, 81, 50, 0.06)' : 'transparent',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            transition: 'all 0.15s'
                           }}
                           onMouseEnter={e => {
-                            if (playbackSpeed !== s) e.currentTarget.style.backgroundColor = '#282828';
+                            if (playbackSpeed !== s) e.currentTarget.style.backgroundColor = 'rgba(15, 81, 50, 0.03)';
                           }}
                           onMouseLeave={e => {
                             if (playbackSpeed !== s) e.currentTarget.style.backgroundColor = 'transparent';
                           }}
                         >
-                          {s}x
+                          <span>{s}x</span>
+                          {playbackSpeed === s && <Check size={14} strokeWidth={2.5} />}
                         </button>
                       ))}
                     </motion.div>
@@ -695,24 +812,38 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                 <AnimatePresence>
                   {showSleepMenu && (
                     <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
+                      initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                      transition={{ type: 'spring', duration: 0.3 }}
                       style={{
                         position: 'absolute',
-                        bottom: 'calc(100% + 10px)',
+                        bottom: 'calc(100% + 12px)',
                         left: 0,
-                        background: '#ffffff',
-                        border: '1px solid #282828',
-                        borderRadius: 8,
-                        overflow: 'hidden',
+                        background: 'rgba(255, 255, 255, 0.88)',
+                        backdropFilter: 'blur(12px)',
+                        WebkitBackdropFilter: 'blur(12px)',
+                        border: '1px solid rgba(15, 81, 50, 0.08)',
+                        borderRadius: 16,
+                        padding: 6,
                         zIndex: 100,
                         display: 'flex',
                         flexDirection: 'column',
-                        width: 140
+                        width: 150,
+                        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 16px -6px rgba(0, 0, 0, 0.04), inset 0 1px 1px rgba(255,255,255,0.8)'
                       }}
                     >
-                      <span style={{ fontSize: 10, color: '#64748b', padding: '6px 12px', fontWeight: 600, borderBottom: '1px solid #282828', textTransform: 'uppercase' }}>
+                      <span style={{ 
+                        fontSize: 10, 
+                        color: '#87786c', 
+                        padding: '8px 12px 6px 12px', 
+                        fontWeight: 700, 
+                        borderBottom: '1px solid rgba(15, 81, 50, 0.06)', 
+                        textTransform: 'uppercase', 
+                        textAlign: 'left',
+                        letterSpacing: '0.08em',
+                        marginBottom: 4
+                      }}>
                         Sleep Timer
                       </span>
                       {[
@@ -732,23 +863,28 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                           style={{
                             background: 'none',
                             border: 'none',
-                            color: sleepTimer === t.val ? '#0f5132' : '#0f172a',
+                            color: sleepTimer === t.val ? '#0f5132' : '#221a15',
                             padding: '8px 12px',
                             fontSize: 12,
-                            fontWeight: 600,
+                            fontWeight: sleepTimer === t.val ? '700' : '500',
                             cursor: 'pointer',
                             textAlign: 'left',
-                            backgroundColor: sleepTimer === t.val ? 'rgba(16, 185, 129, 0.2)' : 'transparent',
-                            transition: 'background 0.2s'
+                            borderRadius: 10,
+                            backgroundColor: sleepTimer === t.val ? 'rgba(15, 81, 50, 0.06)' : 'transparent',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            transition: 'all 0.15s'
                           }}
                           onMouseEnter={e => {
-                            if (sleepTimer !== t.val) e.currentTarget.style.backgroundColor = '#282828';
+                            if (sleepTimer !== t.val) e.currentTarget.style.backgroundColor = 'rgba(15, 81, 50, 0.03)';
                           }}
                           onMouseLeave={e => {
                             if (sleepTimer !== t.val) e.currentTarget.style.backgroundColor = 'transparent';
                           }}
                         >
-                          {t.label}
+                          <span>{t.label}</span>
+                          {sleepTimer === t.val && <Check size={14} strokeWidth={2.5} />}
                         </button>
                       ))}
                     </motion.div>
@@ -885,6 +1021,30 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                         <span>0s (Off)</span>
                         <span>12s</span>
                       </div>
+                      
+                      <div style={{ height: 1, background: 'rgba(15,81,50,0.08)', margin: '4px 0' }} />
+                      
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                          Gesture controls
+                        </span>
+                        <button
+                          onClick={handleToggleGestures}
+                          style={{
+                            background: gestureControlsEnabled ? '#0f5132' : 'rgba(0,0,0,0.08)',
+                            color: gestureControlsEnabled ? '#ffffff' : '#64748b',
+                            border: 'none',
+                            borderRadius: 4,
+                            padding: '3px 8px',
+                            fontSize: 10,
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            transition: 'all 0.15s'
+                          }}
+                        >
+                          {gestureControlsEnabled ? 'ACTIVE' : 'OFF'}
+                        </button>
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -972,10 +1132,10 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
             <ChevronDown size={28} />
           </button>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <span style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            <span style={{ fontSize: 10.5, fontWeight: 700, color: '#475569', letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'Outfit, sans-serif' }}>
               Playing from your library
             </span>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', marginTop: 2 }}>
+            <span style={{ fontSize: 13.5, fontWeight: 800, color: '#0f172a', marginTop: 3, fontFamily: 'Outfit, sans-serif' }}>
               Liked Songs
             </span>
           </div>
@@ -987,22 +1147,93 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
           </button>
         </div>
 
-        {/* 3. SQUARE COVER ART */}
-        <div style={{
-          width: '100%',
-          aspectRatio: '1/1',
-          borderRadius: 8,
-          overflow: 'hidden',
-          boxShadow: '0 16px 38px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08)',
-          margin: '16px 0 24px 0',
-          flexShrink: 0
-        }}>
-          <img
-            src={currentTrack.coverImage}
-            alt={currentTrack.title}
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          />
-        </div>
+        {/* 3. SQUARE COVER ART — swipe left → next, swipe right → prev */}
+        {(() => {
+          const nextTrack = queue[0] || null;
+          const prevTrack = history[0] || null;
+          const swipeProgress = Math.min(Math.abs(coverDragX) / 120, 1);
+          return (
+            <div
+              style={{
+                width: '100%',
+                aspectRatio: '1/1',
+                margin: '16px 0 24px 0',
+                flexShrink: 0,
+                position: 'relative',
+                overflow: 'hidden',
+                borderRadius: 8,
+                boxShadow: '0 16px 38px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.08)',
+              }}
+            >
+              {/* Next track peeking (shown when dragging left) */}
+              {nextTrack && coverDragX < 0 && (
+                <img
+                  src={nextTrack.coverImage}
+                  alt="next"
+                  style={{
+                    position: 'absolute', inset: 0,
+                    width: '100%', height: '100%',
+                    objectFit: 'cover',
+                    opacity: swipeProgress,
+                    transform: `scale(${0.85 + swipeProgress * 0.15})`,
+                    transition: 'none',
+                  }}
+                />
+              )}
+              {/* Prev track peeking (shown when dragging right) */}
+              {prevTrack && coverDragX > 0 && (
+                <img
+                  src={prevTrack.coverImage}
+                  alt="prev"
+                  style={{
+                    position: 'absolute', inset: 0,
+                    width: '100%', height: '100%',
+                    objectFit: 'cover',
+                    opacity: swipeProgress,
+                    transform: `scale(${0.85 + swipeProgress * 0.15})`,
+                    transition: 'none',
+                  }}
+                />
+              )}
+
+              {/* Current cover — draggable */}
+              <motion.div
+                key={currentTrack.id}
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.35}
+                onDrag={(_, info) => setCoverDragX(info.offset.x)}
+                onDragEnd={(_, info) => {
+                  const { offset, velocity } = info;
+                  if (offset.x < -70 || velocity.x < -500) {
+                    playNext(true);
+                  } else if (offset.x > 70 || velocity.x > 500) {
+                    playPrevious();
+                  }
+                  setCoverDragX(0);
+                }}
+                initial={{ x: 0, opacity: 1 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: coverDragX < 0 ? -400 : 400, opacity: 0 }}
+                whileDrag={{ scale: 0.94, rotateZ: coverDragX * 0.015 }}
+                style={{
+                  position: 'absolute', inset: 0,
+                  overflow: 'hidden',
+                  borderRadius: 8,
+                  cursor: 'grab',
+                  touchAction: 'pan-y',
+                }}
+              >
+                <img
+                  src={currentTrack.coverImage}
+                  alt={currentTrack.title}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', userSelect: 'none' }}
+                  draggable={false}
+                />
+              </motion.div>
+            </div>
+          );
+        })()}
 
         {/* 4. ACTIVE LYRIC SNIPPET & METADATA */}
         <div style={{ display: 'flex', flexDirection: 'column', width: '100%', marginBottom: 12 }}>
@@ -1157,10 +1388,10 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
             />
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
-            <span style={{ fontSize: 11, color: '#94a3b8', fontVariantNumeric: 'tabular-nums' }}>
+            <span style={{ fontSize: 11, color: '#475569', fontVariantNumeric: 'tabular-nums', fontFamily: 'Outfit, sans-serif' }}>
               {formatDuration(localProgress)}
             </span>
-            <span style={{ fontSize: 11, color: '#94a3b8', fontVariantNumeric: 'tabular-nums' }}>
+            <span style={{ fontSize: 11, color: '#475569', fontVariantNumeric: 'tabular-nums', fontFamily: 'Outfit, sans-serif' }}>
               {formatDuration(duration || (currentTrack ? currentTrack.duration : 180))}
             </span>
           </div>
@@ -1186,7 +1417,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
               background: 'none', 
               border: 'none', 
               cursor: isFree ? 'not-allowed' : 'pointer', 
-              color: isFree ? '#94a3b8' : (shuffle ? '#0f5132' : '#94a3b8'), 
+              color: isFree ? '#94a3b8' : (shuffle ? '#10b981' : '#94a3b8'), 
               padding: 8,
               opacity: isFree ? 0.35 : 1
             }}
@@ -1210,13 +1441,13 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
               width: 64,
               height: 64,
               borderRadius: '50%',
-              background: '#fff',
+              background: 'var(--color-ss-primary, #0f5132)',
               border: 'none',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 4px 10px rgba(0,0,0,0.3)'
+              boxShadow: '0 4px 14px rgba(15,81,50,0.3)'
             }}
           >
             {isPlaying ? (
@@ -1235,16 +1466,110 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
             <SkipForward size={26} fill="currentColor" />
           </button>
 
-          <button
-            onClick={cycleRepeat}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: repeat !== 'none' ? '#0f5132' : '#94a3b8', padding: 8 }}
-            title="Repeat"
-          >
-            {repeat === 'one' ? <Repeat1 size={20} /> : <Repeat size={20} />}
-          </button>
+          {/* Sleep Timer button in the 5-button row */}
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <button
+              onClick={() => { setShowSleepMenu(!showSleepMenu); }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: sleepTimer ? '#0f5132' : '#94a3b8', display: 'flex', alignItems: 'center', padding: 8 }}
+              title="Sleep Timer"
+            >
+              <Clock size={20} />
+              {sleepTimer && (
+                <span style={{ 
+                  position: 'absolute', 
+                  top: -2, 
+                  right: -2, 
+                  fontSize: 8, 
+                  fontWeight: 800, 
+                  background: '#0f5132', 
+                  color: '#fff', 
+                  padding: '1px 3px', 
+                  borderRadius: 4 
+                }}>
+                  {sleepTimer}m
+                </span>
+              )}
+            </button>
+
+            <AnimatePresence>
+              {showSleepMenu && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                  transition={{ type: 'spring', duration: 0.3 }}
+                  style={{
+                    position: 'absolute',
+                    bottom: 'calc(100% + 12px)',
+                    right: -10,
+                    background: 'rgba(255, 255, 255, 0.96)',
+                    backdropFilter: 'blur(16px)',
+                    WebkitBackdropFilter: 'blur(16px)',
+                    border: '1px solid rgba(15, 81, 50, 0.1)',
+                    borderRadius: 16,
+                    padding: 6,
+                    zIndex: 100,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    width: 150,
+                    boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 16px -6px rgba(0, 0, 0, 0.04)'
+                  }}
+                >
+                  <span style={{ 
+                    fontSize: 10, 
+                    color: '#87786c', 
+                    padding: '8px 12px 6px 12px', 
+                    fontWeight: 700, 
+                    borderBottom: '1px solid rgba(15, 81, 50, 0.06)', 
+                    textTransform: 'uppercase', 
+                    textAlign: 'left',
+                    letterSpacing: '0.08em',
+                    marginBottom: 4
+                  }}>
+                    Sleep Timer
+                  </span>
+                  {[
+                    { label: 'Off', val: null },
+                    { label: '5 minutes', val: 5 },
+                    { label: '15 minutes', val: 15 },
+                    { label: '30 minutes', val: 30 },
+                    { label: '45 minutes', val: 45 },
+                    { label: '60 minutes', val: 60 },
+                  ].map((t) => (
+                    <button
+                      key={t.label}
+                      onClick={() => {
+                        setSleepTimer(t.val);
+                        setShowSleepMenu(false);
+                      }}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: sleepTimer === t.val ? '#0f5132' : '#221a15',
+                        padding: '8px 12px',
+                        fontSize: 12,
+                        fontWeight: sleepTimer === t.val ? '700' : '500',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        borderRadius: 10,
+                        backgroundColor: sleepTimer === t.val ? 'rgba(15, 81, 50, 0.06)' : 'transparent',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        transition: 'all 0.15s'
+                      }}
+                    >
+                      <span>{t.label}</span>
+                      {sleepTimer === t.val && <Check size={14} strokeWidth={2.5} />}
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
-        {/* 7. DEVICE ROW & SHARE / SLEEP TIMER / QUEUE */}
+        {/* 7. DEVICE ROW & SHARE / REPEAT / QUEUE */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
@@ -1256,7 +1581,7 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
             onClick={() => setShowDeviceSelector(true)}
             style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#0f5132', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
           >
-            <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#0f5132' }} />
+            <Headphones size={18} color="#0f5132" />
             {activeDevice}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -1264,71 +1589,13 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
               <Share2 size={20} />
             </button>
             
-            {/* Sleep Timer (Clock) in bottom row */}
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-              <button
-                onClick={() => { setShowSleepMenu(!showSleepMenu); }}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: sleepTimer ? '#0f5132' : '#94a3b8', display: 'flex', alignItems: 'center', gap: 2, padding: 4 }}
-              >
-                <Clock size={20} />
-                {sleepTimer && <span style={{ fontSize: 9, fontWeight: 700 }}>{sleepTimer}m</span>}
-              </button>
-
-              <AnimatePresence>
-                {showSleepMenu && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    style={{
-                      position: 'absolute',
-                      bottom: 'calc(100% + 8px)',
-                      right: -36,
-                      background: '#ffffff',
-                      border: '1px solid #282828',
-                      borderRadius: 8,
-                      overflow: 'hidden',
-                      zIndex: 100,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      width: 120
-                    }}
-                  >
-                    <span style={{ fontSize: 9, color: '#64748b', padding: '6px 12px', fontWeight: 700, borderBottom: '1px solid #282828', textTransform: 'uppercase', textAlign: 'left' }}>
-                      Sleep Timer
-                    </span>
-                    {[
-                      { label: 'Off', val: null },
-                      { label: '5m', val: 5 },
-                      { label: '15m', val: 15 },
-                      { label: '30m', val: 30 },
-                      { label: '60m', val: 60 },
-                    ].map((t) => (
-                      <button
-                        key={t.label}
-                        onClick={() => {
-                          setSleepTimer(t.val);
-                          setShowSleepMenu(false);
-                        }}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          color: sleepTimer === t.val ? '#0f5132' : '#0f172a',
-                          padding: '8px 12px',
-                          fontSize: 12,
-                          fontWeight: 600,
-                          cursor: 'pointer',
-                          textAlign: 'left',
-                          backgroundColor: sleepTimer === t.val ? 'rgba(16, 185, 129, 0.2)' : 'transparent',
-                        }}
-                      >
-                        {t.label}
-                      </button>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+            <button
+              onClick={cycleRepeat}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: repeat !== 'none' ? '#0f5132' : '#94a3b8', display: 'flex' }}
+              title="Repeat"
+            >
+              {repeat === 'one' ? <Repeat1 size={20} /> : <Repeat size={20} />}
+            </button>
 
             <button 
               onClick={() => setShowQueueDrawer(true)}
@@ -1340,90 +1607,151 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
         </div>
 
         {/* 8. LYRICS PREVIEW CARD */}
-        {lyrics.length > 0 && (
+        {currentTrack && (
           <div id="lyrics-preview-section" style={{
-            background: '#ffffff',
+            position: 'relative',
+            overflow: 'hidden',
             borderRadius: 16,
-            padding: 20,
-            margin: '12px 0',
+            padding: '20px 20px 24px',
+            margin: '12px -20px',
             display: 'flex',
             flexDirection: 'column',
             gap: 16,
-            border: '1px solid rgba(15,81,50,0.1)',
-            boxShadow: '0 2px 12px rgba(15,81,50,0.06)'
+            minHeight: 200,
           }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>
-              Lyrics preview
-            </div>
-            
-            {!showAllLyrics ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {lyricsPreviewLines.map((line, idx) => {
-                  const isLineActive = (lyrics.indexOf(line) === activeLineIndex);
-                  return (
-                    <div
-                      key={idx}
-                      style={{
-                        fontSize: 16,
-                        fontWeight: 700,
-                        lineHeight: 1.4,
-                        color: isLineActive ? '#0f5132' : '#94a3b8',
-                        transition: 'color 0.2s'
-                      }}
-                    >
-                      {line.text}
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div 
+            {/* Cover art as dark blurred background */}
+            {currentTrack.coverImage && (
+              <img
+                src={currentTrack.coverImage}
+                alt=""
                 style={{
-                  maxHeight: 240,
-                  overflowY: 'auto',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 12,
-                  paddingRight: 4
+                  position: 'absolute',
+                  inset: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  filter: 'blur(28px) saturate(2) brightness(0.7)',
+                  transform: 'scale(1.15)',
+                  zIndex: 0,
                 }}
-                className="lyrics-scroll"
-              >
-                {lyrics.map((line, idx) => {
-                  const isLineActive = (idx === activeLineIndex);
-                  return (
-                    <div
-                      key={idx}
-                      style={{
-                        fontSize: 16,
-                        fontWeight: 700,
-                        lineHeight: 1.4,
-                        color: isLineActive ? '#0f5132' : '#94a3b8'
-                      }}
-                    >
-                      {line.text}
-                    </div>
-                  );
-                })}
-              </div>
+              />
             )}
-            
-            <button
-              onClick={() => setShowAllLyrics(!showAllLyrics)}
-              style={{
-                background: 'rgba(15,81,50,0.08)',
-                color: '#0f5132',
-                border: '1px solid rgba(15,81,50,0.2)',
-                borderRadius: 20,
-                padding: '8px 16px',
-                fontSize: 12,
-                fontWeight: 700,
-                cursor: 'pointer',
-                alignSelf: 'flex-start',
-                marginTop: 8
-              }}
-            >
-              {showAllLyrics ? 'Show less' : 'Show lyrics'}
-            </button>
+            {/* Dark gradient overlay to deepen the tint */}
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(160deg, rgba(0,0,0,0.32) 0%, rgba(0,0,0,0.45) 100%)',
+              zIndex: 1,
+            }} />
+
+            {/* Content on top of blur */}
+            <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', gap: 14 }}>
+
+              {/* Header */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{
+                  fontSize: 11,
+                  fontWeight: 800,
+                  color: 'rgba(255,255,255,0.55)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                  fontFamily: 'Outfit, sans-serif'
+                }}>
+                  Lyrics preview
+                </span>
+                <div style={{
+                  width: 7, height: 7, borderRadius: '50%',
+                  background: '#4ade80',
+                  boxShadow: '0 0 8px rgba(74,222,128,0.7)',
+                  animation: 'pulse 1.5s ease-in-out infinite'
+                }} />
+              </div>
+
+              {/* Lyrics lines */}
+              {lyrics.length === 0 ? (
+                <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)', fontStyle: 'italic', padding: '4px 0', fontFamily: 'Outfit, sans-serif' }}>
+                  Fetching lyrics...
+                </div>
+              ) : !showAllLyrics ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {lyricsPreviewLines.map((line, idx) => {
+                    const isLineActive = (lyrics.indexOf(line) === activeLineIndex);
+                    return (
+                      <div
+                        key={idx}
+                        style={{
+                          fontSize: isLineActive ? 18 : 13.5,
+                          fontWeight: isLineActive ? 800 : 600,
+                          lineHeight: isLineActive ? 1.35 : 1.55,
+                          color: isLineActive ? '#ffffff' : 'rgba(255,255,255,0.65)',
+                          transition: 'all 0.35s ease',
+                          fontFamily: 'Outfit, sans-serif',
+                          textShadow: isLineActive ? '0 2px 16px rgba(0,0,0,0.5)' : 'none',
+                        }}
+                      >
+                        {line.text}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div
+                  style={{
+                    maxHeight: 280,
+                    overflowY: 'auto',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 10,
+                    paddingRight: 4
+                  }}
+                  className="lyrics-scroll"
+                >
+                  {lyrics.map((line, idx) => {
+                    const isLineActive = (idx === activeLineIndex);
+                    return (
+                      <div
+                        key={idx}
+                        style={{
+                          fontSize: isLineActive ? 18 : 13.5,
+                          fontWeight: isLineActive ? 800 : 600,
+                          lineHeight: isLineActive ? 1.35 : 1.55,
+                          color: isLineActive ? '#ffffff' : 'rgba(255,255,255,0.65)',
+                          transition: 'all 0.35s ease',
+                          paddingBottom: 4,
+                          fontFamily: 'Outfit, sans-serif',
+                          textShadow: isLineActive ? '0 2px 16px rgba(0,0,0,0.5)' : 'none',
+                        }}
+                      >
+                        {line.text}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Show lyrics button - white pill style like reference */}
+              {lyrics.length > 0 && (
+                <button
+                  onClick={() => setShowAllLyrics(!showAllLyrics)}
+                  style={{
+                    background: 'rgba(255,255,255,0.95)',
+                    color: '#1e293b',
+                    border: 'none',
+                    borderRadius: 24,
+                    padding: '9px 20px',
+                    fontSize: 13,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    alignSelf: 'flex-start',
+                    fontFamily: 'Outfit, sans-serif',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
+                    marginTop: 4,
+                  }}
+                >
+                  {showAllLyrics ? 'Show less' : 'Show lyrics'}
+                </button>
+              )}
+            </div>
           </div>
         )}
 
@@ -1607,49 +1935,87 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
 
         {/* 11. CREDITS CARD */}
         <div id="credits-section" style={{
-          background: 'rgba(15,81,50,0.06)',
-          borderRadius: 16,
-          padding: 20,
-          margin: '16px 0 32px 0'
+          position: 'relative',
+          overflow: 'hidden',
+          borderRadius: 20,
+          padding: '20px',
+          margin: '16px -20px 32px -20px',
+          minHeight: 180,
+          border: '1px solid rgba(15,81,50,0.06)',
+          boxShadow: '0 2px 12px rgba(15,81,50,0.04)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <span style={{ fontSize: 15, fontWeight: 800, color: '#0f172a' }}>Credits</span>
-            <span style={{ fontSize: 12, fontWeight: 700, color: '#0f5132', cursor: 'pointer' }}>Show all</span>
-          </div>
-          
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            {trackCredits.map((credit, idx) => (
-              <div 
-                key={idx}
-                style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'space-between', 
-                  padding: '12px 0', 
-                  borderBottom: idx === trackCredits.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.06)' 
-                }}
-              >
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{credit.name}</span>
-                  <span style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>{credit.role}</span>
-                </div>
-                <button
-                  onClick={() => toggleFollowCredit(credit.name)}
-                  style={{
-                    border: followedCredits[credit.name] ? '1px solid #0f5132' : '1px solid rgba(15,81,50,0.3)',
-                    background: followedCredits[credit.name] ? '#0f5132' : 'transparent',
-                    color: followedCredits[credit.name] ? '#ffffff' : '#0f5132',
-                    borderRadius: 16,
-                    padding: '4px 12px',
-                    fontSize: 10,
-                    fontWeight: 700,
-                    cursor: 'pointer'
+          {/* Cover art as light blurred background */}
+          {currentTrack.coverImage && (
+            <img
+              src={currentTrack.coverImage}
+              alt=""
+              style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                filter: 'blur(30px) saturate(1.8) brightness(0.92)',
+                transform: 'scale(1.15)',
+                zIndex: 0,
+              }}
+            />
+          )}
+          {/* Light gradient overlay to make it soft and pastel */}
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.48) 0%, rgba(255, 255, 255, 0.62) 100%)',
+            zIndex: 1,
+          }} />
+
+          {/* Content on top of light blur */}
+          <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <span style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', fontFamily: 'Outfit, sans-serif' }}>
+                Credits
+              </span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#0f5132', cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
+                Show all
+              </span>
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              {trackCredits.map((credit, idx) => (
+                <div 
+                  key={idx}
+                  style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between', 
+                    padding: '12px 0', 
+                    borderBottom: idx === trackCredits.length - 1 ? 'none' : '1px solid rgba(15,81,50,0.08)' 
                   }}
                 >
-                  {followedCredits[credit.name] ? 'Following' : 'Follow'}
-                </button>
-              </div>
-            ))}
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', fontFamily: 'Outfit, sans-serif' }}>{credit.name}</span>
+                    <span style={{ fontSize: 11, color: '#475569', marginTop: 2, fontFamily: 'Outfit, sans-serif' }}>{credit.role}</span>
+                  </div>
+                  <button
+                    onClick={() => toggleFollowCredit(credit.name)}
+                    style={{
+                      border: 'none',
+                      background: followedCredits[credit.name] ? 'rgba(15,81,50,0.12)' : 'rgba(15,81,50,0.06)',
+                      color: '#0f5132',
+                      borderRadius: 16,
+                      padding: '5px 14px',
+                      fontSize: 10,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      fontFamily: 'Outfit, sans-serif',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                    }}
+                  >
+                    {followedCredits[credit.name] ? 'Following' : 'Follow'}
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -2083,12 +2449,45 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
         }}
         className="fullscreen-player-container"
         style={{
-          background: bgGradient,
+          backgroundColor: '#ffffff',
           padding: isMobile ? 0 : '30px 40px',
-          overflow: 'hidden'
+          overflow: 'hidden',
         }}
       >
-        {isMobile ? renderMobilePlayer() : renderDesktopPlayer()}
+        {/* ── Dynamic Blurred Cover Art Background for the Page ── */}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 0,
+          overflow: 'hidden',
+          pointerEvents: 'none',
+          opacity: 0.55,
+        }}>
+          {currentTrack?.coverImage && (
+            <img 
+              src={currentTrack.coverImage} 
+              alt=""
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                filter: 'blur(100px) saturate(2)',
+                transform: 'scale(1.5)',
+              }}
+            />
+          )}
+          {/* Blend overlay to make it look clean white with dark green theme */}
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.7) 50%, #ffffff 100%)'
+          }} />
+        </div>
+
+        {/* Content sits above blurred background */}
+        <div style={{ position: 'relative', zIndex: 1, width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+          {isMobile ? renderMobilePlayer() : renderDesktopPlayer()}
+        </div>
       </motion.div>
 
       {/* ── Playlist Picker Bottom Sheet ── */}
@@ -2453,6 +2852,20 @@ export default function FullscreenPlayer({ onClose }: FullscreenPlayerProps) {
                     >
                       <Mic size={20} color="#64748b" />
                       <span>Lyrics • {showAllLyrics ? 'On' : 'Off'}</span>
+                    </button>
+
+                    {/* Gesture Controls Toggle */}
+                    <button
+                      onClick={() => {
+                        handleToggleGestures();
+                        setShowFeaturesDrawer(false);
+                      }}
+                      style={itemStyle}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(15,81,50,0.05)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                    >
+                      <Headphones size={20} color={gestureControlsEnabled ? '#0f5132' : '#64748b'} />
+                      <span>Gesture Controls • {gestureControlsEnabled ? 'Active' : 'Off'}</span>
                     </button>
 
                     {/* Add to Playlist */}

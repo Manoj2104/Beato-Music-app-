@@ -719,7 +719,7 @@ function MobileLibraryView({
           }}>
             {/* Nav row */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
-              <button onClick={() => setActiveTab('overview')} style={{ background: 'rgba(255,255,255,0.08)', border: 'none', color: '#fff', cursor: 'pointer', padding: 8, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 38, height: 38 }}>
+              <button onClick={() => { setActiveTab('overview'); router.replace('/library'); }} style={{ background: 'rgba(255,255,255,0.08)', border: 'none', color: '#fff', cursor: 'pointer', padding: 8, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 38, height: 38 }}>
                 <ChevronLeft size={22} />
               </button>
               <div>
@@ -1325,6 +1325,27 @@ function LibraryPageContent() {
   const [genreFilter, setGenreFilter] = useState<string | null>(null);
   const [importUrl, setImportUrl] = useState('');
   const [rooms, setRooms] = useState<any[]>([]);
+  const [plans, setPlans] = useState<any[]>([
+    { plan: 'Free', price: '$0', color: '#525252', features: ['Limited skips', 'Ad-supported', 'Shuffle only', '—', '—'] },
+    { plan: 'Premium', price: '$9.99/mo', color: G, popular: true, features: ['Unlimited skips', 'Ad-free', 'Any order', 'Download 10k tracks', 'Lossless FLAC'] },
+    { plan: 'Family', price: '$14.99/mo', color: '#10b981', features: ['6 accounts', 'Ad-free', 'Any order', 'Download 10k/acc', 'Lossless + Sharing'] },
+  ]);
+
+  useEffect(() => {
+    fetch('/api/plans')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.prices) {
+          const sym = data.symbol || '$';
+          setPlans([
+            { plan: 'Free', price: 'Free', color: '#525252', features: ['Limited skips', 'Ad-supported', 'Shuffle only', '—', '—'] },
+            { plan: 'Premium', price: `${sym}${data.prices.premium}/mo`, color: G, popular: true, features: ['Unlimited skips', 'Ad-free', 'Any order', 'Download 10k tracks', 'Lossless FLAC'] },
+            { plan: 'Family', price: `${sym}${data.prices.family}/mo`, color: '#10b981', features: ['6 accounts', 'Ad-free', 'Any order', 'Download 10k/acc', 'Lossless + Sharing'] },
+          ]);
+        }
+      })
+      .catch(err => console.error('Failed to fetch plan prices in library:', err));
+  }, []);
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -1363,6 +1384,19 @@ function LibraryPageContent() {
   }, []);
 
   useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam) {
+      if (tabParam.toLowerCase() === 'liked') {
+        setActiveTab('Liked');
+      } else if (tabParam.toLowerCase() === 'playlists') {
+        setActiveTab('Playlists');
+      } else if (tabParam.toLowerCase() === 'albums') {
+        setActiveTab('Albums');
+      } else if (tabParam.toLowerCase() === 'artists') {
+        setActiveTab('Artists');
+      }
+    }
+
     if (searchParams.get('create') === 'true') {
       if (typeof window !== 'undefined' && window.innerWidth <= 768) {
         setCreateBottomSheetOpen(true);
@@ -2307,17 +2341,13 @@ function LibraryPageContent() {
 
               {/* Plans comparison */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
-                {[
-                  { plan: 'Free', price: '$0', color: '#525252', features: ['Limited skips', 'Ad-supported', 'Shuffle only', '—', '—'] },
-                  { plan: 'Premium', price: '$9.99/mo', color: G, popular: true, features: ['Unlimited skips', 'Ad-free', 'Any order', 'Download 10k tracks', 'Lossless FLAC'] },
-                  { plan: 'Family', price: '$14.99/mo', color: '#10b981', features: ['6 accounts', 'Ad-free', 'Any order', 'Download 10k/acc', 'Lossless + Sharing'] },
-                ].map(plan => (
+                {plans.map(plan => (
                   <div key={plan.plan} style={{ borderRadius: 18, padding: '24px 20px', background: (plan as any).popular ? `${G}0d` : 'rgba(255,255,255,0.02)', border: `1px solid ${(plan as any).popular ? `${G}35` : 'rgba(255,255,255,0.07)'}`, position: 'relative', overflow: 'hidden' }}>
                     {(plan as any).popular && <div style={{ position: 'absolute', top: 14, right: 14, padding: '3px 10px', borderRadius: 20, background: G, fontSize: 10, fontWeight: 900, color: '#000' }}>Popular</div>}
                     <p style={{ color: plan.color, fontSize: 12, fontWeight: 700, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{plan.plan}</p>
                     <p style={{ fontFamily: 'Outfit, sans-serif', color: '#fff', fontSize: 24, fontWeight: 900, marginBottom: 16 }}>{plan.price}</p>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                      {plan.features.map((f, i) => (
+                      {plan.features.map((f: any, i: number) => (
                         <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           {f === '—' ? <X size={12} color="#525252" /> : <Check size={12} color={plan.color} strokeWidth={3} />}
                           <span style={{ color: f === '—' ? '#525252' : '#a3a3a3', fontSize: 12 }}>{f === '—' ? 'Not available' : f}</span>
