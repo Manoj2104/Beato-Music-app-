@@ -49,7 +49,7 @@ public class MainActivity extends BridgeActivity {
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
         // Immediately resume the WebView when the app is paused (backgrounded).
         // This keeps the JavaScript engine and HTML5 audio player active.
