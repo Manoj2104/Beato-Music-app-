@@ -67,6 +67,7 @@ export default function ProfilePage() {
   const [verifyType, setVerifyType] = useState<'aadhaar' | 'pan'>('aadhaar');
   const [verifyNumber, setVerifyNumber] = useState('');
   const [verifyImage, setVerifyImage] = useState('');
+  const [verifyProfilePhoto, setVerifyProfilePhoto] = useState('');
   const [submittingVerification, setSubmittingVerification] = useState(false);
 
   // Real-time validation helper functions
@@ -179,6 +180,10 @@ export default function ProfilePage() {
       toast.error('Please upload an image of your proof document.');
       return;
     }
+    if (!verifyProfilePhoto) {
+      toast.error('Please upload an artist profile photo.');
+      return;
+    }
 
     // Validation rules
     if (verifyType === 'aadhaar') {
@@ -236,13 +241,15 @@ export default function ProfilePage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          verificationRequest: reqPayload
+          verificationRequest: reqPayload,
+          avatar: verifyProfilePhoto
         })
       });
       const data = await res.json();
       if (res.ok && data.success) {
         updateUser({
-          verificationRequest: reqPayload
+          verificationRequest: reqPayload,
+          avatar: verifyProfilePhoto
         } as any);
         toast.success('Verification details submitted! Under review. 📄', {
           style: { background: '#1a1a1a', color: '#fff', border: '1px solid var(--color-ss-primary, #0f5132)', borderRadius: 12 }
@@ -267,6 +274,7 @@ export default function ProfilePage() {
     setVerifyType('aadhaar');
     setVerifyNumber('');
     setVerifyImage('');
+    setVerifyProfilePhoto(user?.avatar || '');
     setShowVerifyModal(false);
   };
 
@@ -277,6 +285,9 @@ export default function ProfilePage() {
     setMounted(true);
     setNewName(user?.name || 'Manoj lastro');
     setCoverUrl((user as any)?.coverImage || '');
+    if (user?.avatar) {
+      setVerifyProfilePhoto(user.avatar);
+    }
 
     // Auto-trigger verification modal if redirecting from artist application
     if (typeof window !== 'undefined') {
@@ -405,6 +416,577 @@ export default function ProfilePage() {
       toast.error('Network error updating profile');
     }
   };
+
+  if (showVerifyModal) {
+    return (
+      <div style={{ minHeight: '100%', background: BG, display: 'flex', flexDirection: 'column', color: WHITE, position: 'relative' }}>
+        <style>{`
+          .profile-modal-themed {
+            background: var(--color-ss-elevated, #ffffff) !important;
+            border: 1px solid var(--color-ss-border, rgba(43, 34, 26, 0.08)) !important;
+            box-shadow: 0 20px 50px rgba(43, 34, 26, 0.15) !important;
+          }
+          .profile-modal-themed h1,
+          .profile-modal-themed h2,
+          .profile-modal-themed h3,
+          .profile-modal-themed h4,
+          .profile-modal-themed p,
+          .profile-modal-themed span,
+          .profile-modal-themed label {
+            color: var(--color-ss-text-primary, #221a15) !important;
+          }
+          .profile-modal-themed input,
+          .profile-modal-themed select,
+          .profile-modal-themed textarea {
+            background: var(--color-ss-surface, #f4eede) !important;
+            color: var(--color-ss-text-primary, #221a15) !important;
+            border: 1.5px solid var(--color-ss-border, rgba(43, 34, 26, 0.08)) !important;
+          }
+          .profile-modal-themed button {
+            border-color: rgba(43, 34, 26, 0.3) !important;
+          }
+          .profile-modal-themed button[style*="background: var(--color-ss-primary)"],
+          .profile-modal-themed button[style*="background: #0f5132"] {
+            color: #fff !important;
+            border: none !important;
+          }
+        `}</style>
+
+        {/* ─── Header ─── */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: isMobile ? '16px' : '24px 32px', borderBottom: `1px solid ${BORDER}` }}>
+          <button
+            onClick={() => !verifying && handleResetVerify()}
+            style={{
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              cursor: 'pointer',
+              color: '#fff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 8,
+              borderRadius: '50%',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+          >
+            <ChevronLeft size={20} />
+          </button>
+          <div>
+            <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 22, fontWeight: 900, color: '#fff', margin: 0 }}>
+              Profile Verification
+            </h1>
+            <p style={{ fontSize: 12.5, color: SOFT, margin: '2px 0 0 0' }}>
+              Complete the verification process to unlock artist features.
+            </p>
+          </div>
+        </div>
+
+        {/* ─── Stepper ─── */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: isMobile ? 12 : 24, padding: '20px 16px', background: 'rgba(255,255,255,0.01)', borderBottom: `1px solid ${BORDER}` }}>
+          {[
+            { step: 1, label: 'Mobile Number' },
+            { step: 2, label: 'Verify Code' },
+            { step: 3, label: 'Details & Photo' },
+            { step: 4, label: 'Under Review' }
+          ].map((s) => {
+            const isActive = verifyStep === s.step;
+            const isCompleted = verifyStep > s.step;
+            return (
+              <div key={s.step} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: '50%',
+                  background: isCompleted ? G : isActive ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)',
+                  border: `1px solid ${isCompleted || isActive ? G : 'rgba(255,255,255,0.08)'}`,
+                  color: isCompleted || isActive ? '#fff' : SOFT,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 12,
+                  fontWeight: 700
+                }}>
+                  {isCompleted ? '✓' : s.step}
+                </div>
+                {!isMobile && (
+                  <span style={{ fontSize: 13, fontWeight: isActive ? 700 : 500, color: isActive ? '#fff' : SOFT }}>
+                    {s.label}
+                  </span>
+                )}
+                {s.step < 4 && (
+                  <div style={{ width: isMobile ? 16 : 32, height: 1, background: isCompleted ? G : 'rgba(255,255,255,0.08)' }} />
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* ─── Centered Form Card ─── */}
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'flex-start', padding: isMobile ? '24px 16px 80px' : '40px 24px 100px', overflowY: 'auto' }}>
+          <div className="profile-modal-themed" style={{
+            width: '100%',
+            maxWidth: 500,
+            borderRadius: 24,
+            padding: isMobile ? '24px 20px' : '32px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 24,
+            boxShadow: '0 12px 40px rgba(0,0,0,0.15)'
+          }}>
+            <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 18, fontWeight: 900, color: '#fff', margin: 0 }}>
+              {verifyStep === 1 && "Verify Mobile"}
+              {verifyStep === 2 && "Enter OTP"}
+              {verifyStep === 3 && "Identity Proof Details"}
+              {verifyStep === 4 && "Submission Status"}
+            </h3>
+
+            {/* Step 1: Input Phone Number */}
+            {verifyStep === 1 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <p style={{ fontSize: 13, color: SOFT, margin: 0, lineHeight: 1.5 }}>
+                  Enter your phone number to receive a simulated WhatsApp validation code.
+                </p>
+                <div>
+                  <Label>Phone Number</Label>
+                  <div style={{ position: 'relative' }}>
+                    <Smartphone size={16} color={MUTED} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
+                    <input 
+                      type="tel" 
+                      value={verifyPhone} 
+                      onChange={e => setVerifyPhone(e.target.value)}
+                      placeholder="+91 98765 43210"
+                      style={{
+                        width: '100%',
+                        background: '#2c2c2e',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        borderRadius: 12,
+                        padding: '12px 16px 12px 42px',
+                        color: '#fff',
+                        fontSize: 14,
+                        outline: 'none',
+                        fontFamily: 'Inter, sans-serif',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleSendOtp}
+                  disabled={verifying}
+                  style={{
+                    padding: '12px',
+                    borderRadius: 12,
+                    border: 'none',
+                    background: G,
+                    color: '#000',
+                    fontSize: 13,
+                    fontWeight: 800,
+                    cursor: verifying ? 'not-allowed' : 'pointer',
+                    boxShadow: `0 4px 14px ${G}33`,
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  {verifying ? 'Sending OTP...' : 'Send Verification Code'}
+                </button>
+              </div>
+            )}
+
+            {/* Step 2: Input OTP */}
+            {verifyStep === 2 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <p style={{ fontSize: 13, color: SOFT, margin: 0, lineHeight: 1.5 }}>
+                  We sent a simulated verification code to your number. Please enter it below.
+                </p>
+                <div>
+                  <Label>Verification Code</Label>
+                  <input 
+                    type="text" 
+                    maxLength={6}
+                    value={verifyOtp} 
+                    onChange={e => setVerifyOtp(e.target.value)}
+                    placeholder="Enter 6-digit code"
+                    style={{
+                      width: '100%',
+                      background: '#2c2c2e',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      borderRadius: 12,
+                      padding: '12px 16px',
+                      color: '#fff',
+                      fontSize: 16,
+                      fontWeight: 'bold',
+                      letterSpacing: '0.15em',
+                      textAlign: 'center',
+                      outline: 'none',
+                      fontFamily: 'monospace',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <button
+                    onClick={() => setVerifyStep(1)}
+                    disabled={verifying}
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      borderRadius: 12,
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      background: 'transparent',
+                      color: SOFT,
+                      fontSize: 13,
+                      fontWeight: 700,
+                      cursor: verifying ? 'not-allowed' : 'pointer',
+                    }}
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={handleVerifyOtp}
+                    disabled={verifying}
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      borderRadius: 12,
+                      border: 'none',
+                      background: G,
+                      color: '#000',
+                      fontSize: 13,
+                      fontWeight: 800,
+                      cursor: verifying ? 'not-allowed' : 'pointer',
+                      boxShadow: `0 4px 14px ${G}33`,
+                    }}
+                  >
+                    {verifying ? 'Verifying...' : 'Verify OTP'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Identity Details & Document Proof Form */}
+            {verifyStep === 3 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <p style={{ fontSize: 13, color: SOFT, margin: 0, lineHeight: 1.5 }}>
+                  Please submit your official document details and set your artist profile photo.
+                </p>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {/* Artist Profile Photo Section */}
+                  <div>
+                    <Label>Artist Profile Photo</Label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                      <div 
+                        onClick={() => {
+                          const fileInput = document.createElement('input');
+                          fileInput.type = 'file';
+                          fileInput.accept = 'image/*';
+                          fileInput.onchange = (e: any) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              if (file.size > 2 * 1024 * 1024) {
+                                toast.error('Artist profile photo must be under 2MB.');
+                                return;
+                              }
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                setVerifyProfilePhoto(reader.result as string);
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          };
+                          fileInput.click();
+                        }}
+                        style={{
+                          width: 80,
+                          height: 80,
+                          borderRadius: '50%',
+                          border: '2px dashed rgba(255,255,255,0.2)',
+                          background: '#2c2c2e',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          position: 'relative',
+                          overflow: 'hidden',
+                          transition: 'all 0.2s',
+                          flexShrink: 0
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.borderColor = G}
+                        onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'}
+                      >
+                        {verifyProfilePhoto ? (
+                          <img src={verifyProfilePhoto} alt="Artist Profile Photo Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                          <span style={{ fontSize: 24 }}>👤</span>
+                        )}
+                        <div style={{
+                          position: 'absolute',
+                          inset: 0,
+                          background: 'rgba(0,0,0,0.4)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          opacity: verifyProfilePhoto ? 0 : 1,
+                          transition: 'opacity 0.2s'
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.opacity = '1'}
+                        onMouseLeave={e => { if (verifyProfilePhoto) e.currentTarget.style.opacity = '0'; }}
+                        >
+                          <Camera size={18} color="#fff" />
+                        </div>
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <p style={{ fontSize: 12, color: SOFT, margin: '0 0 4px 0', fontWeight: 600 }}>
+                          Upload your public artist picture.
+                        </p>
+                        <p style={{ fontSize: 10, color: MUTED, margin: 0 }}>
+                          This image will be your main display avatar and global creator profile photo once verified.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label>Name as in Proof</Label>
+                    <input 
+                      type="text" 
+                      value={verifyName} 
+                      onChange={e => setVerifyName(e.target.value)}
+                      placeholder="e.g. SARATH KUMAR M"
+                      style={{
+                        width: '100%',
+                        background: '#2c2c2e',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        borderRadius: 12,
+                        padding: '12px 16px',
+                        color: '#fff',
+                        fontSize: 14,
+                        outline: 'none',
+                        fontFamily: 'Inter, sans-serif',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <Label>Proof Document Type</Label>
+                    <select 
+                      value={verifyType} 
+                      onChange={e => {
+                        setVerifyType(e.target.value as 'aadhaar' | 'pan');
+                        setVerifyNumber('');
+                      }}
+                      style={{
+                        width: '100%',
+                        background: '#2c2c2e',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        borderRadius: 12,
+                        padding: '12px 14px',
+                        color: '#fff',
+                        fontSize: 14,
+                        outline: 'none',
+                        fontFamily: 'Inter, sans-serif',
+                        boxSizing: 'border-box',
+                        colorScheme: 'dark'
+                      }}
+                    >
+                      <option value="aadhaar">Aadhaar Card</option>
+                      <option value="pan">PAN Card</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <Label>{verifyType === 'aadhaar' ? 'Aadhaar Card Number (12 digits)' : 'PAN Card Number (10 characters)'}</Label>
+                    <input 
+                      type="text" 
+                      value={verifyNumber} 
+                      onChange={e => {
+                        const val = e.target.value;
+                        setVerifyNumber(verifyType === 'pan' ? val.toUpperCase() : val);
+                      }}
+                      placeholder={verifyType === 'aadhaar' ? 'e.g. 1234 5678 9012' : 'e.g. ABCDP1234Z'}
+                      maxLength={verifyType === 'aadhaar' ? 14 : 10}
+                      style={{
+                        width: '100%',
+                        background: '#2c2c2e',
+                        border: `1px solid ${
+                          (verifyType === 'pan' && panError) || (verifyType === 'aadhaar' && aadhaarError)
+                            ? '#ef4444'
+                            : 'rgba(255,255,255,0.1)'
+                        }`,
+                        borderRadius: 12,
+                        padding: '12px 16px',
+                        color: '#fff',
+                        fontSize: 14,
+                        outline: 'none',
+                        fontFamily: 'monospace',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                    {verifyType === 'pan' && panError && (
+                      <span style={{ fontSize: 11, color: '#ef4444', display: 'block', marginTop: 6, fontWeight: 600 }}>
+                        ⚠️ {panError}
+                      </span>
+                    )}
+                    {verifyType === 'pan' && !panError && (
+                      <span style={{ fontSize: 10, color: MUTED, display: 'block', marginTop: 4 }}>
+                        Format: 5 letters (4th is P, 5th matches name's 1st letter), 4 digits, 1 letter.
+                      </span>
+                    )}
+                    {verifyType === 'aadhaar' && aadhaarError && (
+                      <span style={{ fontSize: 11, color: '#ef4444', display: 'block', marginTop: 6, fontWeight: 600 }}>
+                        ⚠️ {aadhaarError}
+                      </span>
+                    )}
+                  </div>
+
+                  <div>
+                    <Label>Proof Document Image</Label>
+                    <div 
+                      onClick={() => {
+                        const fileInput = document.createElement('input');
+                        fileInput.type = 'file';
+                        fileInput.accept = 'image/*';
+                        fileInput.onchange = (e: any) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            if (file.size > 2 * 1024 * 1024) {
+                              toast.error('Document image must be under 2MB.');
+                              return;
+                            }
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              setVerifyImage(reader.result as string);
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        };
+                        fileInput.click();
+                      }}
+                      style={{
+                        width: '100%',
+                        height: 100,
+                        borderRadius: 12,
+                        border: '1px dashed rgba(255,255,255,0.2)',
+                        background: '#2c2c2e',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 6,
+                        cursor: 'pointer',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.borderColor = G}
+                      onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'}
+                    >
+                      {verifyImage ? (
+                        <>
+                          <img src={verifyImage} alt="Document Preview" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.5 }} />
+                          <div style={{ position: 'absolute', zIndex: 2, background: 'rgba(0,0,0,0.7)', padding: '4px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700 }}>
+                            ✓ Image Selected (Change)
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <span style={{ fontSize: 20 }}>📸</span>
+                          <span style={{ fontSize: 12, color: SOFT, fontWeight: 600 }}>Upload Document Image</span>
+                          <span style={{ fontSize: 9, color: MUTED }}>JPG, PNG (Max 2MB)</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
+                  <button
+                    onClick={() => setVerifyStep(2)}
+                    disabled={submittingVerification}
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      borderRadius: 12,
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      background: 'transparent',
+                      color: SOFT,
+                      fontSize: 13,
+                      fontWeight: 700,
+                      cursor: submittingVerification ? 'not-allowed' : 'pointer',
+                    }}
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={handleSubmitProof}
+                    disabled={submittingVerification}
+                    style={{
+                      flex: 1.5,
+                      padding: '12px',
+                      borderRadius: 12,
+                      border: 'none',
+                      background: G,
+                      color: '#000',
+                      fontSize: 13,
+                      fontWeight: 800,
+                      cursor: submittingVerification ? 'not-allowed' : 'pointer',
+                      boxShadow: `0 4px 14px ${G}33`,
+                    }}
+                  >
+                    {submittingVerification ? 'Submitting...' : 'Submit Verification'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 4: Submission Success Screen */}
+            {verifyStep === 4 && (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, textAlign: 'center', padding: '10px 0' }}>
+                <div style={{
+                  width: 56, height: 56, borderRadius: '50%',
+                  background: 'rgba(176, 136, 80, 0.15)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center'
+                }}>
+                  <Check size={28} color={G} strokeWidth={3} />
+                </div>
+                <div>
+                  <h4 style={{ fontSize: 18, fontWeight: 800, color: '#fff', margin: '0 0 6px 0', fontFamily: 'Outfit, sans-serif' }}>
+                    Request Under Review!
+                  </h4>
+                  <p style={{ fontSize: 13, color: SOFT, margin: 0, lineHeight: 1.5 }}>
+                    Your identity details and artist photo have been submitted successfully. Our admin team will review your application. This normally takes less than 24 hours.
+                  </p>
+                </div>
+
+                <button
+                  onClick={handleResetVerify}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: 12,
+                    border: 'none',
+                    background: G,
+                    color: '#000',
+                    fontSize: 13,
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    boxShadow: `0 4px 14px ${G}33`,
+                    marginTop: 8
+                  }}
+                >
+                  Done
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ minHeight: '100%', background: BG, display: 'flex', flexDirection: 'column', color: WHITE, position: 'relative' }}>
@@ -1371,426 +1953,7 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {/* Verification OTP Modal */}
-        {showVerifyModal && (
-          <div style={{
-            position: 'fixed',
-            inset: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 100000,
-          }}>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => !verifying && handleResetVerify()}
-              style={{
-                position: 'absolute',
-                inset: 0,
-                background: 'rgba(0,0,0,0.8)',
-                backdropFilter: 'blur(10px)',
-              }}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 15 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-              className="profile-modal-themed"
-              style={{
-                position: 'relative',
-                borderRadius: 24,
-                padding: '28px',
-                zIndex: 100001,
-                width: 400,
-                maxWidth: '90vw',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 20
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 20, fontWeight: 900, color: '#fff', margin: 0 }}>
-                  Profile Verification
-                </h3>
-                <button 
-                  onClick={() => !verifying && handleResetVerify()}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: SOFT, display: 'flex' }}
-                >
-                  <X size={20} />
-                </button>
-              </div>
-
-              {/* Step 1: Input Phone Number */}
-              {verifyStep === 1 && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  <p style={{ fontSize: 13, color: SOFT, margin: 0, lineHeight: 1.5 }}>
-                    Enter your phone number to receive a simulated WhatsApp validation code.
-                  </p>
-                  <div>
-                    <Label>Phone Number</Label>
-                    <div style={{ position: 'relative' }}>
-                      <Smartphone size={16} color={MUTED} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
-                      <input 
-                        type="tel" 
-                        value={verifyPhone} 
-                        onChange={e => setVerifyPhone(e.target.value)}
-                        placeholder="+91 98765 43210"
-                        style={{
-                          width: '100%',
-                          background: '#2c2c2e',
-                          border: '1px solid rgba(255,255,255,0.1)',
-                          borderRadius: 12,
-                          padding: '12px 16px 12px 42px',
-                          color: '#fff',
-                          fontSize: 14,
-                          outline: 'none',
-                          fontFamily: 'Inter, sans-serif',
-                          boxSizing: 'border-box'
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={handleSendOtp}
-                    disabled={verifying}
-                    style={{
-                      padding: '12px',
-                      borderRadius: 12,
-                      border: 'none',
-                      background: G,
-                      color: '#000',
-                      fontSize: 13,
-                      fontWeight: 800,
-                      cursor: verifying ? 'not-allowed' : 'pointer',
-                      boxShadow: `0 4px 14px ${G}33`,
-                      transition: 'all 0.2s',
-                    }}
-                  >
-                    {verifying ? 'Sending OTP...' : 'Send Verification Code'}
-                  </button>
-                </div>
-              )}
-
-              {/* Step 2: Input OTP */}
-              {verifyStep === 2 && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  <p style={{ fontSize: 13, color: SOFT, margin: 0, lineHeight: 1.5 }}>
-                    We sent a simulated verification code to your number. Please enter it below.
-                  </p>
-                  <div>
-                    <Label>Verification Code</Label>
-                    <input 
-                      type="text" 
-                      maxLength={6}
-                      value={verifyOtp} 
-                      onChange={e => setVerifyOtp(e.target.value)}
-                      placeholder="Enter 6-digit code"
-                      style={{
-                        width: '100%',
-                        background: '#2c2c2e',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        borderRadius: 12,
-                        padding: '12px 16px',
-                        color: '#fff',
-                        fontSize: 16,
-                        fontWeight: 'bold',
-                        letterSpacing: '0.15em',
-                        textAlign: 'center',
-                        outline: 'none',
-                        fontFamily: 'monospace',
-                        boxSizing: 'border-box'
-                      }}
-                    />
-                  </div>
-
-                  <div style={{ display: 'flex', gap: 10 }}>
-                    <button
-                      onClick={() => setVerifyStep(1)}
-                      disabled={verifying}
-                      style={{
-                        flex: 1,
-                        padding: '12px',
-                        borderRadius: 12,
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        background: 'transparent',
-                        color: SOFT,
-                        fontSize: 13,
-                        fontWeight: 700,
-                        cursor: verifying ? 'not-allowed' : 'pointer',
-                      }}
-                    >
-                      Back
-                    </button>
-                    <button
-                      onClick={handleVerifyOtp}
-                      disabled={verifying}
-                      style={{
-                        flex: 1,
-                        padding: '12px',
-                        borderRadius: 12,
-                        border: 'none',
-                        background: G,
-                        color: '#000',
-                        fontSize: 13,
-                        fontWeight: 800,
-                        cursor: verifying ? 'not-allowed' : 'pointer',
-                        boxShadow: `0 4px 14px ${G}33`,
-                      }}
-                    >
-                      {verifying ? 'Verifying...' : 'Verify OTP'}
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Step 3: Identity Details & Document Proof Form */}
-              {verifyStep === 3 && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  <p style={{ fontSize: 13, color: SOFT, margin: 0, lineHeight: 1.5 }}>
-                    Please submit your official document details for verification.
-                  </p>
-                  
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    <div>
-                      <Label>Name as in Proof</Label>
-                      <input 
-                        type="text" 
-                        value={verifyName} 
-                        onChange={e => setVerifyName(e.target.value)}
-                        placeholder="e.g. SARATH KUMAR M"
-                        style={{
-                          width: '100%',
-                          background: '#2c2c2e',
-                          border: '1px solid rgba(255,255,255,0.1)',
-                          borderRadius: 12,
-                          padding: '12px 16px',
-                          color: '#fff',
-                          fontSize: 14,
-                          outline: 'none',
-                          fontFamily: 'Inter, sans-serif',
-                          boxSizing: 'border-box'
-                        }}
-                      />
-                    </div>
-
-                    <div>
-                      <Label>Proof Document Type</Label>
-                      <select 
-                        value={verifyType} 
-                        onChange={e => {
-                          setVerifyType(e.target.value as 'aadhaar' | 'pan');
-                          setVerifyNumber('');
-                        }}
-                        style={{
-                          width: '100%',
-                          background: '#2c2c2e',
-                          border: '1px solid rgba(255,255,255,0.1)',
-                          borderRadius: 12,
-                          padding: '12px 14px',
-                          color: '#fff',
-                          fontSize: 14,
-                          outline: 'none',
-                          fontFamily: 'Inter, sans-serif',
-                          boxSizing: 'border-box',
-                          colorScheme: 'dark'
-                        }}
-                      >
-                        <option value="aadhaar">Aadhaar Card</option>
-                        <option value="pan">PAN Card</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <Label>{verifyType === 'aadhaar' ? 'Aadhaar Card Number (12 digits)' : 'PAN Card Number (10 characters)'}</Label>
-                      <input 
-                        type="text" 
-                        value={verifyNumber} 
-                        onChange={e => {
-                          const val = e.target.value;
-                          setVerifyNumber(verifyType === 'pan' ? val.toUpperCase() : val);
-                        }}
-                        placeholder={verifyType === 'aadhaar' ? 'e.g. 1234 5678 9012' : 'e.g. ABCDP1234Z'}
-                        maxLength={verifyType === 'aadhaar' ? 14 : 10}
-                        style={{
-                          width: '100%',
-                          background: '#2c2c2e',
-                          border: `1px solid ${
-                            (verifyType === 'pan' && panError) || (verifyType === 'aadhaar' && aadhaarError)
-                              ? '#ef4444'
-                              : 'rgba(255,255,255,0.1)'
-                          }`,
-                          borderRadius: 12,
-                          padding: '12px 16px',
-                          color: '#fff',
-                          fontSize: 14,
-                          outline: 'none',
-                          fontFamily: 'monospace',
-                          boxSizing: 'border-box'
-                        }}
-                      />
-                      {verifyType === 'pan' && panError && (
-                        <span style={{ fontSize: 11, color: '#ef4444', display: 'block', marginTop: 6, fontWeight: 600 }}>
-                          ⚠️ {panError}
-                        </span>
-                      )}
-                      {verifyType === 'pan' && !panError && (
-                        <span style={{ fontSize: 10, color: MUTED, display: 'block', marginTop: 4 }}>
-                          Format: 5 letters (4th is P, 5th matches name's 1st letter), 4 digits, 1 letter.
-                        </span>
-                      )}
-                      {verifyType === 'aadhaar' && aadhaarError && (
-                        <span style={{ fontSize: 11, color: '#ef4444', display: 'block', marginTop: 6, fontWeight: 600 }}>
-                          ⚠️ {aadhaarError}
-                        </span>
-                      )}
-                    </div>
-
-                    <div>
-                      <Label>Proof Document Image</Label>
-                      <div 
-                        onClick={() => {
-                          const fileInput = document.createElement('input');
-                          fileInput.type = 'file';
-                          fileInput.accept = 'image/*';
-                          fileInput.onchange = (e: any) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              if (file.size > 2 * 1024 * 1024) {
-                                toast.error('Document image must be under 2MB.');
-                                return;
-                              }
-                              const reader = new FileReader();
-                              reader.onloadend = () => {
-                                setVerifyImage(reader.result as string);
-                              };
-                              reader.readAsDataURL(file);
-                            }
-                          };
-                          fileInput.click();
-                        }}
-                        style={{
-                          width: '100%',
-                          height: 100,
-                          borderRadius: 12,
-                          border: '1px dashed rgba(255,255,255,0.2)',
-                          background: '#2c2c2e',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: 6,
-                          cursor: 'pointer',
-                          position: 'relative',
-                          overflow: 'hidden',
-                          transition: 'all 0.2s'
-                        }}
-                        onMouseEnter={e => e.currentTarget.style.borderColor = G}
-                        onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'}
-                      >
-                        {verifyImage ? (
-                          <>
-                            <img src={verifyImage} alt="Document Preview" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.5 }} />
-                            <div style={{ position: 'absolute', zIndex: 2, background: 'rgba(0,0,0,0.7)', padding: '4px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700 }}>
-                              ✓ Image Selected (Change)
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <span style={{ fontSize: 20 }}>📸</span>
-                            <span style={{ fontSize: 12, color: SOFT, fontWeight: 600 }}>Upload Document Image</span>
-                            <span style={{ fontSize: 9, color: MUTED }}>JPG, PNG (Max 2MB)</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
-                    <button
-                      onClick={() => setVerifyStep(2)}
-                      disabled={submittingVerification}
-                      style={{
-                        flex: 1,
-                        padding: '12px',
-                        borderRadius: 12,
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        background: 'transparent',
-                        color: SOFT,
-                        fontSize: 13,
-                        fontWeight: 700,
-                        cursor: submittingVerification ? 'not-allowed' : 'pointer',
-                      }}
-                    >
-                      Back
-                    </button>
-                    <button
-                      onClick={handleSubmitProof}
-                      disabled={submittingVerification}
-                      style={{
-                        flex: 1.5,
-                        padding: '12px',
-                        borderRadius: 12,
-                        border: 'none',
-                        background: G,
-                        color: '#000',
-                        fontSize: 13,
-                        fontWeight: 800,
-                        cursor: submittingVerification ? 'not-allowed' : 'pointer',
-                        boxShadow: `0 4px 14px ${G}33`,
-                      }}
-                    >
-                      {submittingVerification ? 'Submitting...' : 'Submit Verification'}
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Step 4: Submission Success Screen */}
-              {verifyStep === 4 && (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, textAlign: 'center', padding: '10px 0' }}>
-                  <div style={{
-                    width: 56, height: 56, borderRadius: '50%',
-                    background: 'rgba(176, 136, 80, 0.15)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center'
-                  }}>
-                    <Check size={28} color={G} strokeWidth={3} />
-                  </div>
-                  <div>
-                    <h4 style={{ fontSize: 18, fontWeight: 800, color: '#fff', margin: '0 0 6px 0', fontFamily: 'Outfit, sans-serif' }}>
-                      Request Under Review!
-                    </h4>
-                    <p style={{ fontSize: 13, color: SOFT, margin: 0, lineHeight: 1.5 }}>
-                      Your identity proof details have been submitted successfully. Our admin team will review your application. This normally takes less than 24 hours.
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={handleResetVerify}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      borderRadius: 12,
-                      border: 'none',
-                      background: G,
-                      color: '#000',
-                      fontSize: 13,
-                      fontWeight: 800,
-                      cursor: 'pointer',
-                      boxShadow: `0 4px 14px ${G}33`,
-                      marginTop: 8
-                    }}
-                  >
-                    Done
-                  </button>
-                </div>
-              )}
-            </motion.div>
-          </div>
-        )}
+        {/* Verification OTP Modal Removed */}
       </AnimatePresence>
     </div>
   );

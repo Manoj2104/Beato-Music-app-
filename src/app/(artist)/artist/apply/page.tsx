@@ -147,6 +147,17 @@ export default function ArtistApplyPage() {
   const [isMobile, setIsMobile] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    if (user) {
+      if (!stageName && user.name) {
+        setStageName(user.name);
+      }
+      if (!profileImage && user.avatar) {
+        setProfileImage(user.avatar);
+      }
+    }
+  }, [user]);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {

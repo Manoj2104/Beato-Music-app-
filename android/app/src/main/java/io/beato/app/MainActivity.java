@@ -47,4 +47,15 @@ public class MainActivity extends BridgeActivity {
             getWindow().setNavigationBarContrastEnforced(false);
         }
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Immediately resume the WebView when the app is paused (backgrounded).
+        // This keeps the JavaScript engine and HTML5 audio player active.
+        // Paired with the native Foreground Service, this allows uninterrupted background audio.
+        if (this.bridge != null && this.bridge.getWebView() != null) {
+            this.bridge.getWebView().onResume();
+        }
+    }
 }

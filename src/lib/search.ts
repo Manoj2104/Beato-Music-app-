@@ -10,25 +10,63 @@ function tokenize(text: string): string[] {
     .filter(t => t.length > 1 && !STOP_WORDS.has(t));
 }
 
+function getPhoneticSkeleton(str: string): string {
+  return str.toLowerCase()
+    .replace(/[^a-z0-9]/g, '')
+    .replace(/[aeiouy]/g, '')
+    .replace(/ll/g, 'l')
+    .replace(/sh/g, 's')
+    .replace(/rr/g, 'r')
+    .replace(/h/g, ''); // silent h removal
+}
+
 function score(queryTokens: string[], text: string): number {
   const textTokens = tokenize(text);
-  const textStr = text.toLowerCase();
+  const textStr = text.toLowerCase().replace(/[^a-z0-9\s]/g, ' ');
   const queryStr = queryTokens.join(' ');
   let sc = 0;
 
-  // Exact phrase match (highest weight)
-  if (textStr.includes(queryStr)) sc += 10;
+  // 1. Exact phrase match (highest weight)
+  if (textStr.includes(queryStr)) {
+    sc += 20;
+  }
 
-  // Per-token matching
-  for (const qt of queryTokens) {
-    for (const tt of textTokens) {
-      if (tt === qt) sc += 3;
-      else if (tt.startsWith(qt)) sc += 2;
-      else if (tt.includes(qt) && qt.length > 2) sc += 1;
+  // 2. Strict phonetic/fuzzy match of the query string on the text (only for tokens of length >= 3)
+  const querySkeleton = getPhoneticSkeleton(queryStr);
+  const textSkeleton = getPhoneticSkeleton(textStr);
+  if (querySkeleton && textSkeleton && querySkeleton.length >= 3 && textSkeleton.length >= 3) {
+    if (textSkeleton === querySkeleton || textSkeleton.includes(querySkeleton) || querySkeleton.includes(textSkeleton)) {
+      sc += 12;
     }
   }
 
-  // Normalize by text length
+  // 3. Per-token matching
+  for (const qt of queryTokens) {
+    const qtSkeleton = getPhoneticSkeleton(qt);
+    
+    // Direct substring token match in full text
+    if (textStr.includes(qt)) {
+      sc += 5;
+    }
+
+    for (const tt of textTokens) {
+      const ttSkeleton = getPhoneticSkeleton(tt);
+
+      if (tt === qt) {
+        sc += 8;
+      } else if (tt.startsWith(qt)) {
+        sc += 6;
+      } else if (tt.includes(qt) && qt.length > 2) {
+        sc += 4;
+      } else if (qtSkeleton && ttSkeleton && qtSkeleton.length >= 3 && ttSkeleton.length >= 3) {
+        if (ttSkeleton === qtSkeleton || ttSkeleton.startsWith(qtSkeleton) || qtSkeleton.startsWith(ttSkeleton)) {
+          sc += 3;
+        }
+      }
+    }
+  }
+
+  // Normalize by text length to prevent very long text spamming scores
   return sc / Math.max(1, Math.sqrt(textTokens.length));
 }
 
